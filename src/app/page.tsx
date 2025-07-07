@@ -68,7 +68,7 @@ const Header = () => {
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
         scrolled
-          ? "bg-black/80 backdrop-blur-sm border-b border-gray-800"
+          ? "bg-background/95 dark:bg-black/80 backdrop-blur-sm border-b dark:border-gray-800"
           : "bg-transparent"
       )}
     >
@@ -79,10 +79,10 @@ const Header = () => {
               <LightningBoltIcon className="h-6 w-6 text-white" />
             </div>
             <div>
-              <span className="text-xl font-bold bg-gradient-to-r from-red-500 to-red-700 bg-clip-text text-transparent">
+              <span className="text-xl font-bold bg-gradient-to-r from-red-600 to-red-700 dark:from-red-500 dark:to-red-700 bg-clip-text text-transparent">
                 Multimedia in Action
               </span>
-              <div className="text-xs text-gray-400 font-medium">Digital Competition 2025</div>
+              <div className="text-xs text-muted-foreground dark:text-gray-400 font-medium">Digital Competition 2025</div>
             </div>
           </div>
 
@@ -91,7 +91,7 @@ const Header = () => {
               <a
                 key={item.href}
                 href={item.href}
-                className="text-gray-300 hover:text-white transition-colors font-medium relative group"
+                className="text-muted-foreground dark:text-gray-300 hover:text-primary dark:hover:text-white transition-colors font-medium relative group"
               >
                 {item.label}
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-red-600 transition-all duration-300 group-hover:w-full"></span>
@@ -100,7 +100,7 @@ const Header = () => {
           </nav>
 
           <div className="flex items-center space-x-2">
-            <Button className="hidden md:flex px-6 py-2 bg-gradient-to-r from-red-600 to-black text-white rounded-xl font-medium hover:from-red-700 hover:to-gray-900 shadow-lg hover:shadow-xl transition-all duration-300">
+            <Button className="hidden md:flex px-6 py-2 bg-gradient-to-r from-red-600 to-red-700 dark:to-black text-white rounded-xl font-medium hover:from-red-700 hover:to-red-800 dark:hover:to-gray-900 shadow-lg hover:shadow-xl transition-all duration-300">
               <RocketIcon className="h-4 w-4 mr-2" />
               <span>Daftar Sekarang</span>
             </Button>
@@ -109,34 +109,30 @@ const Header = () => {
 
             <Button
               variant="ghost"
-              className="md:hidden text-white hover:bg-gray-800"
+              className="md:hidden text-foreground dark:text-white hover:bg-accent dark:hover:bg-gray-800"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
-              {isMenuOpen ? (
-                <Cross1Icon className="h-6 w-6" />
-              ) : (
-                <HamburgerMenuIcon className="h-6 w-6" />
-              )}
+              {isMenuOpen ? <Cross1Icon className="h-6 w-6" /> : <HamburgerMenuIcon className="h-6 w-6" />}
             </Button>
           </div>
         </div>
       </div>
 
       {isMenuOpen && (
-        <div className="md:hidden bg-black border-t border-gray-800 shadow-lg">
+        <div className="md:hidden bg-background dark:bg-black border-t border-border dark:border-gray-800 shadow-lg">
           <div className="container mx-auto px-4 py-4">
             <nav className="flex flex-col space-y-4">
               {navItems.map((item) => (
                 <a
                   key={item.href}
                   href={item.href}
-                  className="text-gray-300 hover:text-white font-medium transition-colors"
+                  className="text-muted-foreground dark:text-gray-300 hover:text-primary dark:hover:text-white font-medium transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {item.label}
                 </a>
               ))}
-              <Button className="w-full mt-4 bg-gradient-to-r from-red-600 to-black hover:from-red-700 hover:to-gray-900 shadow-lg">
+              <Button className="w-full mt-4 bg-gradient-to-r from-red-600 to-red-700 dark:to-black hover:from-red-700 hover:to-red-800 dark:hover:to-gray-900 shadow-lg">
                 <RocketIcon className="h-4 w-4 mr-2" />
                 Daftar Sekarang
               </Button>
@@ -151,9 +147,9 @@ const Header = () => {
 const HeroSection = () => {
   const [currentStat, setCurrentStat] = useState(0);
   const stats = [
-    { icon: CalendarIcon, value: "25 Agustus", label: "Deadline Pendaftaran", color: "text-red-400" },
-    { icon: PersonIcon, value: "1000+", label: "Peserta Terdaftar", color: "text-blue-400" },
-    { icon: StarIcon, value: "24 Juta", label: "Total Hadiah", color: "text-green-400" },
+    { icon: CalendarIcon, value: "25 Agustus", label: "Deadline Pendaftaran", color: "text-red-500", darkColor: "dark:text-red-400" },
+    { icon: PersonIcon, value: "1000+", label: "Peserta Terdaftar", color: "text-blue-500", darkColor: "dark:text-blue-400" },
+    { icon: StarIcon, value: "24 Juta", label: "Total Hadiah", color: "text-green-500", darkColor: "dark:text-green-400" },
   ];
 
   useEffect(() => {
@@ -166,38 +162,38 @@ const HeroSection = () => {
   return (
     <section
       id="beranda"
-      className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-900 via-black to-black relative overflow-hidden"
+      className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 via-white to-indigo-50 dark:from-red-900 dark:via-black dark:to-black relative overflow-hidden"
     >
       <div className="container mx-auto px-4 mt-20 mb-10 text-center relative z-10">
         <div className="max-w-4xl mx-auto">
-          <Badge className="mb-6 bg-gradient-to-r from-red-600 to-black text-white border-red-800 px-4 py-2 text-sm font-medium shadow-lg">
+          <Badge className="mb-6 bg-gradient-to-r from-red-600 to-red-700 dark:to-black text-white border-0 dark:border-red-800 px-4 py-2 text-sm font-medium shadow-lg">
             <StarIcon className="h-4 w-4 mr-2" />
             Kompetisi Digital Indonesia 2025
           </Badge>
 
-          <h1 className="text-4xl md:text-7xl font-bold text-white mb-6 leading-tight">
+          <h1 className="text-4xl md:text-7xl font-bold text-foreground dark:text-white mb-6 leading-tight">
             <span>
               <span className="inline">Multimedia </span>
-              <span className="inline bg-gradient-to-r from-red-500 to-red-700 bg-clip-text text-transparent">
+              <span className="inline bg-gradient-to-r from-red-600 to-red-700 bg-clip-text text-transparent">
                 in Action
               </span>
             </span>
-            <span className="block text-3xl md:text-4xl mt-2 text-gray-400">
+            <span className="block text-3xl md:text-4xl mt-2 text-muted-foreground dark:text-gray-400">
               Kompetisi Digital Creative
             </span>
           </h1>
 
-          <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-xl text-muted-foreground dark:text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
             Tunjukkan kreativitas dan inovasi Anda dalam 4 kategori lomba:
-            <span className="font-semibold text-red-400"> Website Development, UI/UX Design, Digital Poster, dan Essay Writing</span>.
+            <span className="font-semibold text-red-600 dark:text-red-400"> Website Development, UI/UX Design, Digital Poster, dan Essay Writing</span>.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-            <Button size="lg" className="bg-gradient-to-r from-red-600 to-black hover:from-red-700 hover:to-gray-900 shadow-lg text-white">
+            <Button size="lg" className="bg-gradient-to-r from-red-600 to-red-700 dark:to-black hover:from-red-700 hover:to-red-800 dark:hover:to-gray-900 shadow-lg text-white">
               <RocketIcon className="h-5 w-5 mr-2" />
               Daftar Lomba
             </Button>
-            <Button size="lg" variant="outline" className="border-2 border-red-500 text-red-400 hover:bg-red-900/40 hover:text-white px-8 py-3 text-lg">
+            <Button size="lg" variant="outline" className="border-2 border-red-600 text-red-600 hover:bg-red-50 dark:text-red-400 dark:border-red-500 dark:hover:bg-red-900/40 dark:hover:text-white px-8 py-3 text-lg">
               <DownloadIcon className="h-5 w-5 mr-2" />
               Download Panduan
             </Button>
@@ -206,21 +202,22 @@ const HeroSection = () => {
           <div className="relative grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
             {stats.map((stat, index) => (
               <Card key={index} className={cn(
-                "transition-all duration-500 transform hover:scale-105 shadow-lg hover:shadow-xl cursor-pointer bg-black/30 border-gray-800",
-                currentStat === index ? "ring-2 ring-red-500 ring-opacity-70 animate-pulse bg-black/50" : "hover:bg-gray-900/50"
+                "transition-all duration-500 transform hover:scale-105 shadow-lg hover:shadow-xl cursor-pointer bg-card dark:bg-black/30 dark:border-gray-800",
+                currentStat === index 
+                ? "ring-2 ring-red-500 ring-opacity-50 animate-pulse bg-gradient-to-br from-red-50 to-white dark:from-red-900/20 dark:to-black/50" 
+                : "hover:bg-gray-50 dark:hover:bg-gray-900/50"
               )}>
                 <CardContent className="p-6 text-center relative overflow-hidden">
                   {currentStat === index && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-red-900/30 via-transparent to-black/30 animate-pulse opacity-50"></div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-red-100 via-transparent to-red-100 dark:from-red-900/30 dark:to-black/30 animate-pulse opacity-30 dark:opacity-50"></div>
                   )}
                   <div className={cn(
                     "relative z-10 transition-all duration-300",
                     currentStat === index ? "transform scale-110" : ""
                   )}>
-                    <stat.icon className={cn("h-8 w-8 mb-3 mx-auto transition-all duration-300", stat.color, currentStat === index ? "animate-bounce" : "")} />
-
-                    <div className="text-2xl font-bold text-white mb-1">{stat.value}</div>
-                    <div className="text-sm text-gray-400">{stat.label}</div>
+                    <stat.icon className={cn("h-8 w-8 mb-3 mx-auto transition-all duration-300", stat.color, stat.darkColor, currentStat === index ? "animate-bounce" : "")} />
+                    <div className="text-2xl font-bold text-foreground dark:text-white mb-1">{stat.value}</div>
+                    <div className="text-sm text-muted-foreground dark:text-gray-400">{stat.label}</div>
                   </div>
                 </CardContent>
               </Card>
@@ -234,26 +231,26 @@ const HeroSection = () => {
 
 const CompetitionCard = ({ icon, title, description, prize, requirements, color, deadline, participants, difficulty }: CompetitionCardProps) => {
   return (
-    <Card className="relative flex flex-col overflow-hidden rounded-xl p-5 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 h-full bg-gray-900/50 border border-gray-800 text-white">
+    <Card className="relative flex flex-col overflow-hidden rounded-xl p-5 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 h-full bg-card dark:bg-gray-900/50 border dark:border-gray-800">
       <div className={`mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg ${color} text-white shadow-lg`}>{icon}</div>
-      <h3 className="mb-2 text-lg font-bold text-white">{title}</h3>
-      <p className="text-sm text-gray-400 mb-4 leading-relaxed line-clamp-2">{description}</p>
+      <h3 className="mb-2 text-lg font-bold text-foreground dark:text-white">{title}</h3>
+      <p className="text-sm text-muted-foreground dark:text-gray-400 mb-4 leading-relaxed line-clamp-2">{description}</p>
       <div className="space-y-2 mb-4 w-full">
-        <div className="flex items-center justify-between"><span className="text-xs text-gray-400">Hadiah Utama</span><span className="text-sm font-bold text-green-400">{prize}</span></div>
-        <div className="flex items-center justify-between"><span className="text-xs text-gray-400">Deadline</span><Badge variant="destructive">{deadline}</Badge></div>
-        <div className="flex items-center justify-between"><span className="text-xs text-gray-400">Peserta</span><Badge variant="secondary">{participants}</Badge></div>
-        <div className="flex items-center justify-between"><span className="text-xs text-gray-400">Tingkat</span><Badge variant="outline">{difficulty}</Badge></div>
+        <div className="flex items-center justify-between"><span className="text-xs text-muted-foreground dark:text-gray-400">Hadiah Utama</span><span className="text-sm font-bold text-green-600 dark:text-green-400">{prize}</span></div>
+        <div className="flex items-center justify-between"><span className="text-xs text-muted-foreground dark:text-gray-400">Deadline</span><Badge variant="destructive">{deadline}</Badge></div>
+        <div className="flex items-center justify-between"><span className="text-xs text-muted-foreground dark:text-gray-400">Peserta</span><Badge variant="secondary">{participants}</Badge></div>
+        <div className="flex items-center justify-between"><span className="text-xs text-muted-foreground dark:text-gray-400">Tingkat</span><Badge variant="outline">{difficulty}</Badge></div>
       </div>
       <div className="mb-4 flex-1">
-        <h4 className="text-xs font-semibold text-white mb-2">Persyaratan:</h4>
-        <ul className="text-xs text-gray-400 space-y-1">
+        <h4 className="text-xs font-semibold text-foreground dark:text-white mb-2">Persyaratan:</h4>
+        <ul className="text-xs text-muted-foreground dark:text-gray-400 space-y-1">
           {requirements.slice(0, 2).map((req, i) => (
             <li key={i} className="flex items-start gap-2"><CheckCircledIcon className="h-3 w-3 text-green-500 mt-0.5 flex-shrink-0" /><span>{req}</span></li>
           ))}
             {requirements.length > 2 && ( <li className="text-xs text-gray-500 italic">+{requirements.length - 2} lainnya</li>)}
         </ul>
       </div>
-      <Button className="w-full bg-gradient-to-r from-red-600 to-black hover:from-red-700 hover:to-gray-900 shadow-lg text-white">
+      <Button className="w-full bg-gradient-to-r from-red-600 to-red-700 dark:to-black hover:from-red-700 hover:to-red-800 dark:hover:to-gray-900 shadow-lg text-white">
         <span>Daftar Sekarang</span>
         <ArrowRightIcon className="h-3 w-3 ml-2" />
       </Button>
@@ -263,68 +260,67 @@ const CompetitionCard = ({ icon, title, description, prize, requirements, color,
 
 const CompetitionSection = () => {
     const competitions = [
-      {
-        icon: <DesktopIcon className="h-6 w-6" />,
-        title: "Website Development",
-        description: "Buat website responsif dan inovatif dengan teknologi terkini seperti React, Next.js, atau Vue.js.",
-        prize: "Rp 8.000.000",
-        deadline: "20 Agustus 2025",
-        participants: "Tim 1-3",
-        difficulty: "Advanced",
-        requirements: ["Mahasiswa/Pelajar aktif", "Tim maksimal 3 orang", "Menggunakan framework modern", "Responsive design wajib"],
-        color: "bg-gradient-to-br from-red-600 to-black",
-      },
-      {
-        icon: <MixerHorizontalIcon className="h-6 w-6" />,
-        title: "UI/UX Design",
-        description: "Ciptakan pengalaman pengguna yang luar biasa dengan desain intuitif dan user-friendly.",
-        prize: "Rp 6.000.000",
-        deadline: "18 Agustus 2025",
-        participants: "Tim 1-2",
-        difficulty: "Intermediate",
-        requirements: ["Portofolio desain", "Individu atau tim (max 2)", "Prototype interaktif", "Design system lengkap"],
-        color: "bg-gradient-to-br from-purple-600 to-black",
-      },
-      {
-        icon: <FileTextIcon className="h-6 w-6" />,
-        title: "Digital Poster",
-        description: "Buat poster digital yang menarik dengan pesan yang kuat dan visual yang memukau.",
-        prize: "Rp 5.000.000",
-        deadline: "15 Agustus 2025",
-        participants: "Individual",
-        difficulty: "Beginner",
-        requirements: ["Resolusi 300 DPI", "Tema: Teknologi Masa Depan", "Karya original", "Format PDF dan PNG"],
-        color: "bg-gradient-to-br from-pink-600 to-black",
-      },
-      {
-        icon: <Pencil2Icon className="h-6 w-6" />,
-        title: "Essay Writing",
-        description: "Tulis esai inspiratif tentang dampak teknologi digital dalam kehidupan sehari-hari.",
-        prize: "Rp 5.000.000",
-        deadline: "25 Agustus 2025",
-        participants: "Individual",
-        difficulty: "Intermediate",
-        requirements: ["1000-1500 kata", "Referensi akademik", "Plagiarisme maks 10%", "Bahasa Indonesia/Inggris"],
-        color: "bg-gradient-to-br from-green-600 to-black",
-      },
-    ];
+        {
+          icon: <DesktopIcon className="h-6 w-6" />,
+          title: "Website Development",
+          description: "Buat website responsif dan inovatif dengan teknologi terkini.",
+          prize: "Rp 8.000.000",
+          deadline: "20 Agustus 2025",
+          participants: "Tim 1-3",
+          difficulty: "Advanced",
+          requirements: ["Mahasiswa/Pelajar aktif", "Tim maksimal 3 orang", "Framework modern"],
+          color: "bg-gradient-to-br from-red-600 to-black",
+        },
+        {
+          icon: <MixerHorizontalIcon className="h-6 w-6" />,
+          title: "UI/UX Design",
+          description: "Ciptakan pengalaman pengguna yang luar biasa dengan desain intuitif.",
+          prize: "Rp 6.000.000",
+          deadline: "18 Agustus 2025",
+          participants: "Tim 1-2",
+          difficulty: "Intermediate",
+          requirements: ["Portofolio desain", "Prototype interaktif", "Design system"],
+          color: "bg-gradient-to-br from-purple-600 to-black",
+        },
+        {
+          icon: <FileTextIcon className="h-6 w-6" />,
+          title: "Digital Poster",
+          description: "Buat poster digital yang menarik dengan pesan yang kuat dan visual memukau.",
+          prize: "Rp 5.000.000",
+          deadline: "15 Agustus 2025",
+          participants: "Individual",
+          difficulty: "Beginner",
+          requirements: ["Resolusi 300 DPI", "Tema: Teknologi Masa Depan", "Karya original"],
+          color: "bg-gradient-to-br from-pink-600 to-black",
+        },
+        {
+          icon: <Pencil2Icon className="h-6 w-6" />,
+          title: "Essay Writing",
+          description: "Tulis esai inspiratif tentang dampak teknologi digital dalam kehidupan.",
+          prize: "Rp 5.000.000",
+          deadline: "25 Agustus 2025",
+          participants: "Individual",
+          difficulty: "Intermediate",
+          requirements: ["1000-1500 kata", "Referensi akademik", "Plagiarisme maks 10%"],
+          color: "bg-gradient-to-br from-green-600 to-black",
+        },
+      ];
 
   return (
-    <section id="lomba" className="py-20 bg-black">
+    <section id="lomba" className="py-20 bg-gray-50 dark:bg-black">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <Badge variant="outline" className="mb-6 border-red-800 text-red-400">
-            <StarIcon className="h-4 w-4 text-red-400 mr-2" />
+          <Badge variant="outline" className="mb-6 border-red-200 text-red-600 dark:border-red-800 dark:text-red-400">
+            <StarIcon className="h-4 w-4 text-red-600 dark:text-red-400 mr-2" />
             Kategori Lomba
           </Badge>
-          <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
+          <h2 className="text-3xl md:text-5xl font-bold text-foreground dark:text-white mb-4">
             Pilih Kategori Lomba Anda
           </h2>
-          <p className="text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed">
-            Empat kategori lomba yang menantang kreativitas dan kemampuan teknis Anda. Setiap kategori dirancang untuk mengembangkan skill yang berbeda.
+          <p className="text-lg text-muted-foreground dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
+            Empat kategori lomba yang menantang kreativitas dan kemampuan teknis Anda.
           </p>
         </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
           {competitions.map((competition, i) => (
             <CompetitionCard key={i} {...competition} />
@@ -336,77 +332,47 @@ const CompetitionSection = () => {
 };
 
 const TimelineSection = () => {
-  const timelineEvents = [
-    { 
-      date: "1 Agustus 2025", 
-      title: "Pembukaan Pendaftaran", 
-      description: "Pendaftaran dibuka untuk semua kategori lomba.", 
-      status: "completed",
-      icon: RocketIcon
-    },
-    { 
-      date: "25 Agustus 2025", 
-      title: "Penutupan Pendaftaran", 
-      description: "Batas akhir pendaftaran untuk semua kategori.", 
-      status: "active",
-      icon: ClockIcon
-    },
-    { 
-      date: "26 Agu - 5 Sep 2025", 
-      title: "Pengumpulan Karya", 
-      description: "Periode pengumpulan karya dan dokumentasi.", 
-      status: "upcoming",
-      icon: FileTextIcon
-    },
-    { 
-      date: "6 - 15 Sep 2025", 
-      title: "Proses Penilaian", 
-      description: "Penilaian oleh tim juri ahli industri.", 
-      status: "upcoming",
-      icon: StarIcon
-    },
-    { 
-      date: "20 September 2025", 
-      title: "Pengumuman Pemenang", 
-      description: "Pengumuman pemenang dan ceremony puncak.", 
-      status: "upcoming",
-      icon: StarIcon
-    },
-  ];
+    const timelineEvents = [
+        { date: "1 Agustus 2025", title: "Pembukaan Pendaftaran", description: "Pendaftaran dibuka untuk semua kategori lomba.", status: "completed", icon: RocketIcon },
+        { date: "25 Agustus 2025", title: "Penutupan Pendaftaran", description: "Batas akhir pendaftaran untuk semua kategori.", status: "active", icon: ClockIcon },
+        { date: "26 Agu - 5 Sep 2025", title: "Pengumpulan Karya", description: "Periode pengumpulan karya dan dokumentasi.", status: "upcoming", icon: FileTextIcon },
+        { date: "6 - 15 Sep 2025", title: "Proses Penilaian", description: "Penilaian oleh tim juri ahli industri.", status: "upcoming", icon: StarIcon },
+        { date: "20 September 2025", title: "Pengumuman Pemenang", description: "Pengumuman pemenang dan ceremony puncak.", status: "upcoming", icon: StarIcon },
+      ];
 
   return (
-    <section id="timeline" className="py-16 bg-black">
+    <section id="timeline" className="py-16 bg-background dark:bg-black">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <Badge variant="outline" className="mb-4 border-red-800 text-red-400">
-            <CalendarIcon className="h-4 w-4 text-red-400 mr-2" />
+          <Badge variant="outline" className="mb-4 border-red-200 text-red-600 dark:border-red-800 dark:text-red-400">
+            <CalendarIcon className="h-4 w-4 text-red-600 dark:text-red-400 mr-2" />
             Timeline
           </Badge>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">Jadwal Lomba</h2>
-          <p className="text-gray-400 max-w-2xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground dark:text-white mb-3">Jadwal Lomba</h2>
+          <p className="text-muted-foreground dark:text-gray-400 max-w-2xl mx-auto">
             Catat tanggal-tanggal penting dalam perjalanan kompetisi Anda.
           </p>
         </div>
 
         <div className="max-w-4xl mx-auto">
           <div className="relative space-y-6">
-            <div className="absolute left-6 top-6 bottom-6 w-0.5 bg-gradient-to-b from-red-700 via-red-900 to-black"></div>
+            <div className="absolute left-6 top-6 bottom-6 w-0.5 bg-gradient-to-b from-red-200 via-red-300 to-red-200 dark:from-red-700 dark:via-red-900 dark:to-black"></div>
             {timelineEvents.map((event, i) => (
               <div key={i} className="flex items-start gap-6">
                 <div className={cn(
                   "flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center z-10 shadow-md",
-                  event.status === "completed" ? "bg-gradient-to-br from-green-500 to-green-700" : 
+                  event.status === "completed" ? "bg-gradient-to-br from-green-500 to-green-600" : 
                   event.status === "active" ? "bg-gradient-to-br from-red-500 to-red-700 animate-pulse" : 
-                  "bg-gradient-to-br from-gray-600 to-gray-800" 
+                  "bg-gradient-to-br from-gray-400 to-gray-500 dark:from-gray-600 dark:to-gray-800" 
                 )}>
                   <event.icon className="h-5 w-5 text-white" />
                 </div>
                 <div className="flex-1">
-                  <Card className="shadow-md hover:shadow-lg transition-all duration-300 bg-gray-900/50 border border-gray-800">
+                  <Card className="shadow-md hover:shadow-lg transition-all duration-300 bg-card dark:bg-gray-900/50 border dark:border-gray-800">
                     <CardContent className="p-4">
-                      <div className="text-xs text-red-400 font-semibold mb-1">{event.date}</div>
-                      <h3 className="text-lg font-bold text-white mb-2">{event.title}</h3>
-                      <p className="text-sm text-gray-400 mb-3">{event.description}</p>
+                      <div className="text-xs text-red-600 dark:text-red-400 font-semibold mb-1">{event.date}</div>
+                      <h3 className="text-lg font-bold text-foreground dark:text-white mb-2">{event.title}</h3>
+                      <p className="text-sm text-muted-foreground dark:text-gray-400 mb-3">{event.description}</p>
                       <Badge variant={event.status === "completed" ? "default" : event.status === "active" ? "destructive" : "secondary"} className="text-xs">
                         {event.status === "completed" ? "Selesai" : event.status === "active" ? "Berlangsung" : "Akan Datang"}
                       </Badge>
@@ -424,73 +390,40 @@ const TimelineSection = () => {
 
 const PrizeSection = () => {
     const prizes = [
-      { 
-        category: "Website Development", 
-        total: "Rp 15.000.000",
-        awards: [
-          { place: "Juara 1", amount: "Rp 8.000.000", icon: "🥇" }, 
-          { place: "Juara 2", amount: "Rp 4.000.000", icon: "🥈" }, 
-          { place: "Juara 3", amount: "Rp 3.000.000", icon: "🥉" }
-        ] 
-      },
-      { 
-        category: "UI/UX Design", 
-        total: "Rp 12.000.000",
-        awards: [
-          { place: "Juara 1", amount: "Rp 6.000.000", icon: "🥇" }, 
-          { place: "Juara 2", amount: "Rp 3.500.000", icon: "🥈" }, 
-          { place: "Juara 3", amount: "Rp 2.500.000", icon: "🥉" }
-        ] 
-      },
-      { 
-        category: "Digital Poster", 
-        total: "Rp 10.000.000",
-        awards: [
-          { place: "Juara 1", amount: "Rp 5.000.000", icon: "🥇" }, 
-          { place: "Juara 2", amount: "Rp 3.000.000", icon: "🥈" }, 
-          { place: "Juara 3", amount: "Rp 2.000.000", icon: "🥉" }
-        ] 
-      },
-      { 
-        category: "Essay Writing", 
-        total: "Rp 10.000.000",
-        awards: [
-          { place: "Juara 1", amount: "Rp 5.000.000", icon: "🥇" }, 
-          { place: "Juara 2", amount: "Rp 3.000.000", icon: "🥈" }, 
-          { place: "Juara 3", amount: "Rp 2.000.000", icon: "🥉" }
-        ] 
-      },
+        { category: "Website Development", total: "Rp 15.000.000", awards: [{ place: "Juara 1", amount: "Rp 8.000.000", icon: "🥇" }, { place: "Juara 2", amount: "Rp 4.000.000", icon: "🥈" }, { place: "Juara 3", amount: "Rp 3.000.000", icon: "🥉" }] },
+        { category: "UI/UX Design", total: "Rp 12.000.000", awards: [{ place: "Juara 1", amount: "Rp 6.000.000", icon: "🥇" }, { place: "Juara 2", amount: "Rp 3.500.000", icon: "🥈" }, { place: "Juara 3", amount: "Rp 2.500.000", icon: "🥉" }] },
+        { category: "Digital Poster", total: "Rp 10.000.000", awards: [{ place: "Juara 1", amount: "Rp 5.000.000", icon: "🥇" }, { place: "Juara 2", amount: "Rp 3.000.000", icon: "🥈" }, { place: "Juara 3", amount: "Rp 2.000.000", icon: "🥉" }] },
+        { category: "Essay Writing", total: "Rp 10.000.000", awards: [{ place: "Juara 1", amount: "Rp 5.000.000", icon: "🥇" }, { place: "Juara 2", amount: "Rp 3.000.000", icon: "🥈" }, { place: "Juara 3", amount: "Rp 2.000.000", icon: "🥉" }] },
     ];
 
   return (
-    <section id="hadiah" className="py-16 bg-gradient-to-br from-gray-900 to-black">
+    <section id="hadiah" className="py-16 bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-gray-900 dark:to-black">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-0 mb-4 px-4 py-2 shadow-lg">
+          <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 mb-4 px-4 py-2 shadow-lg">
             <StarIcon className="h-4 w-4 mr-2" />
             Total Hadiah 47 Juta Rupiah
           </Badge>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">Hadiah Menarik Menanti</h2>
-          <p className="text-gray-400 max-w-2xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground dark:text-white mb-3">Hadiah Menarik Menanti</h2>
+          <p className="text-muted-foreground dark:text-gray-400 max-w-2xl mx-auto">
             Raih kesempatan memenangkan hadiah puluhan juta rupiah dan pengakuan nasional.
           </p>
         </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {prizes.map((prize, i) => (
-            <Card key={i} className="bg-black/50 border border-gray-800 shadow-lg hover:shadow-xl transition-all duration-300">
+            <Card key={i} className="bg-gradient-to-br from-white to-gray-50 dark:bg-black/50 border dark:border-gray-800 shadow-lg hover:shadow-xl transition-all duration-300">
               <CardHeader className="text-center pb-3">
-                <CardTitle className="text-lg font-bold text-white">{prize.category}</CardTitle>
-                <div className="text-xl font-bold text-green-400">{prize.total}</div>
+                <CardTitle className="text-lg font-bold text-foreground dark:text-white">{prize.category}</CardTitle>
+                <div className="text-xl font-bold text-green-600 dark:text-green-400">{prize.total}</div>
               </CardHeader>
               <CardContent className="space-y-3">
                 {prize.awards.map((award, j) => (
-                  <div key={j} className="flex items-center justify-between p-3 bg-gray-900/70 rounded-lg shadow-sm border border-gray-700">
+                  <div key={j} className="flex items-center justify-between p-3 bg-background/50 dark:bg-gray-900/70 rounded-lg shadow-sm border dark:border-gray-700">
                     <div className="flex items-center gap-2">
                       <span className="text-lg">{award.icon}</span>
-                      <span className="text-sm text-white font-semibold">{award.place}</span>
+                      <span className="text-sm text-foreground dark:text-white font-semibold">{award.place}</span>
                     </div>
-                    <span className="text-sm font-bold text-green-400">{award.amount}</span>
+                    <span className="text-sm font-bold text-green-600 dark:text-green-400">{award.amount}</span>
                   </div>
                 ))}
               </CardContent>
@@ -505,67 +438,45 @@ const PrizeSection = () => {
 const FAQSection = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const faqs = [
-    {
-      question: "Siapa saja yang bisa mengikuti kompetisi ini?",
-      answer: "Kompetisi terbuka untuk pelajar SMA/SMK dan mahasiswa aktif di seluruh Indonesia. Peserta harus memiliki KTM/Kartu Pelajar yang masih berlaku."
-    },
-    {
-      question: "Apakah ada biaya pendaftaran?",
-      answer: "Tidak ada biaya pendaftaran! Kompetisi ini gratis untuk semua peserta. Kami percaya bahwa kreativitas tidak boleh dibatasi oleh biaya."
-    },
-    {
-      question: "Bagaimana cara mendaftar?",
-      answer: "Klik tombol 'Daftar Sekarang' di website ini, isi formulir pendaftaran, upload dokumen yang diperlukan, dan tunggu konfirmasi dari tim panitia."
-    },
-    {
-      question: "Apakah boleh mengikuti lebih dari satu kategori?",
-      answer: "Ya, peserta diperbolehkan mengikuti maksimal 2 kategori lomba. Namun, pastikan Anda dapat mengelola waktu dengan baik untuk kedua kategori tersebut."
-    },
-    {
-      question: "Apa saja kriteria penilaian?",
-      answer: "Setiap kategori memiliki kriteria berbeda: kreativitas, teknis, inovasi, dan presentasi. Detail lengkap tersedia di panduan lomba yang dapat diunduh."
-    },
-    {
-      question: "Kapan pengumuman pemenang?",
-      answer: "Pengumuman pemenang akan dilakukan pada 20 September 2025 melalui website resmi dan media sosial. Ceremony puncak akan diadakan secara hybrid."
-    }
+    { question: "Siapa saja yang bisa mengikuti kompetisi ini?", answer: "Kompetisi terbuka untuk pelajar SMA/SMK dan mahasiswa aktif di seluruh Indonesia. Peserta harus memiliki KTM/Kartu Pelajar yang masih berlaku." },
+    { question: "Apakah ada biaya pendaftaran?", answer: "Tidak ada biaya pendaftaran! Kompetisi ini gratis untuk semua peserta. Kami percaya bahwa kreativitas tidak boleh dibatasi oleh biaya." },
+    { question: "Bagaimana cara mendaftar?", answer: "Klik tombol 'Daftar Sekarang' di website ini, isi formulir pendaftaran, upload dokumen yang diperlukan, dan tunggu konfirmasi dari tim panitia." },
+    { question: "Apakah boleh mengikuti lebih dari satu kategori?", answer: "Ya, peserta diperbolehkan mengikuti maksimal 2 kategori lomba. Namun, pastikan Anda dapat mengelola waktu dengan baik untuk kedua kategori tersebut." },
+    { question: "Apa saja kriteria penilaian?", answer: "Setiap kategori memiliki kriteria berbeda: kreativitas, teknis, inovasi, dan presentasi. Detail lengkap tersedia di panduan lomba yang dapat diunduh." },
+    { question: "Kapan pengumuman pemenang?", answer: "Pengumuman pemenang akan dilakukan pada 20 September 2025 melalui website resmi dan media sosial. Ceremony puncak akan diadakan secara hybrid." }
   ];
 
   return (
-    <section id="faq" className="py-16 bg-black">
+    <section id="faq" className="py-16 bg-gray-50 dark:bg-black">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <Badge variant="outline" className="mb-4 border-red-800 text-red-400">
-            <ChatBubbleIcon className="h-4 w-4 text-red-400 mr-2" />
+          <Badge variant="outline" className="mb-4 border-red-200 text-red-600 dark:border-red-800 dark:text-red-400">
+            <ChatBubbleIcon className="h-4 w-4 text-red-600 dark:text-red-400 mr-2" />
             FAQ
           </Badge>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">Pertanyaan yang Sering Diajukan</h2>
-          <p className="text-gray-400 max-w-2xl mx-auto">
-            Temukan jawaban untuk pertanyaan umum seputar kompetisi Multimedia in Action 2025.
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground dark:text-white mb-3">Pertanyaan yang Sering Diajukan</h2>
+          <p className="text-muted-foreground dark:text-gray-400 max-w-2xl mx-auto">
+            Temukan jawaban untuk pertanyaan umum seputar kompetisi ini.
           </p>
         </div>
-
         <div className="max-w-3xl mx-auto space-y-3">
           {faqs.map((faq, index) => (
-            <Card key={index} className="shadow-md hover:shadow-lg transition-all duration-300 bg-gray-900/50 border border-gray-800">
+            <Card key={index} className="shadow-md hover:shadow-lg transition-all duration-300 bg-card dark:bg-gray-900/50 border dark:border-gray-800">
               <CardContent className="p-0">
                 <button
-                  className="w-full p-5 text-left flex items-center justify-between hover:bg-gray-800/50 transition-colors"
+                  className="w-full p-5 text-left flex items-center justify-between hover:bg-accent dark:hover:bg-gray-800/50 transition-colors"
                   onClick={() => setOpenIndex(openIndex === index ? null : index)}
                 >
-                  <span className="text-base font-semibold text-white pr-4">{faq.question}</span>
-                  <div className={cn(
-                    "transition-transform duration-300 flex-shrink-0",
-                    openIndex === index ? "rotate-180" : ""
-                  )}>
-                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <span className="text-base font-semibold text-foreground dark:text-white pr-4">{faq.question}</span>
+                  <div className={cn("transition-transform duration-300 flex-shrink-0", openIndex === index ? "rotate-180" : "")}>
+                    <svg className="h-5 w-5 text-muted-foreground dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
                   </div>
                 </button>
                 {openIndex === index && (
                   <div className="px-5 pb-5">
-                    <p className="text-sm text-gray-400 leading-relaxed">{faq.answer}</p>
+                    <p className="text-sm text-muted-foreground dark:text-gray-400 leading-relaxed">{faq.answer}</p>
                   </div>
                 )}
               </CardContent>
@@ -579,12 +490,12 @@ const FAQSection = () => {
 
 
 const ContactSection = () => (
-  <section className="py-20 bg-gradient-to-br from-red-800 to-black relative overflow-hidden">
+  <section className="py-20 bg-gradient-to-br from-red-700 to-black relative overflow-hidden">
     <div className="container mx-auto px-4 text-center relative z-10">
       <div className="max-w-3xl mx-auto">
         <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Siap Berkompetisi?</h2>
         <p className="text-xl text-red-200 mb-8 leading-relaxed">
-          Jangan lewatkan kesempatan emas ini! Daftarkan diri Anda atau tim Anda sekarang dan tunjukkan kreativitas terbaik Anda.
+          Jangan lewatkan kesempatan emas ini! Daftarkan diri Anda dan tunjukkan kreativitas terbaik Anda.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
           <Button size="lg" className="bg-white text-red-600 hover:bg-gray-200 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 px-8 py-3 text-lg">
@@ -607,7 +518,7 @@ const ContactSection = () => (
 const Footer = () => (
   <footer className="bg-black text-white py-12 border-t border-gray-800">
     <div className="container mx-auto px-4">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
         <div className="col-span-1 md:col-span-2">
           <div className="flex items-center space-x-3 mb-4">
             <div className="w-10 h-10 bg-gradient-to-br from-red-600 to-black rounded-xl flex items-center justify-center shadow-lg">
@@ -619,7 +530,7 @@ const Footer = () => (
             </div>
           </div>
           <p className="text-gray-400 mb-6 max-w-md leading-relaxed">
-            Platform kompetisi digital terdepan untuk mengembangkan bakat dan kreativitas generasi muda Indonesia dalam era digital.
+            Platform kompetisi digital terdepan untuk mengembangkan bakat dan kreativitas generasi muda Indonesia.
           </p>
           <div className="flex space-x-4">
             <a href="#" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors">
@@ -672,46 +583,10 @@ const Footer = () => (
 
 export default function CompetitionWebsite() {
   return (
-    <div className="min-h-screen w-full bg-black">
+    <div className="min-h-screen w-full bg-background dark:bg-black">
       <style jsx global>{`
         html {
           scroll-behavior: smooth;
-        }
-        
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        .animate-fadeInUp {
-          animation: fadeInUp 0.6s ease-out;
-        }
-        
-        .gradient-text {
-          background: linear-gradient(135deg, #ef4444, #f87171);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-        
-        .line-clamp-1 {
-          display: -webkit-box;
-          -webkit-line-clamp: 1;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-        
-        .line-clamp-2 {
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
         }
       `}</style>
       
