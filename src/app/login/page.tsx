@@ -80,7 +80,7 @@ export default function LoginPage() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="admin@multimedia.com"
+                  placeholder="user@gmail.com"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -89,20 +89,23 @@ export default function LoginPage() {
               <div className="space-y-2">
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
-                  <Link
-                    href="#"
-                    className="ml-auto inline-block text-xs text-red-600 dark:text-red-400 hover:underline"
-                  >
-                    Lupa password?
-                  </Link>
                 </div>
                 <Input
                   id="password"
                   type="password"
+                  placeholder="******"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
+                <div className="flex">
+                    <Link
+                        href="#"
+                        className="ml-auto inline-block text-xs text-red-600 dark:text-red-400 hover:underline"
+                    >
+                        Lupa password?
+                    </Link>
+                </div>
               </div>
 
               {error && <p className="text-sm text-red-500">{error}</p>}
