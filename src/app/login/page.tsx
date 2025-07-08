@@ -62,7 +62,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-red-50 via-white to-indigo-50 dark:from-red-900/20 dark:via-black dark:to-black">
-      <AuthHeader /> {/* Gunakan header baru di sini */}
+      <AuthHeader /> 
       <div className="flex min-h-screen items-center justify-center p-4">
         <Card className="w-full max-w-md shadow-2xl bg-card/80 dark:bg-black/50 backdrop-blur-lg border-2 dark:border-gray-800 mt-16 sm:mt-0">
           <CardHeader className="text-center">
