@@ -1,11 +1,10 @@
-// components/auth-header.tsx
 "use client";
 
 import React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { LightningBoltIcon } from "@radix-ui/react-icons";
-import { ChevronLeftIcon } from "lucide-react"; // Menggunakan ikon dari lucide-react
+import { ChevronLeftIcon } from "lucide-react"; 
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export const AuthHeader = () => {
