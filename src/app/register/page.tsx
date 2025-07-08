@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { AuthHeader } from "@/components/auth-header";
 import {
   Card,
   CardContent,
@@ -14,7 +15,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { LightningBoltIcon, GitHubLogoIcon } from "@radix-ui/react-icons";
+import { GitHubLogoIcon } from "@radix-ui/react-icons";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -73,17 +74,10 @@ export default function RegisterPage() {
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-red-50 via-white to-indigo-50 dark:from-red-900/20 dark:via-black dark:to-black p-4">
+      <AuthHeader /> 
       <Card className="w-full max-w-md shadow-2xl bg-card/80 dark:bg-black/50 backdrop-blur-lg border-2 dark:border-gray-800">
         <form onSubmit={handleSubmit}>
           <CardHeader className="text-center">
-            <div className="mb-4 flex justify-center items-center space-x-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-red-600 to-black rounded-xl flex items-center justify-center shadow-lg">
-                <LightningBoltIcon className="h-7 w-7 text-white" />
-              </div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-red-600 to-red-700 dark:from-red-500 dark:to-red-700 bg-clip-text text-transparent">
-                Multimedia in Action
-              </h1>
-            </div>
             <CardTitle className="text-2xl font-bold">Buat Akun Baru</CardTitle>
             <CardDescription className="text-muted-foreground">
               Isi data di bawah ini untuk memulai perjalanan kreatif Anda.
@@ -104,7 +98,7 @@ export default function RegisterPage() {
               <Input
                 id="email"
                 type="email"
-                placeholder="email@contoh.com"
+                placeholder="account@gmail.com"
                 required
                 onChange={handleChange}
               />
@@ -114,6 +108,7 @@ export default function RegisterPage() {
               <Input
                 id="password"
                 type="password"
+                placeholder="******"
                 required
                 onChange={handleChange}
               />
@@ -152,7 +147,7 @@ export default function RegisterPage() {
               Daftar dengan GitHub
             </Button>
           </CardContent>
-          <CardFooter className="flex justify-center text-sm">
+          <CardFooter className="flex justify-center text-sm mt-5">
             <p>
               Sudah punya akun?{" "}
               <Link

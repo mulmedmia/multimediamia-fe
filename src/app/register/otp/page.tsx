@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { AuthHeader } from "@/components/auth-header";
 import {
   Card,
   CardContent,
@@ -109,17 +110,10 @@ export default function OtpPage() {
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-red-50 via-white to-indigo-50 dark:from-red-900/20 dark:via-black dark:to-black p-4">
+      <AuthHeader /> 
       <Card className="w-full max-w-md shadow-2xl bg-card/80 dark:bg-black/50 backdrop-blur-lg border-2 dark:border-gray-800">
         <form onSubmit={handleSubmit}>
           <CardHeader className="text-center">
-            <div className="mb-4 flex justify-center items-center space-x-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-red-600 to-black rounded-xl flex items-center justify-center shadow-lg">
-                <LightningBoltIcon className="h-7 w-7 text-white" />
-              </div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-red-600 to-red-700 dark:from-red-500 dark:to-red-700 bg-clip-text text-transparent">
-                Multimedia in Action
-              </h1>
-            </div>
             <CardTitle className="text-2xl font-bold">Verifikasi OTP</CardTitle>
             <CardDescription className="text-muted-foreground">
               Masukkan 6 digit kode yang dikirim ke email Anda.
