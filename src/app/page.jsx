@@ -35,18 +35,6 @@ import {
   BookmarkIcon,
 } from "@radix-ui/react-icons";
 
-interface CompetitionCardProps {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  prize: string;
-  requirements: string[];
-  color: string;
-  deadline: string;
-  participants: string;
-  difficulty: string;
-}
-
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -303,7 +291,7 @@ const CompetitionCard = ({
   deadline,
   participants,
   difficulty,
-}: CompetitionCardProps) => {
+}) => {
   return (
     <Card className="relative flex flex-col overflow-hidden rounded-xl p-5 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 h-full bg-card dark:bg-gray-900/50 border dark:border-gray-800">
       <div
@@ -803,9 +791,8 @@ const JudgesSection = () => {
                 <Image
                   src={judge.image}
                   alt={judge.name}
-                  layout="fill"
-                  objectFit="cover"
-                  className="rounded-full shadow-lg border-4 border-transparent group-hover:border-red-500 transition-all duration-300 transform group-hover:scale-110"
+                  fill
+                  className="object-cover rounded-full shadow-lg border-4 border-transparent group-hover:border-red-500 transition-all duration-300 transform group-hover:scale-110"
                 />
               </div>
               <h3 className="text-lg font-bold text-foreground dark:text-white">
@@ -828,10 +815,10 @@ const SponsorsSection = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-foreground dark:text-white mb-2">
-            Didukung oleh Partner Terbaik
+              Didukung oleh Partner Terbaik
             </h2>
             <p className="text-muted-foreground dark:text-gray-400">
-            Kompetisi ini terselenggara atas dukungan penuh dari partner kami.
+              Kompetisi ini terselenggara atas dukungan penuh dari partner kami.
             </p>
         </div>
         <div className="flex justify-center items-center">
@@ -839,9 +826,8 @@ const SponsorsSection = () => {
                 <Image
                     src="https://images.pexels.com/photos/3775157/pexels-photo-3775157.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
                     alt="Sponsor Utama"
-                    layout="fill"
-                    objectFit="cover"
-                    className="opacity-80"
+                    fill
+                    className="object-cover opacity-80"
                 />
                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                     <h3 className="text-white text-4xl font-extrabold tracking-wider">
@@ -857,7 +843,7 @@ const SponsorsSection = () => {
 
 
 const FAQSection = () => {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [openIndex, setOpenIndex] = useState(null);
   const faqs = [
     {
       question: "Siapa saja yang bisa mengikuti kompetisi ini?",

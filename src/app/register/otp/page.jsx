@@ -20,7 +20,7 @@ export default function OtpPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState<"success" | "error">("error");
+  const [messageType, setMessageType] = useState("error");
   const [resendLoading, setResendLoading] = useState(false);
   const router = useRouter();
 
@@ -29,7 +29,7 @@ export default function OtpPage() {
     setEmail(savedEmail);
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setMessage("");
@@ -100,7 +100,8 @@ export default function OtpPage() {
         setMessage(data.message || "Gagal mengirim ulang OTP. Silakan coba lagi.");
         setMessageType("error");
       }
-    } catch (error) {
+    } catch (error)
+    {
       setMessage("Terjadi kesalahan jaringan. Silakan coba lagi.");
       setMessageType("error");
       console.error("Resend OTP error:", error);
@@ -111,7 +112,7 @@ export default function OtpPage() {
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-red-50 via-white to-indigo-50 dark:from-red-900/20 dark:via-black dark:to-black p-4">
-      <AuthHeader /> 
+      <AuthHeader />
       <Card className="w-full max-w-md shadow-2xl bg-card/80 dark:bg-black/50 backdrop-blur-lg border-2 dark:border-gray-800">
         <form onSubmit={handleSubmit}>
           <CardHeader className="text-center">

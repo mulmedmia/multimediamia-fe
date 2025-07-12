@@ -18,14 +18,14 @@ import { GitHubLogoIcon } from "@radix-ui/react-icons";
 import { AuthHeader } from "@/components/auth-header";
 
 export default function LoginPage() {
-  const router = useRouter(); 
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState<"success" | "error">("error");
+  const [messageType, setMessageType] = useState("error");
 
-  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setMessage("");
@@ -44,7 +44,7 @@ export default function LoginPage() {
       if (res.ok) {
         setMessageType("success");
         setMessage("Login berhasil! Anda akan diarahkan...");
-        localStorage.setItem("authToken", data.data.token); 
+        localStorage.setItem("authToken", data.data.token);
 
         setTimeout(() => {
           router.push("/");
@@ -155,4 +155,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
