@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,20 +18,20 @@ import { GitHubLogoIcon } from "@radix-ui/react-icons";
 import { AuthHeader } from "@/components/auth-header";
 
 export default function LoginPage() {
+  const router = useRouter(); 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState<"success" | "error">("error");
 
-  const handleLogin = async (event: React.FormEvent) => {
-    event.preventDefault();
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setLoading(true);
-    setError(null);
+    setMessage("");
 
     try {
-      const backendUrl = "http://localhost:5000/api/v1/auth/login";
-
-      const response = await fetch(backendUrl, {
+      const res = await fetch("http://localhost:5000/api/v1/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -38,23 +39,24 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
+      const data = await res.json();
 
-      if (!response.ok) {
-        throw new Error(data.message || "Terjadi kesalahan saat login");
-      }
+      if (res.ok) {
+        setMessageType("success");
+        setMessage("Login berhasil! Anda akan diarahkan...");
+        localStorage.setItem("authToken", data.data.token); 
 
-      console.log("Login berhasil:", data);
-      localStorage.setItem("authToken", data.data.token);
-      alert("Login Berhasil! Anda akan diarahkan ke halaman utama.");
-      window.location.href = "/";
-    } catch (err: unknown) {
-      console.error(err);
-      if (err instanceof Error) {
-        setError(err.message);
+        setTimeout(() => {
+          router.push("/");
+        }, 1000);
       } else {
-        setError("Terjadi kesalahan saat login");
+        setMessageType("error");
+        setMessage(data.message || "Email atau password salah.");
       }
+    } catch (error) {
+      setMessageType("error");
+      setMessage("Gagal terhubung ke server. Silakan coba lagi.");
+      console.error("Login error:", error);
     } finally {
       setLoading(false);
     }
@@ -62,28 +64,28 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-red-50 via-white to-indigo-50 dark:from-red-900/20 dark:via-black dark:to-black">
-      <AuthHeader /> 
+      <AuthHeader />
       <div className="flex min-h-screen items-center justify-center p-4">
         <Card className="w-full max-w-md shadow-2xl bg-card/80 dark:bg-black/50 backdrop-blur-lg border-2 dark:border-gray-800 mt-16 sm:mt-0">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold">
-              Selamat Datang Kembali
-            </CardTitle>
-            <CardDescription className="text-muted-foreground">
-              Masukkan email dan password Anda untuk masuk.
-            </CardDescription>
-          </CardHeader>
           <form onSubmit={handleLogin}>
-            <CardContent className="space-y-4">
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl font-bold">
+                Selamat Datang Kembali
+              </CardTitle>
+              <CardDescription className="text-muted-foreground">
+                Masukkan email dan password Anda untuk masuk.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4 mt-5">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="user@gmail.com"
-                  required
+                  placeholder="account@gmail.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  required
                 />
               </div>
               <div className="space-y-2">
@@ -94,26 +96,29 @@ export default function LoginPage() {
                   id="password"
                   type="password"
                   placeholder="******"
-                  required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  required
                 />
-                <div className="flex">
-                    <Link
-                        href="#"
-                        className="ml-auto inline-block text-xs text-red-600 dark:text-red-400 hover:underline"
-                    >
-                        Lupa password?
-                    </Link>
-                </div>
               </div>
 
-              {error && <p className="text-sm text-red-500">{error}</p>}
+              {/* Tampilkan pesan sukses atau error */}
+              {message && (
+                <p
+                  className={`text-sm text-center ${
+                    messageType === "success"
+                      ? "text-green-600 dark:text-green-400"
+                      : "text-red-500 dark:text-red-400"
+                  }`}
+                >
+                  {message}
+                </p>
+              )}
 
               <Button
                 type="submit"
-                className="w-full mt-4 bg-gradient-to-r from-red-600 to-red-700 dark:to-black text-white hover:from-red-700 hover:to-red-800 dark:hover:to-gray-900 shadow-lg"
                 disabled={loading}
+                className="w-full mt-4 bg-gradient-to-r from-red-600 to-red-700 dark:to-black text-white hover:from-red-700 hover:to-red-800 dark:hover:to-gray-900 shadow-lg"
               >
                 {loading ? "Loading..." : "Masuk"}
               </Button>
@@ -133,20 +138,21 @@ export default function LoginPage() {
                 Login dengan GitHub
               </Button>
             </CardContent>
+            <CardFooter className="flex justify-center text-sm mt-5">
+              <p>
+                Belum punya akun?{" "}
+                <Link
+                  href="/register"
+                  className="font-semibold text-red-600 dark:text-red-400 hover:underline"
+                >
+                  Daftar di sini
+                </Link>
+              </p>
+            </CardFooter>
           </form>
-          <CardFooter className="flex justify-center text-sm">
-            <p>
-              Belum punya akun?{" "}
-              <Link
-                href="/register"
-                className="font-semibold text-red-600 dark:text-red-400 hover:underline"
-              >
-                Daftar di sini
-              </Link>
-            </p>
-          </CardFooter>
         </Card>
       </div>
     </div>
   );
 }
+

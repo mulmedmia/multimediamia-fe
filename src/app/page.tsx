@@ -108,7 +108,7 @@ const Header = () => {
 
           <div className="flex items-center space-x-2">
             <Link href="/login" passHref>
-              <Button variant="ghost" className="hidden md:flex text-muted-foreground dark:text-gray-300 hover:text-primary dark:hover:text-white">
+              <Button variant="ghost" className="hidden md:flex text-muted-foreground dark:text-gray-300 hover:text-primary dark:hover:text-white border border-red-500">
                 Login
               </Button>
             </Link>
