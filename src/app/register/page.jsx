@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { AuthHeader } from "@/components/auth-header";
@@ -16,68 +15,31 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
+import { useRegister } from "@/hooks/use-auth"; // gunakan custom hook
 
 export default function RegisterPage() {
-  const router = useRouter();
-
   const [formData, setFormData] = useState({
     fullname: "",
     email: "",
     password: "",
   });
 
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState("error");
+  const { loading, message, messageType, handleRegister } = useRegister();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const onSubmit = (e) => {
     e.preventDefault();
-    setLoading(true);
-    setMessage("");
-
-    try {
-      const res = await fetch("http://localhost:5000/api/v1/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: formData.fullname,
-          email: formData.email,
-          password: formData.password,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        setMessage("Registrasi berhasil. OTP telah dikirim ke email Anda.");
-        setMessageType("success");
-        localStorage.setItem("pendingEmail", formData.email);
-        // Redirect to OTP verification page
-        router.push("/register/otp");
-      } else {
-        setMessage(data.message || "Registrasi gagal. Email sudah terdaftar.");
-        setMessageType("error");
-      }
-    } catch (error) {
-      setMessage("Terjadi kesalahan jaringan. Silakan coba lagi.");
-      setMessageType("error");
-      console.error("Registration error:", error);
-    } finally {
-      setLoading(false);
-    }
+    handleRegister(formData.fullname, formData.email, formData.password);
   };
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-red-50 via-white to-indigo-50 dark:from-red-900/20 dark:via-black dark:to-black p-4">
       <AuthHeader />
       <Card className="w-full max-w-md shadow-2xl bg-card/80 dark:bg-black/50 backdrop-blur-lg border-2 dark:border-gray-800">
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={onSubmit}>
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-bold">Buat Akun Baru</CardTitle>
             <CardDescription className="text-muted-foreground">
@@ -117,6 +79,7 @@ export default function RegisterPage() {
             <Button
               type="submit"
               className="w-full mt-4 bg-gradient-to-r from-red-600 to-red-700 dark:to-black text-white hover:from-red-700 hover:to-red-800 dark:hover:to-gray-900 shadow-lg"
+              disabled={loading}
             >
               {loading ? "Memproses Akun..." : "Buat Akun"}
             </Button>
