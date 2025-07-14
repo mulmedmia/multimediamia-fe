@@ -13,101 +13,58 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useRouter } from "next/navigation";
+import { useOtp } from "@/hooks/use-auth";
+
 
 export default function OtpPage() {
   const [otp, setOtp] = useState("");
   const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState("error");
-  const [resendLoading, setResendLoading] = useState(false);
-  const router = useRouter();
+  const [otpArray, setOtpArray] = useState(["", "", "", "", "", ""]);
+  const inputsRef = React.useRef([]);
+
+  const {
+    loading,
+    resendLoading,
+    message,
+    messageType,
+    handleVerifyOtp,
+    handleResendOtp,
+  } = useOtp();
 
   useEffect(() => {
     const savedEmail = localStorage.getItem("pendingEmail") || "";
     setEmail(savedEmail);
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage("");
+  // Gabungkan array ke string OTP
+  useEffect(() => {
+    setOtp(otpArray.join(""));
+  }, [otpArray]);
 
-    if (!/^\d{6}$/.test(otp)) {
-      setMessage("OTP harus terdiri dari 6 digit angka.");
-      setMessageType("error");
-      setLoading(false);
-      return;
-    }
+  // Handler untuk setiap input
+  const handleOtpChange = (e, idx) => {
+    const val = e.target.value.replace(/[^0-9]/g, "");
+    if (val.length > 1) return;
+    const newArr = [...otpArray];
+    newArr[idx] = val;
+    setOtpArray(newArr);
 
-    try {
-      const res = await fetch("http://localhost:5000/api/v1/auth/verify-otp", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, otp }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        setMessage("Verifikasi berhasil! Anda bisa login sekarang.");
-        setMessageType("success");
-        localStorage.removeItem("pendingEmail");
-        setTimeout(() => {
-          router.push("/login");
-        }, 1500);
-      } else {
-        setMessage(data.message || "OTP tidak valid atau sudah kadaluarsa.");
-        setMessageType("error");
-      }
-    } catch (error) {
-      setMessage("Terjadi kesalahan jaringan. Silakan coba lagi.");
-      setMessageType("error");
-      console.error("OTP verification error:", error);
-    } finally {
-      setLoading(false);
+    // Fokus ke input berikutnya jika ada
+    if (val && idx < 5) {
+      inputsRef.current[idx + 1]?.focus();
     }
   };
 
-  const handleResendOtp = async () => {
-    if (!email) {
-      setMessage("Email tidak ditemukan. Silakan daftar terlebih dahulu.");
-      setMessageType("error");
-      return;
+  // Handler untuk backspace
+  const handleOtpKeyDown = (e, idx) => {
+    if (e.key === "Backspace" && !otpArray[idx] && idx > 0) {
+      inputsRef.current[idx - 1]?.focus();
     }
+  };
 
-    setResendLoading(true);
-    setMessage("");
-
-    try {
-      const res = await fetch("http://localhost:5000/api/v1/auth/request-otp", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        setMessage("Kode OTP baru telah dikirim ke email Anda.");
-        setMessageType("success");
-      } else {
-        setMessage(data.message || "Gagal mengirim ulang OTP. Silakan coba lagi.");
-        setMessageType("error");
-      }
-    } catch (error)
-    {
-      setMessage("Terjadi kesalahan jaringan. Silakan coba lagi.");
-      setMessageType("error");
-      console.error("Resend OTP error:", error);
-    } finally {
-      setResendLoading(false);
-    }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    handleVerifyOtp(email, otp);
   };
 
   return (
@@ -123,21 +80,37 @@ export default function OtpPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2 mt-5">
-              <Label htmlFor="otp">Kode OTP</Label>
-              <Input
-                id="otp"
-                type="text"
-                maxLength={6}
-                pattern="[0-9]*"
-                placeholder="123456"
-                required
-                onChange={(e) => setOtp(e.target.value)}
-              />
+              <Label htmlFor="otp">Kode OTP : </Label>
+              <div className="flex gap-2 justify-center">
+                {otpArray.map((digit, idx) => (
+                  <Input
+                    key={idx}
+                    ref={el => inputsRef.current[idx] = el}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={1}
+                    className="w-10 h-12 text-center text-lg font-bold border-2 border-red-300 dark:border-red-700 focus:border-red-600 dark:focus:border-red-400 rounded"
+                    value={digit}
+                    onChange={e => handleOtpChange(e, idx)}
+                    onKeyDown={e => handleOtpKeyDown(e, idx)}
+                    autoFocus={idx === 0}
+                    onPaste={e => {
+                      const paste = e.clipboardData.getData("text").replace(/[^0-9]/g, "");
+                      if (paste.length === 6) {
+                        setOtpArray(paste.split(""));
+                        inputsRef.current[5]?.focus();
+                        e.preventDefault();
+                      }
+                    }}
+                  />
+                ))}
+              </div>
             </div>
 
             <Button
               type="submit"
               className="w-full mt-2 bg-gradient-to-r from-red-600 to-red-700 dark:to-black text-white hover:from-red-700 hover:to-red-800 dark:hover:to-gray-900 shadow-lg"
+              disabled={loading}
             >
               {loading ? "Memverifikasi..." : "Verifikasi"}
             </Button>
@@ -158,7 +131,7 @@ export default function OtpPage() {
             <p>
               Belum menerima kode?{" "}
               <span
-                onClick={handleResendOtp}
+                onClick={() => handleResendOtp(email)}
                 className="cursor-pointer font-semibold text-red-600 dark:text-red-400 hover:underline"
               >
                 {resendLoading ? "Mengirim ulang..." : "Kirim ulang OTP"}
