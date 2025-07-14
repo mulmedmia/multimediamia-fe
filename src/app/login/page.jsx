@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -16,50 +15,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
 import { AuthHeader } from "@/components/auth-header";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function LoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState("error");
+  const { loading, message, messageType, handleLogin } = useAuth();
 
-  const handleLogin = async (e) => {
+  const onSubmit = (e) => {
     e.preventDefault();
-    setLoading(true);
-    setMessage("");
-
-    try {
-      const res = await fetch("http://localhost:5000/api/v1/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        setMessageType("success");
-        setMessage("Login berhasil! Anda akan diarahkan...");
-        localStorage.setItem("authToken", data.data.token);
-
-        setTimeout(() => {
-          router.push("/");
-        }, 1000);
-      } else {
-        setMessageType("error");
-        setMessage(data.message || "Email atau password salah.");
-      }
-    } catch (error) {
-      setMessageType("error");
-      setMessage("Gagal terhubung ke server. Silakan coba lagi.");
-      console.error("Login error:", error);
-    } finally {
-      setLoading(false);
-    }
+    handleLogin(email, password);
   };
 
   return (
@@ -67,7 +32,7 @@ export default function LoginPage() {
       <AuthHeader />
       <div className="flex min-h-screen items-center justify-center p-4">
         <Card className="w-full max-w-md shadow-2xl bg-card/80 dark:bg-black/50 backdrop-blur-lg border-2 dark:border-gray-800 mt-16 sm:mt-0">
-          <form onSubmit={handleLogin}>
+          <form onSubmit={onSubmit}>
             <CardHeader className="text-center">
               <CardTitle className="text-2xl font-bold">
                 Selamat Datang Kembali
@@ -101,8 +66,6 @@ export default function LoginPage() {
                   required
                 />
               </div>
-
-              {/* Tampilkan pesan sukses atau error */}
               {message && (
                 <p
                   className={`text-sm text-center ${
@@ -114,7 +77,6 @@ export default function LoginPage() {
                   {message}
                 </p>
               )}
-
               <Button
                 type="submit"
                 disabled={loading}
@@ -122,7 +84,6 @@ export default function LoginPage() {
               >
                 {loading ? "Loading..." : "Masuk"}
               </Button>
-
               <div className="relative my-4">
                 <div className="absolute inset-0 flex items-center">
                   <span className="w-full border-t" />
