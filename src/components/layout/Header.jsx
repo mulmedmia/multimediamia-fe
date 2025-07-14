@@ -5,14 +5,17 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { useAuthContext } from "@/providers/AuthProvider";
 import {
   Cross1Icon,
   HamburgerMenuIcon,
   RocketIcon,
   LightningBoltIcon,
+  ExitIcon,
 } from "@radix-ui/react-icons";
 
 const Header = () => {
+  const { user, loading, logout } = useAuthContext();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -72,17 +75,35 @@ const Header = () => {
           </nav>
 
           <div className="flex items-center space-x-2">
-            <Link href="/login" passHref>
-              <Button variant="ghost" className="hidden md:flex text-muted-foreground dark:text-gray-300 hover:text-primary dark:hover:text-white border border-red-500">
-                Login
-              </Button>
-            </Link>
-            <Link href="/register" passHref>
-              <Button className="hidden md:flex px-6 py-2 bg-gradient-to-r from-red-600 to-red-700 dark:to-black text-white rounded-xl font-medium hover:from-red-700 hover:to-red-800 dark:hover:to-gray-900 shadow-lg hover:shadow-xl transition-all duration-300">
-                <RocketIcon className="h-4 w-4 mr-2" />
-                <span>Daftar Sekarang</span>
-              </Button>
-            </Link>
+            {loading ? (
+              <div className="h-9 w-40 animate-pulse rounded-md bg-muted/50 hidden md:block"></div>
+            ) : user ? (
+              <>
+                <div className="hidden sm:flex items-center gap-4">
+                  <span className="text-sm font-medium">
+                    Hi, {user.name || "User"}
+                  </span>
+                  <Button onClick={logout} variant="outline" size="sm">
+                    <ExitIcon className="mr-2 h-4 w-4" />
+                    Logout
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <>
+                <Link href="/login" passHref>
+                  <Button variant="ghost" className="hidden md:flex text-muted-foreground dark:text-gray-300 hover:text-primary dark:hover:text-white border border-red-500">
+                    Login
+                  </Button>
+                </Link>
+                <Link href="/register" passHref>
+                  <Button className="hidden md:flex px-6 py-2 bg-gradient-to-r from-red-600 to-red-700 dark:to-black text-white rounded-xl font-medium hover:from-red-700 hover:to-red-800 dark:hover:to-gray-900 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <RocketIcon className="h-4 w-4 mr-2" />
+                    <span>Daftar Sekarang</span>
+                  </Button>
+                </Link>
+              </>
+            )}
 
             <ThemeToggle />
 

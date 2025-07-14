@@ -39,3 +39,13 @@ export const requestOtp = async (email) => {
     throw error.response?.data || { message: "Gagal mengirim ulang OTP. Silakan coba lagi." };
   }
 };
+
+export const getProfile = async () => {
+  try {
+    const response = await api.get("/users/profile"); 
+    return response.data;
+  } catch (error) {
+    console.error("Gagal mengambil profil:", error);
+    throw error;
+  }
+};

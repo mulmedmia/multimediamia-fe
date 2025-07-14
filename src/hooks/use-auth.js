@@ -16,12 +16,15 @@ export function useAuth() {
       setMessageType("success");
       setMessage("Login berhasil! Anda akan diarahkan...");
       localStorage.setItem("authToken", data.data.token);
-      setTimeout(() => {
-        router.push("/");
-      }, 1000);
+
+      return data; 
+
     } catch (err) {
       setMessageType("error");
       setMessage(err.message || "Email atau password salah.");
+      
+      return null;
+      
     } finally {
       setLoading(false);
     }
@@ -70,7 +73,6 @@ export function useRegister() {
   };
 }
 
-// Tambahan untuk OTP
 export function useOtp() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
