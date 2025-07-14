@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
-import { useRegister } from "@/hooks/use-auth"; // gunakan custom hook
+import { useRegister } from "@/hooks/use-auth";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -38,7 +38,7 @@ export default function RegisterPage() {
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-red-50 via-white to-indigo-50 dark:from-red-900/20 dark:via-black dark:to-black p-4">
       <AuthHeader />
-      <Card className="w-full max-w-md shadow-2xl bg-card/80 dark:bg-black/50 backdrop-blur-lg border-2 dark:border-gray-800">
+      <Card className="mt-5 w-full max-w-md shadow-2xl bg-card/80 dark:bg-black/50 backdrop-blur-lg border-2 dark:border-gray-800">
         <form onSubmit={onSubmit}>
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-bold">Buat Akun Baru</CardTitle>

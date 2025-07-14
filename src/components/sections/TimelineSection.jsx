@@ -77,7 +77,7 @@ const TimelineSection = () => {
             {timelineEvents.map((event, i) => (
               <div key={i} className="flex items-start gap-6">
                 <div
-                  className={cn( // Fungsi 'cn' sekarang sudah diimpor
+                  className={cn(
                     "flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center z-10 shadow-md",
                     event.status === "completed"
                       ? "bg-gradient-to-br from-green-500 to-green-600"
