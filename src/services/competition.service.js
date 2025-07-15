@@ -3,7 +3,7 @@ import api from "@/lib/api";
 export const getCategories = async () => {
   try {
     const response = await api.get("/categories");
-    return response.data.data;
+    return response.data.data.categories;
   } catch (error) {
     console.error("Gagal mengambil kategori:", error);
     throw error;
@@ -16,7 +16,7 @@ export const getMyRegistrations = async (userId) => {
   }
   try {
     const response = await api.get(`/registrations?user_id=${userId}`);
-    return response.data.data;
+    return response.data.data.registrations;
   } catch (error) {
     console.error("Gagal mengambil data registrasi:", error);
     throw error;
