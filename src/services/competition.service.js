@@ -26,7 +26,7 @@ export const getMyRegistrations = async (userId) => {
 export const submitCompetitionRegistration = async (registrationData) => {
   try {
     const response = await api.post("/registrations", registrationData);
-    return response.data;
+    return response.data.data;
   } catch (error) {
     console.error("Gagal mendaftar lomba:", error);
     throw error.response?.data || error;
