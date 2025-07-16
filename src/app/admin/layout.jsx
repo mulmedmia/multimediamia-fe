@@ -37,11 +37,6 @@ const sidebarItems = [
     icon: Package,
   },
   {
-    title: "Pendaftar",
-    href: "/admin/pendaftar",
-    icon: Users,
-  },
-  {
     title: "Pengumpulan",
     href: "/admin/pengumpulan",
     icon: UploadCloud,
