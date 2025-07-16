@@ -3,9 +3,9 @@
 import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { CalendarIcon } from "@radix-ui/react-icons";
-import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import TimelineSection from "@/components/sections/TimelineSection";
 import { Button } from "@/components/ui/button";
+import Header from "@/components/layout/Header";
 
 // Helper function untuk format waktu (menambahkan '0' di depan jika < 10)
 const formatTime = (time) => String(time).padStart(2, "0");
@@ -80,7 +80,7 @@ const CompetitionCountdown = () => {
 
   return (
     <>
-      <DashboardHeader />
+      <Header />
       <section className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 via-white to-indigo-50 dark:from-red-900 dark:via-black dark:to-black text-white p-4 pt-24">
         <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           {/* Judul dan Hitung Mundur Waktu */}
