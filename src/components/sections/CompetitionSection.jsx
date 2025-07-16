@@ -59,22 +59,6 @@ const CompetitionSection = () => {
       ],
       color: "bg-gradient-to-br from-pink-600 to-black",
     },
-    {
-      icon: <Pencil2Icon className="h-6 w-6" />,
-      title: "Essay Writing",
-      description:
-        "Tulis esai inspiratif tentang dampak teknologi digital dalam kehidupan.",
-      prize: "Rp 5.000.000",
-      deadline: "25 Agustus 2025",
-      participants: "Individual",
-      difficulty: "Intermediate",
-      requirements: [
-        "1000-1500 kata",
-        "Referensi akademik",
-        "Plagiarisme maks 10%",
-      ],
-      color: "bg-gradient-to-br from-green-600 to-black",
-    },
   ];
 
   return (
@@ -96,10 +80,18 @@ const CompetitionSection = () => {
             Anda.
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-          {competitions.map((competition, i) => (
-            <CompetitionCard key={i} {...competition} />
-          ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {competitions.map((competition, i) => {
+            const isLast = i === competitions.length - 1;
+            const isOdd = competitions.length % 2 === 1;
+            const shouldCenter = isLast && isOdd;
+
+            return (
+              <div key={i} className={shouldCenter ? 'md:col-span-2 md:justify-self-center xl:col-span-1' : ''}>
+                <CompetitionCard {...competition} />
+              </div>
+            )
+          })}
         </div>
       </div>
     </section>
