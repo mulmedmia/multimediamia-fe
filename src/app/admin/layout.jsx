@@ -20,6 +20,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuthContext } from "@/providers/AuthProvider";
+import { Toaster } from "sonner";
 
 const sidebarItems = [
   {
@@ -88,10 +89,9 @@ export default function AdminLayout({ children }) {
   const { user, logout } = useAuthContext();
 
   useEffect(() => {
-    // Cek autentikasi admin dari context
-    if (user === undefined) return; // Tunggu context ready
+    if (user === undefined) return;
     if (!user || user.role !== "ADMIN") {
-      router.push("/login");
+      router.push("/dashboard");
       return;
     }
     setIsAuthenticated(true);
@@ -118,44 +118,49 @@ export default function AdminLayout({ children }) {
   }
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <div className="hidden md:flex md:w-64 md:flex-col">
-        <SidebarContent onLogout={handleLogout} />
-      </div>
-
-      <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-        <SheetTrigger asChild>
-          <Button
-            variant="outline"
-            size="icon"
-            className="md:hidden fixed top-4 left-4 z-40 bg-white shadow-lg"
-          >
-            <Menu className="h-4 w-4" />
-          </Button>
-        </SheetTrigger>
-        <SheetContent side="left" className="p-0 w-64">
-          <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+    <>
+      <Toaster />
+      <div className="flex h-screen bg-gray-100">
+        <div className="hidden md:flex md:w-64 md:flex-col">
           <SidebarContent onLogout={handleLogout} />
-        </SheetContent>
-      </Sheet>
+        </div>
 
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="bg-white shadow-sm border-b px-6 py-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-xl font-semibold text-gray-900 ml-12 md:ml-0">
-              Multimedia in Action Admin
-            </h1>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <User className="h-5 w-5 text-gray-400" />
-                <span className="text-sm text-gray-700">{user?.name || "Admin"}</span>
+        <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+          <SheetTrigger asChild>
+            <Button
+              variant="outline"
+              size="icon"
+              className="md:hidden fixed top-4 left-4 z-40 bg-white shadow-lg"
+            >
+              <Menu className="h-4 w-4" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="p-0 w-64">
+            <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+            <SidebarContent onLogout={handleLogout} />
+          </SheetContent>
+        </Sheet>
+
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <header className="bg-white shadow-sm border-b px-6 py-4">
+            <div className="flex items-center justify-between">
+              <h1 className="text-xl font-semibold text-gray-900 ml-12 md:ml-0">
+                Multimedia in Action Admin
+              </h1>
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <User className="h-5 w-5 text-gray-400" />
+                  <span className="text-sm text-gray-700">
+                    {user?.name || "Admin"}
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-        </header>
+          </header>
 
-        <main className="flex-1 overflow-auto p-6">{children}</main>
+          <main className="flex-1 overflow-auto p-6">{children}</main>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

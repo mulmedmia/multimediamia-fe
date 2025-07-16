@@ -14,7 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useOtp } from "@/hooks/use-auth";
-
+import Cookies from "js-cookie";
 
 export default function OtpPage() {
   const [otp, setOtp] = useState("");
@@ -32,16 +32,14 @@ export default function OtpPage() {
   } = useOtp();
 
   useEffect(() => {
-    const savedEmail = localStorage.getItem("pendingEmail") || "";
+    const savedEmail = Cookies.get("pendingEmail") || "";
     setEmail(savedEmail);
   }, []);
 
-  // Gabungkan array ke string OTP
   useEffect(() => {
     setOtp(otpArray.join(""));
   }, [otpArray]);
 
-  // Handler untuk setiap input
   const handleOtpChange = (e, idx) => {
     const val = e.target.value.replace(/[^0-9]/g, "");
     if (val.length > 1) return;
@@ -49,13 +47,11 @@ export default function OtpPage() {
     newArr[idx] = val;
     setOtpArray(newArr);
 
-    // Fokus ke input berikutnya jika ada
     if (val && idx < 5) {
       inputsRef.current[idx + 1]?.focus();
     }
   };
 
-  // Handler untuk backspace
   const handleOtpKeyDown = (e, idx) => {
     if (e.key === "Backspace" && !otpArray[idx] && idx > 0) {
       inputsRef.current[idx - 1]?.focus();
@@ -85,17 +81,19 @@ export default function OtpPage() {
                 {otpArray.map((digit, idx) => (
                   <Input
                     key={idx}
-                    ref={el => inputsRef.current[idx] = el}
+                    ref={(el) => (inputsRef.current[idx] = el)}
                     type="text"
                     inputMode="numeric"
                     maxLength={1}
                     className="w-10 h-12 text-center text-lg font-bold border-2 border-red-300 dark:border-red-700 focus:border-red-600 dark:focus:border-red-400 rounded"
                     value={digit}
-                    onChange={e => handleOtpChange(e, idx)}
-                    onKeyDown={e => handleOtpKeyDown(e, idx)}
+                    onChange={(e) => handleOtpChange(e, idx)}
+                    onKeyDown={(e) => handleOtpKeyDown(e, idx)}
                     autoFocus={idx === 0}
-                    onPaste={e => {
-                      const paste = e.clipboardData.getData("text").replace(/[^0-9]/g, "");
+                    onPaste={(e) => {
+                      const paste = e.clipboardData
+                        .getData("text")
+                        .replace(/[^0-9]/g, "");
                       if (paste.length === 6) {
                         setOtpArray(paste.split(""));
                         inputsRef.current[5]?.focus();
