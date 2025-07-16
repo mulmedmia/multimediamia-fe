@@ -423,18 +423,20 @@ export default function AdminCategoryPage() {
           <DialogHeader>
             <DialogTitle>Edit Kategori</DialogTitle>
           </DialogHeader>
-          <CategoryForm
+            <CategoryForm
             initial={editData}
             onSubmit={(payload) => {
-              updateMutation.mutate(
-                { ...payload, category_id: editData?.category_id },
+                console.log("EDIT SUBMIT payload:", payload);
+                console.log("EDIT SUBMIT category_id:", editData?.category_id);
+                updateMutation.mutate(
+                { ...payload, id: editData?.category_id }, // GANTI key category_id -> id
                 {
-                  onSuccess: () => setEditData(null),
+                    onSuccess: () => setEditData(null),
                 }
-              );
+                );
             }}
             isLoading={updateMutation.isPending}
-          />
+            />
         </DialogContent>
       </Dialog>
       {/* Dialog Delete */}
