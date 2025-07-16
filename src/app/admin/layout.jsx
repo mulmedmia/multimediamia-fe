@@ -15,6 +15,9 @@ import {
   LayoutDashboard,
   LogOut,
   User,
+  Users,
+  UploadCloud,
+  Gamepad2,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -34,9 +37,24 @@ const sidebarItems = [
     icon: Package,
   },
   {
+    title: "Pendaftar",
+    href: "/admin/pendaftar",
+    icon: Users,
+  },
+  {
+    title: "Pengumpulan",
+    href: "/admin/pengumpulan",
+    icon: UploadCloud,
+  },
+  {
     title: "Produk",
     href: "/admin/product",
     icon: Building2,
+  },
+  {
+    title: "Gamifikasi",
+    href: "/admin/gamifikasi",
+    icon: Gamepad2,
   },
 ];
 
@@ -130,9 +148,9 @@ export default function AdminLayout({ children }) {
             <Button
               variant="outline"
               size="icon"
-              className="md:hidden fixed top-4 left-4 z-40 bg-white shadow-lg"
+              className="md:hidden fixed top-4 left-4 z-40 bg-gray-900 text-white border border-gray-700 shadow-lg"
             >
-              <Menu className="h-4 w-4" />
+              <Menu className="h-4 w-4 text-gray-900" />
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="p-0 w-64">
