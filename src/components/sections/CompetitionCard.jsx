@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CheckCircledIcon, ArrowRightIcon } from "@radix-ui/react-icons";
+import Link from "next/link";
 
 const CompetitionCard = ({
   icon,
@@ -16,6 +17,8 @@ const CompetitionCard = ({
   difficulty,
 }) => {
   return (
+    <Link href="/competition-info/website-development" legacyBehavior>
+      <a className="block">
     <Card className="relative flex flex-col overflow-hidden rounded-xl p-5 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 h-full bg-card dark:bg-gray-900/50 border dark:border-gray-800">
       <div
         className={`mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg ${color} text-white shadow-lg`}
@@ -79,6 +82,8 @@ const CompetitionCard = ({
         <ArrowRightIcon className="h-3 w-3 ml-2" />
       </Button>
     </Card>
+    </a>
+    </Link>
   );
 };
 

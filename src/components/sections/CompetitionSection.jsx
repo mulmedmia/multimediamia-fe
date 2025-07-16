@@ -14,6 +14,7 @@ const CompetitionSection = () => {
     {
       icon: <DesktopIcon className="h-6 w-6" />,
       title: "Website Development",
+      slug: "website-development",
       description:
         "Buat website responsif dan inovatif dengan teknologi terkini.",
       prize: "Rp 8.000.000",
@@ -30,6 +31,7 @@ const CompetitionSection = () => {
     {
       icon: <MixerHorizontalIcon className="h-6 w-6" />,
       title: "UI/UX Design",
+      slug: "ui-ux",
       description:
         "Ciptakan pengalaman pengguna yang luar biasa dengan desain intuitif.",
       prize: "Rp 6.000.000",
@@ -46,6 +48,7 @@ const CompetitionSection = () => {
     {
       icon: <FileTextIcon className="h-6 w-6" />,
       title: "Digital Poster",
+      slug: "logo",
       description:
         "Buat poster digital yang menarik dengan pesan yang kuat dan visual memukau.",
       prize: "Rp 5.000.000",
@@ -88,7 +91,10 @@ const CompetitionSection = () => {
 
             return (
               <div key={i} className={shouldCenter ? 'md:col-span-2 md:justify-self-center xl:col-span-1' : ''}>
-                <CompetitionCard {...competition} />
+                <CompetitionCard
+                key={competition.title}
+                {...competition}
+                href={`/competition-info/{competition.slug}`} />
               </div>
             )
           })}
