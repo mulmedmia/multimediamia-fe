@@ -6,6 +6,8 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { getGamifikasiColumns } from "./gamifikasi-table-config";
 
 // Modal sederhana
 function Modal({ open, onClose, children }) {
@@ -31,33 +33,12 @@ export default function AdminGamifikasiPage() {
   const [editUser, setEditUser] = useState(null);
   const { register, handleSubmit, reset } = useForm();
 
+  // Responsif: gunakan hook & config
+  const isMobile = useIsMobile();
+  const isTablet = !isMobile && typeof window !== "undefined" && window.innerWidth < 1024;
   const columns = useMemo(
-    () => [
-      { accessorKey: "name", header: "Nama" },
-      { accessorKey: "email", header: "Email" },
-      {
-        accessorKey: "points",
-        header: "Points",
-        cell: ({ row }) => row.original.points ?? 0,
-      },
-      { accessorKey: "role", header: "Role" },
-      {
-        id: "actions",
-        header: "Aksi",
-        cell: ({ row }) => (
-          <Button
-            size="sm"
-            onClick={() => {
-            setEditUser(row.original);
-            reset({ points: "" }); // <-- selalu kosong
-            }}
-          >
-            Edit
-          </Button>
-        ),
-      },
-    ],
-    [reset]
+    () => getGamifikasiColumns({ isMobile, isTablet, setEditUser, reset }),
+    [isMobile, isTablet, setEditUser, reset]
   );
 
   const table = useReactTable({

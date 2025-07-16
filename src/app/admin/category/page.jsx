@@ -52,6 +52,8 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import { format } from "date-fns";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { getCategoryColumns } from "./category-table-config";
 
 const PAGE_SIZE = 5;
 
@@ -229,6 +231,8 @@ export default function AdminCategoryPage() {
   const [editData, setEditData] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
 
+  const isMobile = useIsMobile();
+
   const { data, isLoading, isError } = useAdminCategories({
     limit: PAGE_SIZE,
     page,
@@ -245,14 +249,22 @@ export default function AdminCategoryPage() {
   const meta = data?.meta || {};
   const totalPages = meta.totalPages || 1;
 
+  const columns = getCategoryColumns({
+    isMobile,
+    setEditData,
+    setDeleteId,
+    updateMutation,
+    deleteMutation,
+  });
+
   return (
     <div className="max-w-6xl mx-auto py-10 px-2">
       <Card className="mb-6">
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <CardTitle className="text-2xl font-bold">Daftar Kategori</CardTitle>
           <Dialog open={openCreate} onOpenChange={setOpenCreate}>
             <DialogTrigger asChild>
-              <Button onClick={() => setOpenCreate(true)}>
+              <Button onClick={() => setOpenCreate(true)} className="w-full sm:w-auto">
                 Tambah Kategori
               </Button>
             </DialogTrigger>
@@ -260,13 +272,12 @@ export default function AdminCategoryPage() {
               <DialogHeader>
                 <DialogTitle>Tambah Kategori</DialogTitle>
               </DialogHeader>
-              <div className="py-2" />
               <CategoryForm
-                onSubmit={(data) =>
-                  createMutation.mutate(data, {
+                onSubmit={(payload) => {
+                  createMutation.mutate(payload, {
                     onSuccess: () => setOpenCreate(false),
-                  })
-                }
+                  });
+                }}
                 isLoading={createMutation.isPending}
               />
             </DialogContent>
@@ -279,7 +290,7 @@ export default function AdminCategoryPage() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && setSearch(input)}
-              className="max-w-xs"
+              className="w-full sm:max-w-xs"
             />
             <Button
               onClick={() => setSearch(input)}
@@ -288,246 +299,169 @@ export default function AdminCategoryPage() {
               Cari
             </Button>
           </div>
-          <div className="overflow-x-auto rounded-lg border bg-background">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nama</TableHead>
-                  <TableHead>Judul</TableHead>
-                  <TableHead>Penyelenggara</TableHead>
-                  <TableHead>Deadline</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Admin</TableHead>
-                  <TableHead>Image</TableHead>
-                  <TableHead className="text-right">Aksi</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoading ? (
-                  Array.from({ length: PAGE_SIZE }).map((_, i) => (
-                    <TableRow key={i}>
-                      <TableCell>
-                        <Skeleton className="h-4 w-24" />
-                      </TableCell>
-                      <TableCell>
-                        <Skeleton className="h-4 w-32" />
-                      </TableCell>
-                      <TableCell>
-                        <Skeleton className="h-4 w-24" />
-                      </TableCell>
-                      <TableCell>
-                        <Skeleton className="h-4 w-20" />
-                      </TableCell>
-                      <TableCell>
-                        <Skeleton className="h-4 w-16" />
-                      </TableCell>
-                      <TableCell>
-                        <Skeleton className="h-4 w-24" />
-                      </TableCell>
-                      <TableCell>
-                        <Skeleton className="h-12 w-12 rounded" />
-                      </TableCell>
-                      <TableCell className="text-right flex gap-2 justify-end">
-                        <Skeleton className="h-8 w-16 rounded" />
-                        <Skeleton className="h-8 w-16 rounded" />
+          {/* Responsive Table/Card */}
+          {isMobile ? (
+            <div className="flex flex-col gap-4">
+              {isLoading
+                ? Array.from({ length: PAGE_SIZE }).map((_, i) => (
+                    <div key={i} className="p-4 bg-background rounded shadow">
+                      <Skeleton className="h-4 w-24 mb-2" />
+                      <Skeleton className="h-4 w-32 mb-2" />
+                      <Skeleton className="h-4 w-24 mb-2" />
+                      <Skeleton className="h-4 w-20 mb-2" />
+                      <Skeleton className="h-4 w-16 mb-2" />
+                      <Skeleton className="h-4 w-24 mb-2" />
+                      <Skeleton className="h-12 w-12 rounded" />
+                    </div>
+                  ))
+                : isError ? (
+                    <Alert variant="destructive">
+                      <AlertTitle>Gagal memuat data</AlertTitle>
+                      <AlertDescription>
+                        Terjadi kesalahan saat mengambil data kategori.
+                        Silakan coba lagi.
+                      </AlertDescription>
+                    </Alert>
+                  )
+                : categories.length === 0 ? (
+                    <div className="text-center py-8">Tidak ada data</div>
+                  )
+                : categories.map((cat) => (
+                    <div key={cat.category_id} className="p-4 bg-background rounded shadow">
+                      {columns[0].cell({ row: { original: cat } })}
+                    </div>
+                  ))}
+            </div>
+          ) : (
+            <div className="overflow-x-auto rounded-lg border bg-background">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    {columns.map((col) => (
+                      <TableHead key={col.header}>{col.header}</TableHead>
+                    ))}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {isLoading ? (
+                    Array.from({ length: PAGE_SIZE }).map((_, i) => (
+                      <TableRow key={i}>
+                        {columns.map((col, idx) => (
+                          <TableCell key={idx}>
+                            <Skeleton className="h-4 w-24" />
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))
+                  ) : isError ? (
+                    <TableRow>
+                      <TableCell colSpan={columns.length}>
+                        <Alert variant="destructive">
+                          <AlertTitle>Gagal memuat data</AlertTitle>
+                          <AlertDescription>
+                            Terjadi kesalahan saat mengambil data kategori.
+                            Silakan coba lagi.
+                          </AlertDescription>
+                        </Alert>
                       </TableCell>
                     </TableRow>
-                  ))
-                ) : isError ? (
-                  <TableRow>
-                    <TableCell colSpan={8}>
-                      <Alert variant="destructive">
-                        <AlertTitle>Gagal memuat data</AlertTitle>
-                        <AlertDescription>
-                          Terjadi kesalahan saat mengambil data kategori.
-                          Silakan coba lagi.
-                        </AlertDescription>
-                      </Alert>
-                    </TableCell>
-                  </TableRow>
-                ) : categories.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={8} className="text-center">
-                      Tidak ada data
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  categories.map((cat) => (
-                    <TableRow key={cat.category_id}>
-                      <TableCell className="font-medium">
-                        {cat.category_name}
-                      </TableCell>
-                      <TableCell>{cat.title}</TableCell>
-                      <TableCell>{cat.organizer}</TableCell>
-                      <TableCell>
-                        {cat.deadline
-                          ? new Date(cat.deadline).toLocaleDateString("id-ID")
-                          : "-"}
-                      </TableCell>
-                      <TableCell>
-                        <span
-                          className={`px-2 py-1 rounded text-xs font-semibold ${
-                            cat.status === "VERIFIED"
-                              ? "bg-green-100 text-green-700"
-                              : "bg-yellow-100 text-yellow-700"
-                          }`}
-                        >
-                          {cat.status}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        {cat.user?.name} <br />
-                        <span className="text-xs text-muted-foreground">
-                          {cat.user?.email}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        {cat.image && (
-                          <img
-                            src={cat.image}
-                            alt={cat.category_name}
-                            className="w-12 h-12 object-cover rounded shadow"
-                          />
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right flex gap-2 justify-end">
-                        <Dialog
-                          open={editData?.category_id === cat.category_id}
-                          onOpenChange={(open) =>
-                            setEditData(open ? cat : null)
-                          }
-                        >
-                          <DialogTrigger asChild>
-                            <Button size="sm" variant="outline">
-                              Edit
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>Edit Kategori</DialogTitle>
-                            </DialogHeader>
-                            <div className="py-2" />
-                            <CategoryForm
-                              initial={cat}
-                              onSubmit={(data) =>
-                                updateMutation.mutate(
-                                  { id: cat.category_id, ...data },
-                                  { onSuccess: () => setEditData(null) }
-                                )
-                              }
-                              isLoading={updateMutation.isPending}
-                            />
-                          </DialogContent>
-                        </Dialog>
-                        <Dialog
-                          open={deleteId === cat.category_id}
-                          onOpenChange={(open) =>
-                            setDeleteId(open ? cat.category_id : null)
-                          }
-                        >
-                          <DialogTrigger asChild>
-                            <Button size="sm" variant="destructive">
-                              Delete
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>Hapus Kategori</DialogTitle>
-                            </DialogHeader>
-                            <div>
-                              Yakin ingin menghapus kategori{" "}
-                              <b>{cat.category_name}</b>?
-                            </div>
-                            <DialogFooter>
-                              <DialogClose asChild>
-                                <Button variant="outline">Batal</Button>
-                              </DialogClose>
-                              <Button
-                                variant="destructive"
-                                onClick={() =>
-                                  deleteMutation.mutate(cat.category_id, {
-                                    onSuccess: () => setDeleteId(null),
-                                  })
-                                }
-                                disabled={deleteMutation.isPending}
-                              >
-                                {deleteMutation.isPending
-                                  ? "Menghapus..."
-                                  : "Hapus"}
-                              </Button>
-                            </DialogFooter>
-                          </DialogContent>
-                        </Dialog>
+                  ) : categories.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={columns.length} className="text-center">
+                        Tidak ada data
                       </TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+                  ) : (
+                    categories.map((cat) => (
+                      <TableRow key={cat.category_id}>
+                        {columns.map((col, idx) => (
+                          <TableCell key={idx}>
+                            {col.cell({ row: { original: cat } })}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+          {/* Pagination */}
+          <div className="mt-6 flex justify-center">
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                  />
+                </PaginationItem>
+                {Array.from({ length: totalPages }).map((_, i) => (
+                  <PaginationItem key={i}>
+                    <PaginationLink
+                      isActive={page === i + 1}
+                      onClick={() => setPage(i + 1)}
+                    >
+                      {i + 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={page === totalPages}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
           </div>
-          <Pagination className="mt-6">
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page <= 1}
-                  href="#"
-                />
-              </PaginationItem>
-              {page > 2 && (
-                <PaginationItem>
-                  <PaginationLink onClick={() => setPage(1)} href="#">
-                    1
-                  </PaginationLink>
-                </PaginationItem>
-              )}
-              {page > 3 && (
-                <PaginationItem>
-                  <PaginationEllipsis />
-                </PaginationItem>
-              )}
-              {page > 1 && (
-                <PaginationItem>
-                  <PaginationLink onClick={() => setPage(page - 1)} href="#">
-                    {page - 1}
-                  </PaginationLink>
-                </PaginationItem>
-              )}
-              <PaginationItem>
-                <PaginationLink isActive href="#">
-                  {page}
-                </PaginationLink>
-              </PaginationItem>
-              {page < totalPages && (
-                <PaginationItem>
-                  <PaginationLink onClick={() => setPage(page + 1)} href="#">
-                    {page + 1}
-                  </PaginationLink>
-                </PaginationItem>
-              )}
-              {page < totalPages - 1 && (
-                <PaginationItem>
-                  <PaginationEllipsis />
-                </PaginationItem>
-              )}
-              {page < totalPages && totalPages > 1 && (
-                <PaginationItem>
-                  <PaginationLink onClick={() => setPage(totalPages)} href="#">
-                    {totalPages}
-                  </PaginationLink>
-                </PaginationItem>
-              )}
-              <PaginationItem>
-                <PaginationNext
-                  onClick={() => setPage((p) => p + 1)}
-                  disabled={page >= totalPages}
-                  href="#"
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
         </CardContent>
       </Card>
+      {/* Dialog Edit */}
+      <Dialog open={!!editData} onOpenChange={(open) => setEditData(open ? editData : null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Kategori</DialogTitle>
+          </DialogHeader>
+          <CategoryForm
+            initial={editData}
+            onSubmit={(payload) => {
+              updateMutation.mutate(
+                { ...payload, category_id: editData?.category_id },
+                {
+                  onSuccess: () => setEditData(null),
+                }
+              );
+            }}
+            isLoading={updateMutation.isPending}
+          />
+        </DialogContent>
+      </Dialog>
+      {/* Dialog Delete */}
+      <Dialog open={!!deleteId} onOpenChange={(open) => setDeleteId(open ? deleteId : null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Hapus Kategori</DialogTitle>
+          </DialogHeader>
+          <div>Apakah Anda yakin ingin menghapus kategori ini?</div>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Batal</Button>
+            </DialogClose>
+            <Button
+              variant="destructive"
+              onClick={() =>
+                deleteMutation.mutate(deleteId, {
+                  onSuccess: () => setDeleteId(null),
+                })
+              }
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? "Menghapus..." : "Hapus"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
