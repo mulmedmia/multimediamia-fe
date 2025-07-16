@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { SubmissionForm } from "@/components/forms/SubmissionForm";
+import { LayoutDashboard } from "lucide-react";
 
 const getStatusVariant = (status) => {
   switch (status?.toUpperCase()) {
@@ -18,14 +19,14 @@ const getStatusVariant = (status) => {
   }
 };
 
-export function MyRegistrationsList() {
+export function MyRegistrationsList({ onSelectRegistration }) {
   const [openDialogId, setOpenDialogId] = useState(null);
   const { user } = useAuthContext(); 
 
   const { data: registrations, isLoading, isError } = useQuery({
-    queryKey: ['myRegistrations', user?.id],
-    queryFn: () => getMyRegistrations(user.id),
-    enabled: !!user,
+    queryKey: ['myRegistrations', user?.users_id],
+    queryFn: () => getMyRegistrations(user.users_id),
+    enabled: !!user?.users_id, 
   });
 
   if (isLoading) return <p className="text-center text-muted-foreground">Memuat riwayat pendaftaran...</p>;
@@ -40,13 +41,13 @@ export function MyRegistrationsList() {
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {registrations.map((reg) => (
-        <Card key={reg.id} className="flex flex-col justify-between">
+        <Card key={reg.registration_id} className="flex flex-col justify-between">
           <div>
             <CardHeader>
-              <CardTitle className="flex justify-between items-center">
-                <span>{reg.category?.name || "Nama Lomba"}</span>
+              <CardTitle className="flex justify-between items-start">
+                <span className="pr-2">{reg.category?.name || "Nama Lomba"}</span>
                 <Badge variant={getStatusVariant(reg.status)}>{reg.status || "PENDING"}</Badge>
               </CardTitle>
               <CardDescription>Tim: {reg.team_name}</CardDescription>
@@ -57,13 +58,20 @@ export function MyRegistrationsList() {
               </p>
             </CardContent>
           </div>
-          <CardFooter>
+          {/* --- PERBAIKAN LAYOUT DI SINI --- */}
+          <CardFooter className="flex justify-between gap-2">
+            {/* Menghapus `w-full` agar tombol tidak memenuhi lebar */}
+            <Button variant="outline" onClick={() => onSelectRegistration(reg)}>
+              <LayoutDashboard className="mr-2 h-4 w-4"/>
+              Dashboard
+            </Button>
             <Dialog 
-              open={openDialogId === reg.id} 
+              open={openDialogId === reg.registration_id} 
               onOpenChange={(isOpen) => !isOpen && setOpenDialogId(null)}
             >
               <DialogTrigger asChild>
-                <Button className="w-full" onClick={() => setOpenDialogId(reg.id)}>
+                {/* Menghapus `w-full` agar tombol tidak memenuhi lebar */}
+                <Button onClick={() => setOpenDialogId(reg.registration_id)} disabled={reg.status !== 'APPROVED'}>
                   Upload Karya
                 </Button>
               </DialogTrigger>
@@ -72,7 +80,7 @@ export function MyRegistrationsList() {
                   <DialogTitle>Upload Karya untuk {reg.category?.name}</DialogTitle>
                 </DialogHeader>
                 <SubmissionForm
-                  registrationId={reg.id}
+                  registrationId={reg.registration_id}
                   onSuccess={() => setOpenDialogId(null)}
                 />
               </DialogContent>
