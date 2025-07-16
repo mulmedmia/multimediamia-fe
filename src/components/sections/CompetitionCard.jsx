@@ -15,6 +15,7 @@ const CompetitionCard = ({
   deadline,
   participants,
   difficulty,
+  href,
 }) => {
   return (
     <Link href="/competition-info/website-development" className="block">

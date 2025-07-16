@@ -94,7 +94,7 @@ const CompetitionSection = () => {
                 <CompetitionCard
                 key={competition.title}
                 {...competition}
-                href={`/competition-info/{competition.slug}`} />
+                href={`/competition-info/${competition.slug}`} />
               </div>
             )
           })}
