@@ -6,6 +6,7 @@ import { CalendarIcon } from "@radix-ui/react-icons";
 import TimelineSection from "@/components/sections/TimelineSection";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
 
 // Helper function untuk format waktu (menambahkan '0' di depan jika < 10)
 const formatTime = (time) => String(time).padStart(2, "0");
@@ -136,6 +137,8 @@ const CompetitionCountdown = () => {
           </div>
         </div>
       </section>
+      <TimelineSection/>
+      <Footer />
     </>
   );
 };
