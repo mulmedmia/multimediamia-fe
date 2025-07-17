@@ -1,15 +1,15 @@
-import React from 'react';
-import { cn } from "@/lib/utils"; 
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
-import { 
+import React from "react";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import {
   CalendarIcon,
   RocketIcon,
   ClockIcon,
   FileTextIcon,
   PersonIcon,
   StarIcon,
-} from '@radix-ui/react-icons'; 
+} from "@radix-ui/react-icons";
 
 const TimelineSection = () => {
   const timelineEvents = [
@@ -71,14 +71,17 @@ const TimelineSection = () => {
           </p>
         </div>
 
-        <div className="max-w-4xl mx-auto">
-          <div className="relative space-y-6">
-            <div className="absolute left-6 top-6 bottom-6 w-0.5 bg-gradient-to-b from-red-200 via-red-300 to-red-200 dark:from-red-700 dark:via-red-900 dark:to-black"></div>
+        <div className="relative w-full overflow-x-auto pb-8 -mx-4 px-4">
+          <div className="relative inline-flex py-6">
+            <div className="absolute top-12 left-0 right-0 h-0.5 bg-gradient-to-r from-red-200 via-red-300 to-red-200 dark:from-red-700 dark:via-red-900 dark:to-black"></div>
             {timelineEvents.map((event, i) => (
-              <div key={i} className="flex items-start gap-6">
+              <div
+                key={i}
+                className="flex flex-col items-center flex-shrink-0 w-64 px-4"
+              >
                 <div
                   className={cn(
-                    "flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center z-10 shadow-md",
+                    "flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center z-10 shadow-md mb-4",
                     event.status === "completed"
                       ? "bg-gradient-to-br from-green-500 to-green-600"
                       : event.status === "active"
@@ -88,16 +91,16 @@ const TimelineSection = () => {
                 >
                   <event.icon className="h-5 w-5 text-white" />
                 </div>
-                <div className="flex-1">
-                  <Card className="shadow-md hover:shadow-lg transition-all duration-300 bg-card dark:bg-gray-900/50 border dark:border-gray-800">
-                    <CardContent className="p-4">
+                <div className="w-full text-center flex flex-col flex-grow">
+                  <Card className="shadow-md hover:shadow-lg transition-all duration-300 bg-card dark:bg-gray-900/50 border dark:border-gray-800 h-full flex flex-col">
+                    <CardContent className="p-4 flex flex-col h-full flex-grow">
                       <div className="text-xs text-red-600 dark:text-red-400 font-semibold mb-1">
                         {event.date}
                       </div>
                       <h3 className="text-lg font-bold text-foreground dark:text-white mb-2">
                         {event.title}
                       </h3>
-                      <p className="text-sm text-muted-foreground dark:text-gray-400 mb-3">
+                      <p className="text-sm text-muted-foreground dark:text-gray-400 mb-3 flex-grow">
                         {event.description}
                       </p>
                       <Badge
@@ -108,7 +111,7 @@ const TimelineSection = () => {
                             ? "destructive"
                             : "secondary"
                         }
-                        className="text-xs"
+                        className="text-xs self-center"
                       >
                         {event.status === "completed"
                           ? "Selesai"

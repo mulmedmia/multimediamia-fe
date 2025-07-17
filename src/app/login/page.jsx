@@ -42,7 +42,7 @@ export default function LoginPage() {
       login(loginData.data.user);
       
       const userRole = loginData.data.user.role;
-      const destination = userRole === 'ADMIN' ? '/admin/dashboard' : '/dashboard';
+      const destination = userRole === 'ADMIN' ? '/admin/dashboard' : '/';
       
       setTimeout(() => {
         router.push(destination);

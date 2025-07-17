@@ -1,35 +1,42 @@
 "use client";
 
-import React, { createContext, useState, useEffect, useContext } from 'react';
-import { getProfile } from '@/services/auth.service';
+import React, { createContext, useState, useEffect, useContext } from "react";
+import { getProfile } from "@/services/auth.service";
 import { jwtDecode } from "jwt-decode";
+import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const checkUserStatus = async () => {
       try {
-        const token = localStorage.getItem("authToken");
+        const token = Cookies.get("authToken");
         if (token) {
           const decodedToken = jwtDecode(token);
           if (decodedToken.exp * 1000 < Date.now()) {
-            localStorage.removeItem("authToken");
+            Cookies.remove("authToken");
             setUser(null);
           } else {
-            const profile = await getProfile();
-            setUser(profile.data);
+            try {
+              const profile = await getProfile();
+              setUser(profile.data);
+            } catch {
+              setUser(null);
+              Cookies.remove("authToken");
+            }
           }
         } else {
           setUser(null);
         }
-      } catch (error) {
-        console.error("Gagal memverifikasi user:", error);
+      } catch {
         setUser(null);
-        localStorage.removeItem("authToken");
+        Cookies.remove("authToken");
       } finally {
         setLoading(false);
       }
@@ -40,12 +47,17 @@ export function AuthProvider({ children }) {
 
   const login = (userData) => {
     setUser(userData);
+    if (userData.role === "ADMIN") {
+      router.push("/admin/dashboard");
+    } else {
+      router.push("/dashboard");
+    }
   };
 
   const logout = () => {
-    localStorage.removeItem("authToken");
+    Cookies.remove("authToken");
     setUser(null);
-    window.location.href = '/login'; 
+    window.location.href = "/login";
   };
 
   const value = {

@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { login, register, verifyOtp, requestOtp } from "@/services/auth.service";
+import {
+  login,
+  register,
+  verifyOtp,
+  requestOtp,
+} from "@/services/auth.service";
+import Cookies from "js-cookie";
 
 export function useAuth() {
   const router = useRouter();
@@ -15,16 +21,12 @@ export function useAuth() {
       const data = await login(email, password);
       setMessageType("success");
       setMessage("Login berhasil! Anda akan diarahkan...");
-      localStorage.setItem("authToken", data.data.token);
-
-      return data; 
-
+      Cookies.set("authToken", data.data.token);
+      return data;
     } catch (err) {
       setMessageType("error");
       setMessage(err.message || "Email atau password salah.");
-      
       return null;
-      
     } finally {
       setLoading(false);
     }
@@ -53,7 +55,7 @@ export function useRegister() {
       const data = await register(fullname, email, password);
       setMessage("Registrasi berhasil. OTP telah dikirim ke email Anda.");
       setMessageType("success");
-      localStorage.setItem("pendingEmail", email);
+      Cookies.set("pendingEmail", email);
       router.push("/register/otp");
     } catch (err) {
       setMessageType("error");
@@ -93,7 +95,7 @@ export function useOtp() {
       await verifyOtp(email, otp);
       setMessage("Verifikasi berhasil! Anda bisa login sekarang.");
       setMessageType("success");
-      localStorage.removeItem("pendingEmail");
+      Cookies.remove("pendingEmail");
       setTimeout(() => {
         router.push("/login");
       }, 1500);
