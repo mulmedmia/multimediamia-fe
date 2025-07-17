@@ -67,9 +67,26 @@ export async function middleware(req) {
     }
   }
 
+  if (
+    nextUrl.pathname.includes("/daftar-lomba") &&
+    nextUrl.pathname.startsWith("/competition-info")
+  ) {
+    if (!token || !valid) {
+      const loginUrl = new URL("/login", req.url);
+      loginUrl.searchParams.set("redirect", nextUrl.pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+    return NextResponse.next();
+  }
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/admin/:path*", "/register/otp", "/login"],
+  matcher: [
+    "/dashboard/:path*",
+    "/admin/:path*",
+    "/register/otp",
+    "/login",
+    "/competition-info/:path*/daftar-lomba",
+  ],
 };

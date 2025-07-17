@@ -15,11 +15,12 @@ const CompetitionCard = ({
   deadline,
   participants,
   difficulty,
-  href,
+  infoHref,
+  registrationHref,
 }) => {
   return (
-    <Link href="/competition-info/website-development" className="block">
-      <Card className="relative flex flex-col overflow-hidden rounded-xl p-5 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 h-full bg-card dark:bg-gray-900/50 border dark:border-gray-800">
+    <Card className="relative flex flex-col overflow-hidden rounded-xl p-5 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 h-full bg-card dark:bg-gray-900/50 border dark:border-gray-800 cursor-pointer">
+      <Link href={infoHref || "#"} className="flex-grow">
         <div
           className={`mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg ${color} text-white shadow-lg`}
         >
@@ -77,12 +78,17 @@ const CompetitionCard = ({
             )}
           </ul>
         </div>
-        <Button className="w-full bg-gradient-to-r from-red-600 to-red-700 dark:to-black hover:from-red-700 hover:to-red-800 dark:hover:to-gray-900 shadow-lg text-white">
-          <span>Daftar Sekarang</span>
-          <ArrowRightIcon className="h-3 w-3 ml-2" />
-        </Button>
-      </Card>
-    </Link>
+      </Link>
+
+      <div className="mt-auto">
+        <Link href={registrationHref || "#"} className="block w-full">
+          <Button className="w-full bg-gradient-to-r from-red-600 to-red-700 dark:to-black hover:from-red-700 hover:to-red-800 dark:hover:to-gray-900 shadow-lg text-white cursor-pointer">
+            <span>Daftar Sekarang</span>
+            <ArrowRightIcon className="h-3 w-3 ml-2" />
+          </Button>
+        </Link>
+      </div>
+    </Card>
   );
 };
 

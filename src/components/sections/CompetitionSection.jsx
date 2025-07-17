@@ -89,14 +89,26 @@ const CompetitionSection = () => {
             const isOdd = competitions.length % 2 === 1;
             const shouldCenter = isLast && isOdd;
 
+            const infoUrl = `/competition-info/${competition.slug}`;
+            const registrationUrl = `/competition-info/${competition.slug}/daftar-lomba`;
+
             return (
-              <div key={i} className={shouldCenter ? 'md:col-span-2 md:justify-self-center xl:col-span-1' : ''}>
+              <div
+                key={i}
+                className={
+                  shouldCenter
+                    ? "md:col-span-2 md:justify-self-center xl:col-span-1"
+                    : ""
+                }
+              >
                 <CompetitionCard
-                key={competition.title}
-                {...competition}
-                href={`/competition-info/${competition.slug}`} />
+                  key={competition.title}
+                  {...competition}
+                  infoHref={infoUrl}
+                  registrationHref={registrationUrl}
+                />
               </div>
-            )
+            );
           })}
         </div>
       </div>
