@@ -22,7 +22,6 @@ export default function CompetitionRegistrationPage() {
   useEffect(() => {
     if (!isLoading && !user) {
       router.replace("/login");
-      return null;
     }
   }, [isLoading, user, router]);
 
@@ -34,6 +33,9 @@ export default function CompetitionRegistrationPage() {
       </div>
     );
   }
+
+if (!user) 
+    return null;
 
   // Jika user sudah login, akan ditampilkan halaman pendaftaran
   return (

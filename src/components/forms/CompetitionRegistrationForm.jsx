@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "../ui/textarea";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuthContext } from "@/providers/AuthProvider";
 
 const registrationSchema = z
   .object({
@@ -57,7 +57,7 @@ const registrationSchema = z
 export function CompetitionRegistrationForm() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { user, isLoading } = useAuth();
+  const { user, isLoading } = useAuthContext();
 
   // Asumsi 'getCategories' dapat mengembalikan array Individual dan Team [{id, name, team_type: 'Individual' | 'Team' }]
   const { data: categories, isLoading: catLoading } = useQuery({
@@ -102,6 +102,7 @@ export function CompetitionRegistrationForm() {
   }
 
   const onSubmit = (data) => {
+    console.log("user di form:", user);
     // Payload sesuai backend
     if (!user || !user.users_id) {
       alert("Sesi Anda telah berakhir. Harap login kembali.");
@@ -109,7 +110,7 @@ export function CompetitionRegistrationForm() {
     }
 
     const payload = {
-      user_id: user.users_id, // Ambil id dari objek user
+      users_id: user.users_id, // Ambil id dari objek user
       category_id: data.category_id,
       file_url: data.file_url,
     };
