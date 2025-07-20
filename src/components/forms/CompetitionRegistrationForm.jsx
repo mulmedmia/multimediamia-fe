@@ -59,7 +59,6 @@ export function CompetitionRegistrationForm() {
   const queryClient = useQueryClient();
   const { user, isLoading } = useAuthContext();
 
-  // Asumsi 'getCategories' dapat mengembalikan array Individual dan Team [{id, name, team_type: 'Individual' | 'Team' }]
   const { data: categories, isLoading: catLoading } = useQuery({
     queryKey: ["categories"],
     queryFn: getCategories,
@@ -102,15 +101,13 @@ export function CompetitionRegistrationForm() {
   }
 
   const onSubmit = (data) => {
-    console.log("user di form:", user);
-    // Payload sesuai backend
     if (!user || !user.users_id) {
       alert("Sesi Anda telah berakhir. Harap login kembali.");
       return;
     }
 
     const payload = {
-      users_id: user.users_id, // Ambil id dari objek user
+      user_id: user.users_id, // FIX: pastikan field user_id dikirim sesuai backend
       category_id: data.category_id,
       file_url: data.file_url,
     };
@@ -123,13 +120,12 @@ export function CompetitionRegistrationForm() {
       payload.team_members = membersArray;
     }
 
-    // Panggil mutation dengan payload
     mutation.mutate(payload);
   };
 
   const handleCategoryChange = (value) => {
     const selectedCategory = categories?.find(
-      (cat) => cat.category_id === value
+      (cat) => String(cat.category_id) === String(value)
     );
     const type = selectedCategory?.team_type || null;
 

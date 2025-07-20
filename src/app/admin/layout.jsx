@@ -14,6 +14,7 @@ import {
   Package,
   Building2,
   LayoutDashboard,
+  Notebook,
   LogOut,
   User,
   UploadCloud,
@@ -37,6 +38,11 @@ const sidebarItems = [
     title: "Kategori",
     href: "/admin/category",
     icon: Package,
+  },
+  {
+    title: "pendaftaran",
+    href: "/admin/pendaftar",
+    icon: Notebook,
   },
   {
     title: "Pengumpulan",
