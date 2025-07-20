@@ -1,0 +1,162 @@
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+
+// Helper untuk deteksi tablet
+function isTabletScreen() {
+  if (typeof window === "undefined") return false;
+  const width = window.innerWidth;
+  return width >= 768 && width < 1024;
+}
+
+export function getProductColumns({
+  isMobile,
+  setEditData,
+  setDeleteId,
+}) {
+  // Mobile & Tablet: card-style
+  if (isMobile || (typeof window !== "undefined" && isTabletScreen())) {
+    return [
+      {
+        header: "Produk",
+        accessorKey: "name",
+        cell: ({ row }) => (
+          <div className="flex gap-3 items-start bg-white rounded-lg shadow border p-3 px-4 max-w-full md:max-w-2xl mx-auto">
+            {row.original.image_url && (
+              <img
+                src={row.original.image_url}
+                alt={row.original.name}
+                className="w-16 h-16 object-cover rounded-md border flex-shrink-0"
+              />
+            )}
+            <div className="flex-1">
+              <div className="font-bold text-base mb-1">{row.original.name}</div>
+              <div className="text-xs text-muted-foreground mb-1">{row.original.description}</div>
+              <div className="text-xs mb-1">
+                <span className="font-medium">Harga:</span> Rp{row.original.price.toLocaleString()}
+              </div>
+              <div className="text-xs mb-1">
+                <span className="font-medium">Stok:</span> {row.original.stock}
+              </div>
+              <div className="mb-2">
+                <span
+                  className={`px-2 py-1 rounded text-xs font-semibold ${
+                    row.original.is_active
+                      ? "bg-green-100 text-green-700"
+                      : "bg-red-100 text-red-700"
+                  }`}
+                >
+                  {row.original.is_active ? "Aktif" : "Nonaktif"}
+                </span>
+              </div>
+              <div className="flex flex-col gap-2 mt-2 w-full">
+                <Dialog
+                  open={row.original.isEditing}
+                  onOpenChange={(open) => setEditData(open ? row.original : null)}
+                >
+                  <DialogTrigger asChild>
+                    <Button size="sm" variant="outline" className="w-full">
+                      Edit
+                    </Button>
+                  </DialogTrigger>
+                </Dialog>
+                <Dialog
+                  open={row.original.isDeleting}
+                  onOpenChange={(open) =>
+                    setDeleteId(open ? row.original.product_id : null)
+                  }
+                >
+                  <DialogTrigger asChild>
+                    <Button size="sm" variant="destructive" className="w-full">
+                      Delete
+                    </Button>
+                  </DialogTrigger>
+                </Dialog>
+              </div>
+            </div>
+          </div>
+        ),
+      },
+    ];
+  }
+
+  // Desktop: kolom lengkap
+  return [
+    {
+      header: "Nama",
+      accessorKey: "name",
+      cell: ({ row }) => row.original.name,
+    },
+    {
+      header: "Deskripsi",
+      accessorKey: "description",
+      cell: ({ row }) => row.original.description,
+    },
+    {
+      header: "Harga",
+      accessorKey: "price",
+      cell: ({ row }) => `Rp${row.original.price.toLocaleString()}`,
+    },
+    {
+      header: "Stok",
+      accessorKey: "stock",
+      cell: ({ row }) => row.original.stock,
+    },
+    {
+      header: "Status",
+      accessorKey: "is_active",
+      cell: ({ row }) => (
+        <span
+          className={`px-2 py-1 rounded text-xs font-semibold ${
+            row.original.is_active
+              ? "bg-green-100 text-green-700"
+              : "bg-red-100 text-red-700"
+          }`}
+        >
+          {row.original.is_active ? "Aktif" : "Nonaktif"}
+        </span>
+      ),
+    },
+    {
+      header: "Image",
+      accessorKey: "image_url",
+      cell: ({ row }) =>
+        row.original.image_url && (
+          <img
+            src={row.original.image_url}
+            alt={row.original.name}
+            className="w-12 h-12 object-cover rounded shadow"
+          />
+        ),
+    },
+    {
+      header: "Aksi",
+      id: "actions",
+      cell: ({ row }) => (
+        <div className="flex gap-2 justify-end">
+          <Dialog
+            open={row.original.isEditing}
+            onOpenChange={(open) => setEditData(open ? row.original : null)}
+          >
+            <DialogTrigger asChild>
+              <Button size="sm" variant="outline">
+                Edit
+              </Button>
+            </DialogTrigger>
+          </Dialog>
+          <Dialog
+            open={row.original.isDeleting}
+            onOpenChange={(open) =>
+              setDeleteId(open ? row.original.product_id : null)
+            }
+          >
+            <DialogTrigger asChild>
+              <Button size="sm" variant="destructive">
+                Delete
+              </Button>
+            </DialogTrigger>
+          </Dialog>
+        </div>
+      ),
+    },
+  ];
+}
