@@ -98,11 +98,9 @@ export function CompetitionRegistrationForm() {
   });
 
   if (isLoading) {
-    return (
-        <p className="ml-2">Memvalidasi sesi Anda...</p>
-    );
+    return <p className="ml-2">Memvalidasi sesi Anda...</p>;
   }
-  
+
   const onSubmit = (data) => {
     // Payload sesuai backend
     if (!user || !user.users_id) {

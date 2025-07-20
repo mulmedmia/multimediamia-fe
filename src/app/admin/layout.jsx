@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { useTheme } from "next-themes";
 import {
   Sheet,
   SheetContent,
@@ -15,7 +16,6 @@ import {
   LayoutDashboard,
   LogOut,
   User,
-  Users,
   UploadCloud,
   Gamepad2,
 } from "lucide-react";
@@ -23,8 +23,10 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuthContext } from "@/providers/AuthProvider";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Toaster } from "sonner";
 
+// Data for sidebar navigation items
 const sidebarItems = [
   {
     title: "Dashboard",
@@ -53,40 +55,52 @@ const sidebarItems = [
   },
 ];
 
-function SidebarContent({ onLogout }) {
+// Reusable sidebar content component
+function SidebarContent({ onLogout, onLinkClick }) {
   const pathname = usePathname();
 
   return (
-    <div className="flex h-full flex-col bg-gray-50">
-      <div className="flex h-16 items-center border-b px-6">
-        <h2 className="text-lg font-semibold text-gray-900">Admin Panel</h2>
+    // Sidebar main container
+    <div className="flex h-full flex-col bg-neutral-100 dark:bg-neutral-900 text-black dark:text-white">
+      {/* Sidebar header */}
+      <div className="flex h-16 items-center border-b border-neutral-200 dark:border-neutral-800 px-4">
+        <Link href="/" className="flex items-center gap-2 font-semibold">
+          {/* Responsive font size */}
+          <span className="text-lg">MIA Admin Panel</span>
+        </Link>
       </div>
+      
+      {/* Navigation links container */}
       <nav className="flex-1 space-y-1 p-4">
         {sidebarItems.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href;
+          const isActive = pathname.startsWith(item.href);
           return (
             <Link
               key={item.href}
               href={item.href}
+              onClick={onLinkClick} // Close sidebar on mobile after click
               className={cn(
-                "flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-gray-100",
-                isActive ? "bg-blue-100 text-blue-700" : "text-gray-700"
+                "flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                isActive
+                  ? "bg-red-600 text-white" // Active link style
+                  : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white" // Default link style
               )}
             >
-              <Icon className="h-5 w-5" />
-              <span>{item.title}</span>
+              <Icon className="h-5 w-5 flex-shrink-0" />
+              <span className="truncate">{item.title}</span>
             </Link>
           );
         })}
       </nav>
-
-      <div className="p-4 border-t">
+      
+      {/* Logout button at the bottom */}
+      <div className="p-4 border-t border-neutral-200 dark:border-neutral-800">
         <button
           onClick={onLogout}
-          className="flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 w-full transition-colors"
+          className="flex w-full items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium text-red-500 hover:bg-neutral-200 dark:hover:bg-neutral-800 hover:text-red-400 transition-colors"
         >
-          <LogOut className="h-5 w-5" />
+          <LogOut className="h-5 w-5 flex-shrink-0" />
           <span>Logout</span>
         </button>
       </div>
@@ -94,84 +108,123 @@ function SidebarContent({ onLogout }) {
   );
 }
 
+
 export default function AdminLayout({ children }) {
+  // State for mobile sidebar visibility
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // Effect to prevent SSR hydration mismatch
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
-  const { user, logout } = useAuthContext();
+  const { user, loading, logout } = useAuthContext();
+  const { resolvedTheme } = useTheme();
 
   useEffect(() => {
-    if (user === undefined) return;
-    if (!user || user.role !== "ADMIN") {
-      router.push("/dashboard");
-      return;
+    setMounted(true);
+  }, []);
+  
+  // Auth check effect
+  useEffect(() => {
+    if (!loading && (!user || user.role !== "ADMIN")) {
+      router.push("/login");
     }
-    setIsAuthenticated(true);
-    setIsLoading(false);
-  }, [user, router]);
-
-  const handleLogout = () => {
-    logout();
-  };
-
-  if (isLoading) {
+  }, [user, loading, router]);
+  
+  // Loading state while checking auth
+  if (loading || !user || user.role !== "ADMIN") {
     return (
-      <div className="h-screen flex items-center justify-center">
+      <div className="h-screen flex items-center justify-center bg-white dark:bg-black text-black dark:text-white px-4">
         <div className="flex items-center space-x-2">
-          <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-          <span>Loading...</span>
+          <div className="w-6 h-6 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+          {/* Responsive text size for loading message */}
+          <span className="text-sm sm:text-base">Memverifikasi akses...</span>
         </div>
       </div>
     );
   }
-
-  if (!isAuthenticated) {
+  
+  // Avoid rendering anything on the server to prevent hydration errors
+  if (!mounted) {
     return null;
   }
+  
+  // Handler to close sidebar on link click
+  const handleLinkClick = () => {
+    setSidebarOpen(false);
+  };
+  
+  // Handler for logout, ensures sidebar is closed
+  const handleLogout = () => {
+    setSidebarOpen(false);
+    logout();
+  };
 
   return (
     <>
-      <Toaster />
-      <div className="flex h-screen bg-gray-100 overflow-hidden">
-        <div className="hidden md:flex md:w-64 md:flex-col">
-          <SidebarContent onLogout={handleLogout} />
+      <Toaster 
+        theme={resolvedTheme === "dark" ? "dark" : "light"} 
+        position="top-right" 
+      />
+      {/* Main responsive layout container */}
+      <div className="flex h-screen w-full bg-white dark:bg-black overflow-hidden">
+        
+        {/* Desktop-only sidebar. Hidden on screens smaller than lg */}
+        <div className="hidden lg:block lg:w-64 xl:w-72 flex-shrink-0 border-r border-neutral-200 dark:border-neutral-800">
+          <SidebarContent onLogout={logout} />
         </div>
 
-        <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-          <SheetTrigger asChild>
-            <Button
-              variant="outline"
-              size="icon"
-              className="md:hidden fixed top-4 left-4 z-40 bg-gray-900 text-white border border-gray-700 shadow-lg"
-            >
-              <Menu className="h-4 w-4 text-gray-900" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="p-0 w-64">
-            <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
-            <SidebarContent onLogout={handleLogout} />
-          </SheetContent>
-        </Sheet>
+        {/* Main content area */}
+        <div className="flex flex-1 flex-col overflow-hidden">
+          {/* Header for main content */}
+          <header className="flex h-16 items-center justify-between border-b border-neutral-200 dark:border-neutral-800 px-4 sm:px-6 flex-shrink-0">
+            {/* Left side of header */}
+            <div className="flex items-center gap-4">
+              {/* Mobile-only sidebar trigger (Hamburger Menu) */}
+              <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+                <SheetTrigger asChild>
+                  {/* Button is only visible on screens smaller than lg */}
+                  <Button variant="ghost" size="icon" className="lg:hidden text-black dark:text-white">
+                    <Menu className="h-6 w-6" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent 
+                  side="left" 
+                  className="p-0 w-72 bg-neutral-100 dark:bg-neutral-900 border-r-0"
+                >
+                  <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+                  <SidebarContent onLogout={handleLogout} onLinkClick={handleLinkClick} />
+                </SheetContent>
+              </Sheet>
 
-        <div className="flex-1 flex flex-col min-h-0">
-          <header className="bg-white shadow-sm border-b px-6 py-4 flex-shrink-0">
-            <div className="flex items-center justify-between">
-              <h1 className="text-xl font-semibold text-gray-900 ml-12 md:ml-0">
-                Multimedia in Action Admin
+              {/* Page Title */}
+              <h1 className="text-xl font-semibold text-black dark:text-white">
+                {/* Show shorter title on small screens */}
+                <span className="hidden sm:inline">Multimedia in Action</span>
+                <span className="sm:hidden">MIA Admin</span>
               </h1>
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
-                  <User className="h-5 w-5 text-gray-400" />
-                  <span className="text-sm text-gray-700">
-                    {user?.name || "Admin"}
-                  </span>
-                </div>
+            </div>
+            
+            {/* Right side of header */}
+            <div className="flex items-center gap-2 sm:gap-4">
+               {/* User info display */}
+              <div className="flex items-center gap-2">
+                <User className="h-5 w-5 text-neutral-600 dark:text-neutral-400" />
+                {/* Hide user name on very small screens for more space */}
+                <span className="hidden sm:inline text-sm text-neutral-700 dark:text-neutral-300 truncate max-w-40">
+                  {user?.name || "Admin"}
+                </span>
               </div>
+              <ThemeToggle />
             </div>
           </header>
 
-          <main className="flex-1 overflow-y-auto p-6 h-full min-h-0">{children}</main>
+          {/* Scrollable main content */}
+          {/* 'flex-1' makes it take available space, 'overflow-y-auto' enables scrolling */}
+          <main className="flex-1 overflow-y-auto bg-neutral-50 dark:bg-black text-black dark:text-neutral-200">
+            {/* Responsive padding for content area */}
+            <div className="p-4 sm:p-6 lg:p-8">
+              {children}
+            </div>
+          </main>
         </div>
       </div>
     </>
