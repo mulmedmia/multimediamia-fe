@@ -90,7 +90,7 @@ const CompetitionSection = () => {
             const shouldCenter = isLast && isOdd;
 
             const infoUrl = `/competition-info/${competition.slug}`;
-            const registrationUrl = `/competition-info/${competition.slug}/daftar-lomba`;
+            const registrationUrl = `/competition-registration`;
 
             return (
               <div
