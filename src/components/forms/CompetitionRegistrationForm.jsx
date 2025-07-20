@@ -35,7 +35,7 @@ const registrationSchema = z
     selected_category_type: z.string().optional(),
   })
   .superRefine((data, ctx) => {
-    const isTeam = data.selected_category_type === "TEAM";
+    const isTeam = data.selected_category_type === "GROUP";
     if (isTeam) {
       if (!data.team_name || data.team_name.length < 3) {
         ctx.addIssue({
@@ -114,7 +114,7 @@ export function CompetitionRegistrationForm() {
       file_url: data.file_url,
     };
 
-    if (selectedCategoryType === "TEAM") {
+    if (selectedCategoryType === "GROUP") {
       payload.team_name = data.team_name;
       const membersArray = data.team_members
         .split(",")
