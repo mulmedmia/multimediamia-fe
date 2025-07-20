@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "../ui/textarea";
 import { useAuthContext } from "@/providers/AuthProvider";
+import { toast } from "sonner";
 
 const registrationSchema = z
   .object({
@@ -88,12 +89,14 @@ export function CompetitionRegistrationForm() {
   const mutation = useMutation({
     mutationFn: submitCompetitionRegistration,
     onSuccess: () => {
-      alert("Pendaftaran berhasil!");
+      toast.success("Pendaftaran berhasil!");
       router.push("/dashboard");
       queryClient.invalidateQueries({ queryKey: ["myRegistrations"] });
       reset();
     },
-    onError: (error) => alert(`Gagal: ${error.message}`),
+    onError: (error) => {
+      toast.error(`Gagal: ${error.message || "Terjadi kesalahan"}`);
+    },
   });
 
   if (isLoading) {
@@ -102,24 +105,31 @@ export function CompetitionRegistrationForm() {
 
   const onSubmit = (data) => {
     if (!user || !user.users_id) {
-      alert("Sesi Anda telah berakhir. Harap login kembali.");
+      toast.error("Sesi Anda telah berakhir. Harap login kembali.");
       return;
     }
 
     const payload = {
-      user_id: user.users_id, // FIX: pastikan field user_id dikirim sesuai backend
+      user_id: user.users_id,
       category_id: data.category_id,
       file_url: data.file_url,
     };
 
     if (selectedCategoryType === "GROUP") {
       payload.team_name = data.team_name;
-      const membersArray = data.team_members
+      
+      // Format team_members sebagai string yang menyerupai array
+      // seperti yang diharapkan oleh backend
+      const namesArray = data.team_members
         .split(",")
-        .map((name) => name.trim());
-      payload.team_members = membersArray;
+        .map(name => name.trim())
+        .filter(name => name !== "");
+      
+      // Format yang diharapkan oleh backend: "['nama1', 'nama2', 'nama3']"
+      payload.team_members = `['${namesArray.join("', '")}']`;
     }
 
+    console.log("Mengirim data:", payload);
     mutation.mutate(payload);
   };
 
