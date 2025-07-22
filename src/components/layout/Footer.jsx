@@ -12,8 +12,12 @@ const Footer = () => (
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
         <div className="col-span-1 md:col-span-2">
           <div className="flex items-center space-x-3 mb-4">
-            <div className="w-10 h-10 bg-gradient-to-br from-red-600 to-black rounded-xl flex items-center justify-center shadow-lg">
-              <LightningBoltIcon className="h-6 w-6 text-white" />
+            <div>
+              <img
+                src="/MIALOGO.png"
+                alt="Logo"
+                className="h-6 w-6 object-contain"
+              />
             </div>
             <div>
               <span className="text-xl font-bold">Multimedia in Action</span>
