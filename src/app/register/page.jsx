@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { GitHubLogoIcon } from "@radix-ui/react-icons";
+import { EyeOpenIcon, EyeClosedIcon } from "@radix-ui/react-icons";
 import { useRegister } from "@/hooks/use-auth";
 
 const registerSchema = z.object({
@@ -30,6 +30,7 @@ const registerSchema = z.object({
 export default function RegisterPage() {
 
   const { loading, message, messageType, handleRegister } = useRegister();
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -78,14 +79,30 @@ export default function RegisterPage() {
                 <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>
               )}
             </div>
-            <div className="space-y-2">
+<div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="******"
-                {...register("password")}
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="******"
+                  {...register("password")}
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  tabIndex={-1}
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 dark:hover:text-white"
+                  aria-label={showPassword ? "Sembunyikan password" : "Lihat password"}
+                >
+                  {showPassword ? (
+                    <EyeOpenIcon className="w-5 h-5" />
+                  ) : (
+                    <EyeClosedIcon className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
               {errors.password && (
                 <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>
               )}
@@ -98,20 +115,6 @@ export default function RegisterPage() {
                 {message}
               </p>
             )}
-             <div className="relative my-4">
-               <div className="absolute inset-0 flex items-center">
-                 <span className="w-full border-t" />
-               </div>
-               <div className="relative flex justify-center text-xs uppercase">
-                 <span className="bg-background px-2 text-muted-foreground">
-                   Atau daftar dengan
-                 </span>
-               </div>
-             </div>
-             <Button variant="outline" className="w-full">
-               <GitHubLogoIcon className="mr-2 h-4 w-4" />
-               Daftar dengan GitHub
-             </Button>
           </CardContent>
           <CardFooter className="flex justify-center text-sm mt-5">
             <p>
