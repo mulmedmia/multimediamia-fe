@@ -9,10 +9,21 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { GitHubLogoIcon, EyeOpenIcon, EyeClosedIcon } from "@radix-ui/react-icons";
+import {
+  GitHubLogoIcon,
+  EyeOpenIcon,
+  EyeClosedIcon,
+} from "@radix-ui/react-icons";
 import { AuthHeader } from "@/components/auth-header";
 
 import { useAuth } from "@/hooks/use-auth";
@@ -39,16 +50,9 @@ export default function LoginPage() {
 
   const onSubmit = async (data) => {
     const loginData = await handleLogin(data.email, data.password);
-    
+
     if (loginData) {
       login(loginData.data.user);
-      
-      const userRole = loginData.data.user.role;
-      const destination = userRole === 'ADMIN' ? '/admin/dashboard' : '/';
-      
-      setTimeout(() => {
-        router.push(destination);
-      }, 1000);
     }
   };
 
@@ -56,10 +60,11 @@ export default function LoginPage() {
     <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-red-50 via-white to-indigo-50 dark:from-red-900/20 dark:via-black dark:to-black p-4">
       <AuthHeader />
       <Card className="w-full max-w-md shadow-2xl bg-card/80 dark:bg-black/50 backdrop-blur-lg border-2 dark:border-gray-800 mt-16 sm:mt-0">
-
         <form onSubmit={handleSubmit(onSubmit)}>
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold">Selamat Datang Kembali</CardTitle>
+            <CardTitle className="text-2xl font-bold">
+              Selamat Datang Kembali
+            </CardTitle>
             <CardDescription className="text-muted-foreground">
               Masukkan email dan password Anda untuk masuk.
             </CardDescription>
@@ -73,9 +78,13 @@ export default function LoginPage() {
                 placeholder="account@gmail.com"
                 {...register("email")}
               />
-              {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>}
+              {errors.email && (
+                <p className="text-xs text-red-500 mt-1">
+                  {errors.email.message}
+                </p>
+              )}
             </div>
-<div className="space-y-2">
+            <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <div className="relative">
                 <Input
@@ -90,7 +99,9 @@ export default function LoginPage() {
                   tabIndex={-1}
                   onClick={() => setShowPassword((v) => !v)}
                   className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 dark:hover:text-white"
-                  aria-label={showPassword ? "Sembunyikan password" : "Lihat password"}
+                  aria-label={
+                    showPassword ? "Sembunyikan password" : "Lihat password"
+                  }
                 >
                   {showPassword ? (
                     <EyeOpenIcon className="w-5 h-5" />
@@ -100,11 +111,17 @@ export default function LoginPage() {
                 </button>
               </div>
               {errors.password && (
-                <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>
+                <p className="text-xs text-red-500 mt-1">
+                  {errors.password.message}
+                </p>
               )}
             </div>
             {message && (
-              <p className={`text-sm text-center ${messageType === "success" ? "text-green-600" : "text-red-500"}`}>
+              <p
+                className={`text-sm text-center ${
+                  messageType === "success" ? "text-green-600" : "text-red-500"
+                }`}
+              >
                 {message}
               </p>
             )}
@@ -115,7 +132,10 @@ export default function LoginPage() {
           <CardFooter className="flex justify-center text-sm mt-5">
             <p>
               Belum punya akun?{" "}
-              <Link href="/register" className="font-semibold text-red-600 dark:text-red-400 hover:underline">
+              <Link
+                href="/register"
+                className="font-semibold text-red-600 dark:text-red-400 hover:underline"
+              >
                 Daftar di sini
               </Link>
             </p>

@@ -47,19 +47,21 @@ export function AuthProvider({ children }) {
 
   const login = (userData) => {
     setUser(userData);
-    if (userData.role === "ADMIN") {
-      router.push("/admin/dashboard");
-    } else if (userData.role === "JURI") {
-      router.push("/juri/manage-submission");
-    } else {
-      router.push("/dashboard");
-    }
+    setTimeout(() => {
+      if (userData.role === "ADMIN") {
+        router.replace("/admin/dashboard");
+      } else if (userData.role === "JURI") {
+        router.replace("/juri/manage-submission");
+      } else {
+        router.replace("/dashboard");
+      }
+    }, 1000);
   };
 
   const logout = () => {
     Cookies.remove("authToken");
     setUser(null);
-    window.location.href = "/login";
+    router.replace("/login");
   };
 
   const value = {
