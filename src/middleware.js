@@ -45,23 +45,37 @@ export async function middleware(req) {
 
   if (
     nextUrl.pathname.startsWith("/dashboard") ||
-    nextUrl.pathname.startsWith("/admin")
+    nextUrl.pathname.startsWith("/admin") ||
+    nextUrl.pathname.startsWith("/juri")
   ) {
     if (!token || !valid) {
       return NextResponse.redirect(new URL("/login", req.url));
     }
+
     if (nextUrl.pathname.startsWith("/admin") && role !== "ADMIN") {
       return NextResponse.redirect(new URL("/dashboard", req.url));
     }
+
+    if (nextUrl.pathname.startsWith("/juri") && role !== "JURI") {
+      return NextResponse.redirect(new URL("/dashboard", req.url));
+    }
+
     if (nextUrl.pathname.startsWith("/dashboard") && role === "ADMIN") {
       return NextResponse.redirect(new URL("/admin/dashboard", req.url));
     }
+
+    if (nextUrl.pathname.startsWith("/dashboard") && role === "JURI") {
+      return NextResponse.redirect(new URL("/juri/manage-submission", req.url));
+    }
+
     return NextResponse.next();
   }
 
   if (nextUrl.pathname === "/login" && token && valid) {
     if (role === "ADMIN") {
       return NextResponse.redirect(new URL("/admin/dashboard", req.url));
+    } else if (role === "JURI") {
+      return NextResponse.redirect(new URL("/juri/manage-submission", req.url));
     } else {
       return NextResponse.redirect(new URL("/dashboard", req.url));
     }
@@ -85,6 +99,7 @@ export const config = {
   matcher: [
     "/dashboard/:path*",
     "/admin/:path*",
+    "/juri/:path*",
     "/register/otp",
     "/login",
     "/competition-info/:path*/daftar-lomba",

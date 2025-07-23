@@ -49,6 +49,8 @@ export function AuthProvider({ children }) {
     setUser(userData);
     if (userData.role === "ADMIN") {
       router.push("/admin/dashboard");
+    } else if (userData.role === "JURI") {
+      router.push("/juri/manage-submission");
     } else {
       router.push("/dashboard");
     }
