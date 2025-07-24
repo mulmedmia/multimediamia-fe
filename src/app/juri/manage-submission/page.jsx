@@ -33,8 +33,13 @@ const SubmissionCard = ({ submission }) => {
   };
 
   return (
-    <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg p-5 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow duration-300">
-      <div>
+    <div
+      className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg p-5 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow duration-300 cursor-pointer h-full"
+      onClick={() =>
+        (window.location.href = `/juri/manage-submission/${submission.submission_id}`)
+      }
+    >
+      <div className="flex-grow">
         <div className="flex justify-between items-start mb-2">
           <h3 className="text-lg font-bold text-black dark:text-white pr-2">
             {submission.project_name}
@@ -58,30 +63,8 @@ const SubmissionCard = ({ submission }) => {
           {submission.description}
         </p>
       </div>
-      <div className="mt-4 pt-4 border-t border-neutral-200 dark:border-neutral-700 flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          {githubLink && (
-            <a
-              href={githubLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-neutral-500 hover:text-black dark:hover:text-white transition-colors"
-            >
-              <Github className="w-5 h-5" />
-            </a>
-          )}
-          {otherLink && !githubLink && (
-            <a
-              href={otherLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-neutral-500 hover:text-black dark:hover:text-white transition-colors"
-            >
-              <LinkIcon className="w-5 h-5" />
-            </a>
-          )}
-        </div>
-        <button className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors">
+      <div className="mt-4">
+        <button className="flex items-center space-x-2 bg-gradient-to-r from-red-600 to-red-700 dark:to-black hover:from-red-700 hover:to-red-800 dark:hover:to-gray-900 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors w-fit">
           <FileText className="w-4 h-4" />
           <span>Beri Nilai</span>
         </button>
