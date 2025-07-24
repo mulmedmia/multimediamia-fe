@@ -1,72 +1,66 @@
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Eye, CheckCircle } from "lucide-react";
 
-// Kolom untuk mobile
-export const mobileColumns = [
-  { accessorKey: "user.name", header: "Nama" },
-  { accessorKey: "category.category_name", header: "Kategori" },
-  { accessorKey: "is_verified", header: "Status", cell: ({ row }) => (
-      <span className={`px-2 py-1 rounded text-xs font-semibold ${row.original.is_verified ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
-        {row.original.is_verified ? "Terverifikasi" : "Belum"}
-      </span>
-    )
-  },
-  {
-    id: "actions",
-    header: "Aksi",
-    cell: ({ row, setEditData }) => (
-      <Button
-        size="sm"
-        variant={row.original.is_verified ? "outline" : "destructive"}
-        onClick={() => setEditData(row.original)}
-      >
-        {row.original.is_verified ? "Batalkan" : "Verifikasi"}
-      </Button>
-    ),
-  },
-];
-
-// Kolom untuk desktop/tablet
-export const desktopColumns = [
-  { accessorKey: "user.name", header: "Nama" },
-  { accessorKey: "user.email", header: "Email" },
-  { accessorKey: "category.category_name", header: "Kategori" },
-  { accessorKey: "category.team_type", header: "Tipe" },
-  { accessorKey: "file_url", header: "File", cell: ({ row }) => (
-      <a href={row.original.file_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Lihat File</a>
-    )
-  },
-  { accessorKey: "team_name", header: "Nama Tim" },
-  { accessorKey: "team_members", header: "Anggota Tim" },
-  { accessorKey: "is_verified", header: "Status", cell: ({ row }) => (
-      <span className={`px-2 py-1 rounded text-xs font-semibold ${row.original.is_verified ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
-        {row.original.is_verified ? "Terverifikasi" : "Belum"}
-      </span>
-    )
-  },
-  {
-    id: "actions",
-    header: "Aksi",
-    cell: ({ row, setEditData }) => (
-      <Button
-        size="sm"
-        variant={row.original.is_verified ? "outline" : "destructive"}
-        onClick={() => setEditData(row.original)}
-      >
-        {row.original.is_verified ? "Batalkan" : "Verifikasi"}
-      </Button>
-    ),
-  },
-];
-
-// Fungsi untuk memilih kolom berdasarkan device
-export function getPendaftarColumns({ isMobile, setEditData }) {
-  return isMobile ? mobileColumns.map(col =>
-    col.id === "actions"
-      ? { ...col, cell: (props) => col.cell({ ...props, setEditData }) }
-      : col
-  ) : desktopColumns.map(col =>
-    col.id === "actions"
-      ? { ...col, cell: (props) => col.cell({ ...props, setEditData }) }
-      : col
-  );
+export function getPendaftarColumns({ setDetailData, setVerifyData }) {
+  return [
+    {
+      header: "Nama",
+      accessorKey: "user.name",
+      cell: ({ row }) => (
+        <div className="font-medium">{row.original.user?.name}</div>
+      ),
+    },
+    {
+      header: "Email",
+      accessorKey: "user.email",
+      cell: ({ row }) => (
+        <div className="text-sm text-muted-foreground">
+          {row.original.user?.email}
+        </div>
+      ),
+    },
+    {
+      header: "Kategori",
+      accessorKey: "category.category_name",
+      cell: ({ row }) => (
+        <Badge variant="outline">
+          {row.original.category?.category_name}
+        </Badge>
+      ),
+    },
+    {
+      header: "Status",
+      accessorKey: "is_verified",
+      cell: ({ row }) => (
+        <Badge variant={row.original.is_verified ? "default" : "secondary"}>
+          {row.original.is_verified ? "Terverifikasi" : "Belum Terverifikasi"}
+        </Badge>
+      ),
+    },
+    {
+      header: "Aksi",
+      id: "actions",
+      cell: ({ row }) => (
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setDetailData(row.original)}
+          >
+            <Eye className="h-4 w-4 mr-1" />
+            Detail
+          </Button>
+          <Button
+            variant="default"
+            size="sm"
+            onClick={() => setVerifyData(row.original)}
+          >
+            <CheckCircle className="h-4 w-4 mr-1" />
+            Verifikasi
+          </Button>
+        </div>
+      ),
+    },
+  ];
 }
