@@ -93,11 +93,6 @@ export function getCategoryColumns({
       cell: ({ row }) => row.original.category_name,
     },
     {
-      header: "Judul",
-      accessorKey: "title",
-      cell: ({ row }) => row.original.title,
-    },
-    {
       header: "Penyelenggara",
       accessorKey: "organizer",
       cell: ({ row }) => row.original.organizer,
