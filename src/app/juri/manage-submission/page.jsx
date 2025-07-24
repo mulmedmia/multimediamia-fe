@@ -12,7 +12,6 @@ import {
 
 // Komponen untuk menampilkan setiap kartu submission
 const SubmissionCard = ({ submission }) => {
-  // Mencari link GITHUB atau link pertama yang tersedia
   const githubLink = submission.links?.find(
     (link) => link.link_type === "GITHUB"
   )?.url;
@@ -94,20 +93,42 @@ const SubmissionCard = ({ submission }) => {
 // Komponen utama halaman
 export default function ManageSubmissionPage() {
   const [submissions, setSubmissions] = useState([]);
+  const [filteredSubmissions, setFilteredSubmissions] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
   const [meta, setMeta] = useState({ page: 1, limit: 6, totalPages: 1 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fungsi untuk mengambil data dari API
+  // Fungsi untuk mengambil data kategori dari API
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+        const response = await fetch(`${BASE_URL}/categories?limit=5&page=1`);
+        if (!response.ok) {
+          throw new Error("Gagal mengambil data kategori");
+        }
+        const result = await response.json();
+        if (result.status) {
+          setCategories(result.data.categories);
+        }
+      } catch (err) {
+        console.error(err.message);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  // Fungsi untuk mengambil data submission dari API
   useEffect(() => {
     const fetchSubmissions = async () => {
       setLoading(true);
       setError(null);
       try {
-        // Ganti 'YOUR_BASE_URL' dengan URL API Anda yang sebenarnya
         const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
         const response = await fetch(
-          `${BASE_URL}/submissions?limit=${meta.limit}&page=${meta.page}&status&search`
+          `${BASE_URL}/submissions?limit=${meta.limit}&page=${meta.page}`
         );
 
         if (!response.ok) {
@@ -117,8 +138,9 @@ export default function ManageSubmissionPage() {
         const result = await response.json();
 
         if (result.status) {
-          setSubmissions(result.data.submissions);
-          setMeta(result.data.meta);
+          setSubmissions(result.data.submissions || []);
+          setFilteredSubmissions(result.data.submissions || []);
+          setMeta(result.data.meta || { page: 1, limit: 6, totalPages: 1 });
         } else {
           throw new Error(result.message || "Gagal memuat data");
         }
@@ -130,7 +152,21 @@ export default function ManageSubmissionPage() {
     };
 
     fetchSubmissions();
-  }, [meta.page]); // Efek ini akan berjalan lagi setiap kali 'meta.page' berubah
+  }, [meta.page]);
+
+  const handleCategoryChange = (e) => {
+    const categoryId = e.target.value;
+    setSelectedCategory(categoryId);
+
+    if (categoryId) {
+      const filtered = submissions.filter(
+        (submission) => submission.category_id === categoryId
+      );
+      setFilteredSubmissions(filtered);
+    } else {
+      setFilteredSubmissions(submissions);
+    }
+  };
 
   const handleNextPage = () => {
     if (meta.page < meta.totalPages) {
@@ -156,6 +192,30 @@ export default function ManageSubmissionPage() {
         </p>
       </div>
 
+      {/* ===== DROPDOWN FILTER KATEGORI ===== */}
+      <div className="max-w-xs">
+        <label
+          htmlFor="category-filter"
+          className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2"
+        >
+          Filter berdasarkan Kategori
+        </label>
+        <select
+          id="category-filter"
+          value={selectedCategory}
+          onChange={handleCategoryChange}
+          className="block w-full px-3 py-2 bg-white border border-neutral-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm dark:bg-neutral-800 dark:border-neutral-700 dark:text-white"
+        >
+          <option value="">Semua Kategori</option>
+          {categories.map((category) => (
+            <option key={category.category_id} value={category.category_id}>
+              {category.category_name}
+            </option>
+          ))}
+        </select>
+      </div>
+      {/* ==================================== */}
+
       {loading && (
         <div className="flex justify-center items-center py-10">
           <Loader2 className="w-8 h-8 animate-spin text-red-600" />
@@ -175,11 +235,11 @@ export default function ManageSubmissionPage() {
         </div>
       )}
 
-      {!loading && !error && submissions.length > 0 && (
+      {!loading && !error && filteredSubmissions.length > 0 && (
         <>
           {/* Grid responsif untuk kartu submission */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {submissions.map((submission) => (
+            {filteredSubmissions.map((submission) => (
               <SubmissionCard
                 key={submission.submission_id}
                 submission={submission}
@@ -219,7 +279,7 @@ export default function ManageSubmissionPage() {
         </>
       )}
 
-      {!loading && !error && submissions.length === 0 && (
+      {!loading && !error && filteredSubmissions.length === 0 && (
         <div className="text-center py-10 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg">
           <h3 className="text-lg font-semibold text-black dark:text-white">
             Belum Ada Submission
