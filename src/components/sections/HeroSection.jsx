@@ -25,14 +25,14 @@ const HeroSection = () => {
     },
     {
       icon: PersonIcon,
-      value: "1000+",
+      value: "50+",
       label: "Peserta Terdaftar",
       color: "text-blue-500",
       darkColor: "dark:text-blue-400",
     },
     {
       icon: StarIcon,
-      value: "47 Juta+",
+      value: "3 Juta+",
       label: "Total Hadiah",
       color: "text-green-500",
       darkColor: "dark:text-green-400",
@@ -71,11 +71,10 @@ const HeroSection = () => {
           </h1>
 
           <p className="text-xl text-muted-foreground dark:text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
-            Tunjukkan kreativitas dan inovasi Anda dalam 4 kategori lomba:
+            Tunjukkan kreativitas dan inovasi Anda dalam 3 kategori lomba:
             <span className="font-semibold text-red-600 dark:text-red-400">
               {" "}
-              Website Development, UI/UX Design, Digital Poster, dan Essay
-              Writing
+              Website Development, UI/UX Design, dan Digital Poster
             </span>
             .
           </p>
