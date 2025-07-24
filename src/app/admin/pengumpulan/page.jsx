@@ -7,35 +7,40 @@ import { Input } from "@/components/ui/input";
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getPengumpulanColumns } from "./pengumpulan-table-config";
-
-// Modal sederhana
-function Modal({ open, onClose, children }) {
-  if (!open) return null;
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 min-w-[320px] max-w-lg w-full">
-        {children}
-        <Button variant="outline" className="mt-4 w-full" onClick={onClose}>Tutup</Button>
-      </div>
-    </div>
-  );
-}
+import SubmissionDetailModal from "./SubmissionDetailModal";
+import SubmissionStatusModal from "./SubmissionStatusModal";
+import SubmissionScoreModal from "./SubmissionScoreModal";
 
 export default function AdminPengumpulanPage() {
   const [input, setInput] = useState("");
   const [search, setSearch] = useState("");
-  const [editData, setEditData] = useState(null);
+  const [detailData, setDetailData] = useState(null);
+  const [statusData, setStatusData] = useState(null);
+  const [scoreData, setScoreData] = useState(null);
+
+  // State untuk status & verifikasi
+  const [status, setStatus] = useState("");
+  const [is_verified, setIsVerified] = useState(false);
+
+  // State untuk skor & feedback
+  const [score, setScore] = useState("");
+  const [feedback, setFeedback] = useState("");
 
   const isMobile = useIsMobile();
   const columns = useMemo(
-    () => getPengumpulanColumns({ isMobile, setEditData }),
-    [isMobile, setEditData]
+    () => getPengumpulanColumns({
+      isMobile,
+      setDetailData,
+      setStatusData,
+      setScoreData
+    }),
+    [isMobile]
   );
 
   const { data: submissions = [], isLoading, isError } = useAdminSubmissions({ search });
   const patchStatus = usePatchSubmissionStatus();
-  const deleteMutation = useDeleteSubmission();
   const patchScore = usePatchSubmissionScore();
+  const deleteMutation = useDeleteSubmission();
 
   const table = useReactTable({
     data: submissions,
@@ -43,21 +48,17 @@ export default function AdminPengumpulanPage() {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  // Modal state
-  const [score, setScore] = useState("");
-  const [feedback, setFeedback] = useState("");
-  const [status, setStatus] = useState("");
-  const [is_verified, setIsVerified] = useState(false);
-
   // Reset modal state on open
   React.useEffect(() => {
-    if (editData) {
-      setScore(editData.score ?? "");
-      setFeedback(editData.feedback ?? "");
-      setStatus(editData.status ?? "");
-      setIsVerified(editData.is_verified ?? false);
+    if (statusData) {
+      setStatus(statusData.status ?? "");
+      setIsVerified(statusData.is_verified ?? false);
     }
-  }, [editData]);
+    if (scoreData) {
+      setScore(scoreData.score ?? "");
+      setFeedback(scoreData.feedback ?? "");
+    }
+  }, [statusData, scoreData]);
 
   if (isLoading) return <div className="text-foreground dark:text-white">Memuat data...</div>;
   if (isError) return <div className="text-red-600 dark:text-red-400">Gagal memuat data.</div>;
@@ -110,108 +111,48 @@ export default function AdminPengumpulanPage() {
         </table>
       </div>
 
-      {/* Modal Detail & Action */}
-      <Modal open={!!editData} onClose={() => setEditData(null)}>
-        <h2 className="text-lg font-semibold mb-4 text-foreground dark:text-white">Detail Submission</h2>
-        {editData && (
-          <div className="space-y-2 mb-4">
-            <div><strong>Nama:</strong> {editData?.user?.name}</div>
-            <div><strong>Email:</strong> {editData?.user?.email}</div>
-            <div><strong>Kategori:</strong> {editData?.category?.category_name}</div>
-            <div><strong>Judul:</strong> {editData?.title}</div>
-            <div>
-              <strong>File:</strong>{" "}
-              <a
-                href={editData?.file_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 underline"
-              >
-                Lihat File
-              </a>
-            </div>
-            <div><strong>Status:</strong> {editData?.status}</div>
-            <div><strong>Skor:</strong> {editData?.score ?? "-"}</div>
-            <div><strong>Feedback:</strong> {editData?.feedback ?? "-"}</div>
-          </div>
-        )}
+      {/* Modal Detail */}
+      <SubmissionDetailModal
+        open={!!detailData}
+        onClose={() => setDetailData(null)}
+        data={detailData}
+      />
 
-        {/* Update Status */}
-        <div className="space-y-2 mb-2">
-          <label className="block font-medium">Update Status</label>
-          <select
-            value={status}
-            onChange={e => setStatus(e.target.value)}
-            className="w-full border rounded px-2 py-1"
-          >
-            <option value="">Pilih status</option>
-            <option value="PENDING">PENDING</option>
-            <option value="APPROVED">APPROVED</option>
-            <option value="REJECTED">REJECTED</option>
-            <option value="REVISION">REVISION</option>
-          </select>
-          <label className="inline-flex items-center gap-2 mt-2">
-            <input
-              type="checkbox"
-              checked={is_verified}
-              onChange={e => setIsVerified(e.target.checked)}
-            />
-            Verifikasi
-          </label>
-          <Button
-            className="w-full mt-2"
-            disabled={patchStatus.isPending}
-            onClick={() =>
-              patchStatus.mutate(
-                { id: editData.submission_id, status, is_verified },
-                { onSuccess: () => setEditData(null) }
-              )
-            }
-          >
-            {patchStatus.isPending ? "Menyimpan..." : "Update Status"}
-          </Button>
-        </div>
+      {/* Modal Status */}
+      <SubmissionStatusModal
+        open={!!statusData}
+        onClose={() => setStatusData(null)}
+        data={statusData}
+        status={status}
+        setStatus={setStatus}
+        is_verified={is_verified}
+        setIsVerified={setIsVerified}
+        isLoading={patchStatus.isPending}
+        onSubmit={() =>
+          patchStatus.mutate(
+            { id: statusData.submission_id, status, is_verified },
+            { onSuccess: () => setStatusData(null) }
+          )
+        }
+      />
 
-        {/* Update Score & Feedback */}
-        <div className="space-y-2 mb-2">
-          <label className="block font-medium">Update Skor & Feedback</label>
-          <input
-            type="number"
-            className="w-full border rounded px-2 py-1"
-            placeholder="Skor"
-            value={score}
-            onChange={e => setScore(e.target.value)}
-          />
-          <textarea
-            className="w-full border rounded px-2 py-1"
-            placeholder="Feedback"
-            value={feedback}
-            onChange={e => setFeedback(e.target.value)}
-          />
-          <Button
-            className="w-full mt-2"
-            disabled={patchScore.isPending}
-            onClick={() =>
-              patchScore.mutate(
-                { id: editData.submission_id, score: Number(score), feedback },
-                { onSuccess: () => setEditData(null) }
-              )
-            }
-          >
-            {patchScore.isPending ? "Menyimpan..." : "Update Skor"}
-          </Button>
-        </div>
-
-        {/* Delete */}
-        <Button
-          variant="destructive"
-          className="w-full mt-2"
-          disabled={deleteMutation.isPending}
-          onClick={() => deleteMutation.mutate(editData.submission_id, { onSuccess: () => setEditData(null) })}
-        >
-          {deleteMutation.isPending ? "Menghapus..." : "Hapus Submission"}
-        </Button>
-      </Modal>
+      {/* Modal Score */}
+      <SubmissionScoreModal
+        open={!!scoreData}
+        onClose={() => setScoreData(null)}
+        data={scoreData}
+        score={score}
+        setScore={setScore}
+        feedback={feedback}
+        setFeedback={setFeedback}
+        isLoading={patchScore.isPending}
+        onSubmit={() =>
+          patchScore.mutate(
+            { id: scoreData.submission_id, score: Number(score), feedback },
+            { onSuccess: () => setScoreData(null) }
+          )
+        }
+      />
     </div>
   );
 }
