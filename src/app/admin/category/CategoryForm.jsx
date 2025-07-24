@@ -23,6 +23,7 @@ export default function CategoryForm({ initial, onSubmit, isLoading }) {
     deadline: initial?.deadline ? new Date(initial.deadline) : null,
     status: initial?.status || "NOT_VERIFIED",
     image: null,
+    file_url:null,
     organizer: initial?.organizer || "",
     team_type: initial?.team_type || "GROUP",
   });
@@ -155,6 +156,18 @@ export default function CategoryForm({ initial, onSubmit, isLoading }) {
             accept="image/*"
             onChange={(e) =>
               setForm((f) => ({ ...f, image: e.target.files?.[0] }))
+            }
+          />
+        </div>
+        <div className="space-y-2 sm:col-span-2">
+          <Label htmlFor="file_url">Link File (Google Drive, dsb)</Label>
+          <Input
+            id="file_url"
+            type="url"
+            placeholder="https://drive.google.com/file/d/xxx/view?usp=sharing"
+            value={form.file_url || ""}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, file_url: e.target.value }))
             }
           />
         </div>
