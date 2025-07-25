@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import {
   Card,
@@ -11,12 +12,13 @@ import {
 } from "@/components/ui/card";
 
 import { CompetitionRegistrationForm } from "@/components/forms/CompetitionRegistrationForm";
-import { useRouter } from "next/navigation";
 import { useAuthContext } from "@/providers/AuthProvider";
 import { AuthHeader } from "@/components/auth-header";
 
 export default function CompetitionRegistrationPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const categoryId = searchParams.get("category"); // Ambil parameter kategori dari URL
   const { user, isLoading } = useAuthContext();
 
   useEffect(() => {
@@ -25,7 +27,6 @@ export default function CompetitionRegistrationPage() {
     }
   }, [isLoading, user, router]);
 
-  // Tampilkan loading saat sistem sedang memeriksa status autentikasi
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -34,10 +35,8 @@ export default function CompetitionRegistrationPage() {
     );
   }
 
-if (!user) 
-    return null;
+  if (!user) return null;
 
-  // Jika user sudah login, akan ditampilkan halaman pendaftaran
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-red-50 via-white to-indigo-50 dark:from-red-900/20 dark:via-black dark:to-black p-4">
       <AuthHeader />
@@ -51,8 +50,8 @@ if (!user)
           </CardDescription>
         </CardHeader>
         <CardContent className="mt-5">
-          {/* Tampilkan komponen form yang sudah dibuat */}
-          <CompetitionRegistrationForm />
+          {/* Teruskan categoryId ke form */}
+          <CompetitionRegistrationForm defaultCategoryId={categoryId} />
         </CardContent>
       </Card>
     </div>

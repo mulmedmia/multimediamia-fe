@@ -23,39 +23,17 @@ import { Textarea } from "../ui/textarea";
 import { useAuthContext } from "@/providers/AuthProvider";
 import { toast } from "sonner";
 
-const registrationSchema = z
-  .object({
-    team_name: z.string().optional(),
-    category_id: z
-      .string({ required_error: "Anda harus memilih kategori." })
-      .min(1, "Kategori harus dipilih."),
-    file_url: z
-      .string()
-      .url({ message: "Harap masukkan URL Google Drive yang valid!" }),
-    team_members: z.string().optional(),
-    selected_category_type: z.string().optional(),
-  })
-  .superRefine((data, ctx) => {
-    const isTeam = data.selected_category_type === "GROUP";
-    if (isTeam) {
-      if (!data.team_name || data.team_name.length < 3) {
-        ctx.addIssue({
-          code: "custom",
-          message: "Nama tim minimal 3 karakter.",
-          path: ["team_name"],
-        });
-      }
-      if (!data.team_members || data.team_members.trim() === "") {
-        ctx.addIssue({
-          code: "custom",
-          message: "Anggota tim tidak boleh kosong.",
-          path: ["team_members"],
-        });
-      }
-    }
-  });
+const registrationSchema = z.object({
+  team_name: z.string().optional(),
+  category_id: z
+    .string({ required_error: "Anda harus memilih kategori." })
+    .min(1, "Kategori harus dipilih."),
+  file_url: z.string().url({ message: "Harap masukkan URL yang valid." }),
+  team_members: z.string().optional(),
+  selected_category_type: z.string().optional(),
+});
 
-export function CompetitionRegistrationForm() {
+export function CompetitionRegistrationForm({ defaultCategoryId }) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { user, isLoading } = useAuthContext();
@@ -76,7 +54,7 @@ export function CompetitionRegistrationForm() {
   } = useForm({
     resolver: zodResolver(registrationSchema),
     defaultValues: {
-      category_id: "",
+      category_id: defaultCategoryId || "", // Isi kategori secara otomatis jika ada
       file_url: "",
       team_name: "",
       team_members: "",
@@ -99,10 +77,6 @@ export function CompetitionRegistrationForm() {
     },
   });
 
-  if (isLoading) {
-    return <p className="ml-2">Memvalidasi sesi Anda...</p>;
-  }
-
   const onSubmit = (data) => {
     if (!user || !user.users_id) {
       toast.error("Sesi Anda telah berakhir. Harap login kembali.");
@@ -117,19 +91,14 @@ export function CompetitionRegistrationForm() {
 
     if (selectedCategoryType === "GROUP") {
       payload.team_name = data.team_name;
-      
-      // Format team_members sebagai string yang menyerupai array
-      // seperti yang diharapkan oleh backend
+
       const namesArray = data.team_members
         .split(",")
-        .map(name => name.trim())
-        .filter(name => name !== "");
-      
-      // Format yang diharapkan oleh backend: "['nama1', 'nama2', 'nama3']"
+        .map((name) => name.trim())
+        .filter((name) => name !== "");
       payload.team_members = `['${namesArray.join("', '")}']`;
     }
 
-    console.log("Mengirim data:", payload);
     mutation.mutate(payload);
   };
 
@@ -145,7 +114,6 @@ export function CompetitionRegistrationForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {/* Pilih Kategori */}
       <div className="space-y-2">
         <Label>Pilih Kategori</Label>
         <Controller
@@ -181,7 +149,6 @@ export function CompetitionRegistrationForm() {
           <p className="text-xs text-red-500">{errors.category_id.message}</p>
         )}
       </div>
-      {/* Input URL Google Drive */}
       <div className="space-y-2">
         <Label htmlFor="file_url">URL Google Drive</Label>
         <Input
@@ -193,11 +160,8 @@ export function CompetitionRegistrationForm() {
           <p className="text-xs text-red-500">{errors.file_url.message}</p>
         )}
       </div>
-
-      {/* -- Form untuk Tim */}
       {selectedCategoryType === "GROUP" && (
         <>
-          {/* Pilih nama Tim */}
           <div className="space-y-2">
             <Label htmlFor="team_name">Nama Tim</Label>
             <Input
@@ -209,7 +173,6 @@ export function CompetitionRegistrationForm() {
               <p className="text-xs text-red-500">{errors.team_name.message}</p>
             )}
           </div>
-          {/* Anggota Tim */}
           <div className="space-y-2">
             <label htmlFor="team_members">Anggota Tim</label>
             <Textarea
@@ -218,7 +181,7 @@ export function CompetitionRegistrationForm() {
               {...register("team_members")}
             />
             <p className="text-xs text-muted-foreground">
-              Pisahkan setiap nama dengan koma ( , ).{" "}
+              Pisahkan setiap nama dengan koma ( , ).
             </p>
             {errors.team_members && (
               <p className="text-xs text-red-500">
@@ -228,8 +191,6 @@ export function CompetitionRegistrationForm() {
           </div>
         </>
       )}
-
-      {/* Button untuk Submit */}
       <Button type="submit" className="w-full" disabled={mutation.isPending}>
         {mutation.isPending ? "Mendaftarkan..." : "Daftar Lomba"}
       </Button>

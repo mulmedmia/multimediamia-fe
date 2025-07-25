@@ -60,14 +60,6 @@ export default function DashboardPage() {
             <h1 className="text-3xl font-bold mb-4">Lomba yang Anda Ikuti</h1>
             <MyRegistrationsList onSelectRegistration={setSelectedRegistration} />
           </section>
-          <section>
-            <h2 className="text-3xl font-bold mb-4 text-center">
-              Daftar Lomba Baru
-            </h2>
-            <div className="p-8 bg-card rounded-lg shadow-lg max-w-lg mx-auto">
-              <CompetitionRegistrationForm />
-            </div>
-          </section>
         </div>
       </main>
       <Footer />
