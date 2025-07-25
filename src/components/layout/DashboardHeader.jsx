@@ -22,7 +22,7 @@ import {
 export function DashboardHeader() {
   const { user, logout } = useAuthContext();
   const dashboardLink = user?.role === 'ADMIN' ? '/admin/dashboard' : '/dashboard';
-
+  const profileLink = '/profile';
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b">
       <div className="container mx-auto px-4">
@@ -64,6 +64,13 @@ export function DashboardHeader() {
                     <Link href={dashboardLink}>
                       <DashboardIcon className="mr-2 h-4 w-4" />
                       <span>Dashboard</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href={profileLink}>
+                      <PersonIcon className="mr-2 h-4 w-4" />
+                      <span>Profile</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />

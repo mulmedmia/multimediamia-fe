@@ -43,7 +43,7 @@ export default function Header() {
     { href: "/#leaderboard", label: "Leaderboard" },
     { href: "/#faq", label: "FAQ" },
   ];
-
+  const profileLink = "/profile";
   const handleLinkClick = () => setIsMenuOpen(false);
 
   const dashboardLink =
@@ -140,6 +140,13 @@ export default function Header() {
                     <Link href={dashboardLink}>
                       <DashboardIcon className="mr-2 h-4 w-4" />
                       <span>Dashboard</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href={profileLink}>
+                      <PersonIcon className="mr-2 h-4 w-4" />
+                      <span>Profile</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
