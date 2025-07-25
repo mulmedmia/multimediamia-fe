@@ -41,7 +41,7 @@ const sidebarItems = [
     icon: Package,
   },
   {
-    title: "pendaftaran",
+    title: "Pendaftaran",
     href: "/admin/pendaftar",
     icon: Notebook,
   },

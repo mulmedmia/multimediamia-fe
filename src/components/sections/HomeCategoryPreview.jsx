@@ -30,7 +30,7 @@ function PreviewCard({ category }) {
   };
 
   return (
-    <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-0 bg-white dark:bg-gray-800 hover:-translate-y-1 relative">
+    <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-0 bg-white dark:bg-gray-800 hover:-translate-y-1 relative flex flex-col">
       
       {/* Image Section */}
       <div className="relative h-40 overflow-hidden bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20">
@@ -50,7 +50,7 @@ function PreviewCard({ category }) {
       </div>
 
       {/* Content Section */}
-      <div className="p-2 space-y-2">
+      <div className="p-2 space-y-2 flex flex-col flex-1">
         {/* Title */}
         <div>
           <CardTitle className="text-xs font-bold line-clamp-1 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors duration-300 mb-1">
@@ -117,7 +117,7 @@ function PreviewCard({ category }) {
         </div>
 
         {/* Action Button */}
-        <div className="pt-1">
+        <div className="pt-1 mt-auto">
           <Button 
             variant="ghost" 
             size="sm"
