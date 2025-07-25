@@ -1,0 +1,19 @@
+import api from "@/lib/api";
+
+// Ambil semua juri
+export const getAllJuri = async () => {
+  const res = await api.get("/auth/juri");
+  return res.data.data;
+};
+
+// Tambah juri baru
+export const createJuri = async ({ name, email, password }) => {
+  const res = await api.post("/auth/juri", { name, email, password });
+  return res.data;
+};
+
+// Hapus juri
+export const deleteJuri = async (id) => {
+  const res = await api.delete(`/auth/juri/${id}`);
+  return res.data;
+};

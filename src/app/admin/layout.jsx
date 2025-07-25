@@ -17,6 +17,7 @@ import {
   Notebook,
   LogOut,
   User,
+  UserLock,
   UploadCloud,
   Gamepad2,
 } from "lucide-react";
@@ -58,6 +59,11 @@ const sidebarItems = [
     title: "Gamifikasi",
     href: "/admin/gamifikasi",
     icon: Gamepad2,
+  },
+    {
+    title: "Manage Juri",
+    href: "/admin/manage-juri",
+    icon: UserLock,
   },
 ];
 
