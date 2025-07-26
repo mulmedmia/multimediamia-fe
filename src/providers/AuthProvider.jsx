@@ -53,7 +53,7 @@ export function AuthProvider({ children }) {
       } else if (userData.role === "JURI") {
         router.replace("/juri/manage-submission");
       } else {
-        router.replace("/dashboard");
+        router.replace("/");
       }
     }, 1000);
   };
