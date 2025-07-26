@@ -221,17 +221,23 @@ export function SubmissionForm({
         registration.category_id || registration.category?.category_id,
       project_name: data.project_name,
       description: data.description,
-      // PERBAIKAN: Selalu sediakan nilai untuk team_name & flow_application
-      team_name:
-        teamType === "GROUP"
-          ? data.team_name || registration.team_name || ""
-          : "Individual Participant", // Dummy value untuk INDIVIDUAL
-      flow_application:
-        teamType === "GROUP"
-          ? data.flow_application || ""
-          : "Not applicable for individual category", // Dummy value untuk INDIVIDUAL
       links: links,
     };
+    // PERBAIKAN: Selalu sediakan nilai untuk team_name & flow_application
+    if (teamType === "GROUP") {
+      // Untuk GROUP: kirim team_name dan flow_application
+      submissionPayload.team_name =
+        data.team_name || registration.team_name || "";
+      submissionPayload.flow_application = data.flow_application || "";
+    } else {
+      // Untuk INDIVIDUAL: gunakan nama user sebagai team_name, tanpa flow_application
+      submissionPayload.team_name =
+        registration.user?.name ||
+        registration.user?.full_name ||
+        registration.user?.username ||
+        "Individual Participant";
+      // TIDAK mengirim flow_application untuk INDIVIDUAL
+    }
     mutation.mutate(submissionPayload);
   };
 
