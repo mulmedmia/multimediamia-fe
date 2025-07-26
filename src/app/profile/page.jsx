@@ -115,7 +115,7 @@ export default function ProfilePage() {
                   {typeof profile?.points === "number" && (
                     <div className="inline-flex items-center px-4 py-2 rounded-full bg-yellow-400/20 backdrop-blur-sm">
                       <span className="text-yellow-100 font-semibold">
-                        ⭐ {profile.points} Poin
+                        💎 {profile.points} Diamonds
                       </span>
                     </div>
                   )}

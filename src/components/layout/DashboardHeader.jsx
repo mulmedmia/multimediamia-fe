@@ -13,16 +13,20 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  LightningBoltIcon,
-  ExitIcon,
-  PersonIcon,
-  DashboardIcon,
-} from "@radix-ui/react-icons";
+  LogOut,
+  User,
+  LayoutDashboard,
+  Clock,
+  Trophy,
+} from "lucide-react";
 
 export function DashboardHeader() {
   const { user, logout } = useAuthContext();
   const dashboardLink = user?.role === 'ADMIN' ? '/admin/dashboard' : '/dashboard';
   const profileLink = '/profile';
+  const historyPesananLink = '/history-pesanan';
+  const leaderboardLink = '/leaderboard';
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b">
       <div className="container mx-auto px-4">
@@ -35,19 +39,34 @@ export function DashboardHeader() {
                 className="h-6 w-6 object-contain"
               />
             </div>
-            {/* Brand name is hidden on extra-small screens to save space */}
             <span className="hidden sm:inline text-xl font-bold bg-gradient-to-r from-red-600 to-red-700 dark:from-red-500 dark:to-red-700 bg-clip-text text-transparent">
               Multimedia in Action
             </span>
           </Link>
 
           <div className="flex items-center space-x-4">
+            {/* Menu untuk desktop/tablet - tampil di layar besar */}
+            <Link
+              href={historyPesananLink}
+              className="hidden md:inline-flex items-center px-3 py-2 rounded-md text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/40 transition"
+            >
+              <Clock className="mr-2 h-4 w-4" />
+              History Pesanan
+            </Link>
+            <Link
+              href={leaderboardLink}
+              className="hidden md:inline-flex items-center px-3 py-2 rounded-md text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/40 transition"
+            >
+              <Trophy className="mr-2 h-4 w-4" />
+              Leaderboard
+            </Link>
+            
             {user && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-9 w-auto justify-start px-3 gap-2">
                     <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center">
-                      <PersonIcon />
+                      <User className="h-4 w-4" />
                     </div>
                     <span className="font-medium hidden sm:inline">{user.name || "User"}</span>
                   </Button>
@@ -62,20 +81,37 @@ export function DashboardHeader() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <Link href={dashboardLink}>
-                      <DashboardIcon className="mr-2 h-4 w-4" />
+                      <LayoutDashboard className="mr-2 h-4 w-4" />
                       <span>Dashboard</span>
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <Link href={profileLink}>
-                      <PersonIcon className="mr-2 h-4 w-4" />
+                      <User className="mr-2 h-4 w-4" />
                       <span>Profile</span>
                     </Link>
                   </DropdownMenuItem>
+                  
+                  {/* Menu untuk mobile - hanya tampil di layar kecil */}
+                  <div className="md:hidden">
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href={historyPesananLink}>
+                        <Clock className="mr-2 h-4 w-4" />
+                        <span>History Pesanan</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href={leaderboardLink}>
+                        <Trophy className="mr-2 h-4 w-4" />
+                        <span>Leaderboard</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  </div>
+                  
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={logout} className="text-red-500 focus:text-red-500">
-                    <ExitIcon className="mr-2 h-4 w-4" />
+                    <LogOut className="mr-2 h-4 w-4" />
                     <span>Logout</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>

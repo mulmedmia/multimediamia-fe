@@ -40,7 +40,6 @@ export default function Header() {
     { href: "/#beranda", label: "Beranda" },
     { href: "/#lomba", label: "Kategori Lomba" },
     { href: "/#timeline", label: "Timeline" },
-    { href: "/#leaderboard", label: "Leaderboard" },
     { href: "/#faq", label: "FAQ" },
   ];
   const profileLink = "/profile";
