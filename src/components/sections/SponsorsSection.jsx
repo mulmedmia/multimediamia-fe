@@ -4,7 +4,7 @@ import Image from "next/image";
 
 const SponsorsSection = () => {
   return (
-    <section id="sponsors" className="py-16 bg-background dark:bg-gray-950">
+    <section id="sponsors" className="py-16 bg-background dark:bg-black">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-12">
@@ -30,7 +30,6 @@ const SponsorsSection = () => {
             Kompetisi ini terselenggara atas dukungan penuh dari partner dan
             sponsor terpercaya
           </p>
-          <div className="w-20 h-1 bg-gradient-to-r from-primary to-primary/60 mx-auto mt-4 rounded-full"></div>
         </div>
 
         {/* Main Sponsor Section */}
