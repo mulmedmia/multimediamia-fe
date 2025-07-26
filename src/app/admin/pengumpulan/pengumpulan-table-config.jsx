@@ -6,7 +6,6 @@ export const getPengumpulanColumns = ({ isMobile, setDetailData, setStatusData, 
   { accessorKey: "user.name", header: "Nama" },
   { accessorKey: "user.email", header: "Email" },
   { accessorKey: "category.category_name", header: "Kategori" },
-  { accessorKey: "title", header: "Judul" },
   {
     accessorKey: "status",
     header: "Status",

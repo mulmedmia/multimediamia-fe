@@ -7,11 +7,20 @@ import {
 } from "@/services/admin-pendaftar.service";
 import { toast } from "sonner";
 
-// Query: ambil semua pendaftar
-export function useAdminRegistrations() {
+/**
+ * Hook untuk mengambil daftar pendaftar dengan pagination, filter kategori, dan search
+ * @param {Object} params
+ * @param {number} params.page
+ * @param {number} params.limit
+ * @param {string} params.category
+ * @param {string} params.search
+ */
+export function useAdminRegistrations({ page = 1, limit = 10, category = "", search = "" }) {
   return useQuery({
-    queryKey: ["admin-registrations"],
-    queryFn: getAllRegistrations,
+    queryKey: ["admin-registrations", { page, limit, category, search }],
+    queryFn: () => getAllRegistrations({ page, limit, category, search }),
+    keepPreviousData: true,
+    staleTime: 1000 * 60 * 2,
   });
 }
 

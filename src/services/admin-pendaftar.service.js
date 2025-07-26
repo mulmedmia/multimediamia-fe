@@ -1,9 +1,20 @@
 import api from "@/lib/api";
 
-// Ambil semua pendaftar
-export const getAllRegistrations = async () => {
-  const res = await api.get("/registrations");
-  return res.data.data.registrations;
+// Ambil semua pendaftar dengan pagination & filter kategori
+export const getAllRegistrations = async ({
+  page = 1,
+  limit = 10,
+  category = "",
+  search = "",
+} = {}) => {
+  const params = new URLSearchParams();
+  params.append("page", page);
+  params.append("limit", limit);
+  if (category) params.append("category", category);
+  if (search) params.append("search", search);
+
+  const res = await api.get(`/registrations?${params.toString()}`);
+  return res.data.data; // { registrations: [], meta: { page, limit, totalPages, ... } }
 };
 
 // Ambil detail pendaftar by id
