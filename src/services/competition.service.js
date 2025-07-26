@@ -24,6 +24,16 @@ export const getMyRegistrations = async (userId) => {
   }
 };
 
+export const getRegistrationById = async (registrationId) => {
+  try {
+    const response = await api.get(`/registrations/${registrationId}`);
+    return response.data.data;
+  } catch (error) {
+    console.error("Gagal mengambil data registrasi:", error);
+    throw error;
+  }
+};
+
 export const submitCompetitionRegistration = async (registrationData) => {
   try {
     const response = await api.post("/registrations", registrationData);

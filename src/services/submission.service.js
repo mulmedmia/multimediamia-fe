@@ -1,4 +1,4 @@
-import api from '@/lib/api';
+import api from "@/lib/api";
 
 /**
  * Mengambil semua submission untuk sebuah registrasi.
@@ -9,7 +9,9 @@ import api from '@/lib/api';
  */
 export const getSubmissionsByCategoryId = async (categoryId) => {
   try {
-    const response = await api.get(`/submissions/my/submissions?category_id=${categoryId}`);
+    const response = await api.get(
+      `/submissions/my/submissions?category_id=${categoryId}`
+    );
     return response.data.data.submissions;
   } catch (error) {
     console.error("Gagal mengambil data submission:", error);
@@ -22,16 +24,40 @@ export const getSubmissionsByCategoryId = async (categoryId) => {
  * @param {FormData} formData - Data form yang berisi file, judul, dll.
  * @returns {Promise<object>}
  */
-export const createSubmission = async (formData) => {
-    try {
-        const response = await api.post('/submissions', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-        });
-        return response.data;
-    } catch (error) {
-        console.error("Gagal membuat submission:", error);
-        throw error.response?.data || error;
-    }
+export const createSubmission = async (submissionData) => {
+  try {
+    const response = await api.post("/submissions", submissionData, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};
+
+export const getMySubmissions = async (page = 1, limit = 10) => {
+  try {
+    const response = await api.get(
+      `/submissions/my/submissions?page=${page}&limit=${limit}`
+    );
+    return response.data.data;
+  } catch (error) {
+    console.error("Gagal mengambil submission user:", error);
+    throw error;
+  }
+};
+
+export const updateSubmission = async (submissionId, submissionData) => {
+  try {
+    const response = await api.patch(
+      `/submissions/${submissionId}`,
+      submissionData
+    );
+    return response.data.data;
+  } catch (error) {
+    console.error("Gagal mengupdate submission:", error);
+    throw error;
+  }
 };
