@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Card,
@@ -44,10 +44,14 @@ import {
   redeemPoints,
 } from "@/services/gamification.service";
 
-export function CompetitionDashboard({ registration }) {
-  const [activeTab, setActiveTab] = useState("beranda");
+export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [editingSubmission, setEditingSubmission] = useState(null);
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab]);
 
   // Ubah query untuk menggunakan getMySubmissions
   const { data: submissionsData, isLoading: isLoadingSubmissions } = useQuery({
@@ -129,7 +133,7 @@ export function CompetitionDashboard({ registration }) {
         onValueChange={setActiveTab}
         className="space-y-4"
       >
-        <TabsList className="grid w-full grid-cols-3 md:grid-cols-7">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="beranda">
             <Star className="mr-1 h-4 w-4" />
             Beranda
@@ -141,22 +145,6 @@ export function CompetitionDashboard({ registration }) {
           <TabsTrigger value="status">
             <Award className="mr-1 h-4 w-4" />
             Status
-          </TabsTrigger>
-          <TabsTrigger value="jadwal">
-            <Calendar className="mr-1 h-4 w-4" />
-            Jadwal
-          </TabsTrigger>
-          <TabsTrigger value="gamifikasi">
-            <Star className="mr-1 h-4 w-4" />
-            Misi
-          </TabsTrigger>
-          <TabsTrigger value="leaderboard">
-            <Users className="mr-1 h-4 w-4" />
-            Peringkat
-          </TabsTrigger>
-          <TabsTrigger value="mentoring">
-            <BookOpen className="mr-1 h-4 w-4" />
-            Mentoring
           </TabsTrigger>
         </TabsList>
 
@@ -329,192 +317,6 @@ export function CompetitionDashboard({ registration }) {
                   )}
                 </div>
               )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Rest of the tabs remain the same */}
-        <TabsContent value="jadwal">
-          <Card>
-            <CardHeader>
-              <CardTitle>Jadwal & Deadline Penting</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {isLoadingSchedule ? (
-                <p>Memuat jadwal...</p>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Aktivitas</TableHead>
-                      <TableHead>Fase</TableHead>
-                      <TableHead className="text-right">Tanggal</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {schedule.map((item) => (
-                      <TableRow key={item.schedule_id}>
-                        <TableCell className="font-medium">
-                          {item.activity}
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{item.phase}</Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {new Date(item.date).toLocaleDateString("id-ID", {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          })}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="gamifikasi" className="grid gap-4 md:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Misi Tersedia</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {isLoadingGamification ? (
-                <p>Memuat misi...</p>
-              ) : (
-                gamificationData?.missions?.map((mission) => (
-                  <div
-                    key={mission.mission_id}
-                    className={`flex items-center justify-between p-3 rounded-lg ${
-                      mission.isCompleted
-                        ? "bg-green-100 dark:bg-green-900/50"
-                        : "bg-muted/50"
-                    }`}
-                  >
-                    <div>
-                      <p
-                        className={`font-semibold ${
-                          mission.isCompleted
-                            ? "line-through text-muted-foreground"
-                            : ""
-                        }`}
-                      >
-                        {mission.title}
-                      </p>
-                      <p className="text-sm text-yellow-500">
-                        +{mission.points} Poin
-                      </p>
-                    </div>
-                    {mission.isCompleted && (
-                      <CheckCircle className="h-5 w-5 text-green-500" />
-                    )}
-                  </div>
-                )) || <p>Belum ada misi tersedia.</p>
-              )}
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Tukar Poin (Redeem)</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {isLoadingGamification ? (
-                <p>Memuat hadiah...</p>
-              ) : (
-                gamificationData?.redeemItems?.map((item) => (
-                  <div
-                    key={item.item_id}
-                    className="flex items-center justify-between p-3 border rounded-lg"
-                  >
-                    <div>
-                      <p className="font-semibold">{item.name}</p>
-                      <p className="text-sm text-yellow-500">
-                        {item.cost} Poin
-                      </p>
-                    </div>
-                    <Button
-                      size="sm"
-                      onClick={() => handleRedeem(item.item_id)}
-                      disabled={
-                        (gamificationData?.points || 0) < item.cost ||
-                        redeemMutation.isPending
-                      }
-                    >
-                      {redeemMutation.isPending ? (
-                        "Memproses..."
-                      ) : (
-                        <>
-                          <Gift className="mr-2 h-4 w-4" /> Tukar
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                )) || <p>Belum ada hadiah tersedia.</p>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="leaderboard">
-          <Card>
-            <CardHeader>
-              <CardTitle>Peringkat Sementara</CardTitle>
-              <CardDescription>
-                Posisi tim Anda di kategori {registration.category.name}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {isLoadingLeaderboard ? (
-                <p>Memuat peringkat...</p>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[80px]">Peringkat</TableHead>
-                      <TableHead>Nama Tim</TableHead>
-                      <TableHead className="text-right">Poin</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {leaderboard.map((team) => (
-                      <TableRow
-                        key={team.rank}
-                        className={
-                          team.team_name === registration.team_name
-                            ? "bg-primary/10"
-                            : ""
-                        }
-                      >
-                        <TableCell className="font-bold text-lg">
-                          {team.rank}
-                        </TableCell>
-                        <TableCell className="font-medium">
-                          {team.team_name}
-                        </TableCell>
-                        <TableCell className="text-right font-semibold">
-                          {team.points}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="mentoring">
-          <Card>
-            <CardHeader>
-              <CardTitle>Riwayat Mentoring</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-center text-muted-foreground">
-                Fitur ini akan segera tersedia.
-              </p>
             </CardContent>
           </Card>
         </TabsContent>

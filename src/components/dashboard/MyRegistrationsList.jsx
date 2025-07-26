@@ -32,7 +32,6 @@ import { SubmissionForm } from "@/components/forms/SubmissionForm";
 import { LayoutDashboard, AlertTriangle, MessageSquare } from "lucide-react";
 
 export function MyRegistrationsList({ onSelectRegistration }) {
-  const [openDialogId, setOpenDialogId] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const { user } = useAuthContext();
   const router = useRouter();
@@ -47,6 +46,11 @@ export function MyRegistrationsList({ onSelectRegistration }) {
     queryFn: () => getMyRegistrations(user.users_id),
     enabled: !!user?.users_id,
   });
+
+  const handleUploadSubmission = (registration) => {
+    // Pilih registration dan arahkan ke tab upload
+    onSelectRegistration(registration, "upload"); // Tambahkan parameter tab
+  };
 
   // Mutation untuk menghapus registrasi
   const deleteMutation = useMutation({
@@ -96,11 +100,11 @@ export function MyRegistrationsList({ onSelectRegistration }) {
   return (
     <>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {registrations.map((reg) => (
+        {registrations?.map((reg) => (
           <Card
             key={reg.registration_id}
-            className="flex flex-col justify-between cursor-pointer hover:shadow-lg transition-shadow duration-300"
-            onClick={() => handleViewDashboard(reg.registration_id)} // Klik card untuk melihat dashboard
+            className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
+            onClick={() => onSelectRegistration(reg)} // Default ke tab beranda
           >
             <div>
               <CardHeader>
@@ -168,34 +172,16 @@ export function MyRegistrationsList({ onSelectRegistration }) {
               </Button>
 
               {/* Tombol Upload Karya */}
-              <Dialog
-                open={openDialogId === reg.registration_id}
-                onOpenChange={(isOpen) => !isOpen && setOpenDialogId(null)}
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleUploadSubmission(reg);
+                }}
+                disabled={!reg.is_verified}
+                className="flex-1"
               >
-                <DialogTrigger asChild>
-                  <Button
-                    onClick={(e) => {
-                      e.stopPropagation(); // Mencegah klik tombol memicu klik pada card
-                      setOpenDialogId(reg.registration_id);
-                    }}
-                    disabled={!reg.is_verified}
-                    className="flex-1"
-                  >
-                    Upload Karya
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>
-                      Upload Karya untuk {reg.category?.name}
-                    </DialogTitle>
-                  </DialogHeader>
-                  <SubmissionForm
-                    registrationId={reg.registration_id}
-                    onSuccess={() => setOpenDialogId(null)}
-                  />
-                </DialogContent>
-              </Dialog>
+                Upload Karya
+              </Button>
             </CardFooter>
           </Card>
         ))}
