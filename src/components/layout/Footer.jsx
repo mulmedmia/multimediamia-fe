@@ -210,7 +210,7 @@ const Footer = () => {
         {/* Bottom Footer */}
         <div className="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0">
           <div className="text-sm text-muted-foreground">
-            © {currentYear} MIA KSM Multimedia. All rights reserved.
+            © {currentYear} Multimedia In Action. All rights reserved.
           </div>
         </div>
       </div>

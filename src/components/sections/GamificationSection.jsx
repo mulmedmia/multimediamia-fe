@@ -52,11 +52,13 @@ const GamificationSection = () => {
               key={i}
               className="text-center p-6 bg-card dark:bg-gray-900/50 border dark:border-gray-800 shadow-lg hover:shadow-xl transition-shadow duration-300"
             >
-              <div className="mb-4 inline-block">{feature.icon}</div>
-              <h3 className="text-xl font-bold mb-2 text-foreground dark:text-white">
+              <div className="flex gap-6">
+                {feature.icon}
+              <h3 className="text-2xl font-bold mb-2 text-foreground dark:text-white">
                 {feature.title}
               </h3>
-              <p className="text-muted-foreground dark:text-gray-400">
+                </div>
+              <p className="text-muted-foreground text-left mb-12 dark:text-gray-400">
                 {feature.description}
               </p>
             </Card>
