@@ -8,42 +8,51 @@ import {
   createSubmission,
   updateSubmission,
 } from "@/services/submission.service.js";
-import { getRegistrationById } from "@/services/competition.service.js"; // Import service untuk get registration
+import { getRegistrationById } from "@/services/competition.service.js";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
-const submissionSchema = z.object({
-  team_name: z.string().optional(),
-  project_name: z.string().min(1, { message: "Nama project wajib diisi." }),
-  description: z
-    .string()
-    .min(10, { message: "Deskripsi minimal 10 karakter." }),
-  flow_application: z
-    .string()
-    .min(10, { message: "Flow aplikasi minimal 10 karakter." }),
-  github_url: z
-    .string()
-    .url({ message: "Harap masukkan URL GitHub yang valid." })
-    .optional()
-    .or(z.literal("")),
-  youtube_url: z
-    .string()
-    .url({ message: "Harap masukkan URL YouTube yang valid." })
-    .optional()
-    .or(z.literal("")),
-  other_url: z
-    .string()
-    .url({ message: "Harap masukkan URL yang valid." })
-    .optional()
-    .or(z.literal("")),
-  github_description: z.string().optional(),
-  youtube_description: z.string().optional(),
-  other_description: z.string().optional(),
-});
+// Schema dinamis berdasarkan team type
+const createSubmissionSchema = (teamType) => {
+  return z.object({
+    // team_name hanya required untuk GROUP
+    team_name:
+      teamType === "GROUP"
+        ? z.string().min(1, { message: "Nama tim wajib diisi." })
+        : z.string().optional(),
+    project_name: z.string().min(1, { message: "Nama project wajib diisi." }),
+    description: z
+      .string()
+      .min(10, { message: "Deskripsi minimal 10 karakter." }),
+    // flow_application hanya required untuk GROUP
+    flow_application:
+      teamType === "GROUP"
+        ? z.string().min(10, { message: "Flow aplikasi minimal 10 karakter." })
+        : z.string().optional(),
+    github_url: z
+      .string()
+      .url({ message: "Harap masukkan URL GitHub yang valid." })
+      .optional()
+      .or(z.literal("")),
+    youtube_url: z
+      .string()
+      .url({ message: "Harap masukkan URL YouTube yang valid." })
+      .optional()
+      .or(z.literal("")),
+    other_url: z
+      .string()
+      .url({ message: "Harap masukkan URL yang valid." })
+      .optional()
+      .or(z.literal("")),
+    github_description: z.string().optional(),
+    youtube_description: z.string().optional(),
+    other_description: z.string().optional(),
+  });
+};
 
 export function SubmissionForm({
   registrationId,
@@ -51,19 +60,29 @@ export function SubmissionForm({
   onSuccess,
   onCancel,
 }) {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    setValue,
-    watch,
-  } = useForm({
-    resolver: zodResolver(submissionSchema),
-    defaultValues: {
-      team_name: editingSubmission?.team_name || "",
+  // Query untuk mengambil data registrasi
+  const { data: registration, isLoading: isLoadingRegistration } = useQuery({
+    queryKey: ["registration", registrationId],
+    queryFn: () => getRegistrationById(registrationId),
+    enabled: !!registrationId,
+  });
+
+  // Tentukan team type dari registration
+  const teamType = registration?.category?.team_type || "GROUP";
+
+  // Memoized schema berdasarkan teamType
+  const submissionSchema = useMemo(() => {
+    return createSubmissionSchema(teamType);
+  }, [teamType]);
+
+  // Default values berdasarkan team type
+  const getDefaultValues = useMemo(() => {
+    return {
+      team_name: teamType === "GROUP" ? registration?.team_name || "" : "",
       project_name: editingSubmission?.project_name || "",
       description: editingSubmission?.description || "",
-      flow_application: editingSubmission?.flow_application || "",
+      flow_application:
+        teamType === "GROUP" ? editingSubmission?.flow_application || "" : "",
       github_url:
         editingSubmission?.links?.find((l) => l.link_type === "GITHUB")?.url ||
         "",
@@ -82,53 +101,56 @@ export function SubmissionForm({
       other_description:
         editingSubmission?.links?.find((l) => l.link_type === "OTHER")
           ?.description || "",
-    },
+    };
+  }, [registration, editingSubmission, teamType]);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    watch,
+    reset,
+    clearErrors,
+  } = useForm({
+    resolver: zodResolver(submissionSchema),
+    defaultValues: getDefaultValues,
+    mode: "onChange",
   });
 
-  // Query untuk mengambil data registrasi
-  const { data: registration, isLoading: isLoadingRegistration } = useQuery({
-    queryKey: ["registration", registrationId],
-    queryFn: () => getRegistrationById(registrationId),
-    enabled: !!registrationId,
-  });
-
-  // Effect untuk mengisi team_name ketika data registrasi tersedia
+  // Effect untuk reset form ketika data atau teamType berubah
   useEffect(() => {
     if (registration) {
-      setValue("team_name", registration.team_name || "");
-    }
-    // Pre-fill form jika sedang editing
-    if (editingSubmission) {
-      setValue("team_name", editingSubmission.team_name || "");
-      setValue("project_name", editingSubmission.project_name || "");
-      setValue("description", editingSubmission.description || "");
-      setValue("flow_application", editingSubmission.flow_application || "");
+      const newDefaultValues = {
+        team_name: teamType === "GROUP" ? registration.team_name || "" : "",
+        project_name: editingSubmission?.project_name || "",
+        description: editingSubmission?.description || "",
+        flow_application:
+          teamType === "GROUP" ? editingSubmission?.flow_application || "" : "",
+        github_url:
+          editingSubmission?.links?.find((l) => l.link_type === "GITHUB")
+            ?.url || "",
+        youtube_url:
+          editingSubmission?.links?.find((l) => l.link_type === "YOUTUBE")
+            ?.url || "",
+        other_url:
+          editingSubmission?.links?.find((l) => l.link_type === "OTHER")?.url ||
+          "",
+        github_description:
+          editingSubmission?.links?.find((l) => l.link_type === "GITHUB")
+            ?.description || "",
+        youtube_description:
+          editingSubmission?.links?.find((l) => l.link_type === "YOUTUBE")
+            ?.description || "",
+        other_description:
+          editingSubmission?.links?.find((l) => l.link_type === "OTHER")
+            ?.description || "",
+      };
 
-      // Set links
-      const githubLink = editingSubmission.links?.find(
-        (l) => l.link_type === "GITHUB"
-      );
-      const youtubeLink = editingSubmission.links?.find(
-        (l) => l.link_type === "YOUTUBE"
-      );
-      const otherLink = editingSubmission.links?.find(
-        (l) => l.link_type === "OTHER"
-      );
-
-      if (githubLink) {
-        setValue("github_url", githubLink.url);
-        setValue("github_description", githubLink.description || "");
-      }
-      if (youtubeLink) {
-        setValue("youtube_url", youtubeLink.url);
-        setValue("youtube_description", youtubeLink.description || "");
-      }
-      if (otherLink) {
-        setValue("other_url", otherLink.url);
-        setValue("other_description", otherLink.description || "");
-      }
+      reset(newDefaultValues);
+      clearErrors(); // Clear existing errors when resetting
     }
-  }, [registration, setValue]);
+  }, [registration, editingSubmission, teamType, reset, clearErrors]);
 
   const teamName = watch("team_name");
 
@@ -149,9 +171,10 @@ export function SubmissionForm({
       if (onSuccess) onSuccess();
     },
     onError: (error) => {
+      console.error("Submission error:", error);
       toast.error(
         `Gagal ${editingSubmission ? "memperbarui" : "mengunggah"}: ${
-          error.message || "Terjadi kesalahan"
+          error.response?.data?.message || error.message || "Terjadi kesalahan"
         }`
       );
     },
@@ -162,6 +185,10 @@ export function SubmissionForm({
       toast.error("Data registrasi tidak ditemukan. Silakan refresh halaman.");
       return;
     }
+
+    console.log("Form data before processing:", data);
+    console.log("Current teamType:", teamType);
+
     // Prepare links array based on filled URLs
     const links = [];
 
@@ -190,17 +217,26 @@ export function SubmissionForm({
     }
 
     // Prepare submission payload
+    // SELALU kirim team_name dan flow_application tapi gunakan dummy values jika INDIVIDUAL
     const submissionPayload = {
       registration_id: registrationId,
       category_id:
         registration.category_id || registration.category?.category_id,
-      team_name: data.team_name || null,
       project_name: data.project_name,
       description: data.description,
-      flow_application: data.flow_application,
+      // PERBAIKAN: Selalu sediakan nilai untuk team_name & flow_application
+      team_name:
+        teamType === "GROUP"
+          ? data.team_name || registration.team_name || ""
+          : "Individual Participant", // Dummy value untuk INDIVIDUAL
+      flow_application:
+        teamType === "GROUP"
+          ? data.flow_application || ""
+          : "Not applicable for individual category", // Dummy value untuk INDIVIDUAL
       links: links,
     };
 
+    console.log("Final payload:", submissionPayload);
     mutation.mutate(submissionPayload);
   };
 
@@ -219,19 +255,26 @@ export function SubmissionForm({
         <div className="space-y-4">
           <h3 className="text-lg font-semibold">Informasi Project</h3>
 
-          {/* Team Name - Show only if team_name exists */}
-          {teamName && (
+          {/* Debug info */}
+          <div className="p-2 bg-muted rounded text-xs text-muted-foreground">
+            Kategori: {registration?.category?.category_name} | Team Type:{" "}
+            {teamType} | Registration ID: {registrationId}
+          </div>
+
+          {/* Team Name - Hanya tampil untuk GROUP */}
+          {teamType === "GROUP" && (
             <div className="space-y-2">
-              <Label htmlFor="team_name">Nama Tim</Label>
+              <Label htmlFor="team_name">Nama Tim *</Label>
               <Input
                 id="team_name"
-                value={teamName}
-                disabled
-                className="bg-muted text-muted-foreground"
+                {...register("team_name")}
+                placeholder="Nama tim Anda"
               />
-              <p className="text-xs text-muted-foreground">
-                Nama tim sudah terdaftar dan tidak dapat diubah.
-              </p>
+              {errors.team_name && (
+                <p className="text-xs text-red-500">
+                  {errors.team_name.message}
+                </p>
+              )}
             </div>
           )}
 
@@ -264,20 +307,33 @@ export function SubmissionForm({
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="flow_application">Flow Aplikasi *</Label>
-            <Textarea
-              id="flow_application"
-              placeholder="User buka app -> Login -> Dashboard -> Browse fitur -> Gunakan fitur spesifik..."
-              rows={3}
-              {...register("flow_application")}
-            />
-            {errors.flow_application && (
-              <p className="text-xs text-red-500">
-                {errors.flow_application.message}
+          {/* Flow Aplikasi - Hanya tampil untuk GROUP */}
+          {teamType === "GROUP" && (
+            <div className="space-y-2">
+              <Label htmlFor="flow_application">Flow Aplikasi *</Label>
+              <Textarea
+                id="flow_application"
+                placeholder="User buka app -> Login -> Dashboard -> Browse fitur -> Gunakan fitur spesifik..."
+                rows={3}
+                {...register("flow_application")}
+              />
+              {errors.flow_application && (
+                <p className="text-xs text-red-500">
+                  {errors.flow_application.message}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Untuk INDIVIDUAL, tampilkan info bahwa flow app tidak diperlukan */}
+          {teamType === "INDIVIDUAL" && (
+            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+              <p className="text-sm text-blue-700 dark:text-blue-300">
+                ℹ️ Untuk kategori Individual, Tim dan Flow Aplikasi tidak
+                diperlukan.
               </p>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         {/* Links Section */}
