@@ -22,6 +22,7 @@ import {
 import { Textarea } from "../ui/textarea";
 import { useAuthContext } from "@/providers/AuthProvider";
 import { toast } from "sonner";
+import { useEffect } from "react";
 
 const registrationSchema = z.object({
   team_name: z.string().optional(),
@@ -54,7 +55,7 @@ export function CompetitionRegistrationForm({ defaultCategoryId }) {
   } = useForm({
     resolver: zodResolver(registrationSchema),
     defaultValues: {
-      category_id: defaultCategoryId || "", // Isi kategori secara otomatis jika ada
+      category_id: defaultCategoryId || "",
       file_url: "",
       team_name: "",
       team_members: "",
@@ -63,6 +64,22 @@ export function CompetitionRegistrationForm({ defaultCategoryId }) {
   });
 
   const selectedCategoryType = watch("selected_category_type");
+
+  // Effect untuk mengatur kategori dan tipe ketika defaultCategoryId berubah
+  useEffect(() => {
+    if (defaultCategoryId && categories && categories.length > 0) {
+      const selectedCategory = categories.find(
+        (cat) => String(cat.category_id) === String(defaultCategoryId)
+      );
+
+      if (selectedCategory) {
+        setValue("category_id", defaultCategoryId);
+        setValue("selected_category_type", selectedCategory.team_type, {
+          shouldValidate: true,
+        });
+      }
+    }
+  }, [defaultCategoryId, categories, setValue]);
 
   const mutation = useMutation({
     mutationFn: submitCompetitionRegistration,
@@ -122,7 +139,8 @@ export function CompetitionRegistrationForm({ defaultCategoryId }) {
           render={({ field }) => (
             <Select
               onValueChange={handleCategoryChange}
-              defaultValue={field.value}
+              value={field.value}
+              disabled={catLoading || !!defaultCategoryId} // Disable jika ada defaultCategoryId
             >
               <SelectTrigger disabled={catLoading}>
                 <SelectValue
@@ -133,12 +151,12 @@ export function CompetitionRegistrationForm({ defaultCategoryId }) {
               </SelectTrigger>
               <SelectContent>
                 {Array.isArray(categories) &&
-                  categories.map((cat) => (
+                  categories.map((category) => (
                     <SelectItem
-                      key={cat.category_id}
-                      value={String(cat.category_id)}
+                      key={category.category_id}
+                      value={String(category.category_id)}
                     >
-                      {cat.category_name} ({cat.team_type})
+                      {category.category_name} ({category.team_type})
                     </SelectItem>
                   ))}
               </SelectContent>
@@ -149,17 +167,22 @@ export function CompetitionRegistrationForm({ defaultCategoryId }) {
           <p className="text-xs text-red-500">{errors.category_id.message}</p>
         )}
       </div>
+
       <div className="space-y-2">
-        <Label htmlFor="file_url">URL Google Drive</Label>
+        <Label htmlFor="file_url">Link Drive Dokumen</Label>
         <Input
           id="file_url"
           placeholder="https://drive.google.com/..."
           {...register("file_url")}
         />
+        <p className="text-xs text-muted-foreground">
+          Upload dokumen persyaratan ke Google Drive dan share linknya di sini.
+        </p>
         {errors.file_url && (
           <p className="text-xs text-red-500">{errors.file_url.message}</p>
         )}
       </div>
+
       {selectedCategoryType === "GROUP" && (
         <>
           <div className="space-y-2">
@@ -191,8 +214,9 @@ export function CompetitionRegistrationForm({ defaultCategoryId }) {
           </div>
         </>
       )}
+
       <Button type="submit" className="w-full" disabled={mutation.isPending}>
-        {mutation.isPending ? "Mendaftarkan..." : "Daftar Lomba"}
+        {mutation.isPending ? "Mendaftarkan..." : "Daftar Sekarang"}
       </Button>
     </form>
   );
