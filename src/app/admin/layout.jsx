@@ -20,6 +20,7 @@ import {
   UserLock,
   UploadCloud,
   Gamepad2,
+  ShoppingBag,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -60,10 +61,15 @@ const sidebarItems = [
     href: "/admin/gamifikasi",
     icon: Gamepad2,
   },
-    {
+  {
     title: "Manage Juri",
     href: "/admin/manage-juri",
     icon: UserLock,
+  },
+  {
+    title: "Manage Reddem",
+    href: "/admin/manage-reddem",
+    icon: ShoppingBag,
   },
 ];
 
