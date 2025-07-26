@@ -186,9 +186,6 @@ export function SubmissionForm({
       return;
     }
 
-    console.log("Form data before processing:", data);
-    console.log("Current teamType:", teamType);
-
     // Prepare links array based on filled URLs
     const links = [];
 
@@ -235,8 +232,6 @@ export function SubmissionForm({
           : "Not applicable for individual category", // Dummy value untuk INDIVIDUAL
       links: links,
     };
-
-    console.log("Final payload:", submissionPayload);
     mutation.mutate(submissionPayload);
   };
 
@@ -254,12 +249,6 @@ export function SubmissionForm({
         {/* Basic Information */}
         <div className="space-y-4">
           <h3 className="text-lg font-semibold">Informasi Project</h3>
-
-          {/* Debug info */}
-          <div className="p-2 bg-muted rounded text-xs text-muted-foreground">
-            Kategori: {registration?.category?.category_name} | Team Type:{" "}
-            {teamType} | Registration ID: {registrationId}
-          </div>
 
           {/* Team Name - Hanya tampil untuk GROUP */}
           {teamType === "GROUP" && (
