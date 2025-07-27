@@ -57,7 +57,7 @@ export default function ProductPage() {
             Tukar Produk Hadiah
           </h1>
           <p className="text-muted-foreground">
-            Tukarkan poinmu dengan hadiah menarik di bawah ini.
+            Tukarkan Diamonds dengan hadiah menarik di bawah ini.
           </p>
         </div>
         {isLoading ? (
@@ -124,9 +124,9 @@ export default function ProductPage() {
                   </p>
                   <div className="flex items-center justify-between text-sm">
                     <span className="font-semibold text-red-700 dark:text-red-400">
-                      Rp {product.price.toLocaleString()}
+                      💎 {product.price.toLocaleString()}
                     </span>
-                    <span className="text-xs px-2 py-1 rounded bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400">
+                    <span className="text-xs px-2 py-2 rounded bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400">
                       Stok: {product.stock}
                     </span>
                   </div>

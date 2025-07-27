@@ -1,27 +1,51 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { useGamifikasiUsers, usePatchUserPoints } from "@/hooks/admin-use-gamifikasi";
+import {
+  useGamifikasiUsers,
+  usePatchUserPoints,
+} from "@/hooks/admin-use-gamifikasi";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+  getPaginationRowModel,
+  getFilteredRowModel,
+} from "@tanstack/react-table";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getGamifikasiColumns } from "./gamifikasi-table-config";
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 
-// Modal sederhana
-function Modal({ open, onClose, children }) {
-  if (!open) return null;
+function TableSkeleton() {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 min-w-[320px] relative">
-        <button
-          className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 dark:hover:text-white"
-          onClick={onClose}
-        >
-          ×
-        </button>
-        {children}
+    <div className="border rounded-lg">
+      <div className="p-4">
+        <div className="space-y-4">
+          {[...Array(10)].map((_, i) => (
+            <div key={i} className="flex justify-between items-center">
+              <div className="space-y-2 flex-1">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-3 w-48" />
+              </div>
+              <div className="flex gap-2">
+                <Skeleton className="h-8 w-16" />
+                <Skeleton className="h-8 w-16" />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -31,20 +55,43 @@ export default function AdminGamifikasiPage() {
   const { data: users, isLoading, isError } = useGamifikasiUsers();
   const patchMutation = usePatchUserPoints();
   const [editUser, setEditUser] = useState(null);
+  const [globalFilter, setGlobalFilter] = useState("");
   const { register, handleSubmit, reset } = useForm();
 
-  // Responsif: gunakan hook & config
   const isMobile = useIsMobile();
-  const isTablet = !isMobile && typeof window !== "undefined" && window.innerWidth < 1024;
   const columns = useMemo(
-    () => getGamifikasiColumns({ isMobile, isTablet, setEditUser, reset }),
-    [isMobile, isTablet, setEditUser, reset]
+    () => getGamifikasiColumns({ isMobile, setEditUser, reset }),
+    [isMobile, setEditUser, reset]
   );
 
   const table = useReactTable({
     data: users || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    state: {
+      globalFilter,
+    },
+    globalFilterFn: (row, columnId, filterValue) => {
+      const searchValue = filterValue.toLowerCase();
+      const searchableColumns = [
+        row.original.name,
+        row.original.email,
+        row.original.role,
+        row.original.points?.toString(),
+      ];
+
+      return searchableColumns.some((value) =>
+        value?.toString().toLowerCase().includes(searchValue)
+      );
+    },
+    onGlobalFilterChange: setGlobalFilter,
+    initialState: {
+      pagination: {
+        pageSize: 10,
+      },
+    },
   });
 
   const onSubmit = (data) => {
@@ -56,78 +103,167 @@ export default function AdminGamifikasiPage() {
     );
   };
 
-  if (isLoading) return <div className="text-foreground dark:text-white">Loading...</div>;
-  if (isError) return <div className="text-red-600 dark:text-red-400">Gagal memuat data.</div>;
+  if (isError)
+    return <div className="text-destructive">Gagal memuat data.</div>;
 
   return (
-    <div className="bg-background dark:bg-black min-h-screen p-4">
-      <h1 className="text-2xl font-bold mb-4 text-foreground dark:text-white">Manajemen Poin Gamifikasi</h1>
-      <div className="overflow-x-auto bg-white dark:bg-gray-900 rounded shadow">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
-          <thead>
-            {table.getHeaderGroups().map(headerGroup => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map(header => (
-                  <th
-                    key={header.id}
-                    className="px-4 py-2 text-left font-semibold text-foreground dark:text-white bg-gray-50 dark:bg-gray-800"
-                  >
-                    {flexRender(header.column.columnDef.header, header.getContext())}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {table.getRowModel().rows.map(row => (
-              <tr key={row.id} className="border-b dark:border-gray-800">
-                {row.getVisibleCells().map(cell => (
-                  <td key={cell.id} className="px-4 py-2 text-foreground dark:text-white">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+    <div className="container mx-auto py-8 px-4">
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-semibold">Manajemen Poin Gamifikasi</h1>
+          <p className="text-muted-foreground">Kelola poin pengguna di sini.</p>
+        </div>
 
-      {/* Modal Edit Points */}
-      <Modal open={!!editUser} onClose={() => setEditUser(null)}>
-        <h2 className="text-lg font-semibold mb-4 text-foreground dark:text-white">Edit Points</h2>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <label className="block mb-1 font-medium text-foreground dark:text-white">Nama</label>
-            <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded text-foreground dark:text-white">{editUser?.name}</div>
-          </div>
-          <div>
-            <label className="block mb-1 font-medium text-foreground dark:text-white">Email</label>
-            <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded text-foreground dark:text-white">{editUser?.email}</div>
-          </div>
-          <div>
-            <label className="block mb-1 font-medium text-foreground dark:text-white">Points</label>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
-              type="number"
-              {...register("points", { required: true })}
-              className="w-full bg-white dark:bg-gray-900 text-black dark:text-white"
+              placeholder="Cari pengguna..."
+              value={globalFilter ?? ""}
+              onChange={(e) => setGlobalFilter(e.target.value)}
+              className="pl-9"
             />
           </div>
-          <div className="flex gap-2 justify-end">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setEditUser(null)}
-              disabled={patchMutation.isPending}
-              className="bg-white dark:bg-gray-900 text-black dark:text-white border dark:border-gray-700"
-            >
-              Batal
-            </Button>
-            <Button type="submit" disabled={patchMutation.isPending}>
-              {patchMutation.isPending ? "Menyimpan..." : "Simpan"}
-            </Button>
-          </div>
-        </form>
-      </Modal>
+        </div>
+
+        {isLoading ? (
+          <TableSkeleton />
+        ) : (
+          <>
+            <div className="border rounded-lg">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    {table.getHeaderGroups().map((headerGroup) => (
+                      <tr key={headerGroup.id} className="border-b">
+                        {headerGroup.headers.map((header) => (
+                          <th
+                            key={header.id}
+                            className="px-4 py-3 text-left font-medium text-sm"
+                          >
+                            {flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                          </th>
+                        ))}
+                      </tr>
+                    ))}
+                  </thead>
+                  <tbody>
+                    {table.getRowModel().rows.map((row) => (
+                      <tr key={row.id} className="border-b hover:bg-muted/50">
+                        {row.getVisibleCells().map((cell) => (
+                          <td key={cell.id} className="px-4 py-3 text-sm">
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {table.getRowModel().rows.length === 0 && (
+                <div className="text-center py-8 text-muted-foreground">
+                  Tidak ada data yang ditemukan
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-muted-foreground">
+                Menampilkan{" "}
+                {table.getState().pagination.pageIndex *
+                  table.getState().pagination.pageSize +
+                  1}{" "}
+                -{" "}
+                {Math.min(
+                  (table.getState().pagination.pageIndex + 1) *
+                    table.getState().pagination.pageSize,
+                  table.getFilteredRowModel().rows.length
+                )}{" "}
+                dari {table.getFilteredRowModel().rows.length} data
+              </div>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => table.previousPage()}
+                  disabled={!table.getCanPreviousPage()}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Previous
+                </Button>
+                <div className="text-sm">
+                  Halaman {table.getState().pagination.pageIndex + 1} dari{" "}
+                  {table.getPageCount()}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => table.nextPage()}
+                  disabled={!table.getCanNextPage()}
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </>
+        )}
+
+        <Dialog open={!!editUser} onOpenChange={() => setEditUser(null)}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Edit Poin Pengguna</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <div className="space-y-2">
+                <Label>Nama</Label>
+                <div className="p-2 bg-muted rounded text-sm">
+                  {editUser?.name}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Email</Label>
+                <div className="p-2 bg-muted rounded text-sm">
+                  {editUser?.email}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="points">Poin</Label>
+                <Input
+                  id="points"
+                  type="number"
+                  {...register("points", { required: true })}
+                  defaultValue={editUser?.points || 0}
+                />
+              </div>
+              <DialogFooter className="flex-col sm:flex-row gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setEditUser(null)}
+                  disabled={patchMutation.isPending}
+                  className="w-full sm:w-auto"
+                >
+                  Batal
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={patchMutation.isPending}
+                  className="w-full sm:w-auto"
+                >
+                  {patchMutation.isPending ? "Menyimpan..." : "Simpan"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 }
