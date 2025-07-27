@@ -77,3 +77,18 @@ export const getAllSubmissionsByCategory = async (categoryId) => {
     throw error;
   }
 };
+
+/**
+ * Mengambil submission berdasarkan ID (untuk Think It detail page)
+ * @param {string} submissionId - ID dari submission.
+ * @returns {Promise<object>}
+ */
+export const getSubmissionById = async (submissionId) => {
+  try {
+    const response = await api.get(`/submissions/${submissionId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Gagal mengambil detail submission:", error);
+    throw error;
+  }
+};

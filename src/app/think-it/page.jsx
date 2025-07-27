@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation"; // Import useRouter
 import { useAllSubmissions } from "@/hooks/user-use-submissions";
 import { useCategories } from "@/hooks/user-use-gamifikasi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,10 +28,12 @@ import {
   User,
   Lightbulb,
   Grid3X3,
+  MousePointer, // Icon untuk indikator clickable
 } from "lucide-react";
 
 export default function ThinkItPage() {
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
+  const router = useRouter(); // Initialize router
 
   const { data: categories, isLoading: categoriesLoading } = useCategories();
   const {
@@ -76,6 +79,11 @@ export default function ThinkItPage() {
 
   const handleCategoryChange = (categoryId) => {
     setSelectedCategoryId(categoryId);
+  };
+
+  // Function untuk navigate ke detail submission
+  const handleSubmissionClick = (submissionId) => {
+    router.push(`/think-it/${submissionId}`);
   };
 
   return (
@@ -257,6 +265,11 @@ export default function ThinkItPage() {
                   <p className="text-sm md:text-base text-gray-600 dark:text-gray-300">
                     Menampilkan {submissions.length} karya dalam kategori ini
                   </p>
+                  {/* Hint untuk user bahwa card bisa diklik */}
+                  <div className="flex items-center justify-center gap-2 mt-3 text-xs text-gray-500 dark:text-gray-400">
+                    <MousePointer className="h-3 w-3" />
+                    <span>Klik pada karya untuk melihat detail lengkap</span>
+                  </div>
                 </div>
 
                 {/* Grid Layout */}
@@ -264,16 +277,22 @@ export default function ThinkItPage() {
                   {submissions.map((submission) => (
                     <Card
                       key={submission.submission_id}
-                      className="g-gradient-to-br from-gray-900 to-gray-900/50 dark:from-gray-900 dark:to-gray-900/50 border-orange-200 dark:border-orange-200 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                      onClick={() =>
+                        handleSubmissionClick(submission.submission_id)
+                      }
+                      className="g-gradient-to-br from-gray-900 to-gray-900/50 dark:from-gray-900 dark:to-gray-900/50 border-orange-200 dark:border-orange-200 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer group"
                     >
                       <CardContent className="p-6">
                         <div className="space-y-4">
-                          {/* Header */}
+                          {/* Header dengan indikator clickable */}
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
-                              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1 line-clamp-2">
-                                {submission.project_name}
-                              </h3>
+                              <div className="flex items-center gap-2 mb-1">
+                                <h3 className="text-lg font-bold text-gray-900 dark:text-white line-clamp-2 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">
+                                  {submission.project_name}
+                                </h3>
+                                <Eye className="h-4 w-4 text-gray-400 group-hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100" />
+                              </div>
                               <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                                 <User className="h-4 w-4" />
                                 <span>{submission.team_name}</span>
@@ -282,7 +301,7 @@ export default function ThinkItPage() {
                             <Badge
                               className={`${getStatusBadge(
                                 submission.status
-                              )} text-xs`}
+                              )} text-xs flex-shrink-0`}
                             >
                               {submission.status === "APPROVED"
                                 ? "✓ Disetujui"
@@ -316,13 +335,14 @@ export default function ThinkItPage() {
                                 Links:
                               </p>
                               <div className="flex flex-wrap gap-2">
-                                {submission.links.map((link) => (
+                                {submission.links.slice(0, 3).map((link) => (
                                   <Button
                                     key={link.link_id}
                                     variant="outline"
                                     size="sm"
                                     asChild
                                     className="text-xs h-7"
+                                    onClick={(e) => e.stopPropagation()} // Prevent card click when clicking link
                                   >
                                     <a
                                       href={link.url}
@@ -335,6 +355,11 @@ export default function ThinkItPage() {
                                     </a>
                                   </Button>
                                 ))}
+                                {submission.links.length > 3 && (
+                                  <span className="text-xs text-gray-500 dark:text-gray-400 px-2 py-1">
+                                    +{submission.links.length - 3} lainnya
+                                  </span>
+                                )}
                               </div>
                             </div>
                           )}
@@ -349,6 +374,13 @@ export default function ThinkItPage() {
                                 ).toLocaleDateString("id-ID")}
                               </span>
                             </div>
+                          </div>
+
+                          {/* Clickable indicator */}
+                          <div className="text-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span className="text-xs text-red-600 dark:text-red-400 font-medium">
+                              Klik untuk melihat detail →
+                            </span>
                           </div>
                         </div>
                       </CardContent>
