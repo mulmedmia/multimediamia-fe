@@ -61,3 +61,19 @@ export const updateSubmission = async (submissionId, submissionData) => {
     throw error;
   }
 };
+
+/**
+ * Mengambil semua submission untuk sebuah kategori (untuk Think It page)
+ * @param {string} categoryId - ID dari kategori lomba.
+ * @returns {Promise<Array>}
+ */
+export const getAllSubmissionsByCategory = async (categoryId) => {
+  try {
+    // Menggunakan endpoint submissions global (bukan my/submissions)
+    const response = await api.get(`/submissions?category_id=${categoryId}`);
+    return response.data.data;
+  } catch (error) {
+    console.error("Gagal mengambil semua submission:", error);
+    throw error;
+  }
+};

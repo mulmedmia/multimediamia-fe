@@ -236,7 +236,9 @@ export function SubmissionForm({
         registration.user?.full_name ||
         registration.user?.username ||
         "Individual Participant";
+
       // TIDAK mengirim flow_application untuk INDIVIDUAL
+      submissionPayload.flow_application = "N/A - Individual Participant";
     }
     mutation.mutate(submissionPayload);
   };

@@ -41,6 +41,8 @@ export default function Header() {
     { href: "/#lomba", label: "Kategori Lomba" },
     { href: "/#timeline", label: "Timeline" },
     { href: "/#faq", label: "FAQ" },
+    { href: "/think-it", label: "Think It" },
+    
   ];
   const profileLink = "/profile";
   const handleLinkClick = () => setIsMenuOpen(false);
