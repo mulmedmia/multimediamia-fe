@@ -7,6 +7,7 @@ import {
   getMyRegistrations,
   deleteRegistration,
 } from "@/services/competition.service.js";
+import { getMySubmissions } from "@/services/submission.service";
 import { useAuthContext } from "@/providers/AuthProvider";
 import { toast } from "sonner";
 import {
@@ -29,7 +30,13 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { SubmissionForm } from "@/components/forms/SubmissionForm";
-import { LayoutDashboard, AlertTriangle, MessageSquare } from "lucide-react";
+import {
+  LayoutDashboard,
+  AlertTriangle,
+  MessageSquare,
+  Upload,
+  FileText,
+} from "lucide-react";
 
 export function MyRegistrationsList({ onSelectRegistration }) {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
@@ -47,9 +54,29 @@ export function MyRegistrationsList({ onSelectRegistration }) {
     enabled: !!user?.users_id,
   });
 
+  // Query untuk mendapatkan submissions user
+  const { data: submissionsData } = useQuery({
+    queryKey: ["mySubmissions"],
+    queryFn: () => getMySubmissions(1, 100), // Get semua submissions
+    enabled: !!user?.users_id,
+  });
+
+  // Function untuk mengecek apakah user sudah punya submission untuk kategori tertentu
+  const hasSubmissionForCategory = (categoryId) => {
+    if (!submissionsData?.submissions) return false;
+    return submissionsData.submissions.some(
+      (submission) => submission.category_id === categoryId
+    );
+  };
+
   const handleUploadSubmission = (registration) => {
     // Pilih registration dan arahkan ke tab upload
-    onSelectRegistration(registration, "upload"); // Tambahkan parameter tab
+    onSelectRegistration(registration, "upload");
+  };
+
+  const handleViewStatus = (registration) => {
+    // Pilih registration dan arahkan ke tab status
+    onSelectRegistration(registration, "status");
   };
 
   // Mutation untuk menghapus registrasi
@@ -100,91 +127,125 @@ export function MyRegistrationsList({ onSelectRegistration }) {
   return (
     <>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {registrations?.map((reg) => (
-          <Card
-            key={reg.registration_id}
-            className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
-            onClick={() => onSelectRegistration(reg)} // Default ke tab beranda
-          >
-            <div>
-              <CardHeader>
-                <CardTitle className="flex justify-between items-start">
-                  <span className="pr-2">
-                    {reg.category?.name || "Nama Lomba"}
-                  </span>
-                  <Badge
-                    variant={reg.is_verified ? "success" : "secondary"}
-                    className={
-                      reg.is_verified
-                        ? "bg-green-600 text-white"
-                        : "bg-red-600 text-white"
-                    }
-                  >
-                    {reg.is_verified ? "Terverifikasi" : "Belum Terverifikasi"}
-                  </Badge>
-                </CardTitle>
-                <CardDescription>
-                  {reg.team_name ? `Tim: ${reg.team_name}` : reg.user.name}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-xs text-muted-foreground">
-                  Terdaftar pada:{" "}
-                  {new Date(reg.created_at).toLocaleDateString("id-ID")}
-                </p>
+        {registrations?.map((reg) => {
+          // Check apakah user sudah punya submission untuk kategori ini
+          const hasSubmission = hasSubmissionForCategory(reg.category_id);
 
-                {/* Feedback Box - Selalu tampil */}
-                <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                  <div className="flex items-start gap-2">
-                    <MessageSquare className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                    <div className="flex-1">
-                      <p className="text-xs font-medium text-blue-800 dark:text-blue-300 mb-1">
-                        Feedback:
-                      </p>
-                      {reg.feedback ? (
-                        <p className="text-xs text-blue-700 dark:text-blue-200 leading-relaxed">
-                          {reg.feedback}
-                        </p>
-                      ) : (
-                        <p className="text-xs text-blue-500 dark:text-blue-400 leading-relaxed italic">
-                          Belum ada feedback. Feedback akan muncul setelah
-                          dilakukan review terhadap pendaftaran Anda.
-                        </p>
+          return (
+            <Card
+              key={reg.registration_id}
+              className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
+              onClick={() => onSelectRegistration(reg)} // Default ke tab beranda
+            >
+              <div>
+                <CardHeader>
+                  <CardTitle className="flex justify-between items-start">
+                    <span className="pr-2">
+                      {reg.category?.name || "Nama Lomba"}
+                    </span>
+                    <div className="flex flex-col gap-1">
+                      <Badge
+                        variant={reg.is_verified ? "success" : "secondary"}
+                        className={
+                          reg.is_verified
+                            ? "bg-green-600 text-white"
+                            : "bg-red-600 text-white"
+                        }
+                      >
+                        {reg.is_verified
+                          ? "Terverifikasi"
+                          : "Belum Terverifikasi"}
+                      </Badge>
+                      {/* Badge untuk status submission */}
+                      {hasSubmission && (
+                        <Badge
+                          variant="outline"
+                          className="text-xs bg-blue-50 text-blue-600 border-blue-200"
+                        >
+                          Karya Terupload
+                        </Badge>
                       )}
                     </div>
-                  </div>
-                </div>
-              </CardContent>
-            </div>
-            <CardFooter className="flex justify-between gap-2 w-full">
-              {/* Tombol Hapus */}
-              <Button
-                variant="destructive"
-                onClick={(e) => {
-                  e.stopPropagation(); // Mencegah klik tombol memicu klik pada card
-                  setDeleteConfirmId(reg.registration_id);
-                }}
-                className="flex-1"
-                disabled={deleteMutation.isPending}
-              >
-                <LayoutDashboard className="mr-2 h-4 w-4" />
-                {deleteMutation.isPending ? "Menghapus..." : "Hapus"}
-              </Button>
+                  </CardTitle>
+                  <CardDescription>
+                    {reg.team_name ? `Tim: ${reg.team_name}` : reg.user.name}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-xs text-muted-foreground">
+                    Terdaftar pada:{" "}
+                    {new Date(reg.created_at).toLocaleDateString("id-ID")}
+                  </p>
 
-              {/* Tombol Upload Karya */}
-              <Button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleUploadSubmission(reg);
-                }}
-                disabled={!reg.is_verified}
-                className="flex-1"
-              >
-                Upload Karya
-              </Button>
-            </CardFooter>
-          </Card>
-        ))}
+                  {/* Feedback Box - Selalu tampil */}
+                  <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                    <div className="flex items-start gap-2">
+                      <MessageSquare className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                      <div className="flex-1">
+                        <p className="text-xs font-medium text-blue-800 dark:text-blue-300 mb-1">
+                          Feedback:
+                        </p>
+                        {reg.feedback ? (
+                          <p className="text-xs text-blue-700 dark:text-blue-200 leading-relaxed">
+                            {reg.feedback}
+                          </p>
+                        ) : (
+                          <p className="text-xs text-blue-500 dark:text-blue-400 leading-relaxed italic">
+                            Belum ada feedback. Feedback akan muncul setelah
+                            dilakukan review terhadap pendaftaran Anda.
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </div>
+              <CardFooter className="flex justify-between gap-2 w-full">
+                {/* Tombol Hapus */}
+                <Button
+                  variant="destructive"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDeleteConfirmId(reg.registration_id);
+                  }}
+                  className="flex-1"
+                  disabled={deleteMutation.isPending}
+                >
+                  <LayoutDashboard className="mr-2 h-4 w-4" />
+                  {deleteMutation.isPending ? "Menghapus..." : "Hapus"}
+                </Button>
+
+                {/* Tombol Upload Karya atau Lihat Status - Conditional */}
+                {hasSubmission ? (
+                  // Jika sudah ada submission, tampilkan tombol "Lihat Status"
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleViewStatus(reg);
+                    }}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    <FileText className="mr-2 h-4 w-4" />
+                    Lihat Status
+                  </Button>
+                ) : (
+                  // Jika belum ada submission, tampilkan tombol "Upload Karya"
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleUploadSubmission(reg);
+                    }}
+                    disabled={!reg.is_verified}
+                    className="flex-1"
+                  >
+                    <Upload className="mr-2 h-4 w-4" />
+                    Upload Karya
+                  </Button>
+                )}
+              </CardFooter>
+            </Card>
+          );
+        })}
       </div>
 
       {/* Dialog Konfirmasi Hapus */}
