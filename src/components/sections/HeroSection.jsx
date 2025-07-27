@@ -49,7 +49,7 @@ const HeroSection = () => {
   return (
     <section
       id="beranda"
-      className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 via-white to-indigo-50 dark:from-red-900 dark:via-black dark:to-black relative overflow-hidden"
+      className="min-h-screen flex items-center justify-center bg-gradient-to-br  dark:from-red-900 dark:via-black dark:to-black relative overflow-hidden"
     >
       <div className="container mx-auto px-4 mt-20 mb-10 text-center relative z-10">
         <div className="max-w-4xl mx-auto">
