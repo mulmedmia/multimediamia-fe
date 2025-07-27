@@ -59,7 +59,7 @@ export default function HistoryPesananPage() {
     <>
       <DashboardHeader />
       <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <div className="container mx-auto py-20 px-4">
+        <div className="container mx-auto py-20 px-2 sm:px-4">
           <div className="space-y-8">
             {/* Enhanced Header */}
             <div className="text-center space-y-4">
@@ -73,7 +73,7 @@ export default function HistoryPesananPage() {
                 History Penukaran
               </h1>
               <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-                Riwayat penukaran poin Anda dengan berbagai produk menarik
+                Riwayat penukaran <span className="inline-flex items-center gap-1 font-semibold text-red-600 dark:text-red-400">Diamonds <span role="img" aria-label="diamond">💎</span></span> Anda dengan berbagai produk menarik
               </p>
             </div>
 
@@ -82,7 +82,7 @@ export default function HistoryPesananPage() {
               <Card className="bg-gradient-to-r from-red-500 via-red-600 to-pink-600 dark:from-red-600 dark:via-red-700 dark:to-pink-700 border-0 shadow-2xl rounded-3xl overflow-hidden relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-red-500/20 via-transparent to-pink-500/20"></div>
                 <CardContent className="p-8 relative">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                     <div className="flex items-center gap-4">
                       <div className="p-4 bg-white/20 dark:bg-black/20 rounded-2xl backdrop-blur-sm">
                         <Package className="h-8 w-8 text-white" />
@@ -96,7 +96,7 @@ export default function HistoryPesananPage() {
                         </p>
                       </div>
                     </div>
-                    <div className="hidden md:flex items-center gap-2">
+                    <div className="flex items-center gap-2">
                       <Sparkles className="h-6 w-6 text-yellow-300 animate-pulse" />
                       <Sparkles className="h-4 w-4 text-yellow-200 animate-pulse delay-75" />
                       <Sparkles className="h-5 w-5 text-yellow-400 animate-pulse delay-150" />
@@ -117,7 +117,7 @@ export default function HistoryPesananPage() {
                     Belum ada riwayat penukaran
                   </h3>
                   <p className="text-gray-600 dark:text-gray-400 text-center text-lg max-w-md">
-                    Anda belum melakukan penukaran poin dengan produk apapun. Mulai tukarkan poin Anda sekarang!
+                    Anda belum melakukan penukaran <span className="inline-flex items-center gap-1 font-semibold text-red-600 dark:text-red-400">Diamonds <span role="img" aria-label="diamond">💎</span></span> dengan produk apapun. Mulai tukarkan Diamonds Anda sekarang!
                   </p>
                 </CardContent>
               </Card>
@@ -128,9 +128,9 @@ export default function HistoryPesananPage() {
                     key={item.redemption_id} 
                     className="hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-r from-white via-gray-50 to-white dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 border-0 shadow-lg rounded-2xl overflow-hidden group"
                   >
-                    <CardContent className="p-8">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-start gap-6 flex-1">
+                    <CardContent className="p-6 sm:p-8">
+                      <div className="flex flex-col md:flex-row items-start justify-between gap-6">
+                        <div className="flex items-start gap-4 sm:gap-6 flex-1 w-full">
                           <div className="relative">
                             <div className="p-4 bg-gradient-to-r from-red-500 to-pink-500 dark:from-red-600 dark:to-pink-600 rounded-2xl shadow-lg group-hover:shadow-xl transition-shadow">
                               <Package className="h-8 w-8 text-white" />
@@ -138,7 +138,7 @@ export default function HistoryPesananPage() {
                             <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white dark:border-gray-800"></div>
                           </div>
                           <div className="flex-1 space-y-4">
-                            <div className="flex items-center gap-4 flex-wrap">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 flex-wrap">
                               <h3 className="font-bold text-gray-900 dark:text-white text-xl">
                                 {item.product?.name}
                               </h3>
@@ -149,7 +149,7 @@ export default function HistoryPesananPage() {
                                 ✓ Berhasil
                               </Badge>
                             </div>
-                            <div className="flex items-center gap-6 text-gray-600 dark:text-gray-400">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6 text-gray-600 dark:text-gray-400">
                               <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg">
                                 <Calendar className="h-4 w-4 text-red-500" />
                                 <span className="font-medium">
@@ -163,16 +163,16 @@ export default function HistoryPesananPage() {
                                 </span>
                               </div>
                               <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg">
-                                <Coins className="h-4 w-4 text-yellow-500" />
-                                <span className="font-medium">{item.points_used} poin</span>
+                                <span className="text-lg" role="img" aria-label="diamond">💎</span>
+                                <span className="font-medium">{item.points_used} Diamonds</span>
                               </div>
                             </div>
                           </div>
                         </div>
-                        <div className="text-right bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-950 dark:to-red-950 p-4 rounded-xl">
+                        <div className="text-right bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-950 dark:to-red-950 p-4 rounded-xl min-w-[120px]">
                           <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Harga Tukar</p>
-                          <p className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 dark:from-orange-400 dark:to-red-400 bg-clip-text text-transparent">
-                            {item.product?.price} poin
+                          <p className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 dark:from-orange-400 dark:to-red-400 bg-clip-text text-transparent flex items-center gap-1 justify-end">
+                            {item.product?.price} <span className="text-lg" role="img" aria-label="diamond">Diamonds</span>
                           </p>
                         </div>
                       </div>
@@ -186,14 +186,14 @@ export default function HistoryPesananPage() {
             {data && data.meta && data.meta.totalPages > 1 && (
               <Card className="bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 border-0 shadow-lg rounded-2xl">
                 <CardContent className="p-6">
-                  <div className="flex items-center justify-center gap-4">
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-red-500 rounded-full"></div>
                       <p className="text-gray-700 dark:text-gray-300 font-medium">
                         Halaman {data.meta.page} dari {data.meta.totalPages}
                       </p>
                     </div>
-                    <div className="w-px h-4 bg-gray-400 dark:bg-gray-500"></div>
+                    <div className="hidden sm:block w-px h-4 bg-gray-400 dark:bg-gray-500"></div>
                     <p className="text-gray-600 dark:text-gray-400">
                       {data.meta.total} total item
                     </p>

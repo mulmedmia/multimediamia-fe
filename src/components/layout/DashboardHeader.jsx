@@ -48,14 +48,14 @@ export function DashboardHeader() {
             {/* Menu untuk desktop/tablet - tampil di layar besar */}
             <Link
               href={historyPesananLink}
-              className="hidden md:inline-flex items-center px-3 py-2 rounded-md text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/40 transition"
+              className="hidden md:inline-flex items-center px-3 py-2 rounded-md text-sm font-mediumtext-muted-foreground hover:text-primary transition-colors"
             >
               <Clock className="mr-2 h-4 w-4" />
               History Pesanan
             </Link>
             <Link
               href={leaderboardLink}
-              className="hidden md:inline-flex items-center px-3 py-2 rounded-md text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/40 transition"
+              className="hidden md:inline-flex items-center px-3 py-2 rounded-md text-sm font-mediumtext-muted-foreground hover:text-primary transition-colors"
             >
               <Trophy className="mr-2 h-4 w-4" />
               Leaderboard
