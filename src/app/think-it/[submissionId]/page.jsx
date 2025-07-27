@@ -243,13 +243,13 @@ export default function SubmissionDetailPage(props) {
     <>
       <Header />
       <main className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-pink-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 pt-20">
-        <div className="container mx-auto px-4 py-8 md:py-12">
+        <div className="container mx-auto px-4 ml-4">
           {/* Back Button */}
-          <div className="mb-6">
+          <div className="mb-2">
             <Button
               variant="outline"
               onClick={() => router.back()}
-              className="transition hover:-translate-x-1"
+              className="transition"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Kembali
