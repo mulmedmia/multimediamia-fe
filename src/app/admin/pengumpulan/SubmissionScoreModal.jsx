@@ -1,35 +1,76 @@
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
-export default function SubmissionScoreModal({ open, onClose, data, score, setScore, feedback, setFeedback, onSubmit, isLoading }) {
-  if (!open || !data) return null;
+export default function SubmissionScoreModal({
+  open,
+  onClose,
+  data,
+  score,
+  setScore,
+  feedback,
+  setFeedback,
+  onSubmit,
+  isLoading,
+}) {
+  if (!data) return null;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 min-w-[320px] max-w-lg w-full">
-        <h2 className="text-lg font-semibold mb-4 text-foreground dark:text-white">Update Skor & Feedback</h2>
-        <div className="space-y-2 mb-4">
-          <input
-            type="number"
-            className="w-full border rounded px-2 py-1"
-            placeholder="Skor"
-            value={score}
-            onChange={e => setScore(e.target.value)}
-          />
-          <textarea
-            className="w-full border rounded px-2 py-1"
-            placeholder="Feedback"
-            value={feedback}
-            onChange={e => setFeedback(e.target.value)}
-          />
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Update Skor & Feedback</DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="score">Skor</Label>
+            <Input
+              id="score"
+              type="number"
+              placeholder="Masukkan skor"
+              value={score}
+              onChange={(e) => setScore(e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="feedback">Feedback</Label>
+            <Textarea
+              id="feedback"
+              placeholder="Masukkan feedback"
+              value={feedback}
+              onChange={(e) => setFeedback(e.target.value)}
+              rows={4}
+            />
+          </div>
         </div>
-        <Button
-          className="w-full mt-2"
-          disabled={isLoading}
-          onClick={onSubmit}
-        >
-          {isLoading ? "Menyimpan..." : "Update Skor"}
-        </Button>
-        <Button variant="outline" className="mt-2 w-full" onClick={onClose}>Tutup</Button>
-      </div>
-    </div>
+
+        <DialogFooter className="flex-col sm:flex-row gap-2">
+          <Button
+            variant="outline"
+            onClick={onClose}
+            className="w-full sm:w-auto"
+          >
+            Batal
+          </Button>
+          <Button
+            onClick={onSubmit}
+            disabled={isLoading}
+            className="w-full sm:w-auto"
+          >
+            {isLoading ? "Menyimpan..." : "Update Skor"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

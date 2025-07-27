@@ -1,42 +1,86 @@
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 
-export default function SubmissionStatusModal({ open, onClose, data, status, setStatus, is_verified, setIsVerified, onSubmit, isLoading }) {
-  if (!open || !data) return null;
+export default function SubmissionStatusModal({
+  open,
+  onClose,
+  data,
+  status,
+  setStatus,
+  is_verified,
+  setIsVerified,
+  onSubmit,
+  isLoading,
+}) {
+  if (!data) return null;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 min-w-[320px] max-w-lg w-full">
-        <h2 className="text-lg font-semibold mb-4 text-foreground dark:text-white">Update Status Submission</h2>
-        <div className="space-y-2 mb-4">
-          <label className="block font-medium">Status</label>
-          <select
-            value={status}
-            onChange={e => setStatus(e.target.value)}
-            className="w-full border rounded px-2 py-1"
-          >
-            <option value="">Pilih status</option>
-            <option value="PENDING">PENDING</option>
-            <option value="APPROVED">APPROVED</option>
-            <option value="REJECTED">REJECTED</option>
-            <option value="REVISION">REVISION</option>
-          </select>
-          <label className="inline-flex items-center gap-2 mt-2">
-            <input
-              type="checkbox"
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Update Status Submission</DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="status">Status</Label>
+            <Select value={status} onValueChange={setStatus}>
+              <SelectTrigger>
+                <SelectValue placeholder="Pilih status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="PENDING">PENDING</SelectItem>
+                <SelectItem value="APPROVED">APPROVED</SelectItem>
+                <SelectItem value="REJECTED">REJECTED</SelectItem>
+                <SelectItem value="REVISION">REVISION</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="verified"
               checked={is_verified}
-              onChange={e => setIsVerified(e.target.checked)}
+              onCheckedChange={setIsVerified}
             />
-            Verifikasi
-          </label>
+            <Label htmlFor="verified">
+              Verifikasi Untuk Ditampilkan Di Leaderboard
+            </Label>
+          </div>
         </div>
-        <Button
-          className="w-full mt-2"
-          disabled={isLoading}
-          onClick={onSubmit}
-        >
-          {isLoading ? "Menyimpan..." : "Update Status"}
-        </Button>
-        <Button variant="outline" className="mt-2 w-full" onClick={onClose}>Tutup</Button>
-      </div>
-    </div>
+
+        <DialogFooter className="flex-col sm:flex-row gap-2">
+          <Button
+            variant="outline"
+            onClick={onClose}
+            className="w-full sm:w-auto"
+          >
+            Batal
+          </Button>
+          <Button
+            onClick={onSubmit}
+            disabled={isLoading}
+            className="w-full sm:w-auto"
+          >
+            {isLoading ? "Menyimpan..." : "Update Status"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
