@@ -70,7 +70,7 @@ export default function ProfilePage() {
         <div className="max-w-4xl mx-auto">
           {/* Page Title */}
           <div className="mb-8">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-red-900 via-red-800 to-red-700 bg-clip-text text-transparent pb-2">
               Profile Settings
             </h1>
             <p className="text-gray-600 dark:text-gray-300">Kelola informasi profil dan keamanan akun Anda</p>
@@ -78,17 +78,8 @@ export default function ProfilePage() {
 
           <Card className="overflow-hidden shadow-2xl border-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
             {/* Enhanced Header with Gradient */}
-            <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 p-8 relative">
+            <div className="bg-gradient-to-r from-red-900 via-red-800 to-red-700 p-8 relative">
               <div className="absolute inset-0 bg-black/10"></div>
-              <div className="absolute top-4 right-4 z-10">
-                <Button 
-                  size="icon" 
-                  variant="outline" 
-                  className="rounded-full bg-white/20 border-white/30 text-white hover:bg-white/30 backdrop-blur-sm"
-                >
-                  <Pencil2Icon className="w-4 h-4" />
-                </Button>
-              </div>
               
               <div className="relative z-10 flex flex-col items-center text-white">
                 {/* Enhanced Avatar */}
@@ -198,7 +189,7 @@ export default function ProfilePage() {
                         <Button
                           type="submit"
                           disabled={updateMutation.isPending}
-                          className="h-11 px-8 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
+                          className="h-11 px-8 bg-gradient-to-r from-red-900 via-red-800 to-red-700 text-white rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
                         >
                           {updateMutation.isPending ? (
                             <>
