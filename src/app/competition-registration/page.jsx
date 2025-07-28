@@ -28,7 +28,7 @@ function CompetitionRegistrationPageInner() {
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <p>Memuat...</p>
+        <p>Memuat....</p>
       </div>
     );
   }
