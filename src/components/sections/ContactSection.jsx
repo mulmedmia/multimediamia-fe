@@ -19,22 +19,22 @@ const ContactSection = () => (
           Jangan lewatkan kesempatan emas ini! Daftarkan diri Anda dan tunjukkan
           kreativitas terbaik Anda.
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-          <Button
-            size="lg"
-            className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 px-8 py-3 text-lg"
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+          <a
+            href="https://drive.google.com/drive/folders/1WPSiwwLve8ZeWT19yVF44YGXRzRppShp"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block"
           >
-            <RocketIcon className="h-5 w-5 mr-2" />
-            Daftar Sekarang
-          </Button>
-          <Button
-            size="lg"
-            variant="outline"
-            className="border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 px-8 py-3 text-lg"
-          >
-            <DownloadIcon className="h-5 w-5 mr-2" />
-            Download Panduan
-          </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              className="border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 px-8 py-3 text-lg"
+            >
+              <DownloadIcon className="h-5 w-5 mr-2" />
+              Download Panduan
+            </Button>
+          </a>
         </div>
       </div>
     </div>

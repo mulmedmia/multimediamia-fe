@@ -74,27 +74,27 @@ const HeroSection = () => {
             Tunjukkan kreativitas dan inovasi Anda dalam 3 kategori lomba:
             <span className="font-semibold text-red-600 dark:text-red-400">
               {" "}
-              Website Development, UI/UX Design, dan Digital Poster
+              Website Development, UI/UX Design, Dan Logo Design
             </span>
             .
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-            <Button
-              size="lg"
-              className="bg-gradient-to-r from-red-600 to-red-700 dark:to-black hover:from-red-700 hover:to-red-800 dark:hover:to-gray-900 shadow-lg text-white"
+            <a
+              href="https://drive.google.com/drive/folders/1WPSiwwLve8ZeWT19yVF44YGXRzRppShp"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block"
             >
-              <RocketIcon className="h-5 w-5 mr-2" />
-              Daftar Lomba
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-2 border-red-600 text-red-600 hover:bg-red-50 dark:text-red-400 dark:border-red-500 dark:hover:bg-red-900/40 dark:hover:text-white px-8 py-3 text-lg"
-            >
-              <DownloadIcon className="h-5 w-5 mr-2" />
-              Download Panduan
-            </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-2 border-red-600 text-red-600 hover:bg-red-50 dark:text-red-400 dark:border-red-500 dark:hover:bg-red-900/40 dark:hover:text-white px-8 py-3 text-lg"
+              >
+                <DownloadIcon className="h-5 w-5 mr-2" />
+                Download Panduan
+              </Button>
+            </a>
           </div>
 
           <div className="relative grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">

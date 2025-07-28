@@ -12,21 +12,21 @@ const GamificationSection = () => {
   const features = [
     {
       icon: <StarFilledIcon className="h-8 w-8 text-amber-500" />,
-      title: "Kumpulkan Poin",
+      title: "Kumpulkan Diamonds",
       description:
-        "Dapatkan poin dari setiap aktivitas, mulai dari pendaftaran hingga submit karya.",
+        "Dapatkan diamonds dari setiap aktivitas, mulai dari pendaftaran hingga submit karya.",
     },
     {
       icon: <StarFilledIcon className="h-8 w-8 text-red-500" />,
-      title: "Raih Badge Prestasi",
+      title: "Leaderboard Kompetitif",
       description:
-        "Buka badge eksklusif untuk setiap pencapaian dan tunjukkan keahlian Anda.",
+        "Pantau posisi Anda secara real-time di leaderboard dan bersaing untuk menjadi yang terbaik.",
     },
     {
       icon: <BookmarkIcon className="h-8 w-8 text-green-500" />,
       title: "Tukar dengan Hadiah",
       description:
-        "Tukarkan poin yang terkumpul dengan merchandise atau tiket konsultasi eksklusif.",
+        "Tukarkan diamonds yang terkumpul dengan merchandise atau tiket konsultasi eksklusif.",
     },
   ];
 
@@ -65,14 +65,19 @@ const GamificationSection = () => {
           ))}
         </div>
         <div className="text-center mt-12">
-          <Button
-            size="lg"
-            variant="outline"
-            className="border-2 border-red-600 text-red-600 hover:bg-red-50 dark:text-red-400 dark:border-red-500 dark:hover:bg-red-900/40 dark:hover:text-white"
+          <a
+            href="http://localhost:3000/leaderboard"
+            className="inline-block"
           >
-            Lihat Leaderboard
-            <ArrowRightIcon className="h-4 w-4 ml-2" />
-          </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              className="border-2 border-red-600 text-red-600 hover:bg-red-50 dark:text-red-400 dark:border-red-500 dark:hover:bg-red-900/40 dark:hover:text-white"
+            >
+              Lihat Leaderboard
+              <ArrowRightIcon className="h-4 w-4 ml-2" />
+            </Button>
+          </a>
         </div>
       </div>
     </section>

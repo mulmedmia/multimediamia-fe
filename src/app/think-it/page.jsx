@@ -99,7 +99,7 @@ export default function ThinkItPage() {
                   <Lightbulb className="h-6 w-6 md:h-8 md:w-8 text-white" />
                 </div>
                 <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-black dark:text-white bg-clip-text">
-                  Think It -
+                  Show It -
                 </h1>
                 <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-red-600 bg-clip-text">
                   Galeri Karya
