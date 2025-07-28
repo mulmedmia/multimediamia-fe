@@ -242,8 +242,8 @@ export default function SubmissionDetailPage(props) {
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-pink-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 pt-20 pb-8">
-        <div className="container mx-auto px-4 ">
+      <main className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-pink-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 pt-20">
+        <div className="container mx-auto px-4">
           {/* Back Button */}
           <div>
             <Button
@@ -486,7 +486,7 @@ export default function SubmissionDetailPage(props) {
             </Card>
 
             {/* Links */}
-            <Card className="shadow-lg mb-8">
+            <Card className="shadow-lg">
               <CardContent className="p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <Link2 className="h-5 w-5 text-blue-600" />

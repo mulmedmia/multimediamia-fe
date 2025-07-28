@@ -309,7 +309,7 @@ export default function JuriSubmissionDetailPage(props) {
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-pink-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 pt-8 pb-20">
       <div className="container mx-auto px-4">
         {/* Back Button */}
-        <div>
+        <div className="px-2 mb-2">
           <Button
             variant="outline"
             onClick={() => router.back()}
