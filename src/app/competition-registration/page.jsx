@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-
 import {
   Card,
   CardContent,
@@ -10,15 +9,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
 import { CompetitionRegistrationForm } from "@/components/forms/CompetitionRegistrationForm";
 import { useAuthContext } from "@/providers/AuthProvider";
 import { AuthHeader } from "@/components/auth-header";
 
-export default function CompetitionRegistrationPage() {
+function CompetitionRegistrationPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const categoryId = searchParams.get("category"); // Ambil parameter kategori dari URL
+  const categoryId = searchParams.get("category");
   const { user, isLoading } = useAuthContext();
 
   useEffect(() => {
@@ -50,10 +48,17 @@ export default function CompetitionRegistrationPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="mt-5">
-          {/* Teruskan categoryId ke form */}
           <CompetitionRegistrationForm defaultCategoryId={categoryId} />
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function CompetitionRegistrationPage() {
+  return (
+    <Suspense fallback={<div className="flex h-screen items-center justify-center"><p>Memuat...</p></div>}>
+      <CompetitionRegistrationPageInner />
+    </Suspense>
   );
 }
