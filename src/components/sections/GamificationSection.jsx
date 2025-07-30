@@ -1,12 +1,13 @@
-import React from 'react';
-import { Badge } from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { 
-  StarFilledIcon, 
-  BookmarkIcon, 
-  ArrowRightIcon 
-} from '@radix-ui/react-icons';
+import React from "react";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  StarFilledIcon,
+  BookmarkIcon,
+  ArrowRightIcon,
+} from "@radix-ui/react-icons";
+import Link from "next/link";
 
 const GamificationSection = () => {
   const features = [
@@ -54,10 +55,10 @@ const GamificationSection = () => {
             >
               <div className="flex gap-6">
                 {feature.icon}
-              <h3 className="text-2xl font-bold mb-2 text-foreground dark:text-white">
-                {feature.title}
-              </h3>
-                </div>
+                <h3 className="text-2xl font-bold mb-2 text-foreground dark:text-white">
+                  {feature.title}
+                </h3>
+              </div>
               <p className="text-muted-foreground text-left mb-12 dark:text-gray-400">
                 {feature.description}
               </p>
@@ -65,10 +66,7 @@ const GamificationSection = () => {
           ))}
         </div>
         <div className="text-center mt-12">
-          <a
-            href="http://localhost:3000/leaderboard"
-            className="inline-block"
-          >
+          <Link href="/leaderboard" className="inline-block">
             <Button
               size="lg"
               variant="outline"
@@ -77,11 +75,11 @@ const GamificationSection = () => {
               Lihat Leaderboard
               <ArrowRightIcon className="h-4 w-4 ml-2" />
             </Button>
-          </a>
+          </Link>
         </div>
       </div>
     </section>
   );
 };
 
-export default GamificationSection
+export default GamificationSection;
