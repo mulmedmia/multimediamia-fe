@@ -70,7 +70,7 @@ const GamificationSection = () => {
             <Button
               size="lg"
               variant="outline"
-              className="border-2 border-red-600 text-red-600 hover:bg-red-50 dark:text-red-400 dark:border-red-500 dark:hover:bg-red-900/40 dark:hover:text-white"
+              className="border-2 border-red-600 text-red-600 hover:bg-red-50 dark:text-red-400 dark:border-red-500 dark:hover:bg-red-900/40 dark:hover:text-white cursor-pointer"
             >
               Lihat Leaderboard
               <ArrowRightIcon className="h-4 w-4 ml-2" />

@@ -67,7 +67,7 @@ const FAQSection = () => {
             >
               <CardContent className="p-0">
                 <button
-                  className="w-full p-5 text-left flex items-center justify-between hover:bg-accent dark:hover:bg-gray-800/50 transition-colors"
+                  className="w-full p-5 text-left flex items-center justify-between hover:bg-accent dark:hover:bg-gray-800/50 transition-colors cursor-pointer"
                   onClick={() =>
                     setOpenIndex(openIndex === index ? null : index)
                   }
@@ -82,7 +82,7 @@ const FAQSection = () => {
                     )}
                   >
                     <svg
-                      className="h-5 w-5 text-muted-foreground dark:text-gray-400"
+                      className="h-5 w-5 text-muted-foreground dark:text-gray-400 cursor-pointer"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"

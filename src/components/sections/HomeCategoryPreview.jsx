@@ -197,7 +197,7 @@ export default function HomeCategoryPreview() {
           <Link href="/category">
             <Button
               size="lg"
-              className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 shadow-lg hover:shadow-xl text-white px-8 py-3 text-base rounded-lg font-semibold transition-all duration-300 hover:scale-105"
+              className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 shadow-lg hover:shadow-xl text-white px-8 py-3 text-base rounded-lg font-semibold transition-all duration-300 hover:scale-105 cursor-pointer"
             >
               Lihat Semua Kategori
               <ArrowRight className="ml-2 h-4 w-4" />
