@@ -157,6 +157,10 @@ export default function CategoryDetailPage(props) {
     }
   };
 
+  const isDeadlinePassed = (deadlineString) => {
+    return new Date(deadlineString) < new Date();
+  };
+
   const getStatusConfig = (status) => {
     switch (status) {
       case "VERIFIED":
@@ -364,22 +368,56 @@ export default function CategoryDetailPage(props) {
             </div>
           </Card>
           <Card className="border border-gray-100 dark:border-gray-900 rounded-xl bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
-            <CardContent className="p-6">
-              <CountdownTimer targetDate={category.deadline} />
-            </CardContent>
-          </Card>
-          <Card className="border border-gray-100 dark:border-gray-900 rounded-xl bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
             <CardContent className="p-6 space-y-4 gap-1 flex flex-col">
               {category.status === "VERIFIED" ? (
                 <>
-                  <Link
-                    href={`/competition-registration?category=${category.category_id}`}
+                  {/* Button Daftar dengan kondisi disabled */}
+                  <div
+                    className={
+                      isDeadlinePassed(category.deadline)
+                        ? "cursor-not-allowed inline-block"
+                        : ""
+                    }
+                    style={{
+                      cursor: isDeadlinePassed(category.deadline)
+                        ? "not-allowed"
+                        : "default",
+                    }}
                   >
-                    <Button className="w-full bg-gradient-to-r from-red-600 to-red-700 dark:from-red-400 dark:to-black text-white font-bold text-lg py-3 rounded-lg transition hover:scale-105">
-                      <Trophy className="mr-2 h-4 w-4" />
-                      Daftar Sekarang
-                    </Button>
-                  </Link>
+                    <Link
+                      href={
+                        isDeadlinePassed(category.deadline)
+                          ? "#"
+                          : `/competition-registration?category=${category.category_id}`
+                      }
+                      className={
+                        isDeadlinePassed(category.deadline)
+                          ? "pointer-events-none"
+                          : ""
+                      }
+                    >
+                      <Button
+                        className={`w-full font-bold text-lg py-3 rounded-lg transition ${
+                          isDeadlinePassed(category.deadline)
+                            ? "opacity-50 cursor-not-allowed bg-gray-400 dark:bg-gray-600 pointer-events-none"
+                            : "bg-gradient-to-r from-red-600 to-red-700 dark:from-red-400 dark:to-black text-white hover:scale-105"
+                        }`}
+                        disabled={isDeadlinePassed(category.deadline)}
+                        style={{
+                          cursor: isDeadlinePassed(category.deadline)
+                            ? "not-allowed"
+                            : "pointer",
+                        }}
+                      >
+                        <Trophy className="mr-2 h-4 w-4" />
+                        {isDeadlinePassed(category.deadline)
+                          ? "Pendaftaran Sudah Ditutup"
+                          : "Daftar Sekarang"}
+                      </Button>
+                    </Link>
+                  </div>
+
+                  {/* Button Download Panduan */}
                   <Button
                     variant="outline"
                     className="w-full font-semibold text-lg py-3 rounded-lg transition hover:scale-105"
@@ -414,12 +452,6 @@ export default function CategoryDetailPage(props) {
             <CardContent className="p-6">
               <h3 className="font-semibold mb-4 text-lg">Informasi Tambahan</h3>
               <div className="space-y-3 text-sm">
-                {/* <div className="flex justify-between">
-                  <span className="text-muted-foreground">ID Kategori:</span>
-                  <span className="font-mono text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
-                    {category.category_id}
-                  </span>
-                </div> */}
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Nama Kompetisi:</span>
                   <span>{category.name}</span>
