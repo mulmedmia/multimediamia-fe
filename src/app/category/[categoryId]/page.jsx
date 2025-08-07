@@ -368,6 +368,11 @@ export default function CategoryDetailPage(props) {
             </div>
           </Card>
           <Card className="border border-gray-100 dark:border-gray-900 rounded-xl bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
+            <CardContent className="p-6">
+              <CountdownTimer targetDate={category.deadline} />
+            </CardContent>
+          </Card>
+          <Card className="border border-gray-100 dark:border-gray-900 rounded-xl bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
             <CardContent className="p-6 space-y-4 gap-1 flex flex-col">
               {category.status === "VERIFIED" ? (
                 <>
@@ -411,13 +416,13 @@ export default function CategoryDetailPage(props) {
                       >
                         <Trophy className="mr-2 h-4 w-4" />
                         {isDeadlinePassed(category.deadline)
-                          ? "Pendaftaran Sudah Ditutup"
+                          ? "Pendaftaran Telah Ditutup"
                           : "Daftar Sekarang"}
                       </Button>
                     </Link>
                   </div>
 
-                  {/* Button Download Panduan */}
+                  {/* Button Download Panduan - tetap aktif */}
                   <Button
                     variant="outline"
                     className="w-full font-semibold text-lg py-3 rounded-lg transition hover:scale-105"
@@ -452,6 +457,12 @@ export default function CategoryDetailPage(props) {
             <CardContent className="p-6">
               <h3 className="font-semibold mb-4 text-lg">Informasi Tambahan</h3>
               <div className="space-y-3 text-sm">
+                {/* <div className="flex justify-between">
+                  <span className="text-muted-foreground">ID Kategori:</span>
+                  <span className="font-mono text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                    {category.category_id}
+                  </span>
+                </div> */}
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Nama Kompetisi:</span>
                   <span>{category.name}</span>
