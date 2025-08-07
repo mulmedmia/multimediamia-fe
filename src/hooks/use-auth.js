@@ -25,7 +25,22 @@ export function useAuth() {
       return data;
     } catch (err) {
       setMessageType("error");
-      setMessage(err.message || "Email atau password salah.");
+
+      const errorMessage = err.message || "Email atau password salah.";
+
+      if (
+        errorMessage.toLowerCase().includes("verify") ||
+        errorMessage.toLowerCase().includes("verification") ||
+        errorMessage.toLowerCase().includes("not verified") ||
+        errorMessage.toLowerCase().includes("belum terverifikasi")
+      ) {
+        setMessage(
+          "Please re-register with the same email to get verified by clicking Daftar di Sini"
+        );
+        setMessageType("warning"); // atau "info"
+      } else {
+        setMessage(errorMessage);
+      }
       return null;
     } finally {
       setLoading(false);
@@ -59,7 +74,36 @@ export function useRegister() {
       router.push("/register/otp");
     } catch (err) {
       setMessageType("error");
-      setMessage(err.message || "Registrasi gagal. Email sudah terdaftar.");
+
+      // Check jika error adalah email sudah terdaftar
+      const errorMessage = err.message || "Registrasi gagal.";
+      const isEmailAlreadyRegistered =
+        errorMessage.toLowerCase().includes("email") &&
+        (errorMessage.toLowerCase().includes("already") ||
+          errorMessage.toLowerCase().includes("sudah") ||
+          errorMessage.toLowerCase().includes("terdaftar"));
+
+      if (isEmailAlreadyRegistered) {
+        try {
+          // Kirim OTP ke email yang sudah terdaftar
+          await requestOtp(email);
+          setMessage(
+            "Email sudah terdaftar. OTP baru telah dikirim untuk verifikasi."
+          );
+          setMessageType("success");
+          Cookies.set("pendingEmail", email);
+          // Redirect ke halaman OTP
+          setTimeout(() => {
+            router.push("/register/otp");
+          }, 1500);
+        } catch (otpError) {
+          setMessage(
+            "Email sudah terdaftar. Silakan coba login atau hubungi admin."
+          );
+        }
+      } else {
+        setMessage(errorMessage);
+      }
     } finally {
       setLoading(false);
     }

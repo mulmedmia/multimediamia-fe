@@ -35,7 +35,7 @@ export default function Header() {
   useEffect(() => {
     setIsMounted(true);
     setWindowWidth(window.innerWidth);
-    
+
     const handleScroll = () => setScrolled(window.scrollY > 20);
     const handleResize = () => {
       setWindowWidth(window.innerWidth);
@@ -46,7 +46,7 @@ export default function Header() {
 
     window.addEventListener("scroll", handleScroll);
     window.addEventListener("resize", handleResize);
-    
+
     return () => {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleResize);
@@ -60,7 +60,7 @@ export default function Header() {
     { href: "/#faq", label: "FAQ" },
     { href: "/think-it", label: "Show It" },
   ];
-  
+
   const profileLink = "/profile";
   const handleLinkClick = () => setIsMenuOpen(false);
 
@@ -102,8 +102,8 @@ export default function Header() {
       <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
         <div className="flex h-12 sm:h-14 md:h-16 items-center justify-between w-full min-w-0">
           {/* Logo Section - Improved mobile responsiveness */}
-          <Link 
-            href="/" 
+          <Link
+            href="/"
             className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0 min-w-0 max-w-[50%] sm:max-w-none"
           >
             <div className="flex-shrink-0">
@@ -141,16 +141,19 @@ export default function Header() {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="flex items-center gap-1 2xl:gap-2 px-1 2xl:px-2 py-1 text-xs 2xl:text-sm font-medium text-muted-foreground hover:text-primary transition-colors h-7 2xl:h-8"
+                  className="flex items-center gap-1 2xl:gap-2 px-1 2xl:px-2 py-1 text-xs 2xl:text-sm font-medium text-muted-foreground hover:text-primary transition-colors h-7 2xl:h-8 cursor-pointer"
                 >
                   Hadiah
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="min-w-[120px] sm:min-w-[140px]">
+              <DropdownMenuContent
+                align="end"
+                className="min-w-[120px] sm:min-w-[140px]"
+              >
                 <DropdownMenuItem asChild>
                   <Link
                     href="/product"
-                    className="flex items-center gap-2 px-2 py-2 w-full text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                    className="flex items-center gap-2 px-2 py-2 w-full text-sm font-medium text-muted-foreground hover:text-primary transition-colors cursor-pointer"
                   >
                     <GiftIcon className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                     <span>Tukar Product</span>
@@ -181,7 +184,11 @@ export default function Header() {
                       </span>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-44 lg:w-48 xl:w-52" align="end" forceMount>
+                  <DropdownMenuContent
+                    className="w-44 lg:w-48 xl:w-52"
+                    align="end"
+                    forceMount
+                  >
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
                         <p className="text-sm font-medium leading-none truncate">
@@ -207,7 +214,10 @@ export default function Header() {
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={logout} className="flex items-center">
+                    <DropdownMenuItem
+                      onClick={logout}
+                      className="flex items-center"
+                    >
                       <ExitIcon className="mr-2 h-3 w-3 lg:h-4 lg:w-4 flex-shrink-0" />
                       <span>Logout</span>
                     </DropdownMenuItem>
@@ -216,12 +226,15 @@ export default function Header() {
               ) : (
                 <div className="flex items-center space-x-1 min-w-0">
                   <Link href="/login" passHref>
-                    <Button variant="ghost" className="h-7 lg:h-8 px-2 lg:px-3 text-xs lg:text-sm">
+                    <Button
+                      variant="ghost"
+                      className="h-7 lg:h-8 px-2 lg:px-3 text-xs lg:text-sm cursor-pointer"
+                    >
                       Login
                     </Button>
                   </Link>
                   <Link href="/register" passHref>
-                    <Button className="h-7 lg:h-8 px-2 lg:px-3 text-xs lg:text-sm whitespace-nowrap">
+                    <Button className="h-7 lg:h-8 px-2 lg:px-3 text-xs lg:text-sm whitespace-nowrap cursor-pointer">
                       Daftar
                     </Button>
                   </Link>
@@ -230,7 +243,7 @@ export default function Header() {
             </div>
 
             {/* Theme Toggle - Only show on desktop */}
-            <div className="hidden lg:block">
+            <div className="hidden lg:block cursor-pointer">
               <ThemeToggle />
             </div>
 
@@ -270,7 +283,7 @@ export default function Header() {
                     {item.label}
                   </a>
                 ))}
-                
+
                 {/* Mobile Hadiah Link */}
                 <Link
                   href="/product"
@@ -315,7 +328,7 @@ export default function Header() {
                           Dashboard
                         </Button>
                       </Link>
-                      
+
                       <Link href={profileLink} passHref>
                         <Button
                           variant="outline"
@@ -352,8 +365,8 @@ export default function Header() {
                       </Button>
                     </Link>
                     <Link href="/register" passHref>
-                      <Button 
-                        className="w-full h-10 sm:h-11 text-sm sm:text-base" 
+                      <Button
+                        className="w-full h-10 sm:h-11 text-sm sm:text-base"
                         onClick={handleLinkClick}
                       >
                         Daftar Sekarang
@@ -365,7 +378,9 @@ export default function Header() {
                 {/* Theme Toggle for Mobile/Tablet */}
                 <div className="mt-4 pt-3 border-t">
                   <div className="flex items-center justify-between px-1">
-                    <span className="text-sm sm:text-base font-medium">Theme</span>
+                    <span className="text-sm sm:text-base font-medium">
+                      Theme
+                    </span>
                     <ThemeToggle />
                   </div>
                 </div>

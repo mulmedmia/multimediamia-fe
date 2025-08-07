@@ -190,9 +190,10 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
           <TabsTrigger
             value="upload"
             disabled={!registration.is_verified || hasSubmissions}
+            data-disabled={!registration.is_verified || hasSubmissions}
             className={
               !registration.is_verified || hasSubmissions
-                ? "opacity-50 cursor-not-allowed"
+                ? "opacity-50 data-[disabled=true]:cursor-not-allowed data-[disabled=true]:pointer-events-auto"
                 : ""
             }
           >
