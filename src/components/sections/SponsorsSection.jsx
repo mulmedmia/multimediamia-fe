@@ -46,7 +46,7 @@ const SponsorsSection = () => {
               {/* Cards */}
               <div className="mx-8 w-60 h-60 rounded-lg overflow-hidden shadow-lg">
                 <img
-                  src="https://multimediainaction.com/wp-content/uploads/2024/08/cropped-mia_2024singa-8.png"
+                  src="/MIALOGO.png"
                   alt="MIA Sponsor 1"
                   className="w-full h-full object-cover"
                 />

@@ -89,22 +89,6 @@ const Footer = () => {
                       href="/category"
                       className="text-muted-foreground hover:text-primary transition-colors"
                     >
-                      Website Developer
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/category"
-                      className="text-muted-foreground hover:text-primary transition-colors"
-                    >
-                      Mobile App Developer
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/category"
-                      className="text-muted-foreground hover:text-primary transition-colors"
-                    >
                       UI/UX Design
                     </Link>
                   </li>
@@ -113,7 +97,15 @@ const Footer = () => {
                       href="/category"
                       className="text-muted-foreground hover:text-primary transition-colors"
                     >
-                      Game Development
+                      Website Developer
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/category"
+                      className="text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      Logo Design
                     </Link>
                   </li>
                 </>
@@ -172,9 +164,9 @@ const Footer = () => {
           <div className="space-y-4">
             <h4 className="text-lg font-semibold text-foreground">Kontak</h4>
             <ul className="space-y-2 text-sm">
-              <li className="text-muted-foreground">Email: info@miaksm.com</li>
+              <li className="text-muted-foreground">Email: mia.upnvj@gmail.com</li>
               <li className="text-muted-foreground">
-                WhatsApp: +62 812-3456-7890
+                WhatsApp: +62 851-7247-2603
               </li>
               <li>
                 <Link
