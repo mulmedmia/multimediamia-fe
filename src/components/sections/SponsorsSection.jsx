@@ -46,12 +46,20 @@ const SponsorsSection = () => {
               {/* Cards */}
               <div className="mx-8 w-60 h-60 rounded-lg overflow-hidden shadow-lg">
                 <img
-                  src="https://multimediainaction.com/wp-content/uploads/2024/08/cropped-mia_2024singa-8.png"
+                  src="/MIALOGO.png"
                   alt="MIA Sponsor 1"
                   className="w-full h-full object-cover"
                 />
               </div>
 
+              <div className="mx-8 w-60 h-60 rounded-lg overflow-hidden shadow-lg">
+                <img
+                  src="/poMIA.png"
+                  alt="MIA Sponsor 3"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              
               <div className="mx-8 w-60 h-60 rounded-lg overflow-hidden shadow-lg">
                 <img
                   src="https://www.upnvj.ac.id/id/files/thumb/89f8a80e388ced3704b091e21f510755/520"
@@ -62,15 +70,7 @@ const SponsorsSection = () => {
 
               <div className="mx-8 w-60 h-60 rounded-lg overflow-hidden shadow-lg">
                 <img
-                  src="https://multimediainaction.com/wp-content/uploads/2024/08/cropped-mia_2024singa-8.png"
-                  alt="MIA Sponsor 3"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-
-              <div className="mx-8 w-60 h-60 rounded-lg overflow-hidden shadow-lg">
-                <img
-                  src="https://www.upnvj.ac.id/id/files/thumb/89f8a80e388ced3704b091e21f510755/520"
+                  src="/WKetua.png"
                   alt="MIA Sponsor 4"
                   className="w-full h-full object-cover"
                 />
