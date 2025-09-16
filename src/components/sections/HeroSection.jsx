@@ -14,38 +14,6 @@ import {
 } from "@radix-ui/react-icons";
 
 const HeroSection = () => {
-  const [currentStat, setCurrentStat] = useState(0);
-  const stats = [
-    {
-      icon: CalendarIcon,
-      value: "25 Agustus",
-      label: "Deadline Pendaftaran",
-      color: "text-red-500",
-      darkColor: "dark:text-red-400",
-    },
-    {
-      icon: PersonIcon,
-      value: "50+",
-      label: "Peserta Terdaftar",
-      color: "text-blue-500",
-      darkColor: "dark:text-blue-400",
-    },
-    {
-      icon: StarIcon,
-      value: "3 Juta+",
-      label: "Total Hadiah",
-      color: "text-green-500",
-      darkColor: "dark:text-green-400",
-    },
-  ];
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentStat((prev) => (prev + 1) % stats.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [stats.length]);
-
   return (
     <section
       id="beranda"
@@ -95,47 +63,6 @@ const HeroSection = () => {
                 Download Panduan
               </Button>
             </a>
-          </div>
-
-          <div className="relative grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
-            {stats.map((stat, index) => (
-              <Card
-                key={index}
-                className={cn(
-                  "transition-all duration-500 transform hover:scale-105 shadow-lg hover:shadow-xl cursor-pointer bg-card dark:bg-black/30 dark:border-gray-800",
-                  currentStat === index
-                    ? "ring-2 ring-red-500 ring-opacity-50 animate-pulse bg-gradient-to-br from-red-50 to-white dark:from-red-900/20 dark:to-black/50"
-                    : "hover:bg-gray-50 dark:hover:bg-gray-900/50"
-                )}
-              >
-                <CardContent className="p-6 text-center relative overflow-hidden">
-                  {currentStat === index && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-red-100 via-transparent to-red-100 dark:from-red-900/30 dark:to-black/30 animate-pulse opacity-30 dark:opacity-50"></div>
-                  )}
-                  <div
-                    className={cn(
-                      "relative z-10 transition-all duration-300",
-                      currentStat === index ? "transform scale-110" : ""
-                    )}
-                  >
-                    <stat.icon
-                      className={cn(
-                        "h-8 w-8 mb-3 mx-auto transition-all duration-300",
-                        stat.color,
-                        stat.darkColor,
-                        currentStat === index ? "animate-bounce" : ""
-                      )}
-                    />
-                    <div className="text-2xl font-bold text-foreground dark:text-white mb-1">
-                      {stat.value}
-                    </div>
-                    <div className="text-sm text-muted-foreground dark:text-gray-400">
-                      {stat.label}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
           </div>
         </div>
       </div>
