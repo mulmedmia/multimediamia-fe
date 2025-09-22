@@ -13,9 +13,9 @@ const GamificationSection = () => {
   const features = [
     {
       icon: <StarFilledIcon className="h-8 w-8 text-amber-500" />,
-      title: "Kumpulkan Diamonds",
+      title: "Kumpulkan XP & Diamond",
       description:
-        "Dapatkan diamonds dari setiap aktivitas, mulai dari pendaftaran hingga submit karya.",
+        "Dapatkan xp dan diamond dari setiap aktivitas, mulai dari pendaftaran hingga submit karya.",
     },
     {
       icon: <StarFilledIcon className="h-8 w-8 text-red-500" />,

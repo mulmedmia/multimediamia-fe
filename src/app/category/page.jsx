@@ -84,8 +84,13 @@ function CategoryCard({ category }) {
           }}
         />
         <div className="absolute top-4 left-4">
-          <Badge variant={getStatusVariant(category.status)} className="text-xs">
-            {category.status === "VERIFIED" ? "Terverifikasi" : "Belum Verifikasi"}
+          <Badge
+            variant={getStatusVariant(category.status)}
+            className="text-xs"
+          >
+            {category.status === "VERIFIED"
+              ? "Terverifikasi"
+              : "Belum Verifikasi"}
           </Badge>
         </div>
       </div>
@@ -94,7 +99,9 @@ function CategoryCard({ category }) {
         <CardTitle className="text-lg line-clamp-2 group-hover:text-primary transition-colors">
           {category.title || category.category_name}
         </CardTitle>
-        <p className="text-sm text-muted-foreground">{category.category_name}</p>
+        <p className="text-sm text-muted-foreground">
+          {category.category_name}
+        </p>
       </CardHeader>
 
       <CardContent className="pt-0">
@@ -114,10 +121,10 @@ function CategoryCard({ category }) {
             <div>Mulai: {formatDate(category.startDate)}</div>
             <div>Selesai: {formatDate(category.endDate)}</div>
           </div>
-          
+
           {/* PERUBAHAN PENTING DI SINI */}
           <Link href={`/category/${category.category_id}`}>
-            <Button className="w-full mt-4 group/btn">
+            <Button className="w-full mt-4 group/btn cursor-pointer">
               <span>Lihat Detail</span>
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
             </Button>
@@ -156,9 +163,7 @@ export default function CategoryListPage() {
   };
 
   const filteredCategories = useMemo(() => {
-    return categories.filter(category => 
-      category.status === "VERIFIED"
-    );
+    return categories.filter((category) => category.status === "VERIFIED");
   }, [categories]);
 
   if (isLoading) {
@@ -166,11 +171,13 @@ export default function CategoryListPage() {
       <div className="flex flex-col min-h-screen bg-background dark:bg-black">
         <Header />
         <main className="flex-grow container mx-auto pt-24 pb-12 px-4">
-            <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold mb-4">Kategori Lomba</h1>
-              <p className="text-muted-foreground">Jelajahi berbagai kategori lomba yang tersedia</p>
-            </div>
-            <CategorySkeleton />
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold mb-4">Kategori Lomba</h1>
+            <p className="text-muted-foreground">
+              Jelajahi berbagai kategori lomba yang tersedia
+            </p>
+          </div>
+          <CategorySkeleton />
         </main>
         <Footer />
       </div>
@@ -185,7 +192,8 @@ export default function CategoryListPage() {
           <Alert variant="destructive" className="max-w-lg mx-auto">
             <AlertTitle>Gagal Memuat Data</AlertTitle>
             <AlertDescription>
-              {error?.message || "Terjadi kesalahan saat memuat kategori. Silakan coba lagi."}
+              {error?.message ||
+                "Terjadi kesalahan saat memuat kategori. Silakan coba lagi."}
             </AlertDescription>
           </Alert>
         </main>
@@ -196,91 +204,101 @@ export default function CategoryListPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background dark:bg-black">
-        <Header />
-        <main className="flex-grow container mx-auto pt-24 pb-12 px-4">
-            <div className="text-center mb-8">
-                <h1 className="text-3xl font-bold mb-4">Kategori Lomba</h1>
-                <p className="text-muted-foreground max-w-2xl mx-auto">
-                Jelajahi berbagai kategori lomba yang tersedia dan temukan yang sesuai dengan minat dan keahlian Anda.
-                </p>
-            </div>
+      <Header />
+      <main className="flex-grow container mx-auto pt-24 pb-12 px-4">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold mb-4">Kategori Lomba</h1>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Jelajahi berbagai kategori lomba yang tersedia dan temukan yang
+            sesuai dengan minat dan keahlian Anda.
+          </p>
+        </div>
 
-            <div className="mb-8">
-                <div className="flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto">
-                    <div className="flex-1 relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                        placeholder="Cari kategori lomba..."
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        onKeyDown={handleKeyPress}
-                        className="pl-10"
-                        />
-                    </div>
-                    <Button onClick={handleSearch} className="w-full sm:w-auto">
-                        Cari
-                    </Button>
-                </div>
+        <div className="mb-8">
+          <div className="flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Cari kategori lomba..."
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyPress}
+                className="pl-10"
+              />
             </div>
+            <Button onClick={handleSearch} className="w-full sm:w-auto">
+              Cari
+            </Button>
+          </div>
+        </div>
 
-            <div className="mb-8">
-                {filteredCategories.length === 0 ? (
-                <div className="text-center py-12">
-                    <div className="text-6xl mb-4">🔍</div>
-                    <h3 className="text-lg font-semibold mb-2">Tidak Ada Kategori Ditemukan</h3>
-                    <p className="text-muted-foreground">
-                    {search 
-                        ? `Tidak ada kategori yang cocok dengan pencarian "${search}"`
-                        : "Belum ada kategori lomba yang tersedia"
+        <div className="mb-8">
+          {filteredCategories.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">🔍</div>
+              <h3 className="text-lg font-semibold mb-2">
+                Tidak Ada Kategori Ditemukan
+              </h3>
+              <p className="text-muted-foreground">
+                {search
+                  ? `Tidak ada kategori yang cocok dengan pencarian "${search}"`
+                  : "Belum ada kategori lomba yang tersedia"}
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredCategories.map((category) => (
+                <CategoryCard key={category.category_id} category={category} />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {totalPages > 1 && (
+          <div className="flex justify-center">
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    className={
+                      page === 1
+                        ? "pointer-events-none opacity-50"
+                        : "cursor-pointer"
                     }
-                    </p>
-                </div>
-                ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredCategories.map((category) => (
-                    <CategoryCard key={category.category_id} category={category} />
-                    ))}
-                </div>
+                  />
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationLink className="bg-primary text-primary-foreground">
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+                {totalPages > 1 && page < totalPages && (
+                  <PaginationItem>
+                    <span className="px-4 py-2 text-muted-foreground">...</span>
+                  </PaginationItem>
                 )}
-            </div>
-
-            {totalPages > 1 && (
-                <div className="flex justify-center">
-                    <Pagination>
-                        <PaginationContent>
-                            <PaginationItem>
-                                <PaginationPrevious
-                                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                                className={page === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                                />
-                            </PaginationItem>
-                            <PaginationItem>
-                                <PaginationLink className="bg-primary text-primary-foreground">
-                                {page}
-                                </PaginationLink>
-                            </PaginationItem>
-                            {totalPages > 1 && page < totalPages && (
-                                <PaginationItem>
-                                <span className="px-4 py-2 text-muted-foreground">...</span>
-                                </PaginationItem>
-                            )}
-                            {totalPages > 1 && (
-                                <PaginationItem>
-                                <PaginationLink>{totalPages}</PaginationLink>
-                                </PaginationItem>
-                            )}
-                            <PaginationItem>
-                                <PaginationNext
-                                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                                className={page === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                                />
-                            </PaginationItem>
-                        </PaginationContent>
-                    </Pagination>
-                </div>
-            )}
-        </main>
-        <Footer />
+                {totalPages > 1 && (
+                  <PaginationItem>
+                    <PaginationLink>{totalPages}</PaginationLink>
+                  </PaginationItem>
+                )}
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    className={
+                      page === totalPages
+                        ? "pointer-events-none opacity-50"
+                        : "cursor-pointer"
+                    }
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        )}
+      </main>
+      <Footer />
     </div>
   );
 }

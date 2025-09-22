@@ -140,12 +140,9 @@ export default function SubmissionDetailPage(props) {
                 Terjadi Kesalahan
               </h2>
               <p className="text-gray-600 dark:text-gray-400 mb-6">{error}</p>
-              <Button
-                onClick={() => router.push("/think-it")}
-                variant="outline"
-              >
+              <Button onClick={() => router.push("/show-it")} variant="outline">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Kembali ke Think-It
+                Kembali ke Show It
               </Button>
             </div>
           </div>
@@ -172,12 +169,9 @@ export default function SubmissionDetailPage(props) {
                 Submission yang Anda cari tidak ditemukan atau mungkin telah
                 dihapus.
               </p>
-              <Button
-                onClick={() => router.push("/think-it")}
-                variant="outline"
-              >
+              <Button onClick={() => router.push("/show-it")} variant="outline">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Kembali ke Think-It
+                Kembali ke Show It
               </Button>
             </div>
           </div>

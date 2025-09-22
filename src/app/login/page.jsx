@@ -98,7 +98,7 @@ export default function LoginPage() {
                   type="button"
                   tabIndex={-1}
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 dark:hover:text-white"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 dark:hover:text-white cursor-pointer"
                   aria-label={
                     showPassword ? "Sembunyikan password" : "Lihat password"
                   }
@@ -125,7 +125,11 @@ export default function LoginPage() {
                 {message}
               </p>
             )}
-            <Button type="submit" disabled={loading} className="w-full mt-4">
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full mt-4 cursor-pointer"
+            >
               {loading ? "Loading..." : "Masuk"}
             </Button>
           </CardContent>
