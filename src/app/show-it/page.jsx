@@ -83,7 +83,7 @@ export default function ThinkItPage() {
 
   // Function untuk navigate ke detail submission
   const handleSubmissionClick = (submissionId) => {
-    router.push(`/think-it/${submissionId}`);
+    router.push(`/show-it/${submissionId}`);
   };
 
   return (

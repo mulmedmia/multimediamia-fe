@@ -100,14 +100,6 @@ const Footer = () => {
                       Website Developer
                     </Link>
                   </li>
-                  <li>
-                    <Link
-                      href="/category"
-                      className="text-muted-foreground hover:text-primary transition-colors"
-                    >
-                      Logo Design
-                    </Link>
-                  </li>
                 </>
               )}
               <li>
@@ -127,7 +119,7 @@ const Footer = () => {
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
-                  href="/timeline"
+                  href="/"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
                   Timeline
@@ -135,7 +127,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  href="/hadiah"
+                  href="/"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
                   Hadiah
@@ -143,7 +135,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  href="/faq"
+                  href="/"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
                   FAQ
@@ -151,7 +143,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  href="/panduan"
+                  href="/"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
                   Panduan
@@ -164,7 +156,9 @@ const Footer = () => {
           <div className="space-y-4">
             <h4 className="text-lg font-semibold text-foreground">Kontak</h4>
             <ul className="space-y-2 text-sm">
-              <li className="text-muted-foreground">Email: mia.upnvj@gmail.com</li>
+              <li className="text-muted-foreground">
+                Email: mia.upnvj@gmail.com
+              </li>
               <li className="text-muted-foreground">
                 WhatsApp: +62 851-7247-2603
               </li>
