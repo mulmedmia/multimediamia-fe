@@ -121,7 +121,7 @@ function PreviewCard({ category }) {
           <Button 
             variant="ghost" 
             size="sm"
-            className="w-full group-hover:bg-red-50 group-hover:text-red-600 dark:group-hover:bg-red-900/20 dark:group-hover:text-red-400 transition-all duration-300 font-medium text-xs h-8"
+            className="w-full group-hover:bg-red-50 group-hover:text-red-600 dark:group-hover:bg-red-900/20 dark:group-hover:text-red-400 transition-all duration-300 font-medium text-xs h-8 cursor-pointer"
           >
             Detail
             <ArrowRight className="ml-2 h-3 w-3 group-hover:translate-x-1 transition-transform duration-300" />
