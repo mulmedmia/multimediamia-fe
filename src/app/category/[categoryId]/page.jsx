@@ -200,7 +200,7 @@ export default function CategoryDetailPage(props) {
           </AlertDescription>
         </Alert>
         <div className="text-center mt-6">
-          <Button variant="outline" onClick={() => router.back()}>
+          <Button variant="outline" className="cursor-pointer" onClick={() => router.back()}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Kembali
           </Button>
@@ -239,9 +239,9 @@ export default function CategoryDetailPage(props) {
         <Button
           variant="outline"
           onClick={() => router.back()}
-          className="transition hover:-translate-x-1"
+          className="transition hover:-translate-x-1 cursor-pointer"
         >
-          <ArrowLeft className="mr-2 h-4 w-4" />
+          <ArrowLeft className="mr-2 h-4 w-4 " />
           Kembali
         </Button>
       </div>

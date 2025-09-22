@@ -12,12 +12,12 @@ const FAQSection = () => {
     {
       question: "Siapa saja yang bisa mengikuti kompetisi ini?",
       answer:
-        "Kompetisi terbuka untuk pelajar SMA/SMK dan mahasiswa aktif di seluruh Indonesia. Peserta harus memiliki KTM/Kartu Pelajar yang masih berlaku.",
+        "Kompetisi terbuka untuk mahasiswa aktif di seluruh Indonesia. Peserta harus memiliki KTM yang masih berlaku.",
     },
     {
       question: "Apakah ada biaya pendaftaran?",
       answer:
-        "Tidak ada biaya pendaftaran! Kompetisi ini gratis untuk semua peserta. Kami percaya bahwa kreativitas tidak boleh dibatasi oleh biaya.",
+        "Terdapat biaya pendaftaran! Kompetisi ini memiliki biaya pendaftaran yang terjangkau untuk semua peserta. Anggap saja biaya pendaftaran adalah investasi, karena benefit MIA 2025 gak cuma hadiah yang besar tetapi juga ada mentoring session dan kesempatan magang di LinkAja.",
     },
     {
       question: "Bagaimana cara mendaftar?",
@@ -27,7 +27,7 @@ const FAQSection = () => {
     {
       question: "Apakah boleh mengikuti lebih dari satu kategori?",
       answer:
-        "Ya, peserta diperbolehkan mengikuti maksimal 2 kategori lomba. Namun, pastikan Anda dapat mengelola waktu dengan baik untuk kedua kategori tersebut.",
+        "Ya, peserta diperbolehkan mengikuti lebih dari satu kategori lomba. Namun, tidak bisa menjadi ketua lomba di 2 cabang sekaligus. Misal status Budi adalah ketua cabang lomba UIUX, Budi diperbolehkan mengikuti cabang lomba Web Dev hanya sebagai status anggota. ",
     },
     {
       question: "Apa saja kriteria penilaian?",
@@ -37,7 +37,7 @@ const FAQSection = () => {
     {
       question: "Kapan pengumuman pemenang?",
       answer:
-        "Pengumuman pemenang akan dilakukan pada 20 September 2025 melalui website resmi dan media sosial. Ceremony puncak akan diadakan secara hybrid.",
+        "Pengumuman pemenang akan dilakukan pada 28 November 2025 melalui website resmi dan media sosial. Ceremony puncak akan diadakan secara hybrid.",
     },
   ];
 
