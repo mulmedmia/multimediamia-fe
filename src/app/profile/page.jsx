@@ -76,7 +76,7 @@ export default function ProfilePage() {
             <p className="text-gray-600 dark:text-gray-300">Kelola informasi profil dan keamanan akun Anda</p>
           </div>
 
-          <Card className="overflow-hidden shadow-2xl border-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
+          <Card className="overflow-hidden shadow-2xl border-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm pt-0">
             {/* Enhanced Header with Gradient */}
             <div className="bg-gradient-to-r from-red-900 via-red-800 to-red-700 p-8 relative">
               <div className="absolute inset-0 bg-black/10"></div>
@@ -120,14 +120,14 @@ export default function ProfilePage() {
                 <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8 h-12 bg-gray-100 dark:bg-slate-700 rounded-xl p-1">
                   <TabsTrigger 
                     value="profile" 
-                    className="flex items-center gap-2 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                    className="flex items-center gap-2 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm cursor-pointer"
                   >
                     <PersonIcon className="w-4 h-4" />
                     Profile
                   </TabsTrigger>
                   <TabsTrigger 
                     value="password"
-                    className="flex items-center gap-2 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                    className="flex items-center gap-2 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm cursor-pointer"
                   >
                     <LockClosedIcon className="w-4 h-4" />
                     Password

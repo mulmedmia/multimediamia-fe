@@ -174,7 +174,7 @@ export default function Header() {
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
-                      className="h-7 lg:h-8 w-auto px-1 lg:px-2 gap-1 text-xs lg:text-sm min-w-0"
+                      className="h-7 lg:h-8 w-auto px-1 lg:px-2 gap-1 text-xs lg:text-sm min-w-0 cursor-pointer"
                     >
                       <div className="w-4 h-4 lg:w-5 lg:h-5 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
                         <PersonIcon className="h-2.5 w-2.5 lg:h-3 lg:w-3" />
@@ -201,14 +201,14 @@ export default function Header() {
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-                      <Link href={dashboardLink} className="flex items-center">
+                      <Link href={dashboardLink} className="flex items-center cursor-pointer">
                         <DashboardIcon className="mr-2 h-3 w-3 lg:h-4 lg:w-4 flex-shrink-0" />
                         <span>Dashboard</span>
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-                      <Link href={profileLink} className="flex items-center">
+                      <Link href={profileLink} className="flex items-center cursor-pointer">
                         <PersonIcon className="mr-2 h-3 w-3 lg:h-4 lg:w-4 flex-shrink-0" />
                         <span>Profile</span>
                       </Link>
@@ -216,7 +216,7 @@ export default function Header() {
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       onClick={logout}
-                      className="flex items-center"
+                      className="flex items-center cursor-pointer"
                     >
                       <ExitIcon className="mr-2 h-3 w-3 lg:h-4 lg:w-4 flex-shrink-0" />
                       <span>Logout</span>

@@ -149,22 +149,16 @@ const Footer = () => {
                 Email: mia.upnvj@gmail.com
               </li>
               <li className="text-muted-foreground">
-                WhatsApp: +62 851-7247-2603
+                WhatsApp: +62 896-0110-1197
               </li>
               <li>
                 <Link
-                  href="/kontak"
+                  href="https://wa.me/6289601101197"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
                   Hubungi Kami
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/dukungan"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Dukungan Teknis
                 </Link>
               </li>
             </ul>
