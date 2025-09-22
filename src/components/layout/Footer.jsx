@@ -6,10 +6,9 @@ import { Button } from "@/components/ui/button";
 import { useUserCategories } from "@/hooks/user-use-category";
 import {
   InstagramLogoIcon,
-  TwitterLogoIcon,
-  LinkedInLogoIcon,
-  GitHubLogoIcon,
+  VideoIcon,
 } from "@radix-ui/react-icons";
+import { FaInstagram, FaTiktok } from 'react-icons/fa';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -35,34 +34,24 @@ const Footer = () => {
               kreativitas dan inovasi digital Anda bersama kami.
             </p>
             <div className="flex space-x-3">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="hover:bg-primary/10"
-              >
-                <InstagramLogoIcon className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="hover:bg-primary/10"
-              >
-                <TwitterLogoIcon className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="hover:bg-primary/10"
-              >
-                <LinkedInLogoIcon className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="hover:bg-primary/10"
-              >
-                <GitHubLogoIcon className="h-4 w-4" />
-              </Button>
+              <Link href="https://www.instagram.com/multimedia.in.action?igsh=bGtvMWZpNDExbDVj" target="_blank" rel="noopener noreferrer">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="hover:bg-primary/10"
+                >
+                  <FaInstagram className="h-4 w-4" />
+                </Button>
+              </Link>
+              <Link href="https://www.tiktok.com/@multimediainaction?_t=ZS-8zwQ9E8K2i1&_r=1" target="_blank" rel="noopener noreferrer">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="hover:bg-primary/10"
+                >
+                  <FaTiktok className="h-4 w-4" />
+                </Button>
+              </Link>
             </div>
           </div>
 
@@ -98,14 +87,6 @@ const Footer = () => {
                       className="text-muted-foreground hover:text-primary transition-colors"
                     >
                       Website Developer
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/category"
-                      className="text-muted-foreground hover:text-primary transition-colors"
-                    >
-                      Logo Design
                     </Link>
                   </li>
                 </>
