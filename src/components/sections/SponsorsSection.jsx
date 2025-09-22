@@ -1,8 +1,19 @@
 import React from "react";
 import Marquee from "react-fast-marquee";
 import Image from "next/image";
+import linkaja from "../../../public/linkaja.png";
+import sariroti from "../../../public/sariroti.png";
+import tokocrypto from "../../../public/tokocrypto.png";
+import miaLogo from "../../../public/MIALOGO.png";
 
 const SponsorsSection = () => {
+  const sponsors = [
+    { src: linkaja, alt: "LinkAja Sponsor" },
+    { src: sariroti, alt: "Sari Roti Sponsor" },
+    { src: tokocrypto, alt: "Tokocrypto Sponsor" },
+    { src: miaLogo, alt: "MIA Sponsor" },
+  ];
+
   return (
     <section id="sponsors" className="py-16 bg-background dark:bg-black">
       <div className="container mx-auto px-4">
@@ -24,11 +35,11 @@ const SponsorsSection = () => {
             </svg>
           </div>
           <h2 className="text-3xl font-bold text-foreground mb-3">
-            Didukung oleh Partner Terbaik
+            Didukung oleh Sponsor Terbaik
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Kompetisi ini terselenggara atas dukungan penuh dari partner dan
-            sponsor terpercaya
+            Kompetisi ini terselenggara atas dukungan penuh dari sponsor
+            terpercaya
           </p>
         </div>
 
@@ -36,45 +47,39 @@ const SponsorsSection = () => {
         <div className="mb-5">
           <div className="overflow-y-hidden">
             <Marquee
-              gradient={true}
-              gradientColor={[255, 255, 255]}
-              gradientWidth={50}
+              gradient={false}
               speed={75}
               pauseOnHover={true}
               className="items-center"
             >
-              {/* Cards */}
-              <div className="mx-8 w-60 h-60 rounded-lg overflow-hidden shadow-lg">
-                <img
-                  src="/MIALOGO.png"
-                  alt="MIA Sponsor 1"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-
-              <div className="mx-8 w-60 h-60 rounded-lg overflow-hidden shadow-lg">
-                <img
-                  src="/poMIA.png"
-                  alt="MIA Sponsor 3"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              
-              <div className="mx-8 w-60 h-60 rounded-lg overflow-hidden shadow-lg">
-                <img
-                  src="https://www.upnvj.ac.id/id/files/thumb/89f8a80e388ced3704b091e21f510755/520"
-                  alt="MIA Sponsor 2"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-
-              <div className="mx-8 w-60 h-60 rounded-lg overflow-hidden shadow-lg">
-                <img
-                  src="/WKetua.png"
-                  alt="MIA Sponsor 4"
-                  className="w-full h-full object-cover"
-                />
-              </div>
+              {sponsors.map((sponsor, index) => (
+                <div
+                  key={index}
+                  className="mx-2 w-60 h-60 rounded-lg overflow-hidden border border-gray-300"
+                >
+                  <Image
+                    src={sponsor.src}
+                    alt={sponsor.alt}
+                    width={240}
+                    height={240}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ))}
+              {sponsors.map((sponsor, index) => (
+                <div
+                  key={`dup-${index}`}
+                  className="mx-2 w-60 h-60 rounded-lg overflow-hidden border border-gray-300"
+                >
+                  <Image
+                    src={sponsor.src}
+                    alt={sponsor.alt}
+                    width={240}
+                    height={240}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ))}
             </Marquee>
           </div>
         </div>

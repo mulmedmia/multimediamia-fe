@@ -137,10 +137,11 @@ export default function ProductPage() {
                     >
                       <AlertDialogTrigger asChild>
                         <Button
-                          className="w-full mt-2 bg-green-600 hover:bg-green-700 text-white"
+                          className="w-full mt-2 bg-green-600 hover:bg-green-700 text-white cursor-pointer"
                           size="lg"
                           disabled={
-                            redeemMutation.isPending ||
+                            (redeemMutation.isPending &&
+                              selectedProduct === product.product_id) ||
                             !product.is_active ||
                             product.stock < 1
                           }

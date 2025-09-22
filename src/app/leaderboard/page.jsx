@@ -1,26 +1,54 @@
 "use client";
 
 import { useState } from "react";
-import { useLeaderboardByCategory, useCategories } from "@/hooks/user-use-gamifikasi";
+import {
+  useLeaderboardByCategory,
+  useCategories,
+} from "@/hooks/user-use-gamifikasi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trophy, Medal, Award, Star, Users, Calendar, AlertCircle, Crown, Target, Timer } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Trophy,
+  Medal,
+  Award,
+  Star,
+  Users,
+  Calendar,
+  AlertCircle,
+  Crown,
+  Target,
+  Timer,
+} from "lucide-react";
 
 export default function LeaderboardPage() {
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const { data: categories, isLoading: categoriesLoading } = useCategories();
-  const { data: leaderboardData, isLoading: leaderboardLoading, isError } = useLeaderboardByCategory(selectedCategoryId);
+  const {
+    data: leaderboardData,
+    isLoading: leaderboardLoading,
+    isError,
+  } = useLeaderboardByCategory(selectedCategoryId);
 
-  const selectedCategory = categories?.find(cat => cat.category_id === selectedCategoryId);
+  const selectedCategory = categories?.find(
+    (cat) => cat.category_id === selectedCategoryId
+  );
 
   const getRankIcon = (rank) => {
     switch (rank) {
       case 1:
-        return <Crown className="h-6 w-6 md:h-7 md:w-7 text-yellow-500 drop-shadow-sm" />;
+        return (
+          <Crown className="h-6 w-6 md:h-7 md:w-7 text-yellow-500 drop-shadow-sm" />
+        );
       case 2:
         return <Medal className="h-5 w-5 md:h-6 md:w-6 text-gray-400" />;
       case 3:
@@ -50,20 +78,20 @@ export default function LeaderboardPage() {
   const getPodiumCardStyle = (rank) => {
     const heights = {
       1: "h-48 md:h-64", // Responsive height for 1st place
-      2: "h-40 md:h-48", // Responsive height for 2nd place  
-      3: "h-36 md:h-40"  // Responsive height for 3rd place
+      2: "h-40 md:h-48", // Responsive height for 2nd place
+      3: "h-36 md:h-40", // Responsive height for 3rd place
     };
-    
+
     const gradients = {
       1: "bg-gradient-to-br from-yellow-100 via-amber-50 to-orange-100 dark:from-yellow-900/30 dark:via-amber-900/30 dark:to-orange-900/30",
-      2: "bg-gradient-to-br from-gray-100 via-slate-50 to-zinc-100 dark:from-gray-800/50 dark:via-slate-800/50 dark:to-zinc-800/50", 
-      3: "bg-gradient-to-br from-amber-800/20 via-orange-900/20 to-amber-900/20 dark:from-amber-800/30 dark:via-orange-900/30 dark:to-amber-900/30"
+      2: "bg-gradient-to-br from-gray-100 via-slate-50 to-zinc-100 dark:from-gray-800/50 dark:via-slate-800/50 dark:to-zinc-800/50",
+      3: "bg-gradient-to-br from-amber-800/20 via-orange-900/20 to-amber-900/20 dark:from-amber-800/30 dark:via-orange-900/30 dark:to-amber-900/30",
     };
 
     const borders = {
-      1: 'border-yellow-300 dark:border-yellow-600',
-      2: 'border-gray-300 dark:border-gray-600',
-      3: 'border-amber-800 dark:border-amber-700'
+      1: "border-yellow-300 dark:border-yellow-600",
+      2: "border-gray-300 dark:border-gray-600",
+      3: "border-amber-800 dark:border-amber-700",
     };
 
     return `${heights[rank]} ${gradients[rank]} border-2 ${borders[rank]} shadow-xl`;
@@ -74,7 +102,7 @@ export default function LeaderboardPage() {
 
   return (
     <>
-      <DashboardHeader />   
+      <DashboardHeader />
       <main className="min-h-screen pt-20 bg-gray-50 dark:bg-gradient-to-r dark:from-red-900 dark:via-black dark:to-black  text-gray-900 dark:text-white">
         <div className="container mx-auto py-6 md:py-8 px-4 max-w-7xl">
           <div className="space-y-6 md:space-y-8">
@@ -89,7 +117,8 @@ export default function LeaderboardPage() {
                 </h1>
               </div>
               <p className="text-base md:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto px-4">
-                Lihat peringkat terbaik dari setiap kategori kompetisi dan raih posisi teratas!
+                Lihat peringkat terbaik dari setiap kategori kompetisi dan raih
+                posisi teratas!
               </p>
             </div>
 
@@ -104,29 +133,37 @@ export default function LeaderboardPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 md:space-y-6">
-              <Select
-                value={selectedCategoryId}
-                onValueChange={setSelectedCategoryId}
-                disabled={categoriesLoading}
-              >
-                <SelectTrigger className="w-full h-10 md:h-12 bg-white dark:bg-slate-700/80 border-2 dark:border-slate-600 hover:border-red-400 transition-colors text-gray-900 dark:text-white">
-                  <SelectValue
-                    placeholder={categoriesLoading ? "Memuat kategori..." : "🏆 Pilih kategori kompetisi"}
-                  />
-                </SelectTrigger>
-                <SelectContent className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-600">
-                  {categories?.map((category) => (
-                    <SelectItem
-                      key={category.category_id}
-                      value={category.category_id}
-                      className="flex flex-col items-start py-2 px-3 gap-0.5 text-left text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-red-800/50"
-                    >
-                      <span className="font-semibold text-sm md:text-base truncate">{category.name}</span>
-                      <span className="text-xs md:text-sm text-gray-500 dark:text-gray-400 truncate">{category.category_name}</span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                <Select
+                  value={selectedCategoryId}
+                  onValueChange={setSelectedCategoryId}
+                  disabled={categoriesLoading}
+                >
+                  <SelectTrigger className="w-full h-10 md:h-12 bg-white dark:bg-slate-700/80 border-2 dark:border-slate-600 hover:border-red-400 transition-colors text-gray-900 dark:text-white cursor-pointer">
+                    <SelectValue
+                      placeholder={
+                        categoriesLoading
+                          ? "Memuat kategori..."
+                          : "🏆 Pilih kategori kompetisi"
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-600">
+                    {categories?.map((category) => (
+                      <SelectItem
+                        key={category.category_id}
+                        value={category.category_id}
+                        className="flex flex-col items-start py-2 px-3 gap-0.5 text-left text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-red-800/50 cursor-pointer"
+                      >
+                        <span className="font-semibold text-sm md:text-base truncate">
+                          {category.name}
+                        </span>
+                        <span className="text-xs md:text-sm text-gray-500 dark:text-gray-400 truncate">
+                          {category.category_name}
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
 
                 {selectedCategory && (
                   <Card className="bg-gradient-to-r from-slate-50 to-red-50 dark:from-slate-800/50 dark:to-red-900/30 border-red-200 dark:border-red-700/50 shadow-md">
@@ -149,7 +186,10 @@ export default function LeaderboardPage() {
                           <div className="flex items-center gap-2 px-2 md:px-3 py-1 bg-slate-200/70 dark:bg-slate-700/70 rounded-full">
                             <Calendar className="h-3 w-3 md:h-4 md:w-4 text-slate-600 dark:text-slate-300" />
                             <span className="text-xs md:text-sm font-medium text-slate-700 dark:text-slate-200">
-                              Berakhir: {new Date(selectedCategory.deadline).toLocaleDateString('id-ID')}
+                              Berakhir:{" "}
+                              {new Date(
+                                selectedCategory.deadline
+                              ).toLocaleDateString("id-ID")}
                             </span>
                           </div>
                           <div className="flex items-center gap-2 px-2 md:px-3 py-1 bg-slate-200/70 dark:bg-slate-700/70 rounded-full">
@@ -171,7 +211,9 @@ export default function LeaderboardPage() {
               <div className="text-center py-6 md:py-8">
                 <div className="inline-flex items-center gap-3 text-gray-600 dark:text-gray-300">
                   <div className="animate-spin rounded-full h-5 w-5 md:h-6 md:w-6 border-b-2 border-red-400"></div>
-                  <span className="text-base md:text-lg">Memuat data leaderboard...</span>
+                  <span className="text-base md:text-lg">
+                    Memuat data leaderboard...
+                  </span>
                 </div>
               </div>
             )}
@@ -188,7 +230,8 @@ export default function LeaderboardPage() {
                       Gagal Memuat Data
                     </h3>
                     <p className="text-sm md:text-base text-red-700 dark:text-red-300">
-                      Tidak dapat memuat data leaderboard. Silakan coba lagi dalam beberapa saat.
+                      Tidak dapat memuat data leaderboard. Silakan coba lagi
+                      dalam beberapa saat.
                     </p>
                   </div>
                 </CardContent>
@@ -196,28 +239,35 @@ export default function LeaderboardPage() {
             )}
 
             {/* Empty State */}
-            {leaderboardData && leaderboardData.length === 0 && selectedCategoryId && (
-              <Card className="border-2 border-dashed border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-800/20">
-                <CardContent className="flex flex-col items-center justify-center py-12 md:py-16">
-                  <div className="p-3 md:p-4 bg-gray-200 dark:bg-slate-700/50 rounded-full mb-4 md:mb-6">
-                    <Trophy className="h-12 w-12 md:h-16 md:w-16 text-gray-400 dark:text-slate-400" />
-                  </div>
-                  <h3 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-2 md:mb-3">
-                    Belum Ada Peserta
-                  </h3>
-                  <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 text-center max-w-md px-4">
-                    Belum ada peserta yang terdaftar atau dinilai untuk kategori ini. Jadilah yang pertama!
-                  </p>
-                </CardContent>
-              </Card>
-            )}
+            {leaderboardData &&
+              leaderboardData.length === 0 &&
+              selectedCategoryId && (
+                <Card className="border-2 border-dashed border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-800/20">
+                  <CardContent className="flex flex-col items-center justify-center py-12 md:py-16">
+                    <div className="p-3 md:p-4 bg-gray-200 dark:bg-slate-700/50 rounded-full mb-4 md:mb-6">
+                      <Trophy className="h-12 w-12 md:h-16 md:w-16 text-gray-400 dark:text-slate-400" />
+                    </div>
+                    <h3 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-2 md:mb-3">
+                      Belum Ada Peserta
+                    </h3>
+                    <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 text-center max-w-md px-4">
+                      Belum ada peserta yang terdaftar atau dinilai untuk
+                      kategori ini. Jadilah yang pertama!
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
 
             {/* Podium Display for Top 3 */}
             {topThree.length > 0 && (
               <div className="space-y-6 md:space-y-8">
                 <div className="text-center">
-                  <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">🏆 Hall of Fame</h2>
-                  <p className="text-sm md:text-base text-gray-600 dark:text-gray-300">Para juara terbaik dalam kategori ini</p>
+                  <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                    🏆 Hall of Fame
+                  </h2>
+                  <p className="text-sm md:text-base text-gray-600 dark:text-gray-300">
+                    Para juara terbaik dalam kategori ini
+                  </p>
                 </div>
 
                 {/* Podium Layout - Stack on mobile, side-by-side on desktop */}
@@ -229,7 +279,11 @@ export default function LeaderboardPage() {
                         <div className="space-y-2 md:space-y-4">
                           <div className="flex flex-col items-center gap-2 md:gap-3">
                             {getRankIcon(1)}
-                            <Badge className={`text-xs md:text-sm px-2 md:px-3 py-1 font-semibold ${getRankBadgeColor(1)}`}>
+                            <Badge
+                              className={`text-xs md:text-sm px-2 md:px-3 py-1 font-semibold ${getRankBadgeColor(
+                                1
+                              )}`}
+                            >
                               #1
                             </Badge>
                           </div>
@@ -260,7 +314,11 @@ export default function LeaderboardPage() {
                           <div className="space-y-2 md:space-y-3">
                             <div className="flex flex-col items-center gap-1 md:gap-2">
                               {getRankIcon(2)}
-                              <Badge className={`text-xs md:text-sm px-2 md:px-3 py-1 font-semibold ${getRankBadgeColor(2)}`}>
+                              <Badge
+                                className={`text-xs md:text-sm px-2 md:px-3 py-1 font-semibold ${getRankBadgeColor(
+                                  2
+                                )}`}
+                              >
                                 #2
                               </Badge>
                             </div>
@@ -289,7 +347,11 @@ export default function LeaderboardPage() {
                           <div className="space-y-2 md:space-y-3">
                             <div className="flex flex-col items-center gap-1 md:gap-2">
                               {getRankIcon(3)}
-                              <Badge className={`text-xs md:text-sm px-2 md:px-3 py-1 font-semibold ${getRankBadgeColor(3)}`}>
+                              <Badge
+                                className={`text-xs md:text-sm px-2 md:px-3 py-1 font-semibold ${getRankBadgeColor(
+                                  3
+                                )}`}
+                              >
                                 #3
                               </Badge>
                             </div>
@@ -317,8 +379,13 @@ export default function LeaderboardPage() {
             {remaining.length > 0 && (
               <div className="space-y-4 md:space-y-6">
                 <div className="text-center">
-                  <h3 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-2">Peringkat Lainnya</h3>
-                  <Badge variant="outline" className="text-sm md:text-base px-3 md:px-4 py-1 md:py-2 bg-gray-100 dark:bg-slate-700/50 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-slate-600">
+                  <h3 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                    Peringkat Lainnya
+                  </h3>
+                  <Badge
+                    variant="outline"
+                    className="text-sm md:text-base px-3 md:px-4 py-1 md:py-2 bg-gray-100 dark:bg-slate-700/50 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-slate-600"
+                  >
                     {remaining.length} peserta lainnya
                   </Badge>
                 </div>
@@ -339,7 +406,7 @@ export default function LeaderboardPage() {
                         {remaining.map((item, index) => {
                           const rank = index + 4;
                           return (
-                            <div 
+                            <div
                               key={item.submission_id}
                               className="p-3 md:p-4 hover:bg-gray-50 dark:hover:bg-red-800/30 transition-colors duration-150"
                             >
@@ -357,7 +424,11 @@ export default function LeaderboardPage() {
                                       </p>
                                     </div>
                                   </div>
-                                  <Badge className={`text-xs px-2 py-1 ${getRankBadgeColor(rank)}`}>
+                                  <Badge
+                                    className={`text-xs px-2 py-1 ${getRankBadgeColor(
+                                      rank
+                                    )}`}
+                                  >
                                     #{rank}
                                   </Badge>
                                 </div>
@@ -368,14 +439,21 @@ export default function LeaderboardPage() {
                                       {item.score}
                                     </span>
                                   </div>
-                                  <Badge 
-                                    variant={item.status === 'APPROVED' ? 'default' : 'secondary'}
-                                    className={`${item.status === 'APPROVED' 
-                                      ? 'bg-green-600 text-white border-green-500' 
-                                      : 'bg-gray-600 text-gray-200 border-gray-500'
+                                  <Badge
+                                    variant={
+                                      item.status === "APPROVED"
+                                        ? "default"
+                                        : "secondary"
+                                    }
+                                    className={`${
+                                      item.status === "APPROVED"
+                                        ? "bg-green-600 text-white border-green-500"
+                                        : "bg-gray-600 text-gray-200 border-gray-500"
                                     } px-2 py-1 text-xs`}
                                   >
-                                    {item.status === 'APPROVED' ? '✓ Disetujui' : item.status}
+                                    {item.status === "APPROVED"
+                                      ? "✓ Disetujui"
+                                      : item.status}
                                   </Badge>
                                 </div>
                               </div>
@@ -385,7 +463,11 @@ export default function LeaderboardPage() {
                                 <div className="col-span-1 flex justify-center">
                                   <div className="flex flex-col items-center gap-2">
                                     {getRankIcon(rank)}
-                                    <Badge className={`text-xs px-2 py-1 ${getRankBadgeColor(rank)}`}>
+                                    <Badge
+                                      className={`text-xs px-2 py-1 ${getRankBadgeColor(
+                                        rank
+                                      )}`}
+                                    >
                                       #{rank}
                                     </Badge>
                                   </div>
@@ -412,14 +494,21 @@ export default function LeaderboardPage() {
                                 </div>
 
                                 <div className="col-span-2 flex items-center justify-center">
-                                  <Badge 
-                                    variant={item.status === 'APPROVED' ? 'default' : 'secondary'}
-                                    className={`${item.status === 'APPROVED' 
-                                      ? 'bg-green-600 text-white border-green-500' 
-                                      : 'bg-gray-600 text-gray-200 border-gray-500'
+                                  <Badge
+                                    variant={
+                                      item.status === "APPROVED"
+                                        ? "default"
+                                        : "secondary"
+                                    }
+                                    className={`${
+                                      item.status === "APPROVED"
+                                        ? "bg-green-600 text-white border-green-500"
+                                        : "bg-gray-600 text-gray-200 border-gray-500"
                                     } px-3 py-1`}
                                   >
-                                    {item.status === 'APPROVED' ? '✓ Disetujui' : item.status}
+                                    {item.status === "APPROVED"
+                                      ? "✓ Disetujui"
+                                      : item.status}
                                   </Badge>
                                 </div>
                               </div>
@@ -444,7 +533,8 @@ export default function LeaderboardPage() {
                     Pilih Kategori untuk Melihat Leaderboard
                   </h3>
                   <p className="text-base md:text-lg text-gray-600 dark:text-gray-300 max-w-md mx-auto">
-                    Lihat siapa yang memimpin di setiap kategori kompetisi dan raih kesempatan untuk menjadi yang terdepan!
+                    Lihat siapa yang memimpin di setiap kategori kompetisi dan
+                    raih kesempatan untuk menjadi yang terdepan!
                   </p>
                 </CardContent>
               </Card>
