@@ -28,7 +28,6 @@ const registerSchema = z.object({
 });
 
 export default function RegisterPage() {
-
   const { loading, message, messageType, handleRegister } = useRegister();
   const [showPassword, setShowPassword] = useState(false);
 
@@ -64,7 +63,9 @@ export default function RegisterPage() {
                 {...register("fullname")}
               />
               {errors.fullname && (
-                <p className="text-xs text-red-500 mt-1">{errors.fullname.message}</p>
+                <p className="text-xs text-red-500 mt-1">
+                  {errors.fullname.message}
+                </p>
               )}
             </div>
             <div className="space-y-2">
@@ -76,10 +77,12 @@ export default function RegisterPage() {
                 {...register("email")}
               />
               {errors.email && (
-                <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>
+                <p className="text-xs text-red-500 mt-1">
+                  {errors.email.message}
+                </p>
               )}
             </div>
-<div className="space-y-2">
+            <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <div className="relative">
                 <Input
@@ -93,8 +96,10 @@ export default function RegisterPage() {
                   type="button"
                   tabIndex={-1}
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 dark:hover:text-white"
-                  aria-label={showPassword ? "Sembunyikan password" : "Lihat password"}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 dark:hover:text-white cursor-pointer"
+                  aria-label={
+                    showPassword ? "Sembunyikan password" : "Lihat password"
+                  }
                 >
                   {showPassword ? (
                     <EyeOpenIcon className="w-5 h-5" />
@@ -104,14 +109,24 @@ export default function RegisterPage() {
                 </button>
               </div>
               {errors.password && (
-                <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>
+                <p className="text-xs text-red-500 mt-1">
+                  {errors.password.message}
+                </p>
               )}
             </div>
-            <Button type="submit" className="w-full mt-4" disabled={loading}>
+            <Button
+              type="submit"
+              className="w-full mt-4 cursor-pointer"
+              disabled={loading}
+            >
               {loading ? "Memproses Akun..." : "Buat Akun"}
             </Button>
             {message && (
-              <p className={`text-sm text-center mt-2 ${messageType === "success" ? "text-green-600" : "text-red-500"}`}>
+              <p
+                className={`text-sm text-center mt-2 ${
+                  messageType === "success" ? "text-green-600" : "text-red-500"
+                }`}
+              >
                 {message}
               </p>
             )}
@@ -119,7 +134,10 @@ export default function RegisterPage() {
           <CardFooter className="flex justify-center text-sm mt-5">
             <p>
               Sudah punya akun?{" "}
-              <Link href="/login" className="font-semibold text-red-600 dark:text-red-400 hover:underline">
+              <Link
+                href="/login"
+                className="font-semibold text-red-600 dark:text-red-400 hover:underline"
+              >
                 Masuk di sini
               </Link>
             </p>

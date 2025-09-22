@@ -127,12 +127,12 @@ export default function ThinkItPage() {
                   onValueChange={handleCategoryChange}
                   disabled={categoriesLoading}
                 >
-                  <SelectTrigger className="w-full h-10 md:h-12 bg-white  dark:from-gray-900 dark:to-gray-900/50 border-2 hover:border-orange-400 transition-colors text-gray-900 dark:text-white">
+                  <SelectTrigger className="w-full h-10 md:h-12 bg-white dark:from-gray-900 dark:to-gray-900/50 border-2 hover:border-orange-400 transition-colors text-gray-900 dark:text-white cursor-pointer">
                     <SelectValue
                       placeholder={
                         categoriesLoading
                           ? "Memuat kategori..."
-                          : "💡 Kategori lomba"
+                          : "💡 Pilih kategori lomba"
                       }
                     />
                   </SelectTrigger>
@@ -141,9 +141,9 @@ export default function ThinkItPage() {
                       <SelectItem
                         key={category.category_id}
                         value={category.category_id}
-                        className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                        className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
                       >
-                        <div className="flex flex-row space-x-1 py-2">
+                        <div className="flex flex-row space-x-1 py-2 cursor-pointer">
                           <span className="font-semibold text-gray-900 dark:text-white">
                             {category.name}
                           </span>
