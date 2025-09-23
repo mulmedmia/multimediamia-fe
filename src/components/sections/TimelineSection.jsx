@@ -44,7 +44,7 @@ const TimelineSection = () => {
     },
     {
       date: "19 Oktober 2025",
-      title: "Launch It (Mentoring Session)",
+      title: "Learn It (Best Practice UI/UX & Web Dev)",
       description:
         "Sesi mentoring pertama yang dibimbing oleh para ahli di bidang UI/UX dan Web Development.",
       status: "upcoming",
@@ -60,7 +60,7 @@ const TimelineSection = () => {
     },
     {
       date: "03 November 2025",
-      title: "Submit & Karya Sementara",
+      title: "Submit Karya Sementara",
       description:
         "Peserta wajib mengirimkan hasil karya sementara untuk mendapatkan feedback dari mentor.",
       status: "upcoming",
@@ -68,7 +68,7 @@ const TimelineSection = () => {
     },
     {
       date: "04 November 2025",
-      title: "Learn It",
+      title: "Learn It (Best Practice Public Speaking)",
       description:
         "Sesi bimbingan mentoring kedua yang dibimbing oleh para ahli di bidang UI/UX dan Web Development.",
       status: "upcoming",
@@ -84,7 +84,7 @@ const TimelineSection = () => {
     },
     {
       date: "07 November 2025",
-      title: "Umumkan Hasil Evaluation Report",
+      title: "Share Evaluation Report",
       description: "Laporan feedback dibagikan kepada semua peserta.",
       status: "upcoming",
       icon: FileTextIcon,
@@ -115,7 +115,7 @@ const TimelineSection = () => {
     },
     {
       date: "17 Nov - 21 Nov 2025",
-      title: "Show It (Seleksi 10 Finalis)",
+      title: "Show It",
       description: "Proses seleksi transparan untuk memilih tim terbaik.",
       status: "upcoming",
       icon: EyeOpenIcon,
