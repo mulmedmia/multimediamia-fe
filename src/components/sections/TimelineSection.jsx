@@ -162,7 +162,6 @@ const TimelineSection = () => {
           </h2>
           <p className="text-muted-foreground dark:text-gray-400 max-w-2xl mx-auto">
             Catat tanggal-tanggal penting ini agar kamu tidak ketinggalan!
-            Scroll ke samping untuk melihat timeline lengkap.
           </p>
         </div>
 
