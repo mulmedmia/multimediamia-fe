@@ -32,7 +32,7 @@ export const AuthHeader = () => {
                 <ChevronLeftIcon className="h-4 w-4" />
                 <span className="sr-only">Kembali ke Beranda</span>
               </Button>
-              <Button variant="outline" className="hidden sm:flex">
+              <Button variant="outline" className="hidden sm:flex cursor-pointer">
                 <ChevronLeftIcon className="mr-2 h-4 w-4" />
                 Kembali ke Beranda
               </Button>

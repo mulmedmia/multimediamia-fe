@@ -68,7 +68,7 @@ export function DashboardHeader() {
                     <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center">
                       <User className="h-4 w-4" />
                     </div>
-                    <span className="font-medium hidden sm:inline">{user.name || "User"}</span>
+                    <span className="font-medium hidden sm:inline cursor-pointer">{user.name || "User"}</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56" align="end" forceMount>
@@ -80,13 +80,13 @@ export function DashboardHeader() {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link href={dashboardLink}>
+                    <Link href={dashboardLink} className="cursor-pointer">
                       <LayoutDashboard className="mr-2 h-4 w-4" />
                       <span>Dashboard</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href={profileLink}>
+                    <Link href={profileLink} className="cursor-pointer">
                       <User className="mr-2 h-4 w-4" />
                       <span>Profile</span>
                     </Link>
@@ -110,7 +110,7 @@ export function DashboardHeader() {
                   </div>
                   
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={logout} className="text-red-500 focus:text-red-500">
+                  <DropdownMenuItem onClick={logout} className="text-red-500 focus:text-red-500 cursor-pointer">
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Logout</span>
                   </DropdownMenuItem>

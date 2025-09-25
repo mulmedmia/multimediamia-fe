@@ -200,7 +200,11 @@ export default function CategoryDetailPage(props) {
           </AlertDescription>
         </Alert>
         <div className="text-center mt-6">
-          <Button variant="outline" className="cursor-pointer" onClick={() => router.back()}>
+          <Button
+            variant="outline"
+            className="cursor-pointer"
+            onClick={() => router.back()}
+          >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Kembali
           </Button>
@@ -287,22 +291,6 @@ export default function CategoryDetailPage(props) {
                     </p>
                   </div>
                 </div>
-                {category.user && (
-                  <div className="flex items-center gap-2 p-3 bg-gradient-to-r from-blue-50 to-white dark:from-blue-900/20 dark:to-gray-900 rounded-lg border border-blue-100 dark:border-blue-900">
-                    <User className="h-5 w-5 text-blue-600" />
-                    <div>
-                      <p className="text-sm text-muted-foreground">
-                        Administrator
-                      </p>
-                      <p className="font-semibold text-blue-600">
-                        {category.user.name}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {category.user.email}
-                      </p>
-                    </div>
-                  </div>
-                )}
                 <div className="flex items-center gap-2 p-3 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-lg border border-gray-100 dark:border-gray-900">
                   <Users className="h-5 w-5 text-muted-foreground" />
                   <div>

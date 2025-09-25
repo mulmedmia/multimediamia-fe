@@ -166,11 +166,11 @@ export default function ProductPage() {
                           </AlertDialogTitle>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel className="bg-red-600 hover:bg-red-700 text-white">
+                          <AlertDialogCancel className="bg-red-600 hover:bg-red-700 text-white cursor-pointer">
                             Batal
                           </AlertDialogCancel>
                           <AlertDialogAction
-                            className="bg-green-600 hover:bg-green-700 text-white"
+                            className="bg-green-600 hover:bg-green-700 text-white cursor-pointer"
                             disabled={redeemMutation.isPending}
                             onClick={() =>
                               redeemMutation.mutate(product.product_id)

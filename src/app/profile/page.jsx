@@ -8,7 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Pencil2Icon, PersonIcon, LockClosedIcon, CheckIcon } from "@radix-ui/react-icons";
+import {
+  Pencil2Icon,
+  PersonIcon,
+  LockClosedIcon,
+  CheckIcon,
+} from "@radix-ui/react-icons";
 
 export default function ProfilePage() {
   const { data: profile, isLoading } = useUserProfile();
@@ -57,7 +62,9 @@ export default function ProfilePage() {
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-lg text-gray-600 dark:text-gray-300">Memuat profil...</p>
+          <p className="text-lg text-gray-600 dark:text-gray-300">
+            Memuat profil...
+          </p>
         </div>
       </div>
     );
@@ -65,7 +72,7 @@ export default function ProfilePage() {
 
   return (
     <>
-      <DashboardHeader /> 
+      <DashboardHeader />
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 py-20 px-4">
         <div className="max-w-4xl mx-auto">
           {/* Page Title */}
@@ -73,14 +80,16 @@ export default function ProfilePage() {
             <h1 className="text-4xl font-bold bg-gradient-to-r from-red-900 via-red-800 to-red-700 bg-clip-text text-transparent pb-2">
               Profile Settings
             </h1>
-            <p className="text-gray-600 dark:text-gray-300">Kelola informasi profil dan keamanan akun Anda</p>
+            <p className="text-gray-600 dark:text-gray-300">
+              Kelola informasi profil dan keamanan akun Anda
+            </p>
           </div>
 
           <Card className="overflow-hidden shadow-2xl border-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm pt-0">
             {/* Enhanced Header with Gradient */}
             <div className="bg-gradient-to-r from-red-900 via-red-800 to-red-700 p-8 relative">
               <div className="absolute inset-0 bg-black/10"></div>
-              
+
               <div className="relative z-10 flex flex-col items-center text-white">
                 {/* Enhanced Avatar */}
                 <div className="relative mb-4">
@@ -96,7 +105,9 @@ export default function ProfilePage() {
 
                 {/* Profile Info */}
                 <div className="text-center">
-                  <h2 className="text-3xl font-bold mb-2">{profile?.name || "Nama Pengguna"}</h2>
+                  <h2 className="text-3xl font-bold mb-2">
+                    {profile?.name || "Nama Pengguna"}
+                  </h2>
                   <div className="inline-flex items-center px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm mb-3">
                     <span className="text-sm font-semibold uppercase tracking-wider">
                       {profile?.role || "USER"}
@@ -118,14 +129,14 @@ export default function ProfilePage() {
             <CardContent className="p-8">
               <Tabs defaultValue="profile" className="w-full">
                 <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8 h-12 bg-gray-100 dark:bg-slate-700 rounded-xl p-1">
-                  <TabsTrigger 
-                    value="profile" 
+                  <TabsTrigger
+                    value="profile"
                     className="flex items-center gap-2 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm cursor-pointer"
                   >
                     <PersonIcon className="w-4 h-4" />
                     Profile
                   </TabsTrigger>
-                  <TabsTrigger 
+                  <TabsTrigger
                     value="password"
                     className="flex items-center gap-2 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm cursor-pointer"
                   >
@@ -138,14 +149,20 @@ export default function ProfilePage() {
                 <TabsContent value="profile">
                   <div className="max-w-2xl mx-auto">
                     <div className="mb-6">
-                      <h3 className="text-xl font-semibold mb-2">Informasi Profil</h3>
-                      <p className="text-gray-600 dark:text-gray-300">Perbarui informasi dasar profil Anda</p>
+                      <h3 className="text-xl font-semibold mb-2">
+                        Informasi Profil
+                      </h3>
+                      <p className="text-gray-600 dark:text-gray-300">
+                        Perbarui informasi dasar profil Anda
+                      </p>
                     </div>
-                    
+
                     <form onSubmit={handleProfileSubmit} className="space-y-6">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
-                          <Label htmlFor="name" className="text-sm font-medium">Nama Lengkap</Label>
+                          <Label htmlFor="name" className="text-sm font-medium">
+                            Nama Lengkap
+                          </Label>
                           <Input
                             id="name"
                             name="name"
@@ -156,9 +173,11 @@ export default function ProfilePage() {
                             placeholder="Masukkan nama lengkap"
                           />
                         </div>
-                        
+
                         <div className="space-y-2">
-                          <Label htmlFor="nim" className="text-sm font-medium">NIM</Label>
+                          <Label htmlFor="nim" className="text-sm font-medium">
+                            NIM
+                          </Label>
                           <Input
                             id="nim"
                             name="nim"
@@ -172,7 +191,9 @@ export default function ProfilePage() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+                        <Label htmlFor="email" className="text-sm font-medium">
+                          Email
+                        </Label>
                         <Input
                           id="email"
                           name="email"
@@ -182,14 +203,16 @@ export default function ProfilePage() {
                           className="h-11 rounded-lg bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-600 text-gray-500"
                           placeholder="Email tidak dapat diubah"
                         />
-                        <p className="text-xs text-gray-500">Email tidak dapat diubah untuk keamanan akun</p>
+                        <p className="text-xs text-gray-500">
+                          Email tidak dapat diubah untuk keamanan akun
+                        </p>
                       </div>
 
                       <div className="flex justify-end pt-4">
                         <Button
                           type="submit"
                           disabled={updateMutation.isPending}
-                          className="h-11 px-8 bg-gradient-to-r from-red-900 via-red-800 to-red-700 text-white rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
+                          className="h-11 px-8 bg-gradient-to-r from-red-900 via-red-800 to-red-700 text-white rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl cursor-pointer"
                         >
                           {updateMutation.isPending ? (
                             <>
@@ -209,13 +232,22 @@ export default function ProfilePage() {
                 <TabsContent value="password">
                   <div className="max-w-2xl mx-auto">
                     <div className="mb-6">
-                      <h3 className="text-xl font-semibold mb-2">Ubah Password</h3>
-                      <p className="text-gray-600 dark:text-gray-300">Pastikan password baru Anda kuat dan aman</p>
+                      <h3 className="text-xl font-semibold mb-2">
+                        Ubah Password
+                      </h3>
+                      <p className="text-gray-600 dark:text-gray-300">
+                        Pastikan password baru Anda kuat dan aman
+                      </p>
                     </div>
-                    
+
                     <form onSubmit={handlePasswordSubmit} className="space-y-6">
                       <div className="space-y-2">
-                        <Label htmlFor="current_password" className="text-sm font-medium">Password Saat Ini</Label>
+                        <Label
+                          htmlFor="current_password"
+                          className="text-sm font-medium"
+                        >
+                          Password Saat Ini
+                        </Label>
                         <Input
                           id="current_password"
                           name="current_password"
@@ -229,7 +261,12 @@ export default function ProfilePage() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="new_password" className="text-sm font-medium">Password Baru</Label>
+                        <Label
+                          htmlFor="new_password"
+                          className="text-sm font-medium"
+                        >
+                          Password Baru
+                        </Label>
                         <Input
                           id="new_password"
                           name="new_password"
@@ -240,14 +277,16 @@ export default function ProfilePage() {
                           className="h-11 rounded-lg border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                           placeholder="Masukkan password baru"
                         />
-                        <p className="text-xs text-gray-500">Minimal 8 karakter dengan kombinasi huruf dan angka</p>
+                        <p className="text-xs text-gray-500">
+                          Minimal 8 karakter dengan kombinasi huruf dan angka
+                        </p>
                       </div>
 
                       <div className="flex justify-end pt-4">
                         <Button
                           type="submit"
                           disabled={updateMutation.isPending}
-                          className="h-11 px-8 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
+                          className="h-11 px-8 bg-gradient-to-r from-red-900 via-red-800 to-red-700 text-white rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl cursor-pointer"
                         >
                           {updateMutation.isPending ? (
                             <>
