@@ -20,29 +20,29 @@ export function getProductColumns({
         header: "Produk",
         accessorKey: "name",
         cell: ({ row }) => (
-          <div className="flex gap-3 items-start bg-white rounded-lg shadow border p-3 px-4 max-w-full md:max-w-2xl mx-auto">
+          <div className="flex gap-3 items-start bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-3 px-4 max-w-full md:max-w-2xl mx-auto">
             {row.original.image_url && (
               <img
                 src={row.original.image_url}
                 alt={row.original.name}
-                className="w-16 h-16 object-cover rounded-md border flex-shrink-0"
+                className="w-16 h-16 object-cover rounded-md border border-gray-200 dark:border-gray-600 flex-shrink-0"
               />
             )}
             <div className="flex-1">
-              <div className="font-bold text-base mb-1">{row.original.name}</div>
-              <div className="text-xs text-muted-foreground mb-1">{row.original.description}</div>
-              <div className="text-xs mb-1">
+              <div className="font-bold text-base mb-1 text-gray-900 dark:text-white">{row.original.name}</div>
+              <div className="text-xs text-muted-foreground dark:text-gray-400 mb-1">{row.original.description}</div>
+              <div className="text-xs mb-1 text-gray-700 dark:text-gray-300">
                 <span className="font-medium">Harga:</span> Rp{row.original.price.toLocaleString()}
               </div>
-              <div className="text-xs mb-1">
+              <div className="text-xs mb-1 text-gray-700 dark:text-gray-300">
                 <span className="font-medium">Stok:</span> {row.original.stock}
               </div>
               <div className="mb-2">
                 <span
                   className={`px-2 py-1 rounded text-xs font-semibold ${
                     row.original.is_active
-                      ? "bg-green-100 text-green-700"
-                      : "bg-red-100 text-red-700"
+                      ? "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300"
+                      : "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300"
                   }`}
                 >
                   {row.original.is_active ? "Aktif" : "Nonaktif"}
