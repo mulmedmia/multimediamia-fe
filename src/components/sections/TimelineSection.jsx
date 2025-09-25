@@ -167,7 +167,7 @@ const TimelineSection = () => {
         </div>
 
         {/* Horizontal Scrollable Timeline */}
-        <div className="relative">
+        <div className="relative hidden md:block">
           {/* Scroll Container */}
           <div className="overflow-x-auto pb-4">
             <div className="relative min-w-max">
