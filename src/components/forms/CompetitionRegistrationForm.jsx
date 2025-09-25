@@ -215,7 +215,7 @@ export function CompetitionRegistrationForm({ defaultCategoryId }) {
         </>
       )}
 
-      <Button type="submit" className="w-full" disabled={mutation.isPending}>
+      <Button type="submit" className="w-full cursor-pointer" disabled={mutation.isPending}>
         {mutation.isPending ? "Mendaftarkan..." : "Daftar Sekarang"}
       </Button>
     </form>
