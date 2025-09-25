@@ -49,7 +49,7 @@ const HeroSection = () => {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
             <a
-              href="https://drive.google.com/drive/folders/1WPSiwwLve8ZeWT19yVF44YGXRzRppShp"
+              href="https://drive.google.com/drive/folders/1x34lDmoqSFdOfsxUpxpe2KiAaGT2zk5m?usp=sharing"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-block"

@@ -4,11 +4,8 @@ import React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useUserCategories } from "@/hooks/user-use-category";
-import {
-  InstagramLogoIcon,
-  VideoIcon,
-} from "@radix-ui/react-icons";
-import { FaInstagram, FaTiktok } from 'react-icons/fa';
+import { InstagramLogoIcon, VideoIcon } from "@radix-ui/react-icons";
+import { FaInstagram, FaTiktok } from "react-icons/fa";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -34,7 +31,11 @@ const Footer = () => {
               kreativitas dan inovasi digital Anda bersama kami.
             </p>
             <div className="flex space-x-3">
-              <Link href="https://www.instagram.com/multimedia.in.action?igsh=bGtvMWZpNDExbDVj" target="_blank" rel="noopener noreferrer">
+              <Link
+                href="https://www.instagram.com/multimedia.in.action?igsh=bGtvMWZpNDExbDVj"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <Button
                   variant="ghost"
                   size="icon"
@@ -43,7 +44,11 @@ const Footer = () => {
                   <FaInstagram className="h-4 w-4" />
                 </Button>
               </Link>
-              <Link href="https://www.tiktok.com/@multimediainaction?_t=ZS-8zwQ9E8K2i1&_r=1" target="_blank" rel="noopener noreferrer">
+              <Link
+                href="https://www.tiktok.com/@multimediainaction?_t=ZS-8zwQ9E8K2i1&_r=1"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <Button
                   variant="ghost"
                   size="icon"
@@ -108,7 +113,7 @@ const Footer = () => {
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
-                  href="/"
+                  href="/#timeline"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
                   Timeline
@@ -116,15 +121,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  href="/"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Hadiah
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/"
+                  href="/#faq"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
                   FAQ
@@ -132,7 +129,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  href="/"
+                  href="https://drive.google.com/drive/folders/1x34lDmoqSFdOfsxUpxpe2KiAaGT2zk5m?usp=sharing"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
                   Panduan
