@@ -418,7 +418,7 @@ export default function CategoryDetailPage(props) {
                     asChild
                   >
                     <a
-                      href={category.file_url || "#"}
+                      href={category.file_url || "https://drive.google.com/drive/folders/1x34lDmoqSFdOfsxUpxpe2KiAaGT2zk5m"}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
