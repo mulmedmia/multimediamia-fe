@@ -46,7 +46,7 @@ const TimelineSection = () => {
       date: "19 Oktober 2025",
       title: "Learn It (Best Practice UI/UX & Web Dev)",
       description:
-        "Sesi mentoring pertama yang dibimbing oleh para ahli di bidang Public Speaking.",
+        "Sesi bimbingan mentoring kedua yang dibimbing oleh para ahli di bidang UI/UX dan Web Development.",
       status: "upcoming",
       icon: LightningBoltIcon,
     },
@@ -70,7 +70,7 @@ const TimelineSection = () => {
       date: "04 November 2025",
       title: "Learn It (Best Practice Public Speaking)",
       description:
-        "Sesi bimbingan mentoring kedua yang dibimbing oleh para ahli di bidang UI/UX dan Web Development.",
+        "Sesi mentoring pertama yang dibimbing oleh para ahli di bidang Public Speaking.",
       status: "upcoming",
       icon: LightningBoltIcon,
     },
