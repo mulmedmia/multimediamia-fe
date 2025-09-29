@@ -127,8 +127,8 @@ export default function Header() {
 
           {/* Desktop Navigation - Hidden on mobile and tablet */}
           <nav className="hidden xl:flex items-center space-x-2 2xl:space-x-4 flex-1 justify-center max-w-2xl">
-            {navItems.map((item) => (
-              item.href.startsWith('/#') ? (
+            {navItems.map((item) =>
+              item.href.startsWith("/#") ? (
                 <a
                   key={item.href}
                   href={item.href}
@@ -147,7 +147,7 @@ export default function Header() {
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-red-600 transition-all duration-300 group-hover:w-full"></span>
                 </Link>
               )
-            ))}
+            )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -290,8 +290,8 @@ export default function Header() {
             <div className="space-y-4">
               {/* Navigation Links */}
               <nav className="flex flex-col space-y-1">
-                {navItems.map((item) => (
-                  item.href.startsWith('/#') ? (
+                {navItems.map((item) =>
+                  item.href.startsWith("/#") ? (
                     <a
                       key={item.href}
                       href={item.href}
@@ -310,7 +310,7 @@ export default function Header() {
                       {item.label}
                     </Link>
                   )
-                ))}
+                )}
 
                 {/* Mobile Hadiah Link */}
                 <Link
