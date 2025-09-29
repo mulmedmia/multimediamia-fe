@@ -14,20 +14,37 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useFeedbackRegistration } from "@/hooks/admin-use-pendaftar";
 import { ExternalLink, Send } from "lucide-react";
 
+// Helper function untuk parse team members
+const parseTeamMembers = (teamMembersString) => {
+  if (!teamMembersString) return [];
+
+  try {
+    // Coba parse sebagai JSON array
+    const parsed = JSON.parse(teamMembersString);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    // Jika gagal, coba split berdasarkan koma dan bersihkan karakter
+    return teamMembersString
+      .split(",")
+      .map((member) => member.trim().replace(/['"\[\]]/g, ""))
+      .filter((member) => member.length > 0);
+  }
+};
+
 export default function PendaftarDetailModal({ open, onClose, data }) {
   const [feedback, setFeedback] = useState(data?.feedback || "");
   const feedbackMutation = useFeedbackRegistration();
 
   const handleSendFeedback = () => {
     if (!feedback.trim()) return;
-    
+
     feedbackMutation.mutate(
       { id: data.registration_id, feedback },
-      { 
+      {
         onSuccess: () => {
           onClose();
           setFeedback("");
-        }
+        },
       }
     );
   };
@@ -75,27 +92,59 @@ export default function PendaftarDetailModal({ open, onClose, data }) {
                 </div>
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">
+                    Nama Tim
+                  </label>
+                  <p className="font-medium">{data.team_name || "-"}</p>
+                </div>
+                <div className="md:col-span-2">
+                  <label className="text-sm font-medium text-muted-foreground">
+                    Anggota Tim
+                  </label>
+                  <div className="mt-1">
+                    {(() => {
+                      const members = parseTeamMembers(data.team_members);
+
+                      return members.length > 0 ? (
+                        <div className="space-y-2">
+                          {members.map((member, idx) => (
+                            <div
+                              key={idx}
+                              className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg"
+                            >
+                              <span className="text-sm font-medium text-primary bg-primary/10 px-2 py-1 rounded">
+                                {idx + 1}
+                              </span>
+                              <span className="text-sm flex-1">{member}</span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground">-</p>
+                      );
+                    })()}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">
                     Status Verifikasi
                   </label>
                   <div>
                     <Badge variant={data.is_verified ? "default" : "secondary"}>
-                      {data.is_verified ? "Terverifikasi" : "Belum Terverifikasi"}
+                      {data.is_verified
+                        ? "Terverifikasi"
+                        : "Belum Terverifikasi"}
                     </Badge>
                   </div>
                 </div>
               </div>
-              
+
               {data.file_url && (
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">
                     File Dokumen
                   </label>
                   <div className="mt-1">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      asChild
-                    >
+                    <Button variant="outline" size="sm" asChild>
                       <a
                         href={data.file_url}
                         target="_blank"
@@ -115,7 +164,9 @@ export default function PendaftarDetailModal({ open, onClose, data }) {
           {/* Feedback Section */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Feedback untuk Pendaftar</CardTitle>
+              <CardTitle className="text-lg">
+                Feedback untuk Pendaftar
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {data.feedback && (
@@ -128,7 +179,7 @@ export default function PendaftarDetailModal({ open, onClose, data }) {
                   </div>
                 </div>
               )}
-              
+
               <div>
                 <label className="text-sm font-medium text-muted-foreground">
                   Kirim Feedback Baru
@@ -155,7 +206,9 @@ export default function PendaftarDetailModal({ open, onClose, data }) {
                   disabled={!feedback.trim() || feedbackMutation.isPending}
                 >
                   <Send className="h-4 w-4 mr-2" />
-                  {feedbackMutation.isPending ? "Mengirim..." : "Kirim Feedback"}
+                  {feedbackMutation.isPending
+                    ? "Mengirim..."
+                    : "Kirim Feedback"}
                 </Button>
               </div>
             </CardContent>

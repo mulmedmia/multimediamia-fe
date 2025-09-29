@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/select";
 import { DialogFooter, DialogClose } from "@/components/ui/dialog";
 import DatePickerField from "./DatePickerField";
+import DateTimePickerField from "./DateTimePickerField";
 
 export default function CategoryForm({ initial, onSubmit, isLoading }) {
   const [form, setForm] = useState({
@@ -23,7 +24,7 @@ export default function CategoryForm({ initial, onSubmit, isLoading }) {
     deadline: initial?.deadline ? new Date(initial.deadline) : null,
     status: initial?.status || "NOT_VERIFIED",
     image: null,
-    file_url:null,
+    file_url: null,
     organizer: initial?.organizer || "",
     team_type: initial?.team_type || "GROUP",
   });
@@ -142,10 +143,10 @@ export default function CategoryForm({ initial, onSubmit, isLoading }) {
         </div>
         <div className="space-y-2">
           <Label>Deadline</Label>
-          <DatePickerField
+          <DateTimePickerField
             value={form.deadline}
             onChange={(date) => setForm((f) => ({ ...f, deadline: date }))}
-            placeholder="Pilih deadline"
+            placeholder="Pilih deadline dengan waktu"
           />
         </div>
         <div className="space-y-2 sm:col-span-2">
