@@ -72,7 +72,7 @@ export default function Header() {
     return (
       <header className="fixed top-0 left-0 right-0 z-50 h-14 sm:h-16 md:h-20 lg:h-20 bg-background/95 backdrop-blur-sm border-b">
         <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
-          <div className="flex h-14 sm:h-16 md:h-20 lg:h-20 items-center justify-between w-full">
+          <div className="flex h-16 sm:h-16 md:h-20 lg:h-20 items-center justify-between w-full">
             <div className="flex items-center space-x-2">
               <div className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 bg-muted animate-pulse rounded"></div>
               <div className="h-4 w-24 sm:h-5 sm:w-36 bg-muted animate-pulse rounded"></div>
@@ -104,13 +104,13 @@ export default function Header() {
           {/* Logo Section - Improved mobile responsiveness */}
           <Link
             href="/"
-            className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0 min-w-0 max-w-[50%] sm:max-w-none"
+            className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0 min-w-0 max-w-[60%] sm:max-w-none"
           >
             <div className="flex-shrink-0">
               <img
                 src="/MIALOGO.png"
                 alt="Logo"
-                className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 lg:h-8 lg:w-8 object-contain"
+                className="h-7 w-7 sm:h-7 sm:w-7 md:h-7 md:w-7 lg:h-8 lg:w-8 object-contain"
               />
             </div>
             {shouldShowFullText && (
@@ -119,7 +119,7 @@ export default function Header() {
               </span>
             )}
             {shouldShowMIA && (
-              <span className="text-base sm:text-lg md:text-xl font-bold bg-gradient-to-r from-red-600 to-red-700 dark:from-red-500 dark:to-red-700 bg-clip-text text-transparent">
+              <span className="text-xl sm:text-lg md:text-xl font-bold bg-gradient-to-r from-red-600 to-red-700 dark:from-red-500 dark:to-red-700 bg-clip-text text-transparent">
                 MIA
               </span>
             )}
