@@ -17,7 +17,13 @@ export default function CategoryForm({ initial, onSubmit, isLoading }) {
   const [form, setForm] = useState({
     category_name: initial?.category_name || "",
     name: initial?.name || "",
-    startDate: initial?.startDate ? new Date(initial.startDate) : null,
+    startDate: initial?.startDate
+      ? new Date(initial.startDate)
+      : (() => {
+          const now = new Date();
+          now.setHours(12, 0, 0, 0); // Default jam 12:00:00
+          return now;
+        })(),
     endDate: initial?.endDate ? new Date(initial.endDate) : null,
     title: initial?.title || "",
     description: initial?.description || "",
@@ -127,10 +133,10 @@ export default function CategoryForm({ initial, onSubmit, isLoading }) {
         </div>
         <div className="space-y-2">
           <Label>Start Date</Label>
-          <DatePickerField
+          <DateTimePickerField
             value={form.startDate}
             onChange={(date) => setForm((f) => ({ ...f, startDate: date }))}
-            placeholder="Pilih tanggal mulai"
+            placeholder="Pilih tanggal mulai dengan waktu"
           />
         </div>
         <div className="space-y-2">

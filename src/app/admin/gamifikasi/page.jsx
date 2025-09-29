@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import {
   useGamifikasiUsers,
   usePatchUserPoints,
@@ -30,18 +30,21 @@ import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 
 function TableSkeleton() {
   return (
-    <div className="border rounded-lg">
-      <div className="p-4">
-        <div className="space-y-4">
+    <div className="border rounded-lg overflow-hidden">
+      <div className="p-2 sm:p-4">
+        <div className="space-y-3 sm:space-y-4">
           {[...Array(10)].map((_, i) => (
-            <div key={i} className="flex justify-between items-center">
-              <div className="space-y-2 flex-1">
-                <Skeleton className="h-4 w-32" />
-                <Skeleton className="h-3 w-48" />
+            <div
+              key={i}
+              className="flex justify-between items-center gap-2 sm:gap-4"
+            >
+              <div className="space-y-1 sm:space-y-2 flex-1 min-w-0">
+                <Skeleton className="h-3 sm:h-4 w-24 sm:w-32" />
+                <Skeleton className="h-2 sm:h-3 w-36 sm:w-48" />
               </div>
-              <div className="flex gap-2">
-                <Skeleton className="h-8 w-16" />
-                <Skeleton className="h-8 w-16" />
+              <div className="flex gap-1 sm:gap-2 flex-shrink-0">
+                <Skeleton className="h-6 sm:h-8 w-12 sm:w-16" />
+                <Skeleton className="h-6 sm:h-8 w-12 sm:w-16" />
               </div>
             </div>
           ))}
@@ -52,11 +55,25 @@ function TableSkeleton() {
 }
 
 export default function AdminGamifikasiPage() {
-  const { data: users, isLoading, isError } = useGamifikasiUsers();
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const {
+    data: response,
+    isLoading,
+    isError,
+  } = useGamifikasiUsers({ page, limit });
   const patchMutation = usePatchUserPoints();
   const [editUser, setEditUser] = useState(null);
   const [globalFilter, setGlobalFilter] = useState("");
   const { register, handleSubmit, reset } = useForm();
+
+  const users = response?.users || [];
+  const meta = response?.meta;
+
+  // Reset to page 1 when search changes
+  useEffect(() => {
+    setPage(1);
+  }, [globalFilter]);
 
   const isMobile = useIsMobile();
   const columns = useMemo(
@@ -89,7 +106,8 @@ export default function AdminGamifikasiPage() {
     onGlobalFilterChange: setGlobalFilter,
     initialState: {
       pagination: {
-        pageSize: 10,
+        pageIndex: 0,
+        pageSize: limit,
       },
     },
   });
@@ -107,21 +125,25 @@ export default function AdminGamifikasiPage() {
     return <div className="text-destructive">Gagal memuat data.</div>;
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-semibold">Manajemen Poin Gamifikasi</h1>
-          <p className="text-muted-foreground">Kelola poin pengguna di sini.</p>
+    <div className="container mx-auto py-4 sm:py-8 px-2 sm:px-4">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="text-center sm:text-left">
+          <h1 className="text-xl sm:text-2xl font-semibold">
+            Manajemen Poin Gamifikasi
+          </h1>
+          <p className="text-sm sm:text-base text-muted-foreground mt-1">
+            Kelola poin pengguna di sini.
+          </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-2">
-          <div className="relative flex-1">
+        <div className="flex flex-col gap-2">
+          <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
               placeholder="Cari pengguna..."
               value={globalFilter ?? ""}
               onChange={(e) => setGlobalFilter(e.target.value)}
-              className="pl-9"
+              className="pl-9 w-full"
             />
           </div>
         </div>
@@ -130,16 +152,16 @@ export default function AdminGamifikasiPage() {
           <TableSkeleton />
         ) : (
           <>
-            <div className="border rounded-lg">
+            <div className="border rounded-lg overflow-hidden">
               <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="w-full min-w-[600px]">
                   <thead>
                     {table.getHeaderGroups().map((headerGroup) => (
-                      <tr key={headerGroup.id} className="border-b">
+                      <tr key={headerGroup.id} className="border-b bg-muted/50">
                         {headerGroup.headers.map((header) => (
                           <th
                             key={header.id}
-                            className="px-4 py-3 text-left font-medium text-sm"
+                            className="px-2 sm:px-4 py-2 sm:py-3 text-left font-medium text-xs sm:text-sm"
                           >
                             {flexRender(
                               header.column.columnDef.header,
@@ -154,7 +176,10 @@ export default function AdminGamifikasiPage() {
                     {table.getRowModel().rows.map((row) => (
                       <tr key={row.id} className="border-b hover:bg-muted/50">
                         {row.getVisibleCells().map((cell) => (
-                          <td key={cell.id} className="px-4 py-3 text-sm">
+                          <td
+                            key={cell.id}
+                            className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm"
+                          >
                             {flexRender(
                               cell.column.columnDef.cell,
                               cell.getContext()
@@ -173,76 +198,76 @@ export default function AdminGamifikasiPage() {
               )}
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-muted-foreground">
-                Menampilkan{" "}
-                {table.getState().pagination.pageIndex *
-                  table.getState().pagination.pageSize +
-                  1}{" "}
-                -{" "}
-                {Math.min(
-                  (table.getState().pagination.pageIndex + 1) *
-                    table.getState().pagination.pageSize,
-                  table.getFilteredRowModel().rows.length
-                )}{" "}
-                dari {table.getFilteredRowModel().rows.length} data
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="text-xs sm:text-sm text-muted-foreground text-center sm:text-left">
+                Menampilkan {(page - 1) * limit + 1} -{" "}
+                {Math.min(page * limit, meta?.total || 0)} dari{" "}
+                {meta?.total || 0} data
               </div>
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => table.previousPage()}
-                  disabled={!table.getCanPreviousPage()}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                  Previous
-                </Button>
-                <div className="text-sm">
-                  Halaman {table.getState().pagination.pageIndex + 1} dari{" "}
-                  {table.getPageCount()}
+              <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
+                <div className="text-xs sm:text-sm text-center">
+                  Halaman {page} dari {meta?.totalPages || 1}
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => table.nextPage()}
-                  disabled={!table.getCanNextPage()}
-                >
-                  Next
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                    className="h-8 px-2 sm:px-3"
+                  >
+                    <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="hidden sm:inline ml-1">Previous</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      setPage((p) => Math.min(meta?.totalPages || 1, p + 1))
+                    }
+                    disabled={page === (meta?.totalPages || 1)}
+                    className="h-8 px-2 sm:px-3"
+                  >
+                    <span className="hidden sm:inline mr-1">Next</span>
+                    <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           </>
         )}
 
         <Dialog open={!!editUser} onOpenChange={() => setEditUser(null)}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="w-[95vw] max-w-md mx-4">
             <DialogHeader>
-              <DialogTitle>Edit Poin Pengguna</DialogTitle>
+              <DialogTitle className="text-lg">Edit Poin Pengguna</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-2">
-                <Label>Nama</Label>
-                <div className="p-2 bg-muted rounded text-sm">
+                <Label className="text-sm">Nama</Label>
+                <div className="p-3 bg-muted rounded text-sm break-words">
                   {editUser?.name}
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>Email</Label>
-                <div className="p-2 bg-muted rounded text-sm">
+                <Label className="text-sm">Email</Label>
+                <div className="p-3 bg-muted rounded text-sm break-words">
                   {editUser?.email}
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="points">Poin</Label>
+                <Label htmlFor="points" className="text-sm">
+                  Poin
+                </Label>
                 <Input
                   id="points"
                   type="number"
                   {...register("points", { required: true })}
                   defaultValue={editUser?.points || 0}
+                  className="w-full"
                 />
               </div>
-              <DialogFooter className="flex-col sm:flex-row gap-2">
+              <DialogFooter className="flex-col sm:flex-row gap-2 pt-4">
                 <Button
                   type="button"
                   variant="outline"
