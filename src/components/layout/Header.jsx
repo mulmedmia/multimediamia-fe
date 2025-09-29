@@ -128,14 +128,25 @@ export default function Header() {
           {/* Desktop Navigation - Hidden on mobile and tablet */}
           <nav className="hidden xl:flex items-center space-x-2 2xl:space-x-4 flex-1 justify-center max-w-2xl">
             {navItems.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className="text-sm md:text-base lg:text-lg font-medium text-muted-foreground hover:text-primary transition-colors relative group whitespace-nowrap px-1"
-              >
-                {item.label}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-red-600 transition-all duration-300 group-hover:w-full"></span>
-              </a>
+              item.href.startsWith('/#') ? (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  className="text-sm md:text-base lg:text-lg font-medium text-muted-foreground hover:text-primary transition-colors relative group whitespace-nowrap px-1"
+                >
+                  {item.label}
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-red-600 transition-all duration-300 group-hover:w-full"></span>
+                </a>
+              ) : (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="text-sm md:text-base lg:text-lg font-medium text-muted-foreground hover:text-primary transition-colors relative group whitespace-nowrap px-1"
+                >
+                  {item.label}
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-red-600 transition-all duration-300 group-hover:w-full"></span>
+                </Link>
+              )
             ))}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -280,14 +291,25 @@ export default function Header() {
               {/* Navigation Links */}
               <nav className="flex flex-col space-y-1">
                 {navItems.map((item) => (
-                  <a
-                    key={item.href}
-                    href={item.href}
-                    className="py-3 sm:py-3.5 md:py-4 px-3 text-base sm:text-lg md:text-xl font-medium text-muted-foreground hover:text-primary hover:bg-muted/50 rounded-md transition-colors"
-                    onClick={handleLinkClick}
-                  >
-                    {item.label}
-                  </a>
+                  item.href.startsWith('/#') ? (
+                    <a
+                      key={item.href}
+                      href={item.href}
+                      className="py-3 sm:py-3.5 md:py-4 px-3 text-base sm:text-lg md:text-xl font-medium text-muted-foreground hover:text-primary hover:bg-muted/50 rounded-md transition-colors"
+                      onClick={handleLinkClick}
+                    >
+                      {item.label}
+                    </a>
+                  ) : (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="py-3 sm:py-3.5 md:py-4 px-3 text-base sm:text-lg md:text-xl font-medium text-muted-foreground hover:text-primary hover:bg-muted/50 rounded-md transition-colors"
+                      onClick={handleLinkClick}
+                    >
+                      {item.label}
+                    </Link>
+                  )
                 ))}
 
                 {/* Mobile Hadiah Link */}
