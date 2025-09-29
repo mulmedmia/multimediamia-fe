@@ -1,12 +1,15 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getAllUsers, patchUserPoints } from "@/services/admin-gamifikasi.service";
+import {
+  getAllUsers,
+  patchUserPoints,
+} from "@/services/admin-gamifikasi.service";
 import { toast } from "sonner";
 
-// Query untuk ambil semua user
-export function useGamifikasiUsers() {
+// Query untuk ambil semua user dengan pagination
+export function useGamifikasiUsers({ page = 1, limit = 10 } = {}) {
   return useQuery({
-    queryKey: ["admin-gamifikasi-users"],
-    queryFn: getAllUsers,
+    queryKey: ["admin-gamifikasi-users", { page, limit }],
+    queryFn: () => getAllUsers({ page, limit }),
   });
 }
 

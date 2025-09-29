@@ -1,10 +1,10 @@
 import api from "@/lib/api";
 
-// Ambil semua user (untuk admin)
-export const getAllUsers = async () => {
-  const res = await api.get("/users");
-  // Ambil array users dari response
-  return res.data.data.users;
+// Ambil semua user (untuk admin) dengan pagination
+export const getAllUsers = async ({ page = 1, limit = 10 } = {}) => {
+  const res = await api.get(`/users?page=${page}&limit=${limit}`);
+  // Kembalikan seluruh data termasuk meta
+  return res.data.data;
 };
 
 // Update poin user (admin only)
