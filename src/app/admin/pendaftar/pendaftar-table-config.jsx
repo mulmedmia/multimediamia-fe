@@ -38,6 +38,13 @@ const cardCell = ({ row, setDetailData, setVerifyData }) => {
               Tim: {row.original.team_name}
             </div>
           )}
+          <div className="text-xs text-muted-foreground mt-1">
+            Terdaftar:{" "}
+            {new Date(row.original.created_at).toLocaleDateString("id-ID", {
+              dateStyle: "medium",
+              timeStyle: "short",
+            })}
+          </div>
         </div>
         <div className="flex gap-2 ml-2">
           <Button
@@ -196,6 +203,23 @@ const desktopColumns = [
         </div>
       );
     },
+  },
+  {
+    header: "Waktu Registrasi",
+    accessorKey: "created_at",
+    cell: ({ row }) => (
+      <div className="text-xs text-muted-foreground">
+        <div>
+          {new Date(row.original.created_at).toLocaleDateString("id-ID")}
+        </div>
+        <div className="text-xs opacity-75">
+          {new Date(row.original.created_at).toLocaleTimeString("id-ID", {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </div>
+      </div>
+    ),
   },
   {
     header: "Status",
