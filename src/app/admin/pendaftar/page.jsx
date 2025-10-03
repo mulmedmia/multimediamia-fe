@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useAdminRegistrations } from "@/hooks/admin-use-pendaftar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,9 +27,20 @@ import {
 export default function AdminPendaftarPage() {
   // State untuk filter & pagination
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchInput, setSearchInput] = useState(""); // Untuk input search
   const [category, setCategory] = useState("");
   const [page, setPage] = useState(1);
   const limit = 10;
+
+  // Debounce search term untuk mengurangi API calls
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchTerm(searchInput);
+      setPage(1); // Reset ke halaman pertama saat search berubah
+    }, 500); // Delay 500ms
+
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   // Ambil data kategori untuk filter dropdown
   const {
@@ -43,7 +54,7 @@ export default function AdminPendaftarPage() {
     staleTime: 1000 * 60 * 10,
   });
 
-  // Ambil data pendaftar dengan server-side pagination
+  // Ambil data pendaftar dengan server-side filtering dan pagination
   const { data, isLoading, isError, refetch } = useAdminRegistrations({
     page,
     limit,
@@ -57,55 +68,9 @@ export default function AdminPendaftarPage() {
     : [];
   const meta = data?.meta || { page: 1, limit, totalPages: 1, total: 0 };
 
-  // Untuk client-side filtering (jika API tidak mendukung filter)
-  const filteredRegistrations = useMemo(() => {
-    let result = registrations;
-
-    // Jika API belum mendukung filter kategori, lakukan client-side filtering
-    if (category && !data?.isServerFiltered) {
-      result = result.filter(
-        (r) =>
-          r.category_id === category || r.category?.category_id === category
-      );
-    }
-
-    // Jika API belum mendukung search, lakukan client-side searching
-    if (searchTerm && !data?.isServerFiltered) {
-      const search = searchTerm.toLowerCase();
-      result = result.filter(
-        (r) =>
-          r.user?.name?.toLowerCase().includes(search) ||
-          r.user?.email?.toLowerCase().includes(search) ||
-          r.category?.category_name?.toLowerCase().includes(search)
-      );
-    }
-
-    return result;
-  }, [registrations, category, searchTerm, data?.isServerFiltered]);
-
-  // Gunakan server-side pagination jika tersedia, otherwise client-side
-  const pagedRegistrations = data?.isServerFiltered
-    ? registrations
-    : filteredRegistrations;
-
-  // Logika actualTotalPages yang lebih robust
-  let actualTotalPages;
-
-  // Jika ada filter aktif (category atau search) dan API tidak mendukung server filtering
-  if ((category || searchTerm) && !data?.isServerFiltered) {
-    // Untuk client-side filtering, hitung berdasarkan filtered data tapi tetap gunakan pagination
-    actualTotalPages = Math.max(
-      1,
-      Math.ceil(filteredRegistrations.length / limit)
-    );
-  }
-  // Jika API mendukung server-side filtering atau tidak ada filter
-  else {
-    // Gunakan meta dari server
-    actualTotalPages =
-      meta.totalPages ||
-      Math.max(1, Math.ceil((meta.total || registrations.length) / limit));
-  }
+  // Karena sekarang filtering dilakukan di server, kita langsung gunakan data dari API
+  const tableData = registrations;
+  const actualTotalPages = meta.totalPages || 1;
 
   // Modal state
   const [detailData, setDetailData] = useState(null);
@@ -116,40 +81,28 @@ export default function AdminPendaftarPage() {
     [setDetailData, setVerifyData]
   );
 
-  // Table instance - untuk client-side filtering, kita perlu pagination manual
-  const tableData = useMemo(() => {
-    if ((category || searchTerm) && !data?.isServerFiltered) {
-      // Client-side pagination untuk filtered data
-      const startIndex = (page - 1) * limit;
-      const endIndex = startIndex + limit;
-      return filteredRegistrations.slice(startIndex, endIndex);
-    }
-    return pagedRegistrations;
-  }, [
-    pagedRegistrations,
-    filteredRegistrations,
-    page,
-    limit,
-    category,
-    searchTerm,
-    data?.isServerFiltered,
-  ]);
-
   const table = useReactTable({
     data: tableData,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
 
-  // Handler dengan debouncing
+  // Handler untuk kategori
   const handleCategoryChange = (e) => {
     setCategory(e.target.value);
     setPage(1); // Reset ke halaman pertama saat filter berubah
   };
 
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-    setPage(1); // Reset ke halaman pertama saat search berubah
+  // Handler untuk search input (tanpa langsung trigger API)
+  const handleSearchInputChange = (e) => {
+    setSearchInput(e.target.value);
+  };
+
+  // Handler untuk clear search
+  const handleClearSearch = () => {
+    setSearchInput("");
+    setSearchTerm("");
+    setPage(1);
   };
 
   // Handler pagination
@@ -165,7 +118,7 @@ export default function AdminPendaftarPage() {
     }
   };
 
-  // Tambahkan variabel untuk kondisi disabled
+  // Kondisi disabled untuk pagination
   const isPreviousDisabled = page <= 1;
   const isNextDisabled = page >= actualTotalPages;
 
@@ -244,27 +197,98 @@ export default function AdminPendaftarPage() {
                   </option>
                 ))}
               </select>
-              {/* Search */}
+
+              {/* Search dengan Clear Button */}
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Cari pendaftar..."
-                  value={searchTerm}
-                  onChange={handleSearchChange}
-                  className="pl-10"
+                  placeholder="Cari pendaftar di semua halaman..."
+                  value={searchInput}
+                  onChange={handleSearchInputChange}
+                  className="pl-10 pr-10"
                 />
+                {searchInput && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleClearSearch}
+                    className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 p-0 hover:bg-gray-200"
+                  >
+                    ×
+                  </Button>
+                )}
               </div>
             </div>
           </div>
+
+          {/* Filter Status Info */}
+          {(category || searchTerm) && (
+            <div className="flex flex-wrap items-center gap-2 mt-2">
+              <span className="text-sm text-muted-foreground">
+                Filter aktif:
+              </span>
+              {category && (
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                  Kategori:{" "}
+                  {
+                    categories.find((c) => c.category_id === category)
+                      ?.category_name
+                  }
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setCategory("")}
+                    className="ml-1 h-4 w-4 p-0 hover:bg-blue-200"
+                  >
+                    ×
+                  </Button>
+                </span>
+              )}
+              {searchTerm && (
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                  Pencarian: "{searchTerm}"
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleClearSearch}
+                    className="ml-1 h-4 w-4 p-0 hover:bg-green-200"
+                  >
+                    ×
+                  </Button>
+                </span>
+              )}
+              {(category || searchTerm) && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setCategory("");
+                    setSearchInput("");
+                    setSearchTerm("");
+                    setPage(1);
+                  }}
+                  className="text-xs"
+                >
+                  Hapus Semua Filter
+                </Button>
+              )}
+            </div>
+          )}
         </CardHeader>
 
         <CardContent>
           {tableData.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">
+              <div className="text-6xl mb-4">🔍</div>
+              <p className="text-muted-foreground text-lg font-medium mb-2">
                 {searchTerm || category
-                  ? "Tidak ada pendaftar yang sesuai dengan filter."
-                  : "Tidak ada data pendaftar."}
+                  ? "Tidak ada pendaftar yang sesuai dengan filter"
+                  : "Tidak ada data pendaftar"}
+              </p>
+              <p className="text-muted-foreground text-sm">
+                {searchTerm || category
+                  ? "Coba ubah kriteria pencarian atau hapus filter untuk melihat data lain"
+                  : "Belum ada pendaftar yang terdaftar dalam sistem"}
               </p>
             </div>
           ) : (
@@ -311,8 +335,22 @@ export default function AdminPendaftarPage() {
                 </table>
               </div>
 
-              {/* Enhanced Pagination */}
-              <div className="mt-6">
+              {/* Enhanced Pagination dengan Info */}
+              <div className="mt-6 space-y-4">
+                {/* Pagination Info */}
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-2 text-sm text-muted-foreground">
+                  <div>
+                    Menampilkan {(page - 1) * limit + 1} -{" "}
+                    {Math.min(page * limit, meta.total)} dari {meta.total} total
+                    pendaftar
+                    {(category || searchTerm) && " (hasil filter)"}
+                  </div>
+                  <div>
+                    {actualTotalPages > 1 && `${actualTotalPages} halaman`}
+                  </div>
+                </div>
+
+                {/* Pagination Controls */}
                 <Pagination>
                   <PaginationContent>
                     <PaginationItem>
@@ -326,20 +364,43 @@ export default function AdminPendaftarPage() {
                         }
                       />
                     </PaginationItem>
-                    <PaginationItem>
+
+                    {/* Page Numbers (untuk desktop) */}
+                    <div className="hidden sm:flex items-center gap-1">
+                      {[...Array(Math.min(5, actualTotalPages))].map((_, i) => {
+                        let pageNum;
+                        if (actualTotalPages <= 5) {
+                          pageNum = i + 1;
+                        } else if (page <= 3) {
+                          pageNum = i + 1;
+                        } else if (page >= actualTotalPages - 2) {
+                          pageNum = actualTotalPages - 4 + i;
+                        } else {
+                          pageNum = page - 2 + i;
+                        }
+
+                        return (
+                          <PaginationItem key={i}>
+                            <Button
+                              variant={pageNum === page ? "default" : "outline"}
+                              size="sm"
+                              onClick={() => setPage(pageNum)}
+                              className="w-8 h-8"
+                            >
+                              {pageNum}
+                            </Button>
+                          </PaginationItem>
+                        );
+                      })}
+                    </div>
+
+                    {/* Mobile Page Info */}
+                    <PaginationItem className="sm:hidden">
                       <span className="px-3 py-1 rounded bg-muted text-foreground text-sm">
-                        Halaman {page} dari {actualTotalPages}
+                        {page} / {actualTotalPages}
                       </span>
                     </PaginationItem>
-                    <PaginationItem>
-                      <span className="px-3 py-1 text-muted-foreground text-sm">
-                        (
-                        {(category || searchTerm) && !data?.isServerFiltered
-                          ? filteredRegistrations.length
-                          : meta.total || registrations.length}{" "}
-                        total pendaftar)
-                      </span>
-                    </PaginationItem>
+
                     <PaginationItem>
                       <PaginationNext
                         onClick={handleNextPage}
