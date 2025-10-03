@@ -30,7 +30,7 @@ export default function AdminPendaftarPage() {
   const [searchInput, setSearchInput] = useState(""); // Untuk input search
   const [category, setCategory] = useState("");
   const [page, setPage] = useState(1);
-  const limit = 3;
+  const limit = 10;
 
   // Debounce search term untuk mengurangi API calls
   useEffect(() => {
