@@ -30,7 +30,7 @@ export default function AdminPendaftarPage() {
   const [searchInput, setSearchInput] = useState(""); // Untuk input search
   const [category, setCategory] = useState("");
   const [page, setPage] = useState(1);
-  const limit = 10;
+  const limit = 3;
 
   // Debounce search term untuk mengurangi API calls
   useEffect(() => {
@@ -71,45 +71,58 @@ export default function AdminPendaftarPage() {
   // Client-side filtering jika backend belum mendukung
   const filteredRegistrations = useMemo(() => {
     let result = registrations;
-    
+
     // Jika backend belum memfilter berdasarkan kategori
     if (category && !data?.isServerFiltered) {
-      result = result.filter(reg => {
+      result = result.filter((reg) => {
         const regCategoryId = reg.category_id || reg.category?.category_id;
         return String(regCategoryId) === String(category);
       });
     }
-    
+
     // Jika backend belum memfilter berdasarkan search
     if (searchTerm && !data?.isServerFiltered) {
       const search = searchTerm.toLowerCase();
-      result = result.filter(reg =>
-        reg.user?.name?.toLowerCase().includes(search) ||
-        reg.user?.email?.toLowerCase().includes(search) ||
-        reg.category?.category_name?.toLowerCase().includes(search) ||
-        reg.team_name?.toLowerCase().includes(search)
+      result = result.filter(
+        (reg) =>
+          reg.user?.name?.toLowerCase().includes(search) ||
+          reg.user?.email?.toLowerCase().includes(search) ||
+          reg.category?.category_name?.toLowerCase().includes(search) ||
+          reg.team_name?.toLowerCase().includes(search)
       );
     }
-    
+
     return result;
   }, [registrations, category, searchTerm, data?.isServerFiltered]);
 
-  // Pagination untuk filtered data
-  const totalFilteredItems = filteredRegistrations.length;
-  const actualTotalPages = Math.max(1, Math.ceil(totalFilteredItems / limit));
-  
+  // Menentukan apakah menggunakan server-side atau client-side pagination
+  const isUsingClientSidePagination =
+    (category || searchTerm) && !data?.isServerFiltered;
+
+  // Pagination calculations - FIXED
+  const totalItems = isUsingClientSidePagination
+    ? filteredRegistrations.length
+    : meta.total;
+  const actualTotalPages = Math.max(1, Math.ceil(totalItems / limit));
+
   // Client-side pagination untuk filtered data
   const paginatedData = useMemo(() => {
-    if (data?.isServerFiltered) {
-      // Jika server sudah handle pagination, gunakan data langsung
-      return registrations;
-    } else {
+    if (isUsingClientSidePagination) {
       // Client-side pagination
       const startIndex = (page - 1) * limit;
       const endIndex = startIndex + limit;
       return filteredRegistrations.slice(startIndex, endIndex);
+    } else {
+      // Server-side pagination - gunakan data langsung dari API
+      return registrations;
     }
-  }, [filteredRegistrations, page, limit, registrations, data?.isServerFiltered]);
+  }, [
+    filteredRegistrations,
+    page,
+    limit,
+    registrations,
+    isUsingClientSidePagination,
+  ]);
 
   const tableData = paginatedData;
 
@@ -146,7 +159,7 @@ export default function AdminPendaftarPage() {
     setPage(1);
   };
 
-  // Handler pagination
+  // Handler pagination - FIXED
   const handlePreviousPage = () => {
     if (page > 1) {
       setPage((prev) => prev - 1);
@@ -154,14 +167,20 @@ export default function AdminPendaftarPage() {
   };
 
   const handleNextPage = () => {
-    if (page < actualTotalPages) {
+    const maxPages = isUsingClientSidePagination
+      ? actualTotalPages
+      : meta.totalPages;
+    if (page < maxPages) {
       setPage((prev) => prev + 1);
     }
   };
 
-  // Kondisi disabled untuk pagination
+  // Kondisi disabled untuk pagination - FIXED
+  const maxPages = isUsingClientSidePagination
+    ? actualTotalPages
+    : meta.totalPages;
   const isPreviousDisabled = page <= 1;
-  const isNextDisabled = page >= actualTotalPages;
+  const isNextDisabled = page >= maxPages;
 
   // UI Loading
   if (isLoading || loadingCategories) {
@@ -381,81 +400,85 @@ export default function AdminPendaftarPage() {
 
               {/* Enhanced Pagination dengan Info */}
               <div className="mt-6 space-y-4">
-                {/* Pagination Info */}
+                {/* Pagination Info - FIXED */}
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-2 text-sm text-muted-foreground">
                   <div>
-                    Menampilkan {((page - 1) * limit) + 1} - {Math.min(page * limit, data?.isServerFiltered ? meta.total : totalFilteredItems)} dari {data?.isServerFiltered ? meta.total : totalFilteredItems} total pendaftar
+                    Menampilkan {(page - 1) * limit + 1} -{" "}
+                    {Math.min(page * limit, totalItems)} dari {totalItems} total
+                    pendaftar
                     {(category || searchTerm) && " (hasil filter)"}
                   </div>
-                  <div>
-                    {actualTotalPages > 1 && `${actualTotalPages} halaman`}
-                  </div>
+                  <div>{maxPages > 1 && `${maxPages} halaman`}</div>
                 </div>
 
-                {/* Pagination Controls */}
-                <Pagination>
-                  <PaginationContent>
-                    <PaginationItem>
-                      <PaginationPrevious
-                        onClick={handlePreviousPage}
-                        disabled={isPreviousDisabled}
-                        className={
-                          isPreviousDisabled
-                            ? "cursor-not-allowed opacity-50 pointer-events-none"
-                            : "cursor-pointer hover:bg-accent"
-                        }
-                      />
-                    </PaginationItem>
+                {/* Pagination Controls - FIXED: Always show pagination if maxPages > 1 */}
+                {maxPages > 1 && (
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious
+                          onClick={handlePreviousPage}
+                          disabled={isPreviousDisabled}
+                          className={
+                            isPreviousDisabled
+                              ? "cursor-not-allowed opacity-50 pointer-events-none"
+                              : "cursor-pointer hover:bg-accent"
+                          }
+                        />
+                      </PaginationItem>
 
-                    {/* Page Numbers (untuk desktop) */}
-                    <div className="hidden sm:flex items-center gap-1">
-                      {[...Array(Math.min(5, actualTotalPages))].map((_, i) => {
-                        let pageNum;
-                        if (actualTotalPages <= 5) {
-                          pageNum = i + 1;
-                        } else if (page <= 3) {
-                          pageNum = i + 1;
-                        } else if (page >= actualTotalPages - 2) {
-                          pageNum = actualTotalPages - 4 + i;
-                        } else {
-                          pageNum = page - 2 + i;
-                        }
+                      {/* Page Numbers (untuk desktop) */}
+                      <div className="hidden sm:flex items-center gap-1">
+                        {[...Array(Math.min(5, maxPages))].map((_, i) => {
+                          let pageNum;
+                          if (maxPages <= 5) {
+                            pageNum = i + 1;
+                          } else if (page <= 3) {
+                            pageNum = i + 1;
+                          } else if (page >= maxPages - 2) {
+                            pageNum = maxPages - 4 + i;
+                          } else {
+                            pageNum = page - 2 + i;
+                          }
 
-                        return (
-                          <PaginationItem key={i}>
-                            <Button
-                              variant={pageNum === page ? "default" : "outline"}
-                              size="sm"
-                              onClick={() => setPage(pageNum)}
-                              className="w-8 h-8"
-                            >
-                              {pageNum}
-                            </Button>
-                          </PaginationItem>
-                        );
-                      })}
-                    </div>
+                          return (
+                            <PaginationItem key={i}>
+                              <Button
+                                variant={
+                                  pageNum === page ? "default" : "outline"
+                                }
+                                size="sm"
+                                onClick={() => setPage(pageNum)}
+                                className="w-8 h-8"
+                              >
+                                {pageNum}
+                              </Button>
+                            </PaginationItem>
+                          );
+                        })}
+                      </div>
 
-                    {/* Mobile Page Info */}
-                    <PaginationItem className="sm:hidden">
-                      <span className="px-3 py-1 rounded bg-muted text-foreground text-sm">
-                        {page} / {actualTotalPages}
-                      </span>
-                    </PaginationItem>
+                      {/* Mobile Page Info */}
+                      <PaginationItem className="sm:hidden">
+                        <span className="px-3 py-1 rounded bg-muted text-foreground text-sm">
+                          {page} / {maxPages}
+                        </span>
+                      </PaginationItem>
 
-                    <PaginationItem>
-                      <PaginationNext
-                        onClick={handleNextPage}
-                        disabled={isNextDisabled}
-                        className={
-                          isNextDisabled
-                            ? "cursor-not-allowed opacity-50 pointer-events-none"
-                            : "cursor-pointer hover:bg-accent"
-                        }
-                      />
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
+                      <PaginationItem>
+                        <PaginationNext
+                          onClick={handleNextPage}
+                          disabled={isNextDisabled}
+                          className={
+                            isNextDisabled
+                              ? "cursor-not-allowed opacity-50 pointer-events-none"
+                              : "cursor-pointer hover:bg-accent"
+                          }
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                )}
               </div>
             </>
           )}
