@@ -5,7 +5,11 @@ import { useAdminRegistrations } from "@/hooks/admin-use-pendaftar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import {
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
 import { getPendaftarColumns } from "./pendaftar-table-config";
 import PendaftarDetailModal from "./PendaftarDetailModal";
 import PendaftarVerifyModal from "./PendaftarVerifyModal";
@@ -39,29 +43,34 @@ export default function AdminPendaftarPage() {
     staleTime: 1000 * 60 * 10,
   });
 
-  // Ambil semua data pendaftar (tanpa filter kategori/search di API)
-  const {
-    data,
-    isLoading,
-    isError,
-    refetch,
-  } = useAdminRegistrations({ page, limit }); // hanya pagination
+  // Ambil data pendaftar dengan server-side pagination
+  const { data, isLoading, isError, refetch } = useAdminRegistrations({
+    page,
+    limit,
+    category: category || undefined,
+    search: searchTerm || undefined,
+  });
 
   // Registrations dari API
-  const registrations = Array.isArray(data?.registrations) ? data.registrations : [];
-  const meta = data?.meta || { page: 1, limit, totalPages: 1 };
+  const registrations = Array.isArray(data?.registrations)
+    ? data.registrations
+    : [];
+  const meta = data?.meta || { page: 1, limit, totalPages: 1, total: 0 };
 
-  // Filter client-side
+  // Untuk client-side filtering (jika API tidak mendukung filter)
   const filteredRegistrations = useMemo(() => {
     let result = registrations;
-    if (category) {
+
+    // Jika API belum mendukung filter kategori, lakukan client-side filtering
+    if (category && !data?.isServerFiltered) {
       result = result.filter(
         (r) =>
-          r.category_id === category ||
-          r.category?.category_id === category
+          r.category_id === category || r.category?.category_id === category
       );
     }
-    if (searchTerm) {
+
+    // Jika API belum mendukung search, lakukan client-side searching
+    if (searchTerm && !data?.isServerFiltered) {
       const search = searchTerm.toLowerCase();
       result = result.filter(
         (r) =>
@@ -70,16 +79,27 @@ export default function AdminPendaftarPage() {
           r.category?.category_name?.toLowerCase().includes(search)
       );
     }
+
     return result;
-  }, [registrations, category, searchTerm]);
+  }, [registrations, category, searchTerm, data?.isServerFiltered]);
 
-  // Pagination client-side
-  const pagedRegistrations = useMemo(() => {
-    const start = (page - 1) * limit;
-    return filteredRegistrations.slice(start, start + limit);
-  }, [filteredRegistrations, page, limit]);
+  // Gunakan server-side pagination jika tersedia, otherwise client-side
+  const pagedRegistrations = data?.isServerFiltered
+    ? registrations
+    : filteredRegistrations;
 
-  const totalPages = Math.max(1, Math.ceil(filteredRegistrations.length / limit));
+  let actualTotalPages;
+  if (data?.isServerFiltered && meta.totalPages) {
+    // Gunakan server-side pagination
+    actualTotalPages = meta.totalPages;
+  } else {
+    // Gunakan client-side pagination
+    const totalItems =
+      searchTerm || category
+        ? filteredRegistrations.length
+        : meta.total || registrations.length;
+    actualTotalPages = Math.max(1, Math.ceil(totalItems / limit));
+  }
 
   // Modal state
   const [detailData, setDetailData] = useState(null);
@@ -97,16 +117,33 @@ export default function AdminPendaftarPage() {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  // Handler
+  // Handler dengan debouncing
   const handleCategoryChange = (e) => {
     setCategory(e.target.value);
-    setPage(1);
+    setPage(1); // Reset ke halaman pertama saat filter berubah
   };
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
-    setPage(1);
+    setPage(1); // Reset ke halaman pertama saat search berubah
   };
+
+  // Handler pagination
+  const handlePreviousPage = () => {
+    if (page > 1) {
+      setPage((prev) => prev - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (page < actualTotalPages) {
+      setPage((prev) => prev + 1);
+    }
+  };
+
+  // Tambahkan variabel untuk kondisi disabled
+  const isPreviousDisabled = page <= 1;
+  const isNextDisabled = page >= actualTotalPages;
 
   // UI Loading
   if (isLoading || loadingCategories) {
@@ -139,7 +176,11 @@ export default function AdminPendaftarPage() {
       <div className="container mx-auto py-10 px-4">
         <div className="text-center text-red-600 dark:text-red-400">
           <p>Gagal memuat data kategori.</p>
-          <Button variant="outline" onClick={() => refetchCategories()} className="mt-4">
+          <Button
+            variant="outline"
+            onClick={() => refetchCategories()}
+            className="mt-4"
+          >
             Coba Lagi
           </Button>
         </div>
@@ -194,7 +235,7 @@ export default function AdminPendaftarPage() {
         </CardHeader>
 
         <CardContent>
-          {filteredRegistrations.length === 0 ? (
+          {pagedRegistrations.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground">
                 {searchTerm || category
@@ -214,7 +255,10 @@ export default function AdminPendaftarPage() {
                             key={header.id}
                             className="px-4 py-3 text-left font-semibold text-foreground dark:text-white bg-gray-50 dark:bg-gray-800"
                           >
-                            {flexRender(header.column.columnDef.header, header.getContext())}
+                            {flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                           </th>
                         ))}
                       </tr>
@@ -227,8 +271,14 @@ export default function AdminPendaftarPage() {
                         className="border-b dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50"
                       >
                         {row.getVisibleCells().map((cell) => (
-                          <td key={cell.id} className="px-4 py-3 text-foreground dark:text-white">
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          <td
+                            key={cell.id}
+                            className="px-4 py-3 text-foreground dark:text-white"
+                          >
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )}
                           </td>
                         ))}
                       </tr>
@@ -236,25 +286,42 @@ export default function AdminPendaftarPage() {
                   </tbody>
                 </table>
               </div>
-              {/* Pagination */}
+
+              {/* Enhanced Pagination */}
               <div className="mt-6">
                 <Pagination>
                   <PaginationContent>
                     <PaginationItem>
                       <PaginationPrevious
-                        onClick={() => setPage((p) => Math.max(1, p - 1))}
-                        disabled={page <= 1}
+                        onClick={handlePreviousPage}
+                        disabled={isPreviousDisabled}
+                        className={
+                          isPreviousDisabled
+                            ? "cursor-not-allowed opacity-50 pointer-events-none"
+                            : "cursor-pointer hover:bg-accent"
+                        }
                       />
                     </PaginationItem>
                     <PaginationItem>
-                      <span className="px-3 py-1 rounded bg-muted text-foreground">
-                        Halaman {page} dari {totalPages}
+                      <span className="px-3 py-1 rounded bg-muted text-foreground text-sm">
+                        Halaman {page} dari {actualTotalPages}
+                      </span>
+                    </PaginationItem>
+                    <PaginationItem>
+                      <span className="px-3 py-1 text-muted-foreground text-sm">
+                        ({meta.total || filteredRegistrations.length} total
+                        pendaftar)
                       </span>
                     </PaginationItem>
                     <PaginationItem>
                       <PaginationNext
-                        onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                        disabled={page >= totalPages}
+                        onClick={handleNextPage}
+                        disabled={isNextDisabled}
+                        className={
+                          isNextDisabled
+                            ? "cursor-not-allowed opacity-50 pointer-events-none"
+                            : "cursor-pointer hover:bg-accent"
+                        }
                       />
                     </PaginationItem>
                   </PaginationContent>
