@@ -88,17 +88,23 @@ export default function AdminPendaftarPage() {
     ? registrations
     : filteredRegistrations;
 
+  // Logika actualTotalPages yang lebih robust
   let actualTotalPages;
-  if (data?.isServerFiltered && meta.totalPages) {
-    // Gunakan server-side pagination
-    actualTotalPages = meta.totalPages;
-  } else {
-    // Gunakan client-side pagination
-    const totalItems =
-      searchTerm || category
-        ? filteredRegistrations.length
-        : meta.total || registrations.length;
-    actualTotalPages = Math.max(1, Math.ceil(totalItems / limit));
+
+  // Jika ada filter aktif (category atau search) dan API tidak mendukung server filtering
+  if ((category || searchTerm) && !data?.isServerFiltered) {
+    // Untuk client-side filtering, hitung berdasarkan filtered data tapi tetap gunakan pagination
+    actualTotalPages = Math.max(
+      1,
+      Math.ceil(filteredRegistrations.length / limit)
+    );
+  }
+  // Jika API mendukung server-side filtering atau tidak ada filter
+  else {
+    // Gunakan meta dari server
+    actualTotalPages =
+      meta.totalPages ||
+      Math.max(1, Math.ceil((meta.total || registrations.length) / limit));
   }
 
   // Modal state
@@ -110,9 +116,27 @@ export default function AdminPendaftarPage() {
     [setDetailData, setVerifyData]
   );
 
-  // Table instance
+  // Table instance - untuk client-side filtering, kita perlu pagination manual
+  const tableData = useMemo(() => {
+    if ((category || searchTerm) && !data?.isServerFiltered) {
+      // Client-side pagination untuk filtered data
+      const startIndex = (page - 1) * limit;
+      const endIndex = startIndex + limit;
+      return filteredRegistrations.slice(startIndex, endIndex);
+    }
+    return pagedRegistrations;
+  }, [
+    pagedRegistrations,
+    filteredRegistrations,
+    page,
+    limit,
+    category,
+    searchTerm,
+    data?.isServerFiltered,
+  ]);
+
   const table = useReactTable({
-    data: pagedRegistrations,
+    data: tableData,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
@@ -235,7 +259,7 @@ export default function AdminPendaftarPage() {
         </CardHeader>
 
         <CardContent>
-          {pagedRegistrations.length === 0 ? (
+          {tableData.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground">
                 {searchTerm || category
@@ -309,8 +333,11 @@ export default function AdminPendaftarPage() {
                     </PaginationItem>
                     <PaginationItem>
                       <span className="px-3 py-1 text-muted-foreground text-sm">
-                        ({meta.total || filteredRegistrations.length} total
-                        pendaftar)
+                        (
+                        {(category || searchTerm) && !data?.isServerFiltered
+                          ? filteredRegistrations.length
+                          : meta.total || registrations.length}{" "}
+                        total pendaftar)
                       </span>
                     </PaginationItem>
                     <PaginationItem>
