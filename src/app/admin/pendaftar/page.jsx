@@ -68,9 +68,50 @@ export default function AdminPendaftarPage() {
     : [];
   const meta = data?.meta || { page: 1, limit, totalPages: 1, total: 0 };
 
-  // Karena sekarang filtering dilakukan di server, kita langsung gunakan data dari API
-  const tableData = registrations;
-  const actualTotalPages = meta.totalPages || 1;
+  // Client-side filtering jika backend belum mendukung
+  const filteredRegistrations = useMemo(() => {
+    let result = registrations;
+    
+    // Jika backend belum memfilter berdasarkan kategori
+    if (category && !data?.isServerFiltered) {
+      result = result.filter(reg => {
+        const regCategoryId = reg.category_id || reg.category?.category_id;
+        return String(regCategoryId) === String(category);
+      });
+    }
+    
+    // Jika backend belum memfilter berdasarkan search
+    if (searchTerm && !data?.isServerFiltered) {
+      const search = searchTerm.toLowerCase();
+      result = result.filter(reg =>
+        reg.user?.name?.toLowerCase().includes(search) ||
+        reg.user?.email?.toLowerCase().includes(search) ||
+        reg.category?.category_name?.toLowerCase().includes(search) ||
+        reg.team_name?.toLowerCase().includes(search)
+      );
+    }
+    
+    return result;
+  }, [registrations, category, searchTerm, data?.isServerFiltered]);
+
+  // Pagination untuk filtered data
+  const totalFilteredItems = filteredRegistrations.length;
+  const actualTotalPages = Math.max(1, Math.ceil(totalFilteredItems / limit));
+  
+  // Client-side pagination untuk filtered data
+  const paginatedData = useMemo(() => {
+    if (data?.isServerFiltered) {
+      // Jika server sudah handle pagination, gunakan data langsung
+      return registrations;
+    } else {
+      // Client-side pagination
+      const startIndex = (page - 1) * limit;
+      const endIndex = startIndex + limit;
+      return filteredRegistrations.slice(startIndex, endIndex);
+    }
+  }, [filteredRegistrations, page, limit, registrations, data?.isServerFiltered]);
+
+  const tableData = paginatedData;
 
   // Modal state
   const [detailData, setDetailData] = useState(null);
@@ -237,7 +278,10 @@ export default function AdminPendaftarPage() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setCategory("")}
+                    onClick={() => {
+                      setCategory("");
+                      setPage(1);
+                    }}
                     className="ml-1 h-4 w-4 p-0 hover:bg-blue-200"
                   >
                     ×
@@ -340,9 +384,7 @@ export default function AdminPendaftarPage() {
                 {/* Pagination Info */}
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-2 text-sm text-muted-foreground">
                   <div>
-                    Menampilkan {(page - 1) * limit + 1} -{" "}
-                    {Math.min(page * limit, meta.total)} dari {meta.total} total
-                    pendaftar
+                    Menampilkan {((page - 1) * limit) + 1} - {Math.min(page * limit, data?.isServerFiltered ? meta.total : totalFilteredItems)} dari {data?.isServerFiltered ? meta.total : totalFilteredItems} total pendaftar
                     {(category || searchTerm) && " (hasil filter)"}
                   </div>
                   <div>
