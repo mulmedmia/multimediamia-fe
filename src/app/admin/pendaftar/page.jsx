@@ -30,22 +30,20 @@ export default function AdminPendaftarPage() {
   const [searchInput, setSearchInput] = useState(""); // Untuk input search
   const [category, setCategory] = useState("");
   const [page, setPage] = useState(1);
-  const [previousPage, setPreviousPage] = useState(1);
-  const [hasActiveFilter, setHasActiveFilter] = useState(false);
   const limit = 10;
 
   // Debounce search term untuk mengurangi API calls
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (searchInput && !hasActiveFilter) {
-        setPreviousPage(page); // Simpan halaman saat ini
-        setHasActiveFilter(true);
-      }
       setSearchTerm(searchInput);
+      // Reset ke halaman 1 saat search berubah
+      if (searchInput !== searchTerm) {
+        setPage(1);
+      }
     }, 500); // Delay 500ms
 
     return () => clearTimeout(timer);
-  }, [searchInput, page, hasActiveFilter]);
+  }, [searchInput]);
 
   // Ambil data kategori untuk filter dropdown
   const {
@@ -67,69 +65,68 @@ export default function AdminPendaftarPage() {
     search: searchTerm || undefined,
   });
 
+  // Debug: Log API parameters
+  useEffect(() => {
+    console.log("=== DEBUG API PARAMS ===");
+    console.log("Page:", page);
+    console.log("Category ID:", category);
+    console.log("Category Name:", categories.find(c => c.category_id === category)?.category_name);
+    console.log("Search Term:", searchTerm);
+    console.log("========================");
+  }, [page, category, searchTerm, categories]);
+
   // Registrations dari API
   const registrations = Array.isArray(data?.registrations)
     ? data.registrations
     : [];
   const meta = data?.meta || { page: 1, limit, totalPages: 1, total: 0 };
 
-  // Client-side filtering jika backend belum mendukung
-  const filteredRegistrations = useMemo(() => {
-    let result = registrations;
-
-    // Jika backend belum memfilter berdasarkan kategori
-    if (category && !data?.isServerFiltered) {
-      result = result.filter((reg) => {
-        const regCategoryId = reg.category_id || reg.category?.category_id;
-        return String(regCategoryId) === String(category);
-      });
+  // Debug: Log API response
+  useEffect(() => {
+    if (data) {
+      console.log("=== DEBUG API RESPONSE ===");
+      console.log("Total registrations:", registrations.length);
+      console.log("Registrations data:", registrations.map(r => ({
+        name: r.user?.name,
+        category_id: r.category_id || r.category?.category_id,
+        category_name: r.category?.category_name,
+      })));
+      console.log("Meta:", meta);
+      console.log("==========================");
     }
+  }, [data]);
 
-    // Jika backend belum memfilter berdasarkan search
-    if (searchTerm && !data?.isServerFiltered) {
-      const search = searchTerm.toLowerCase();
-      result = result.filter(
-        (reg) =>
-          reg.user?.name?.toLowerCase().includes(search) ||
-          reg.user?.email?.toLowerCase().includes(search) ||
-          reg.category?.category_name?.toLowerCase().includes(search) ||
-          reg.team_name?.toLowerCase().includes(search)
-      );
-    }
-
-    return result;
-  }, [registrations, category, searchTerm, data?.isServerFiltered]);
-
-  // Menentukan apakah menggunakan server-side atau client-side pagination
-  const isUsingClientSidePagination =
-    (category || searchTerm) && !data?.isServerFiltered;
-
-  // Pagination calculations - FIXED
-  const totalItems = isUsingClientSidePagination
-    ? filteredRegistrations.length
-    : meta.total;
-  const actualTotalPages = Math.max(1, Math.ceil(totalItems / limit));
-
-  // Client-side pagination untuk filtered data
-  const paginatedData = useMemo(() => {
-    if (isUsingClientSidePagination) {
-      // Client-side pagination
-      const startIndex = (page - 1) * limit;
-      const endIndex = startIndex + limit;
-      return filteredRegistrations.slice(startIndex, endIndex);
-    } else {
-      // Server-side pagination - gunakan data langsung dari API
-      return registrations;
-    }
-  }, [
-    filteredRegistrations,
-    page,
-    limit,
-    registrations,
-    isUsingClientSidePagination,
-  ]);
-
-  const tableData = paginatedData;
+  // Gunakan data langsung dari server (server-side filtering & pagination)
+  // TEMPORARY FIX: Client-side filtering sebagai backup jika backend belum fix
+  const tableData = useMemo(() => {
+    if (!category) return registrations;
+    
+    // Filter by category di client-side sebagai backup
+    const filtered = registrations.filter(reg => {
+      const regCategoryId = String(reg.category_id || reg.category?.category_id);
+      return regCategoryId === String(category);
+    });
+    
+    // Log untuk debugging
+    console.log("=== CLIENT-SIDE FILTER ===");
+    console.log("Filter category:", category);
+    console.log("Before filter:", registrations.length);
+    console.log("After filter:", filtered.length);
+    console.log("Filtered out:", registrations.filter(reg => {
+      const regCategoryId = String(reg.category_id || reg.category?.category_id);
+      return regCategoryId !== String(category);
+    }).map(r => ({
+      name: r.user?.name,
+      category: r.category?.category_name,
+      category_id: r.category_id || r.category?.category_id
+    })));
+    console.log("==========================");
+    
+    return filtered;
+  }, [registrations, category]);
+  
+  const totalItems = meta.total;
+  const maxPages = meta.totalPages || 1;
 
   // Modal state
   const [detailData, setDetailData] = useState(null);
@@ -149,13 +146,8 @@ export default function AdminPendaftarPage() {
   // Handler untuk kategori
   const handleCategoryChange = (e) => {
     const newCategory = e.target.value;
-
-    // Jika ada kategori baru dan sebelumnya tidak ada filter
-    if (newCategory && !hasActiveFilter) {
-      setPreviousPage(page); // Simpan halaman saat ini
-      setHasActiveFilter(true);
-    }
     setCategory(newCategory);
+    setPage(1); // Reset ke halaman 1 saat kategori berubah
   };
 
   // Handler untuk search input (tanpa langsung trigger API)
@@ -167,13 +159,10 @@ export default function AdminPendaftarPage() {
   const handleClearSearch = () => {
     setSearchInput("");
     setSearchTerm("");
-    if (!category) {
-      setPage(previousPage);
-      setHasActiveFilter(false);
-    }
+    setPage(1);
   };
 
-  // Handler pagination - FIXED
+  // Handler pagination
   const handlePreviousPage = () => {
     if (page > 1) {
       setPage((prev) => prev - 1);
@@ -181,18 +170,12 @@ export default function AdminPendaftarPage() {
   };
 
   const handleNextPage = () => {
-    const maxPages = isUsingClientSidePagination
-      ? actualTotalPages
-      : meta.totalPages;
     if (page < maxPages) {
       setPage((prev) => prev + 1);
     }
   };
 
-  // Kondisi disabled untuk pagination - FIXED
-  const maxPages = isUsingClientSidePagination
-    ? actualTotalPages
-    : meta.totalPages;
+  // Kondisi disabled untuk pagination
   const isPreviousDisabled = page <= 1;
   const isNextDisabled = page >= maxPages;
 
@@ -313,11 +296,7 @@ export default function AdminPendaftarPage() {
                     size="sm"
                     onClick={() => {
                       setCategory("");
-                      // Jika tidak ada search term, kembali ke halaman sebelumnya
-                      if (!searchTerm) {
-                        setPage(previousPage);
-                        setHasActiveFilter(false);
-                      }
+                      setPage(1);
                     }}
                     className="ml-1 h-4 w-4 p-0 hover:bg-blue-200"
                   >
@@ -334,12 +313,7 @@ export default function AdminPendaftarPage() {
                     onClick={() => {
                       setSearchInput("");
                       setSearchTerm("");
-
-                      // Jika tidak ada kategori, kembali ke halaman sebelumnya
-                      if (!category) {
-                        setPage(previousPage);
-                        setHasActiveFilter(false);
-                      }
+                      setPage(1);
                     }}
                     className="ml-1 h-4 w-4 p-0 hover:bg-green-200"
                   >
@@ -355,8 +329,7 @@ export default function AdminPendaftarPage() {
                     setCategory("");
                     setSearchInput("");
                     setSearchTerm("");
-                    setPage(previousPage);
-                    setHasActiveFilter(false);
+                    setPage(1);
                   }}
                   className="text-xs"
                 >
