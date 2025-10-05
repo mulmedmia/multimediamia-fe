@@ -30,17 +30,22 @@ export default function AdminPendaftarPage() {
   const [searchInput, setSearchInput] = useState(""); // Untuk input search
   const [category, setCategory] = useState("");
   const [page, setPage] = useState(1);
+  const [previousPage, setPreviousPage] = useState(1);
+  const [hasActiveFilter, setHasActiveFilter] = useState(false);
   const limit = 10;
 
   // Debounce search term untuk mengurangi API calls
   useEffect(() => {
     const timer = setTimeout(() => {
+      if (searchInput && !hasActiveFilter) {
+        setPreviousPage(page); // Simpan halaman saat ini
+        setHasActiveFilter(true);
+      }
       setSearchTerm(searchInput);
-      setPage(1); // Reset ke halaman pertama saat search berubah
     }, 500); // Delay 500ms
 
     return () => clearTimeout(timer);
-  }, [searchInput]);
+  }, [searchInput, page, hasActiveFilter]);
 
   // Ambil data kategori untuk filter dropdown
   const {
@@ -143,8 +148,14 @@ export default function AdminPendaftarPage() {
 
   // Handler untuk kategori
   const handleCategoryChange = (e) => {
-    setCategory(e.target.value);
-    setPage(1); // Reset ke halaman pertama saat filter berubah
+    const newCategory = e.target.value;
+
+    // Jika ada kategori baru dan sebelumnya tidak ada filter
+    if (newCategory && !hasActiveFilter) {
+      setPreviousPage(page); // Simpan halaman saat ini
+      setHasActiveFilter(true);
+    }
+    setCategory(newCategory);
   };
 
   // Handler untuk search input (tanpa langsung trigger API)
@@ -156,7 +167,10 @@ export default function AdminPendaftarPage() {
   const handleClearSearch = () => {
     setSearchInput("");
     setSearchTerm("");
-    setPage(1);
+    if (!category) {
+      setPage(previousPage);
+      setHasActiveFilter(false);
+    }
   };
 
   // Handler pagination - FIXED
@@ -299,7 +313,11 @@ export default function AdminPendaftarPage() {
                     size="sm"
                     onClick={() => {
                       setCategory("");
-                      setPage(1);
+                      // Jika tidak ada search term, kembali ke halaman sebelumnya
+                      if (!searchTerm) {
+                        setPage(previousPage);
+                        setHasActiveFilter(false);
+                      }
                     }}
                     className="ml-1 h-4 w-4 p-0 hover:bg-blue-200"
                   >
@@ -313,7 +331,16 @@ export default function AdminPendaftarPage() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={handleClearSearch}
+                    onClick={() => {
+                      setSearchInput("");
+                      setSearchTerm("");
+
+                      // Jika tidak ada kategori, kembali ke halaman sebelumnya
+                      if (!category) {
+                        setPage(previousPage);
+                        setHasActiveFilter(false);
+                      }
+                    }}
                     className="ml-1 h-4 w-4 p-0 hover:bg-green-200"
                   >
                     ×
@@ -328,7 +355,8 @@ export default function AdminPendaftarPage() {
                     setCategory("");
                     setSearchInput("");
                     setSearchTerm("");
-                    setPage(1);
+                    setPage(previousPage);
+                    setHasActiveFilter(false);
                   }}
                   className="text-xs"
                 >
