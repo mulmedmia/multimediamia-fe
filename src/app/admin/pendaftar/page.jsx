@@ -65,36 +65,11 @@ export default function AdminPendaftarPage() {
     search: searchTerm || undefined,
   });
 
-  // Debug: Log API parameters
-  useEffect(() => {
-    console.log("=== DEBUG API PARAMS ===");
-    console.log("Page:", page);
-    console.log("Category ID:", category);
-    console.log("Category Name:", categories.find(c => c.category_id === category)?.category_name);
-    console.log("Search Term:", searchTerm);
-    console.log("========================");
-  }, [page, category, searchTerm, categories]);
-
   // Registrations dari API
   const registrations = Array.isArray(data?.registrations)
     ? data.registrations
     : [];
   const meta = data?.meta || { page: 1, limit, totalPages: 1, total: 0 };
-
-  // Debug: Log API response
-  useEffect(() => {
-    if (data) {
-      console.log("=== DEBUG API RESPONSE ===");
-      console.log("Total registrations:", registrations.length);
-      console.log("Registrations data:", registrations.map(r => ({
-        name: r.user?.name,
-        category_id: r.category_id || r.category?.category_id,
-        category_name: r.category?.category_name,
-      })));
-      console.log("Meta:", meta);
-      console.log("==========================");
-    }
-  }, [data]);
 
   // Gunakan data langsung dari server (server-side filtering & pagination)
   // TEMPORARY FIX: Client-side filtering sebagai backup jika backend belum fix
@@ -106,21 +81,6 @@ export default function AdminPendaftarPage() {
       const regCategoryId = String(reg.category_id || reg.category?.category_id);
       return regCategoryId === String(category);
     });
-    
-    // Log untuk debugging
-    console.log("=== CLIENT-SIDE FILTER ===");
-    console.log("Filter category:", category);
-    console.log("Before filter:", registrations.length);
-    console.log("After filter:", filtered.length);
-    console.log("Filtered out:", registrations.filter(reg => {
-      const regCategoryId = String(reg.category_id || reg.category?.category_id);
-      return regCategoryId !== String(category);
-    }).map(r => ({
-      name: r.user?.name,
-      category: r.category?.category_name,
-      category_id: r.category_id || r.category?.category_id
-    })));
-    console.log("==========================");
     
     return filtered;
   }, [registrations, category]);
@@ -401,7 +361,7 @@ export default function AdminPendaftarPage() {
 
               {/* Enhanced Pagination dengan Info */}
               <div className="mt-6 space-y-4">
-                {/* Pagination Info - FIXED */}
+                {/* Pagination Info */}
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-2 text-sm text-muted-foreground">
                   <div>
                     Menampilkan {(page - 1) * limit + 1} -{" "}
@@ -412,7 +372,7 @@ export default function AdminPendaftarPage() {
                   <div>{maxPages > 1 && `${maxPages} halaman`}</div>
                 </div>
 
-                {/* Pagination Controls - FIXED: Always show pagination if maxPages > 1 */}
+                {/* Pagination Controls */}
                 {maxPages > 1 && (
                   <Pagination>
                     <PaginationContent>
