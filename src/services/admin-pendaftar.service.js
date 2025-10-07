@@ -13,7 +13,18 @@ export const getAllRegistrations = async ({
   if (category) params.append("category", category);
   if (search) params.append("search", search);
 
-  const res = await api.get(`/registrations?${params.toString()}`);
+  const url = `/registrations?${params.toString()}`;
+  console.log("=== API CALL ===");
+  console.log("URL:", url);
+  console.log("Params:", { page, limit, category, search });
+  console.log("================");
+
+  const res = await api.get(url);
+  console.log("=== API RESPONSE ===");
+  console.log("Status:", res.status);
+  console.log("Data count:", res.data.data?.registrations?.length);
+  console.log("====================");
+  
   return res.data.data; // { registrations: [], meta: { page, limit, totalPages, ... } }
 };
 
