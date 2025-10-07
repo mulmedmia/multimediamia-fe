@@ -44,6 +44,12 @@ export const submitCompetitionRegistration = async (registrationData) => {
   }
 };
 
+// Update registration (team name & members)
+export const updateRegistration = async (registrationId, data) => {
+  const res = await api.patch(`/registrations/${registrationId}`, data);
+  return res.data;
+};
+
 export const deleteRegistration = async (registrationId) => {
   try {
     const response = await api.delete(`/registrations/${registrationId}`);

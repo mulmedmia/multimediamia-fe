@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
@@ -27,6 +28,7 @@ import {
   Award,
   Star,
   BookOpen,
+  Edit,
   Users,
   Gift,
   CheckCircle,
@@ -40,15 +42,18 @@ import { getMySubmissions } from "@/services/submission.service";
 import {
   getCompetitionSchedule,
   getLeaderboard,
+  getRegistrationById,
 } from "@/services/competition.service";
 import {
   getGamificationData,
   redeemPoints,
 } from "@/services/gamification.service";
+import { EditTeamModal } from "./EditTeamModal";
 
 export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
   const [activeTab, setActiveTab] = useState(initialTab);
   const [editingSubmission, setEditingSubmission] = useState(null);
+  const [editTeamModalOpen, setEditTeamModalOpen] = useState(false);
   const queryClient = useQueryClient();
 
   // Ubah query untuk menggunakan getMySubmissions
@@ -57,10 +62,20 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
     queryFn: () => getMySubmissions(1, 10),
   });
 
+  // Tambahkan query untuk memantau perubahan registration data
+  const { data: currentRegistration } = useQuery({
+    queryKey: ["registration", registration.registration_id],
+    queryFn: () => getRegistrationById(registration.registration_id),
+    initialData: registration,
+    staleTime: 0, // Selalu fetch data terbaru
+  });
+
+  const activeRegistration = currentRegistration || registration;
+
   // Filter submissions berdasarkan kategori registration
   const submissions =
     submissionsData?.submissions?.filter(
-      (sub) => sub.category_id === registration.category_id
+      (sub) => sub.category_id === activeRegistration.category_id
     ) || [];
 
   // Check apakah user sudah punya submission
@@ -69,7 +84,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
   useEffect(() => {
     // Logic untuk initial tab berdasarkan kondisi user
     if (
-      !registration.is_verified &&
+      !activeRegistration.is_verified &&
       (initialTab === "upload" || initialTab === "status")
     ) {
       // User belum terverifikasi, arahkan ke status
@@ -80,12 +95,12 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
     } else {
       setActiveTab(initialTab);
     }
-  }, [initialTab, hasSubmissions, registration.is_verified]);
+  }, [initialTab, hasSubmissions, activeRegistration.is_verified]);
 
   // Handle tab change dengan validasi dan toast
   const handleTabChange = (value) => {
     // Jika user mencoba akses upload tapi belum terverifikasi
-    if (value === "upload" && !registration.is_verified) {
+    if (value === "upload" && !activeRegistration.is_verified) {
       toast.warning("Akun Anda belum diverifikasi!", {
         description:
           "Silakan tunggu verifikasi admin sebelum dapat mengupload karya.",
@@ -108,25 +123,42 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
     setActiveTab(value);
   };
 
+  const parseTeamMembers = (teamMembersString) => {
+    if (!teamMembersString) return [];
+
+    try {
+      const parsed = JSON.parse(teamMembersString);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      return teamMembersString
+        .split(",")
+        .map((member) => member.trim().replace(/['"\[\]]/g, ""))
+        .filter((member) => member.length > 0);
+    }
+  };
+
+  const teamMembers = parseTeamMembers(activeRegistration.team_members);
+
   const { data: gamificationData, isLoading: isLoadingGamification } = useQuery(
     {
-      queryKey: ["gamification", registration.registration_id],
-      queryFn: () => getGamificationData(registration.registration_id),
-      enabled: !!registration.registration_id,
+      queryKey: ["gamification", activeRegistration.registration_id],
+      queryFn: () => getGamificationData(activeRegistration.registration_id),
+      enabled: !!activeRegistration.registration_id,
     }
   );
 
   const { data: schedule, isLoading: isLoadingSchedule } = useQuery({
-    queryKey: ["schedule", registration.category.category_id],
-    queryFn: () => getCompetitionSchedule(registration.category.category_id),
-    enabled: !!registration.category.category_id,
+    queryKey: ["schedule", activeRegistration.category.category_id],
+    queryFn: () =>
+      getCompetitionSchedule(activeRegistration.category.category_id),
+    enabled: !!activeRegistration.category.category_id,
     placeholderData: [],
   });
 
   const { data: leaderboard, isLoading: isLoadingLeaderboard } = useQuery({
-    queryKey: ["leaderboard", registration.category.category_id],
-    queryFn: () => getLeaderboard(registration.category.category_id),
-    enabled: !!registration.category.category_id,
+    queryKey: ["leaderboard", activeRegistration.category.category_id],
+    queryFn: () => getLeaderboard(activeRegistration.category.category_id),
+    enabled: !!activeRegistration.category.category_id,
     placeholderData: [],
   });
 
@@ -143,7 +175,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
     onSuccess: () => {
       toast.success("Hadiah berhasil ditukar!");
       queryClient.invalidateQueries({
-        queryKey: ["gamification", registration.registration_id],
+        queryKey: ["gamification", activeRegistration.registration_id],
       });
     },
     onError: (error) => {
@@ -167,10 +199,10 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
       <div className="flex items-center justify-between space-y-2">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">
-            {registration.category.name}
+            {activeRegistration.category.name}
           </h2>
           <p className="text-muted-foreground">
-            Selamat berkompetisi, Tim {registration.team_name}!
+            Selamat berkompetisi, {activeRegistration.team_name}!
           </p>
         </div>
       </div>
@@ -181,7 +213,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
       >
         {/* Tab List - Selalu tampilkan 3 tab */}
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="beranda">
+          <TabsTrigger value="beranda" className="cursor-pointer">
             <Star className="mr-1 h-4 w-4" />
             Beranda
           </TabsTrigger>
@@ -189,12 +221,12 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
           {/* Tab Upload - Selalu tampil, tapi conditional disabled */}
           <TabsTrigger
             value="upload"
-            disabled={!registration.is_verified || hasSubmissions}
-            data-disabled={!registration.is_verified || hasSubmissions}
+            disabled={!activeRegistration.is_verified || hasSubmissions}
+            data-disabled={!activeRegistration.is_verified || hasSubmissions}
             className={
-              !registration.is_verified || hasSubmissions
+              !activeRegistration.is_verified || hasSubmissions
                 ? "opacity-50 data-[disabled=true]:cursor-not-allowed data-[disabled=true]:pointer-events-auto"
-                : ""
+                : "cursor-pointer"
             }
           >
             <Upload className="mr-1 h-4 w-4" />
@@ -202,32 +234,141 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
           </TabsTrigger>
 
           {/* Tab Status - Selalu tampil */}
-          <TabsTrigger value="status">
+          <TabsTrigger value="status" className="cursor-pointer">
             <Award className="mr-1 h-4 w-4" />
             Status
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="beranda">
-          <Card>
-            <CardHeader>
-              <CardTitle>Ringkasan</CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-4 md:grid-cols-2">
-              <div>
-                <p className="font-medium">Progress Kompetisi</p>
-                <Progress value={progressValue} className="w-full mt-2" />
-              </div>
-              <div>
-                <p className="font-medium">Total Poin Anda</p>
-                <p className="text-2xl font-bold">
-                  {isLoadingGamification
-                    ? "Memuat..."
-                    : `${gamificationData?.points || 0} Poin`}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="space-y-4">
+            {/* Team Information Card - BARU */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="h-5 w-5" />
+                    Informasi Tim
+                  </CardTitle>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      if (hasSubmissions) {
+                        toast.warning("Tidak dapat mengedit tim!", {
+                          description:
+                            "Informasi tim tidak dapat diubah setelah mengupload karya.",
+                          duration: 3000,
+                        });
+                        return;
+                      }
+                      setEditTeamModalOpen(true);
+                    }}
+                    disabled={hasSubmissions}
+                    className={`flex items-center gap-2 ${
+                      hasSubmissions
+                        ? "opacity-50 cursor-not-allowed"
+                        : "cursor-pointer"
+                    }`}
+                    title={
+                      hasSubmissions
+                        ? "Tidak dapat mengedit tim setelah mengupload karya"
+                        : "Edit informasi tim"
+                    }
+                  >
+                    <Edit className="h-4 w-4" />
+                    Edit Tim
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Nama Tim */}
+                <div>
+                  <Label className="text-sm font-medium text-muted-foreground">
+                    Nama Tim
+                  </Label>
+                  <p className="text-lg font-semibold mt-1">
+                    {activeRegistration.team_name || "Tidak ada nama tim"}
+                  </p>
+                </div>
+
+                {/* Anggota Tim */}
+                <div>
+                  <Label className="text-sm font-medium text-muted-foreground">
+                    Anggota Tim ({teamMembers.length} orang)
+                  </Label>
+                  <div className="mt-2 space-y-2">
+                    {teamMembers.length > 0 ? (
+                      teamMembers.map((member, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center gap-2 p-2 bg-muted rounded-lg"
+                        >
+                          <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground text-sm font-medium">
+                            {member.charAt(0).toUpperCase()}
+                          </div>
+                          <span className="font-medium">{member}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-muted-foreground text-sm">
+                        Belum ada anggota tim yang terdaftar
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Status Verifikasi */}
+                <div>
+                  <Label className="text-sm font-medium text-muted-foreground">
+                    Status Verifikasi
+                  </Label>
+                  <div className="mt-1">
+                    <Badge
+                      variant={
+                        activeRegistration.is_verified ? "default" : "secondary"
+                      }
+                      className={
+                        activeRegistration.is_verified
+                          ? "bg-green-600 text-white"
+                          : "bg-orange-600 text-white"
+                      }
+                    >
+                      {activeRegistration.is_verified
+                        ? "Terverifikasi"
+                        : "Menunggu Verifikasi"}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {activeRegistration.is_verified
+                      ? "Tim Anda sudah diverifikasi dan dapat mengupload karya"
+                      : "Tim Anda sedang dalam proses verifikasi admin"}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Existing Progress & Points Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Ringkasan Kompetisi</CardTitle>
+              </CardHeader>
+              <CardContent className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <p className="font-medium">Progress Kompetisi</p>
+                  <Progress value={progressValue} className="w-full mt-2" />
+                </div>
+                <div>
+                  <p className="font-medium">Total Poin Anda</p>
+                  <p className="text-2xl font-bold">
+                    {isLoadingGamification
+                      ? "Memuat..."
+                      : `${gamificationData?.points || 0} Poin`}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
         {/* Tab Upload - Conditional content */}
@@ -236,7 +377,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
             <CardHeader>
               <CardTitle>Upload Karya</CardTitle>
               <CardDescription>
-                {!registration.is_verified
+                {!activeRegistration.is_verified
                   ? "Verifikasi akun diperlukan sebelum dapat mengunggah karya."
                   : hasSubmissions
                   ? "Anda sudah mengupload karya. Gunakan fitur edit untuk mengubah submission."
@@ -244,7 +385,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {!registration.is_verified ? (
+              {!activeRegistration.is_verified ? (
                 // Jika belum diverifikasi, tampilkan pesan verifikasi
                 <div className="text-center py-12">
                   <div className="mx-auto w-24 h-24 bg-orange-100 dark:bg-orange-900/20 rounded-full flex items-center justify-center mb-6">
@@ -273,7 +414,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                         <p className="text-sm text-blue-700 dark:text-blue-200">
                           Tim{" "}
                           <span className="font-semibold">
-                            {registration.team_name}
+                            {activeRegistration.team_name}
                           </span>{" "}
                           sedang dalam proses verifikasi.
                         </p>
@@ -351,7 +492,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
               ) : (
                 // Jika sudah diverifikasi dan belum ada submission, tampilkan form upload
                 <SubmissionForm
-                  registrationId={registration.registration_id}
+                  registrationId={activeRegistration.registration_id}
                   onSuccess={() => {
                     setActiveTab("status");
                     queryClient.invalidateQueries(["mySubmissions"]);
@@ -514,7 +655,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                         <Award className="h-12 w-12 mx-auto mb-4 opacity-50" />
                         <p>Belum ada karya yang diunggah.</p>
                         <p className="text-sm">
-                          {registration.is_verified
+                          {activeRegistration.is_verified
                             ? "Upload karya pertama Anda di tab Upload!"
                             : "Tunggu verifikasi akun untuk dapat mengupload karya."}
                         </p>
@@ -546,7 +687,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
               </div>
 
               <SubmissionForm
-                registrationId={registration.registration_id}
+                registrationId={activeRegistration.registration_id}
                 editingSubmission={editingSubmission}
                 onSuccess={() => {
                   handleCloseEditModal();
@@ -559,6 +700,12 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
           </div>
         </div>
       )}
+      {/* Modal Edit Team */}
+      <EditTeamModal
+        open={editTeamModalOpen}
+        onClose={() => setEditTeamModalOpen(false)}
+        registration={activeRegistration}
+      />
     </div>
   );
 }
