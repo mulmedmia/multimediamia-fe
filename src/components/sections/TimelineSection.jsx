@@ -23,7 +23,7 @@ const TimelineSection = () => {
       title: "Registrasi Batch 1",
       description:
         "Pendaftaran dibuka untuk semua kategori lomba dengan biaya paling murah (Rp45.000 per tim).",
-      status: "active",
+      status: "completed",
       icon: RocketIcon,
     },
     {
@@ -31,7 +31,7 @@ const TimelineSection = () => {
       title: "Registrasi Batch 2",
       description:
         "Pendaftaran dibuka untuk semua kategori lomba dengan biaya lebih tinggi dari batch 1 (Rp75.000 per tim).",
-      status: "upcoming",
+      status: "active",
       icon: ClockIcon,
     },
     {
