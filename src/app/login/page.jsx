@@ -133,7 +133,7 @@ export default function LoginPage() {
               {loading ? "Loading..." : "Masuk"}
             </Button>
           </CardContent>
-          <CardFooter className="flex justify-center text-sm mt-5">
+          <CardFooter className="flex justify-center text-sm mt-6 mb-2">
             <p>
               Belum punya akun?{" "}
               <Link
@@ -141,6 +141,17 @@ export default function LoginPage() {
                 className="font-semibold text-red-600 dark:text-red-400 hover:underline"
               >
                 Daftar di sini
+              </Link>
+            </p>
+          </CardFooter>
+          <CardFooter className="flex justify-center text-sm mb-4 mt-4">
+            <p>
+              Lupa Password?{" "}
+              <Link
+                href="/forgot-password"
+                className="font-semibold text-red-600 dark:text-red-400 hover:underline"
+              >
+                Reset di sini
               </Link>
             </p>
           </CardFooter>
