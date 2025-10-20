@@ -19,35 +19,11 @@ import {
 const TimelineSection = () => {
   const timelineEvents = [
     {
-      date: "26 Sep - 07 Okt 2025",
-      title: "Registrasi Batch 1",
-      description:
-        "Pendaftaran dibuka untuk semua kategori lomba dengan biaya paling murah (Rp45.000 per tim).",
-      status: "completed",
-      icon: RocketIcon,
-    },
-    {
-      date: "08 Okt - 17 Okt 2025",
-      title: "Registrasi Batch 2",
-      description:
-        "Pendaftaran dibuka untuk semua kategori lomba dengan biaya lebih tinggi dari batch 1 (Rp75.000 per tim).",
-      status: "active",
-      icon: ClockIcon,
-    },
-    {
-      date: "18 Oktober 2025",
-      title: "Grand Opening & Technical Meeting",
-      description:
-        "Pembukaan acara resmi dan sosialisasi permasalahan lomba kepada semua peserta.",
-      status: "upcoming",
-      icon: StarIcon,
-    },
-    {
       date: "19 Oktober 2025",
       title: "Learn It (Best Practice UI/UX & Web Dev)",
       description:
         "Sesi bimbingan mentoring kedua yang dibimbing oleh para ahli di bidang UI/UX dan Web Development.",
-      status: "upcoming",
+      status: "completed",
       icon: LightningBoltIcon,
     },
     {
@@ -55,7 +31,7 @@ const TimelineSection = () => {
       title: "Build It",
       description:
         "Peserta mengerjakan dan melampirkan hasil karya sesuai tema dari sesi mentoring.",
-      status: "upcoming",
+      status: "active",
       icon: GearIcon,
     },
     {
