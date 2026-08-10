@@ -163,8 +163,11 @@ export default function CategoryListPage() {
   };
 
   const filteredCategories = useMemo(() => {
-    return categories.filter((category) => category.status === "VERIFIED");
-  }, [categories]);
+    if (status) {
+      return categories.filter((category) => category.status === status);
+    }
+    return categories;
+  }, [categories, status]);
 
   if (isLoading) {
     return (
