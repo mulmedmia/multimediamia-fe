@@ -13,9 +13,7 @@ export const createAdminProduct = async (data) => {
   Object.entries(data).forEach(([key, value]) => {
     if (value !== undefined && value !== null) formData.append(key, value);
   });
-  const res = await api.post("/products", formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
+  const res = await api.post("/products", formData);
   return res.data.data;
 };
 
@@ -25,9 +23,7 @@ export const updateAdminProduct = async ({ id, ...data }) => {
   Object.entries(data).forEach(([key, value]) => {
     if (value !== undefined && value !== null) formData.append(key, value);
   });
-  const res = await api.patch(`/products/${id}`, formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
+  const res = await api.patch(`/products/${id}`, formData);
   return res.data.data;
 };
 
