@@ -136,7 +136,7 @@ export default function HomeCategoryPreview() {
   const { data, isLoading } = useUserCategories({
     limit: 3,
     page: 1,
-    status: "VERIFIED",
+    status: "",
   });
   const categories = data?.categories || [];
 

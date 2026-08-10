@@ -1,98 +1,44 @@
-import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import React from "react";
 import { Input } from "@/components/ui/input";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "@/components/ui/popover";
-import { format } from "date-fns";
-import { Calendar as CalendarIcon, Clock } from "lucide-react";
 
-export default function DateTimePickerField({ value, onChange, placeholder }) {
-  const [open, setOpen] = useState(false);
-  const [timeInput, setTimeInput] = useState("");
+function toLocalDatetimeString(dateValue) {
+  if (!dateValue) return "";
+  const d = new Date(dateValue);
+  if (isNaN(d.getTime())) return "";
+  const pad = (n) => String(n).padStart(2, "0");
+  const year = d.getFullYear();
+  const month = pad(d.getMonth() + 1);
+  const day = pad(d.getDate());
+  const hours = pad(d.getHours());
+  const minutes = pad(d.getMinutes());
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
 
-  // Initialize time input when value changes
-  useEffect(() => {
-    if (value) {
-      setTimeInput(format(value, "HH:mm"));
-    } else {
-      setTimeInput("");
+export default function DateTimePickerField({ value, onChange, placeholder, required = false }) {
+  const inputValue = toLocalDatetimeString(value);
+
+  const handleChange = (e) => {
+    const val = e.target.value;
+    if (!val) {
+      onChange(null);
+      return;
     }
-  }, [value]);
-
-  const handleDateSelect = (date) => {
-    if (!date) return;
-
-    // If we have existing time, combine with new date
-    if (timeInput && timeInput.includes(":")) {
-      const [hours, minutes] = timeInput.split(":");
-      const newDate = new Date(date);
-      newDate.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
-      onChange(newDate);
-    } else {
-      // Default to current time if no time set
-      const now = new Date();
-      const newDate = new Date(date);
-      newDate.setHours(now.getHours(), now.getMinutes(), 0, 0);
-      onChange(newDate);
-      setTimeInput(format(newDate, "HH:mm"));
-    }
-    setOpen(false);
-  };
-
-  const handleTimeChange = (time) => {
-    setTimeInput(time);
-    if (value && time && time.includes(":")) {
-      const [hours, minutes] = time.split(":");
-      const newDate = new Date(value);
-      newDate.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
+    const newDate = new Date(val);
+    if (!isNaN(newDate.getTime())) {
       onChange(newDate);
     }
   };
-
-  const displayValue = value
-    ? `${format(value, "dd MMM yyyy")} ${format(value, "HH:mm")}`
-    : placeholder;
 
   return (
-    <div className="space-y-2">
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className={`w-full justify-start text-left font-normal ${
-              !value ? "text-muted-foreground" : ""
-            }`}
-          >
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            {displayValue}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent align="start" className="w-auto p-0">
-          <Calendar
-            mode="single"
-            selected={value}
-            onSelect={handleDateSelect}
-            initialFocus
-            fromYear={2020}
-            toYear={2030}
-            captionLayout="dropdown"
-          />
-        </PopoverContent>
-      </Popover>
-      <div className="flex items-center space-x-2">
-        <Clock className="h-4 w-4 text-muted-foreground" />
-        <Input
-          type="time"
-          value={timeInput}
-          onChange={(e) => handleTimeChange(e.target.value)}
-          className="flex-1"
-          placeholder="HH:MM"
-        />
-      </div>
-    </div>
+    <Input
+      type="datetime-local"
+      value={inputValue}
+      onChange={handleChange}
+      required={required}
+      placeholder={placeholder}
+      className="w-full cursor-pointer bg-background"
+    />
   );
 }
+
+

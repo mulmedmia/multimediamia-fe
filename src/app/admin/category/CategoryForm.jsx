@@ -21,16 +21,30 @@ export default function CategoryForm({ initial, onSubmit, isLoading }) {
       ? new Date(initial.startDate)
       : (() => {
           const now = new Date();
-          now.setHours(12, 0, 0, 0); // Default jam 12:00:00
+          now.setHours(9, 0, 0, 0);
           return now;
         })(),
-    endDate: initial?.endDate ? new Date(initial.endDate) : null,
+    endDate: initial?.endDate
+      ? new Date(initial.endDate)
+      : (() => {
+          const now = new Date();
+          now.setDate(now.getDate() + 30);
+          now.setHours(23, 59, 0, 0);
+          return now;
+        })(),
     title: initial?.title || "",
     description: initial?.description || "",
-    deadline: initial?.deadline ? new Date(initial.deadline) : null,
-    status: initial?.status || "NOT_VERIFIED",
+    deadline: initial?.deadline
+      ? new Date(initial.deadline)
+      : (() => {
+          const now = new Date();
+          now.setDate(now.getDate() + 30);
+          now.setHours(23, 59, 0, 0);
+          return now;
+        })(),
+    status: initial?.status || "VERIFIED",
     image: null,
-    file_url: null,
+    file_url: initial?.file_url || null,
     organizer: initial?.organizer || "",
     team_type: initial?.team_type || "GROUP",
   });
@@ -39,9 +53,9 @@ export default function CategoryForm({ initial, onSubmit, isLoading }) {
     e.preventDefault();
     const payload = {
       ...form,
-      startDate: form.startDate ? form.startDate.toISOString() : "",
-      endDate: form.endDate ? form.endDate.toISOString() : "",
-      deadline: form.deadline ? form.deadline.toISOString() : "",
+      startDate: form.startDate ? new Date(form.startDate).toISOString() : "",
+      endDate: form.endDate ? new Date(form.endDate).toISOString() : "",
+      deadline: form.deadline ? new Date(form.deadline).toISOString() : "",
       image: form.image,
       team_type: form.team_type,
     };
@@ -137,14 +151,16 @@ export default function CategoryForm({ initial, onSubmit, isLoading }) {
             value={form.startDate}
             onChange={(date) => setForm((f) => ({ ...f, startDate: date }))}
             placeholder="Pilih tanggal mulai dengan waktu"
+            required
           />
         </div>
         <div className="space-y-2">
           <Label>End Date</Label>
-          <DatePickerField
+          <DateTimePickerField
             value={form.endDate}
             onChange={(date) => setForm((f) => ({ ...f, endDate: date }))}
-            placeholder="Pilih tanggal selesai"
+            placeholder="Pilih tanggal selesai dengan waktu"
+            required
           />
         </div>
         <div className="space-y-2">
@@ -153,6 +169,7 @@ export default function CategoryForm({ initial, onSubmit, isLoading }) {
             value={form.deadline}
             onChange={(date) => setForm((f) => ({ ...f, deadline: date }))}
             placeholder="Pilih deadline dengan waktu"
+            required
           />
         </div>
         <div className="space-y-2 sm:col-span-2">
