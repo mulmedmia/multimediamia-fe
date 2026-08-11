@@ -26,37 +26,32 @@ Ini adalah proyek [Next.js](https://nextjs.org) untuk aplikasi kompetisi "Multim
 
 1. **Clone repo:**
    ```bash
-   git clone https://github.com/username/MIA-FRONTEND.git
-   cd MIA-FRONTEND
+   git clone https://github.com/mulmedmia/multimediamia-fe.git
+   cd multimediamia-fe
    ```
 
 2. **Install dependencies:**
    ```bash
    npm install
-   # atau
-   yarn install
    ```
 
-3. **Jalankan server development:**
+3. **Konfigurasi Lingkungan:**
+   Salin `.env.example` ke `.env.local`:
+   ```bash
+   cp .env.example .env.local
+   ```
+   Isi `NEXT_PUBLIC_API_URL` mengarah ke URL backend Anda (default lokal: `http://localhost:5000/api/v1`):
+   ```env
+   NEXT_PUBLIC_API_URL=http://localhost:5000/api/v1
+   ```
+
+4. **Jalankan server development:**
    ```bash
    npm run dev
-   # atau
-   yarn dev
-   # atau
-   pnpm dev
-   # atau
-   bun dev
    ```
 
-4. **Buka di browser:**
+5. **Buka di browser:**
    [http://localhost:3000](http://localhost:3000)
-
-## Konfigurasi Lingkungan
-
-Buat file `.env.local` untuk konfigurasi API:
-```
-NEXT_PUBLIC_API_URL=https://api-mia.example.com
-```
 
 ## Skrip Penting
 
@@ -88,6 +83,14 @@ NEXT_PUBLIC_API_URL=https://api-mia.example.com
 Deploy mudah di [Vercel](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme).
 
 Lihat [dokumentasi Next.js deployment](https://nextjs.org/docs/app/building-your-application/deploying) untuk detail.
+
+## 🌿 Git & GitHub Workflow
+
+1. **Branch Strategy**: Gunakan branch `dev` untuk pengujian dan branch `feature/nama-fitur` untuk pengerjaan fitur baru.
+2. **Commit Standard**: Gunakan prefix `feat:`, `fix:`, `docs:`, `style:`.
+3. **Pull Request**: Buat PR dari `feature/nama-fitur` ke `dev` atau `main` dan minta code review dari anggota tim sebelum merge.
+
+---
 
 ## Kontribusi
 
