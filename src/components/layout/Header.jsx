@@ -95,78 +95,70 @@ export default function Header() {
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300 w-full",
         scrolled
-          ? "bg-background/95 backdrop-blur-sm border-b"
-          : "bg-transparent"
+          ? "bg-[#0A0D14]/90 backdrop-blur-md border-b border-white/10 shadow-lg"
+          : "bg-transparent py-2"
       )}
     >
-      <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
-        <div className="flex h-14 sm:h-16 md:h-20 lg:h-20 items-center justify-between w-full min-w-0">
-          {/* Logo Section - Improved mobile responsiveness */}
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 sm:h-20 items-center justify-between w-full min-w-0">
+          {/* Logo Section */}
           <Link
             href="/"
-            className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0 min-w-0 max-w-[60%] sm:max-w-none"
+            className="flex items-center space-x-2.5 flex-shrink-0 min-w-0"
           >
-            <div className="flex-shrink-0">
-              <img
-                src="/MIALOGO.png"
-                alt="Logo"
-                className="h-7 w-7 sm:h-7 sm:w-7 md:h-7 md:w-7 lg:h-8 lg:w-8 object-contain"
-              />
-            </div>
+            <img
+              src="/mia2026_logo.png"
+              alt="Multimedia in Action Logo"
+              className="h-8 w-8 object-contain"
+            />
             {shouldShowFullText && (
-              <span className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-bold bg-gradient-to-r from-red-600 to-red-700 dark:from-red-500 dark:to-red-700 bg-clip-text text-transparent truncate">
-                Multimedia in Action
+              <span className="text-lg sm:text-xl font-bold text-[#FFF9F5] tracking-tight">
+                Multimedia <span className="text-[#E01C20]">in Action</span>
               </span>
             )}
             {shouldShowMIA && (
-              <span className="text-xl sm:text-lg md:text-xl font-bold bg-gradient-to-r from-red-600 to-red-700 dark:from-red-500 dark:to-red-700 bg-clip-text text-transparent">
+              <span className="text-xl font-bold text-[#E01C20]">
                 MIA
               </span>
             )}
           </Link>
 
-          {/* Desktop Navigation - Hidden on mobile and tablet */}
-          <nav className="hidden xl:flex items-center space-x-2 2xl:space-x-4 flex-1 justify-center max-w-2xl">
-            {navItems.map((item) =>
-              item.href.startsWith("/#") ? (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  className="text-sm md:text-base lg:text-lg font-medium text-muted-foreground hover:text-primary transition-colors relative group whitespace-nowrap px-1"
-                >
+          {/* Desktop Navigation */}
+          <nav className="hidden xl:flex items-center space-x-1.5 flex-1 justify-center max-w-2xl">
+            {navItems.map((item, index) => {
+              const isActive = (pathname === "/" && index === 0);
+              const linkClass = isActive
+                ? "px-4 py-1.5 rounded-full bg-[#1E2939] text-[#FFF9F5] text-sm font-medium border border-white/10 shadow-sm"
+                : "px-3 py-1.5 text-sm font-medium text-[#AAB1BD] hover:text-[#FFF9F5] hover:bg-[#1E2939]/50 rounded-full transition-all";
+              
+              return item.href.startsWith("/#") ? (
+                <a key={item.href} href={item.href} className={linkClass}>
                   {item.label}
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-red-600 transition-all duration-300 group-hover:w-full"></span>
                 </a>
               ) : (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="text-sm md:text-base lg:text-lg font-medium text-muted-foreground hover:text-primary transition-colors relative group whitespace-nowrap px-1"
-                >
+                <Link key={item.href} href={item.href} className={linkClass}>
                   {item.label}
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-red-600 transition-all duration-300 group-hover:w-full"></span>
                 </Link>
-              )
-            )}
+              );
+            })}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="flex items-center gap-1 2xl:gap-2 px-1 2xl:px-2 py-1 text-sm md:text-base lg:text-lg font-medium text-muted-foreground hover:text-primary transition-colors h-8 md:h-9 lg:h-10 cursor-pointer"
+                <button
+                  className="px-3 py-1.5 text-sm font-medium text-[#AAB1BD] hover:text-[#FFF9F5] hover:bg-[#1E2939]/50 rounded-full transition-all flex items-center gap-1 cursor-pointer"
                 >
                   Hadiah
-                </Button>
+                </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
-                className="min-w-[120px] sm:min-w-[140px]"
+                className="bg-[#1E2939] border border-white/10 text-[#FFF9F5]"
               >
                 <DropdownMenuItem asChild>
                   <Link
                     href="/product"
-                    className="flex items-center gap-2 px-2 py-2 w-full text-sm md:text-base font-medium text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+                    className="flex items-center gap-2 px-3 py-2 text-sm text-[#FFF9F5] hover:bg-[#0A0D14] cursor-pointer"
                   >
-                    <GiftIcon className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                    <GiftIcon className="h-4 w-4 text-[#E01C20]" />
                     <span>Tukar Product</span>
                   </Link>
                 </DropdownMenuItem>
@@ -174,94 +166,81 @@ export default function Header() {
             </DropdownMenu>
           </nav>
 
-          {/* Right Section - Improved mobile layout */}
-          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 min-w-0">
-            {/* Desktop Auth Section - Only show on larger screens */}
-            <div className="hidden lg:flex items-center gap-1 min-w-0">
+          {/* Right Section */}
+          <div className="flex items-center gap-3 flex-shrink-0">
+            {/* Desktop Auth Section */}
+            <div className="hidden lg:flex items-center gap-2">
               {loading ? (
-                <div className="h-8 w-16 lg:h-9 lg:w-18 md:h-10 md:w-20 animate-pulse rounded-md bg-muted/50"></div>
+                <div className="h-9 w-20 animate-pulse rounded-full bg-[#1E2939]"></div>
               ) : user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="h-8 lg:h-9 md:h-10 w-auto px-1 lg:px-2 gap-1 text-sm lg:text-base min-w-0 cursor-pointer"
-                    >
-                      <div className="w-5 h-5 lg:w-6 lg:h-6 md:w-7 md:h-7 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-                        <PersonIcon className="h-3 w-3 lg:h-3.5 lg:w-3.5 md:h-4 md:w-4" />
+                    <button className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#1E2939] border border-white/10 text-[#FFF9F5] text-sm font-medium hover:border-white/20 transition-all cursor-pointer">
+                      <div className="w-6 h-6 rounded-full bg-[#E01C20] text-white flex items-center justify-center text-xs font-bold">
+                        {user.name ? user.name[0].toUpperCase() : "U"}
                       </div>
-                      <span className="hidden xl:inline font-medium truncate max-w-[60px] 2xl:max-w-[100px]">
-                        {user.name || "User"}
-                      </span>
-                    </Button>
+                      <span className="truncate max-w-[100px]">{user.name || "User"}</span>
+                    </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
-                    className="w-44 lg:w-48 xl:w-52"
+                    className="w-52 bg-[#1E2939] border border-white/10 text-[#FFF9F5]"
                     align="end"
                     forceMount
                   >
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
-                        <p className="text-sm md:text-base font-medium leading-none truncate">
+                        <p className="text-sm font-semibold text-[#FFF9F5] truncate">
                           {user.name}
                         </p>
-                        <p className="text-xs md:text-sm leading-none text-muted-foreground truncate">
+                        <p className="text-xs text-[#AAB1BD] truncate">
                           {user.email}
                         </p>
                       </div>
                     </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
+                    <DropdownMenuSeparator className="bg-white/10" />
                     <DropdownMenuItem asChild>
                       <Link
                         href={dashboardLink}
-                        className="flex items-center cursor-pointer"
+                        className="flex items-center text-sm text-[#FFF9F5] hover:bg-[#0A0D14] cursor-pointer"
                       >
-                        <DashboardIcon className="mr-2 h-3 w-3 lg:h-4 lg:w-4 md:h-4.5 md:w-4.5 flex-shrink-0" />
+                        <DashboardIcon className="mr-2 h-4 w-4 text-[#E01C20]" />
                         <span>Dashboard</span>
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
+                    <DropdownMenuSeparator className="bg-white/10" />
                     <DropdownMenuItem asChild>
                       <Link
                         href={profileLink}
-                        className="flex items-center cursor-pointer"
+                        className="flex items-center text-sm text-[#FFF9F5] hover:bg-[#0A0D14] cursor-pointer"
                       >
-                        <PersonIcon className="mr-2 h-3 w-3 lg:h-4 lg:w-4 md:h-4.5 md:w-4.5 flex-shrink-0" />
+                        <PersonIcon className="mr-2 h-4 w-4 text-[#E01C20]" />
                         <span>Profile</span>
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
+                    <DropdownMenuSeparator className="bg-white/10" />
                     <DropdownMenuItem
                       onClick={logout}
-                      className="flex items-center cursor-pointer"
+                      className="flex items-center text-sm text-[#E01C20] hover:bg-[#0A0D14] cursor-pointer"
                     >
-                      <ExitIcon className="mr-2 h-3 w-3 lg:h-4 lg:w-4 md:h-4.5 md:w-4.5 flex-shrink-0" />
+                      <ExitIcon className="mr-2 h-4 w-4" />
                       <span>Logout</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                <div className="flex items-center space-x-1 min-w-0">
+                <div className="flex items-center space-x-2">
                   <Link href="/login" passHref>
-                    <Button
-                      variant="ghost"
-                      className="h-8 lg:h-9 md:h-10 px-2 lg:px-3 text-sm lg:text-base cursor-pointer"
-                    >
+                    <span className="px-4 py-2 text-sm font-medium text-[#FFF9F5] hover:text-[#E01C20] transition-colors cursor-pointer">
                       Login
-                    </Button>
+                    </span>
                   </Link>
                   <Link href="/register" passHref>
-                    <Button className="h-8 lg:h-9 md:h-10 px-2 lg:px-3 text-sm lg:text-base whitespace-nowrap cursor-pointer">
+                    <span className="px-5 py-2 text-sm font-semibold rounded-full bg-[#E01C20] text-[#FFF9F5] hover:bg-[#c4181c] shadow-lg shadow-red-900/30 transition-all cursor-pointer inline-block">
                       Daftar
-                    </Button>
+                    </span>
                   </Link>
                 </div>
               )}
-            </div>
-
-            {/* Theme Toggle - Only show on desktop */}
-            <div className="hidden lg:block cursor-pointer">
-              <ThemeToggle />
             </div>
 
             {/* Mobile/Tablet Menu Button */}

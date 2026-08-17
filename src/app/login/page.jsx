@@ -3,29 +3,16 @@
 import { useState } from "react";
 import React from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-
-import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  GitHubLogoIcon,
   EyeOpenIcon,
   EyeClosedIcon,
+  EnvelopeClosedIcon,
+  LockClosedIcon,
 } from "@radix-ui/react-icons";
 import { AuthHeader } from "@/components/auth-header";
-
 import { useAuth } from "@/hooks/use-auth";
 import { useAuthContext } from "@/providers/AuthProvider";
 
@@ -35,7 +22,6 @@ const loginSchema = z.object({
 });
 
 export default function LoginPage() {
-  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const { loading, message, messageType, handleLogin } = useAuth();
   const { login } = useAuthContext();
@@ -50,113 +36,134 @@ export default function LoginPage() {
 
   const onSubmit = async (data) => {
     const loginData = await handleLogin(data.email, data.password);
-
     if (loginData) {
       login(loginData.data.user);
     }
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-red-50 via-white to-indigo-50 dark:from-red-900/20 dark:via-black dark:to-black p-4">
+    <div className="min-h-screen w-full flex items-center justify-center bg-[#151C28] mia-glow-hero p-4 relative overflow-hidden">
       <AuthHeader />
-      <Card className="w-full max-w-md shadow-2xl bg-card/80 dark:bg-black/50 backdrop-blur-lg border-2 dark:border-gray-800 mt-16 sm:mt-0">
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold">
+
+      <div className="w-full max-w-md mia-card p-8 shadow-2xl relative z-10 my-16 sm:my-0">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <div className="text-center space-y-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-[#FFF9F5]">
               Selamat Datang Kembali
-            </CardTitle>
-            <CardDescription className="text-muted-foreground">
+            </h1>
+            <p className="text-sm text-[#AAB1BD]">
               Masukkan email dan password Anda untuk masuk.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4 mt-5">
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {/* Email Field */}
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="account@gmail.com"
-                {...register("email")}
-              />
+              <label htmlFor="email" className="block text-sm font-semibold text-[#FFF9F5]">
+                Email
+              </label>
+              <div className="relative">
+                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#AAB1BD]">
+                  <EnvelopeClosedIcon className="w-4 h-4" />
+                </div>
+                <input
+                  id="email"
+                  type="email"
+                  placeholder="account@gmail.com"
+                  {...register("email")}
+                  className="w-full bg-[#1E2939] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-[#FFF9F5] placeholder-[#99A1AF] focus:border-[#E01C20] focus:ring-1 focus:ring-[#E01C20] transition-all outline-none"
+                />
+              </div>
               {errors.email && (
-                <p className="text-xs text-red-500 mt-1">
+                <p className="text-xs text-[#E01C20] mt-1 font-medium">
                   {errors.email.message}
                 </p>
               )}
             </div>
+
+            {/* Password Field */}
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <label htmlFor="password" className="block text-sm font-semibold text-[#FFF9F5]">
+                Password
+              </label>
               <div className="relative">
-                <Input
+                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#AAB1BD]">
+                  <LockClosedIcon className="w-4 h-4" />
+                </div>
+                <input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="******"
+                  placeholder="••••••••"
                   {...register("password")}
-                  className="pr-10"
+                  className="w-full bg-[#1E2939] border border-white/10 rounded-xl py-3 pl-10 pr-10 text-sm text-[#FFF9F5] placeholder-[#99A1AF] focus:border-[#E01C20] focus:ring-1 focus:ring-[#E01C20] transition-all outline-none"
                 />
                 <button
                   type="button"
                   tabIndex={-1}
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 dark:hover:text-white cursor-pointer"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#AAB1BD] hover:text-[#FFF9F5] cursor-pointer"
                   aria-label={
                     showPassword ? "Sembunyikan password" : "Lihat password"
                   }
                 >
                   {showPassword ? (
-                    <EyeOpenIcon className="w-5 h-5" />
+                    <EyeOpenIcon className="w-4 h-4" />
                   ) : (
-                    <EyeClosedIcon className="w-5 h-5" />
+                    <EyeClosedIcon className="w-4 h-4" />
                   )}
                 </button>
               </div>
               {errors.password && (
-                <p className="text-xs text-red-500 mt-1">
+                <p className="text-xs text-[#E01C20] mt-1 font-medium">
                   {errors.password.message}
                 </p>
               )}
             </div>
-            {message && (
-              <p
-                className={`text-sm text-center ${
-                  messageType === "success" ? "text-green-600" : "text-red-500"
-                }`}
-              >
-                {message}
-              </p>
-            )}
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full mt-4 cursor-pointer"
+          </div>
+
+          {message && (
+            <p
+              className={`text-sm text-center font-medium ${
+                messageType === "success" ? "text-[#00B445]" : "text-[#E01C20]"
+              }`}
             >
-              {loading ? "Loading..." : "Masuk"}
-            </Button>
-          </CardContent>
-          <CardFooter className="flex justify-center text-sm mt-6 mb-2">
+              {message}
+            </p>
+          )}
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="mia-btn-primary w-full py-3.5 text-base shadow-lg shadow-red-900/30 cursor-pointer disabled:opacity-50"
+          >
+            {loading ? "Memproses..." : "Masuk"}
+          </button>
+
+          {/* Helper Links */}
+          <div className="space-y-2 pt-2 text-center text-sm text-[#AAB1BD]">
             <p>
               Belum punya akun?{" "}
               <Link
                 href="/register"
-                className="font-semibold text-red-600 dark:text-red-400 hover:underline"
+                className="font-semibold text-[#E01C20] hover:underline"
               >
                 Daftar di sini
               </Link>
             </p>
-          </CardFooter>
-          <CardFooter className="flex justify-center text-sm mb-4 mt-4">
             <p>
               Lupa Password?{" "}
               <Link
                 href="/forgot-password"
-                className="font-semibold text-red-600 dark:text-red-400 hover:underline"
+                className="font-semibold text-[#E01C20] hover:underline"
               >
                 Reset di sini
               </Link>
             </p>
-          </CardFooter>
+          </div>
         </form>
-      </Card>
+      </div>
     </div>
   );
 }
+
