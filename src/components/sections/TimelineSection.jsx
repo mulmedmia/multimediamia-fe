@@ -1,19 +1,16 @@
+"use client";
+
 import React from "react";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   CalendarIcon,
-  RocketIcon,
-  ClockIcon,
-  FileTextIcon,
-  PersonIcon,
-  StarIcon,
   CheckIcon,
-  LightningBoltIcon,
   GearIcon,
+  LightningBoltIcon,
+  FileTextIcon,
   EyeOpenIcon,
   ChatBubbleIcon,
+  StarIcon,
 } from "@radix-ui/react-icons";
 
 const TimelineSection = () => {
@@ -123,161 +120,164 @@ const TimelineSection = () => {
   ];
 
   return (
-    <section id="timeline" className="py-16 bg-gray-50 dark:bg-black">
-      <div className="container mx-auto px-4 lg:px-8">
-        <div className="text-center mb-12">
-          <Badge
-            variant="outline"
-            className="mb-4 border-red-200 text-red-600 dark:border-red-800 dark:text-red-400"
-          >
-            <CalendarIcon className="h-4 w-4 text-red-600 dark:text-red-400 mr-2" />
-            Timeline
-          </Badge>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground dark:text-white mb-3">
-            Timeline Proyek MIA 2025
+    <section id="timeline" className="py-20 bg-transparent relative">
+      <div className="container mx-auto px-4 max-w-7xl">
+        {/* Section Header */}
+        <div className="text-center mb-14 space-y-4">
+          <div className="inline-block">
+            <span className="mia-pill-badge">
+              <CalendarIcon className="h-3.5 w-3.5 text-[#E01C20]" />
+              <span>Timeline Kegiatan</span>
+            </span>
+          </div>
+
+          <h2 className="text-3xl sm:text-4xl md:text-[30.56px] font-bold text-[#FFF9F5] tracking-tight">
+            Timeline Proyek <span className="text-[#E01C20]">MIA 2025</span>
           </h2>
-          <p className="text-muted-foreground dark:text-gray-400 max-w-2xl mx-auto">
+
+          <p className="text-base md:text-[18.89px] text-[#AAB1BD] max-w-2xl mx-auto leading-relaxed">
             Catat tanggal-tanggal penting ini agar kamu tidak ketinggalan!
           </p>
         </div>
 
-        {/* Horizontal Scrollable Timeline */}
+        {/* Horizontal Scrollable Timeline for Desktop */}
         <div className="relative hidden md:block">
-          {/* Scroll Container */}
-          <div className="overflow-x-auto pb-4">
-            <div className="relative min-w-max">
-              {/* Timeline Line */}
-              <div className="absolute top-6 left-6 right-6 h-0.5 bg-gradient-to-r from-red-200 via-red-300 to-red-200 dark:from-red-700 dark:via-red-900 dark:to-red-700"></div>
+          <div className="overflow-x-auto pb-6 scrollbar-thin">
+            <div className="relative min-w-max px-4">
+              {/* Connecting Horizontal Line */}
+              <div className="absolute top-6 left-12 right-12 h-0.5 bg-gradient-to-r from-[#00B445]/50 via-[#E01C20]/50 to-white/10" />
 
-              {/* Timeline Items */}
-              <div className="flex gap-6 px-6">
-                {timelineEvents.map((event, i) => (
-                  <div
-                    key={i}
-                    className="flex flex-col items-center min-w-[280px] max-w-[320px]"
-                  >
-                    {/* Icon */}
+              {/* Items row */}
+              <div className="flex gap-6">
+                {timelineEvents.map((event, i) => {
+                  const isCompleted = event.status === "completed";
+                  const isActive = event.status === "active";
+
+                  return (
                     <div
-                      className={cn(
-                        "flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center z-10 shadow-md mb-4",
-                        event.status === "completed"
-                          ? "bg-gradient-to-br from-green-500 to-green-600"
-                          : event.status === "active"
-                          ? "bg-gradient-to-br from-red-500 to-red-700 animate-pulse"
-                          : "bg-gradient-to-br from-gray-400 to-gray-500 dark:from-gray-600 dark:to-gray-800"
-                      )}
+                      key={i}
+                      className="flex flex-col items-center w-[280px] flex-shrink-0"
                     >
-                      <event.icon className="h-5 w-5 text-white" />
-                    </div>
+                      {/* Node Icon */}
+                      <div
+                        className={cn(
+                          "w-12 h-12 rounded-full flex items-center justify-center z-10 shadow-lg mb-6 border transition-transform hover:scale-110",
+                          isCompleted
+                            ? "bg-[#00B445] border-[#00B445] text-white shadow-green-900/40"
+                            : isActive
+                            ? "bg-[#E01C20] border-[#FF4500] text-white animate-pulse ring-4 ring-[#E01C20]/30 shadow-red-900/50"
+                            : "bg-[#1E2939] border-white/10 text-[#AAB1BD]"
+                        )}
+                      >
+                        <event.icon className="h-5 w-5" />
+                      </div>
 
-                    {/* Card */}
-                    <Card className="shadow-md hover:shadow-lg transition-all duration-300 bg-card dark:bg-gray-900/50 border dark:border-gray-800 h-full flex flex-col w-full">
-                      <CardContent className="p-4 flex flex-col h-full">
-                        <div className="text-xs text-red-600 dark:text-red-400 font-semibold mb-2">
-                          {event.date}
+                      {/* Event Detail Card */}
+                      <div className="mia-card p-5 w-full flex flex-col justify-between h-[210px] hover:border-white/20 transition-all">
+                        <div className="space-y-2">
+                          <span className="text-xs font-semibold text-[#E01C20] block">
+                            {event.date}
+                          </span>
+                          <h3 className="text-sm font-bold text-[#FFF9F5] line-clamp-2 leading-snug">
+                            {event.title}
+                          </h3>
+                          <p className="text-xs text-[#AAB1BD] line-clamp-3 leading-relaxed">
+                            {event.description}
+                          </p>
                         </div>
-                        <h3 className="text-sm font-bold text-foreground dark:text-white mb-2 min-h-[2.5rem] leading-tight">
-                          {event.title}
-                        </h3>
-                        <p className="text-xs text-muted-foreground dark:text-gray-400 mb-3 flex-grow leading-relaxed">
-                          {event.description}
-                        </p>
-                        <Badge
-                          variant={
-                            event.status === "completed"
-                              ? "default"
-                              : event.status === "active"
-                              ? "destructive"
-                              : "secondary"
-                          }
-                          className="text-xs self-center"
-                        >
-                          {event.status === "completed"
-                            ? "Selesai"
-                            : event.status === "active"
-                            ? "Berlangsung"
-                            : "Akan Datang"}
-                        </Badge>
-                      </CardContent>
-                    </Card>
-                  </div>
-                ))}
+
+                        {/* Status Badge */}
+                        <div className="pt-2">
+                          <span
+                            className={cn(
+                              "text-[11px] font-semibold px-2.5 py-1 rounded-full inline-block",
+                              isCompleted
+                                ? "bg-[#00B445]/20 text-[#00B445] border border-[#00B445]/30"
+                                : isActive
+                                ? "bg-[#E01C20]/20 text-[#E01C20] border border-[#E01C20]/30"
+                                : "bg-[#1E2939] text-[#99A1AF] border border-white/10"
+                            )}
+                          >
+                            {isCompleted
+                              ? "Selesai"
+                              : isActive
+                              ? "Berlangsung"
+                              : "Akan Datang"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
 
           {/* Scroll Indicator */}
-          <div className="flex justify-center mt-4">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <div className="flex gap-1">
-                <div className="w-2 h-2 rounded-full bg-red-300"></div>
-                <div className="w-2 h-2 rounded-full bg-red-200"></div>
-                <div className="w-2 h-2 rounded-full bg-red-100"></div>
-              </div>
-              <span>Scroll untuk melihat timeline lengkap</span>
+          <div className="flex justify-center items-center gap-2 mt-6 text-xs text-[#AAB1BD]">
+            <div className="flex gap-1">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#E01C20]" />
+              <div className="w-1.5 h-1.5 rounded-full bg-[#FF4500]" />
+              <div className="w-1.5 h-1.5 rounded-full bg-[#FED700]" />
             </div>
+            <span>Scroll horizontal untuk melihat timeline lengkap</span>
           </div>
         </div>
 
-        {/* Mobile Timeline - Vertical (for better mobile experience) */}
-        <div className="block md:hidden mt-8">
-          <div className="relative">
-            {/* Vertical Timeline Line */}
-            <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-red-200 via-red-300 to-red-200 dark:from-red-700 dark:via-red-900 dark:to-red-700"></div>
+        {/* Vertical Timeline for Mobile */}
+        <div className="block md:hidden mt-8 relative">
+          <div className="absolute left-5 top-0 bottom-0 w-0.5 bg-gradient-to-b from-[#00B445]/50 via-[#E01C20]/50 to-white/10" />
 
-            {/* Timeline Items */}
-            <div className="space-y-6">
-              {timelineEvents.map((event, i) => (
-                <div key={i} className="flex items-start">
-                  {/* Icon */}
+          <div className="space-y-6">
+            {timelineEvents.map((event, i) => {
+              const isCompleted = event.status === "completed";
+              const isActive = event.status === "active";
+
+              return (
+                <div key={i} className="flex items-start gap-4">
                   <div
                     className={cn(
-                      "flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center z-10 shadow-md mr-4",
-                      event.status === "completed"
-                        ? "bg-gradient-to-br from-green-500 to-green-600"
-                        : event.status === "active"
-                        ? "bg-gradient-to-br from-red-500 to-red-700 animate-pulse"
-                        : "bg-gradient-to-br from-gray-400 to-gray-500 dark:from-gray-600 dark:to-gray-800"
+                      "w-10 h-10 rounded-full flex items-center justify-center z-10 shadow-md flex-shrink-0 border",
+                      isCompleted
+                        ? "bg-[#00B445] border-[#00B445] text-white"
+                        : isActive
+                        ? "bg-[#E01C20] border-[#FF4500] text-white animate-pulse"
+                        : "bg-[#1E2939] border-white/10 text-[#AAB1BD]"
                     )}
                   >
-                    <event.icon className="h-4 w-4 text-white" />
+                    <event.icon className="h-4 w-4" />
                   </div>
 
-                  {/* Card */}
-                  <div className="flex-1">
-                    <Card className="shadow-md hover:shadow-lg transition-all duration-300 bg-card dark:bg-gray-900/50 border dark:border-gray-800">
-                      <CardContent className="p-4">
-                        <div className="text-xs text-red-600 dark:text-red-400 font-semibold mb-2">
-                          {event.date}
-                        </div>
-                        <h3 className="text-sm font-bold text-foreground dark:text-white mb-2">
-                          {event.title}
-                        </h3>
-                        <p className="text-xs text-muted-foreground dark:text-gray-400 mb-3 leading-relaxed">
-                          {event.description}
-                        </p>
-                        <Badge
-                          variant={
-                            event.status === "completed"
-                              ? "default"
-                              : event.status === "active"
-                              ? "destructive"
-                              : "secondary"
-                          }
-                          className="text-xs"
-                        >
-                          {event.status === "completed"
-                            ? "Selesai"
-                            : event.status === "active"
-                            ? "Berlangsung"
-                            : "Akan Datang"}
-                        </Badge>
-                      </CardContent>
-                    </Card>
+                  <div className="mia-card p-4 flex-1 space-y-2">
+                    <span className="text-xs font-semibold text-[#E01C20]">
+                      {event.date}
+                    </span>
+                    <h3 className="text-sm font-bold text-[#FFF9F5]">
+                      {event.title}
+                    </h3>
+                    <p className="text-xs text-[#AAB1BD] leading-relaxed">
+                      {event.description}
+                    </p>
+                    <span
+                      className={cn(
+                        "text-[10px] font-semibold px-2 py-0.5 rounded-full inline-block mt-2",
+                        isCompleted
+                          ? "bg-[#00B445]/20 text-[#00B445]"
+                          : isActive
+                          ? "bg-[#E01C20]/20 text-[#E01C20]"
+                          : "bg-[#1E2939] text-[#99A1AF]"
+                      )}
+                    >
+                      {isCompleted
+                        ? "Selesai"
+                        : isActive
+                        ? "Berlangsung"
+                        : "Akan Datang"}
+                    </span>
                   </div>
                 </div>
-              ))}
-            </div>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -286,3 +286,4 @@ const TimelineSection = () => {
 };
 
 export default TimelineSection;
+

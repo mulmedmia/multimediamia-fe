@@ -34,7 +34,7 @@ export function DashboardHeader() {
           <Link href="/" className="flex items-center space-x-2">
             <div>
               <img
-                src="/MIALOGO.png"
+                src="/mia2026_logo.png"
                 alt="Logo"
                 className="h-6 w-6 object-contain"
               />

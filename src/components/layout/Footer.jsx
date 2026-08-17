@@ -2,86 +2,88 @@
 
 import React from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { useUserCategories } from "@/hooks/user-use-category";
-import { InstagramLogoIcon, VideoIcon } from "@radix-ui/react-icons";
 import { FaInstagram, FaTiktok } from "react-icons/fa";
+import { EnvelopeClosedIcon, MobileIcon } from "@radix-ui/react-icons";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
-  // Fetch categories untuk menampilkan kompetisi yang tersedia
   const { data } = useUserCategories({
-    limit: 10, // Ambil semua kategori
+    limit: 10,
     page: 1,
     status: "VERIFIED",
   });
   const categories = data?.categories || [];
 
   return (
-    <footer className="bg-background border-t border-border">
-      <div className="container mx-auto px-4 py-12">
-        {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+    <footer className="bg-[#07090E] border-t border-white/10 text-[#FFF9F5] pt-16 pb-8 relative z-10">
+      <div className="container mx-auto px-4 max-w-7xl">
+        {/* Main Footer Content - 4 Columns */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
           {/* Brand Section */}
           <div className="space-y-4">
-            <h3 className="text-xl font-bold text-primary">MIA KSM</h3>
-            <p className="text-muted-foreground text-sm leading-relaxed">
+            <Link href="/" className="flex items-center gap-2">
+              <img
+                src="/mia2026_logo.png"
+                alt="Logo"
+                className="h-8 w-8 object-contain"
+              />
+              <span className="text-xl font-bold text-[#FFF9F5]">
+                Multimedia <span className="text-[#E01C20]">in Action</span>
+              </span>
+            </Link>
+
+            <p className="text-sm text-[#AAB1BD] leading-relaxed">
               Kompetisi multimedia terbesar untuk mahasiswa Indonesia. Wujudkan
               kreativitas dan inovasi digital Anda bersama kami.
             </p>
-            <div className="flex space-x-3">
+
+            <div className="flex items-center gap-3 pt-2">
               <Link
                 href="https://www.instagram.com/multimedia.in.action?igsh=bGtvMWZpNDExbDVj"
                 target="_blank"
                 rel="noopener noreferrer"
+                className="w-9 h-9 rounded-full bg-[#1E2939] border border-white/10 flex items-center justify-center text-[#AAB1BD] hover:text-[#FFF9F5] hover:bg-[#E01C20] transition-all cursor-pointer"
+                aria-label="Instagram"
               >
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="hover:bg-primary/10"
-                >
-                  <FaInstagram className="h-4 w-4" />
-                </Button>
+                <FaInstagram className="h-4 w-4" />
               </Link>
               <Link
                 href="https://www.tiktok.com/@multimediainaction?_t=ZS-8zwQ9E8K2i1&_r=1"
                 target="_blank"
                 rel="noopener noreferrer"
+                className="w-9 h-9 rounded-full bg-[#1E2939] border border-white/10 flex items-center justify-center text-[#AAB1BD] hover:text-[#FFF9F5] hover:bg-[#E01C20] transition-all cursor-pointer"
+                aria-label="TikTok"
               >
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="hover:bg-primary/10"
-                >
-                  <FaTiktok className="h-4 w-4" />
-                </Button>
+                <FaTiktok className="h-4 w-4" />
               </Link>
             </div>
           </div>
 
-          {/* Kompetisi Links - Dynamic dari API */}
+          {/* Column 2: Kompetisi */}
           <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-foreground">Kompetisi</h4>
-            <ul className="space-y-2 text-sm">
+            <h4 className="text-base font-bold text-[#FFF9F5] uppercase tracking-wider">
+              Kompetisi
+            </h4>
+            <ul className="space-y-2.5 text-sm text-[#AAB1BD]">
               {categories.length > 0 ? (
                 categories.map((category) => (
                   <li key={category.category_id}>
                     <Link
                       href={`/category/${category.category_id}`}
-                      className="text-muted-foreground hover:text-primary transition-colors"
+                      className="hover:text-[#E01C20] transition-colors"
                     >
                       {category.category_name}
                     </Link>
                   </li>
                 ))
               ) : (
-                // Fallback jika API belum load atau tidak ada data
                 <>
                   <li>
                     <Link
                       href="/category"
-                      className="text-muted-foreground hover:text-primary transition-colors"
+                      className="hover:text-[#E01C20] transition-colors"
                     >
                       UI/UX Design
                     </Link>
@@ -89,17 +91,17 @@ const Footer = () => {
                   <li>
                     <Link
                       href="/category"
-                      className="text-muted-foreground hover:text-primary transition-colors"
+                      className="hover:text-[#E01C20] transition-colors"
                     >
-                      Website Developer
+                      Website Development
                     </Link>
                   </li>
                 </>
               )}
-              <li>
+              <li className="pt-1">
                 <Link
                   href="/category"
-                  className="text-primary hover:text-primary/80 transition-colors font-medium"
+                  className="text-[#E01C20] hover:underline font-semibold flex items-center gap-1"
                 >
                   Lihat Semua →
                 </Link>
@@ -107,69 +109,74 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Informasi Links */}
+          {/* Column 3: Informasi */}
           <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-foreground">Informasi</h4>
-            <ul className="space-y-2 text-sm">
+            <h4 className="text-base font-bold text-[#FFF9F5] uppercase tracking-wider">
+              Informasi
+            </h4>
+            <ul className="space-y-2.5 text-sm text-[#AAB1BD]">
               <li>
-                <Link
-                  href="/#timeline"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Timeline
+                <Link href="/#timeline" className="hover:text-[#E01C20] transition-colors">
+                  Timeline Proyek
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/#faq"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
+                <Link href="/#faq" className="hover:text-[#E01C20] transition-colors">
                   FAQ
                 </Link>
               </li>
               <li>
-                <Link
-                  href="https://drive.google.com/drive/folders/1x34lDmoqSFdOfsxUpxpe2KiAaGT2zk5m?usp=sharing"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Panduan
+                <Link href="/leaderboard" className="hover:text-[#E01C20] transition-colors">
+                  Leaderboard
                 </Link>
+              </li>
+              <li>
+                <a
+                  href="https://drive.google.com/drive/folders/1x34lDmoqSFdOfsxUpxpe2KiAaGT2zk5m?usp=sharing"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-[#E01C20] transition-colors"
+                >
+                  Panduan Lomba
+                </a>
               </li>
             </ul>
           </div>
 
-          {/* Kontak & Support */}
+          {/* Column 4: Kontak */}
           <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-foreground">Kontak</h4>
-            <ul className="space-y-2 text-sm">
-              <li className="text-muted-foreground">
-                Email: mia.upnvj@gmail.com
+            <h4 className="text-base font-bold text-[#FFF9F5] uppercase tracking-wider">
+              Kontak
+            </h4>
+            <ul className="space-y-3 text-sm text-[#AAB1BD]">
+              <li className="flex items-center gap-2">
+                <EnvelopeClosedIcon className="h-4 w-4 text-[#E01C20]" />
+                <span>mia.upnvj@gmail.com</span>
               </li>
-              <li className="text-muted-foreground">
-                WhatsApp: +62 896-0110-1197
+              <li className="flex items-center gap-2">
+                <MobileIcon className="h-4 w-4 text-[#E01C20]" />
+                <span>+62 896-0110-1197</span>
               </li>
-              <li>
-                <Link
+              <li className="pt-1">
+                <a
                   href="https://wa.me/6289601101197"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-muted-foreground hover:text-primary transition-colors"
+                  className="mia-btn-secondary px-4 py-2 text-xs inline-flex items-center gap-1.5"
                 >
-                  Hubungi Kami
-                </Link>
+                  Hubungi Panitia
+                </a>
               </li>
             </ul>
           </div>
         </div>
 
         {/* Divider */}
-        <div className="border-t border-border mb-6"></div>
+        <div className="border-t border-white/10 my-6" />
 
-        {/* Bottom Footer */}
-        <div className="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0">
-          <div className="text-sm text-muted-foreground">
-            © {currentYear} Multimedia In Action. All rights reserved.
-          </div>
+        {/* Bottom Copyright */}
+        <div className="text-center text-xs text-[#99A1AF]">
+          © {currentYear} Multimedia in Action (MIA). All rights reserved.
         </div>
       </div>
     </footer>
@@ -177,3 +184,4 @@ const Footer = () => {
 };
 
 export default Footer;
+

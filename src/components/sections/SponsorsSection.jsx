@@ -4,84 +4,68 @@ import Image from "next/image";
 import linkaja from "../../../public/linkaja.png";
 import sariroti from "../../../public/sariroti.png";
 import tokocrypto from "../../../public/tokocrypto.png";
-import miaLogo from "../../../public/MIALOGO.png";
+import miaLogo from "../../../public/mia2026_logo.png";
 
 const SponsorsSection = () => {
   const sponsors = [
-    { src: linkaja, alt: "LinkAja Sponsor" },
-    { src: sariroti, alt: "Sari Roti Sponsor" },
-    { src: tokocrypto, alt: "Tokocrypto Sponsor" },
-    { src: miaLogo, alt: "MIA Sponsor" },
+    { src: linkaja, name: "LinkAja" },
+    { src: sariroti, name: "Sari Roti" },
+    { src: tokocrypto, name: "Tokocrypto" },
+    { src: miaLogo, name: "MIA UPNVJ" },
   ];
 
   return (
-    <section id="sponsors" className="py-16 bg-background dark:bg-black">
-      <div className="container mx-auto px-4">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-12 h-12 bg-primary/10 rounded-full mb-3">
-            <svg
-              className="h-6 w-6 text-primary"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-              />
-            </svg>
+    <section id="sponsors" className="py-20 relative">
+      <div className="container mx-auto px-4 max-w-7xl">
+        {/* Section Header */}
+        <div className="text-center mb-14 space-y-4">
+          <div className="inline-block">
+            <span className="mia-pill-badge">
+              <span className="text-[#FED700]">◆</span>
+              <span>Partner Kami</span>
+            </span>
           </div>
-          <h2 className="text-3xl font-bold text-foreground mb-3">
-            Didukung oleh Sponsor Terbaik
+
+          <h2 className="text-3xl sm:text-4xl md:text-[30.56px] font-bold text-[#FFF9F5] tracking-tight">
+            Didukung oleh <span className="text-[#FED700]">Sponsor Terbaik</span>
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Kompetisi ini terselenggara atas dukungan penuh dari sponsor
-            terpercaya
+
+          <p className="text-base md:text-[18.89px] text-[#AAB1BD] max-w-2xl mx-auto leading-relaxed">
+            Kompetisi ini terselenggara atas dukungan penuh dari sponsor terpercaya
           </p>
         </div>
 
-        {/* Main Sponsor Section */}
-        <div className="mb-5">
-          <div className="overflow-y-hidden">
-            <Marquee
-              gradient={false}
-              speed={75}
-              pauseOnHover={true}
-              className="items-center"
-            >
-              {sponsors.map((sponsor, index) => (
-                <div
-                  key={index}
-                  className="mx-2 w-60 h-60 rounded-lg overflow-hidden border border-gray-300"
-                >
+        {/* Sponsor Marquee with MIA Cards */}
+        <div className="overflow-hidden py-2">
+          <Marquee
+            gradient={true}
+            gradientColor="#0A0D14"
+            gradientWidth={80}
+            speed={50}
+            pauseOnHover={true}
+            className="items-center"
+          >
+            {sponsors.concat(sponsors).map((sponsor, index) => (
+              <div
+                key={index}
+                className="mia-card mx-3 w-48 h-32 p-4 flex flex-col items-center justify-center gap-2 hover:border-[#FED700]/50 transition-all duration-300 group"
+              >
+                <div className="relative w-20 h-16 flex items-center justify-center">
                   <Image
                     src={sponsor.src}
-                    alt={sponsor.alt}
-                    width={240}
-                    height={240}
-                    className="w-full h-full object-cover"
+                    alt={sponsor.name}
+                    width={80}
+                    height={60}
+                    className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105"
                   />
                 </div>
-              ))}
-              {sponsors.map((sponsor, index) => (
-                <div
-                  key={`dup-${index}`}
-                  className="mx-2 w-60 h-60 rounded-lg overflow-hidden border border-gray-300"
-                >
-                  <Image
-                    src={sponsor.src}
-                    alt={sponsor.alt}
-                    width={240}
-                    height={240}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ))}
-            </Marquee>
-          </div>
+                <span className="text-xs font-semibold text-[#AAB1BD] group-hover:text-[#FFF9F5] transition-colors flex items-center gap-1">
+                  <span className="text-[#FED700] text-[10px]">◆</span>
+                  {sponsor.name}
+                </span>
+              </div>
+            ))}
+          </Marquee>
         </div>
       </div>
     </section>
@@ -89,3 +73,4 @@ const SponsorsSection = () => {
 };
 
 export default SponsorsSection;
+
