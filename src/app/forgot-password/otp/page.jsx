@@ -1,23 +1,17 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import React, { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import { AuthHeader } from "@/components/auth-header";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useResetPassword } from "@/hooks/user-use-forgot-password";
 import Cookies from "js-cookie";
-import { Eye, EyeOff } from "lucide-react";
+import {
+  EyeOpenIcon,
+  EyeClosedIcon,
+  LockClosedIcon,
+} from "@radix-ui/react-icons";
 
-export default function OtpPage() {
+export default function ResetPasswordOtpPage() {
   const [otp, setOtp] = useState("");
   const [email, setEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -25,7 +19,8 @@ export default function OtpPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [otpArray, setOtpArray] = useState(["", "", "", "", "", ""]);
-  const inputsRef = React.useRef([]);
+  const [countdown, setCountdown] = useState(60);
+  const inputsRef = useRef([]);
 
   const {
     loading,
@@ -44,6 +39,15 @@ export default function OtpPage() {
   useEffect(() => {
     setOtp(otpArray.join(""));
   }, [otpArray]);
+
+  // Countdown timer effect
+  useEffect(() => {
+    if (countdown <= 0) return;
+    const timer = setInterval(() => {
+      setCountdown((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [countdown]);
 
   const handleOtpChange = (e, idx) => {
     const val = e.target.value.replace(/[^0-9]/g, "");
@@ -65,37 +69,48 @@ export default function OtpPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (newPassword !== confirmPassword) {
-      return;
-    }
-    
+    if (newPassword !== confirmPassword) return;
     handleResetPassword(email, otp, newPassword);
   };
 
+  const triggerResend = async () => {
+    if (countdown > 0 || resendLoading) return;
+    await handleResendOtp(email);
+    setCountdown(120); // 120s for second time and onwards
+  };
+
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-red-50 via-white to-indigo-50 dark:from-red-900/20 dark:via-black dark:to-black p-4">
+    <div className="min-h-screen w-full flex items-center justify-center bg-[#0A0D14] mia-connected-bg p-4 relative overflow-hidden selection:bg-[#E01C20] selection:text-white">
       <AuthHeader />
-      <Card className="w-full max-w-md shadow-2xl bg-card/80 dark:bg-black/50 backdrop-blur-lg border-2 dark:border-gray-800">
-        <form onSubmit={handleSubmit}>
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold">Reset Password</CardTitle>
-            <CardDescription className="text-muted-foreground">
-              Masukkan kode OTP dan password baru Anda.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+
+      <div className="w-full max-w-md mia-card p-8 shadow-2xl relative z-10 my-16 sm:my-0">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Header */}
+          <div className="text-center space-y-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-[#FFF9F5]">
+              Reset Password
+            </h1>
+            <p className="text-sm text-[#AAB1BD] leading-relaxed">
+              Masukkan kode OTP yang dikirim ke{" "}
+              <span className="font-bold text-[#FFF9F5]">{email || "email Anda"}</span> dan password baru Anda.
+            </p>
+          </div>
+
+          <div className="space-y-4 pt-2">
+            {/* OTP Code */}
             <div className="space-y-2">
-              <Label htmlFor="otp">Kode OTP : </Label>
+              <label className="block text-sm font-semibold text-center text-[#FFF9F5]">
+                Kode OTP
+              </label>
               <div className="flex gap-2 justify-center">
                 {otpArray.map((digit, idx) => (
-                  <Input
+                  <input
                     key={idx}
                     ref={(el) => (inputsRef.current[idx] = el)}
                     type="text"
                     inputMode="numeric"
                     maxLength={1}
-                    className="w-10 h-12 text-center text-lg font-bold border-2 border-red-300 dark:border-red-700 focus:border-red-600 dark:focus:border-red-400 rounded"
+                    className="w-11 h-13 bg-[#141824] border border-white/10 text-[#FFF9F5] focus:border-[#E01C20] focus:ring-1 focus:ring-[#E01C20] rounded-xl font-bold text-xl text-center shadow-sm outline-none transition-all"
                     value={digit}
                     onChange={(e) => handleOtpChange(e, idx)}
                     onKeyDown={(e) => handleOtpKeyDown(e, idx)}
@@ -115,14 +130,20 @@ export default function OtpPage() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="newPassword">Password Baru</Label>
+            {/* New Password */}
+            <div className="space-y-1.5">
+              <label htmlFor="newPassword" className="block text-sm font-semibold text-[#FFF9F5]">
+                Password Baru
+              </label>
               <div className="relative">
-                <Input
+                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#AAB1BD]">
+                  <LockClosedIcon className="w-4 h-4" />
+                </div>
+                <input
                   id="newPassword"
                   type={showPassword ? "text" : "password"}
                   placeholder="Masukkan password baru"
-                  className="border-2 border-red-300 dark:border-red-700 focus:border-red-600 dark:focus:border-red-400 pr-10"
+                  className="w-full bg-[#141824] border border-white/10 rounded-xl py-3 pl-10 pr-10 text-sm text-[#FFF9F5] placeholder-[#99A1AF] focus:border-[#E01C20] focus:ring-1 focus:ring-[#E01C20] transition-all outline-none"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   required
@@ -130,25 +151,31 @@ export default function OtpPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#AAB1BD] hover:text-[#FFF9F5] cursor-pointer"
                 >
                   {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
+                    <EyeOpenIcon className="w-4 h-4" />
                   ) : (
-                    <Eye className="h-4 w-4" />
+                    <EyeClosedIcon className="w-4 h-4" />
                   )}
                 </button>
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Konfirmasi Password</Label>
+            {/* Confirm Password */}
+            <div className="space-y-1.5">
+              <label htmlFor="confirmPassword" className="block text-sm font-semibold text-[#FFF9F5]">
+                Konfirmasi Password
+              </label>
               <div className="relative">
-                <Input
+                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#AAB1BD]">
+                  <LockClosedIcon className="w-4 h-4" />
+                </div>
+                <input
                   id="confirmPassword"
                   type={showConfirmPassword ? "text" : "password"}
                   placeholder="Konfirmasi password baru"
-                  className="border-2 border-red-300 dark:border-red-700 focus:border-red-600 dark:focus:border-red-400 pr-10"
+                  className="w-full bg-[#141824] border border-white/10 rounded-xl py-3 pl-10 pr-10 text-sm text-[#FFF9F5] placeholder-[#99A1AF] focus:border-[#E01C20] focus:ring-1 focus:ring-[#E01C20] transition-all outline-none"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
@@ -156,55 +183,62 @@ export default function OtpPage() {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#AAB1BD] hover:text-[#FFF9F5] cursor-pointer"
                 >
                   {showConfirmPassword ? (
-                    <EyeOff className="h-4 w-4" />
+                    <EyeOpenIcon className="w-4 h-4" />
                   ) : (
-                    <Eye className="h-4 w-4" />
+                    <EyeClosedIcon className="w-4 h-4" />
                   )}
                 </button>
               </div>
               {confirmPassword && newPassword !== confirmPassword && (
-                <p className="text-sm text-red-500 dark:text-red-400">
+                <p className="text-xs text-[#E01C20] mt-1 font-medium">
                   Password tidak cocok!
                 </p>
               )}
             </div>
+          </div>
 
-            <Button
-              type="submit"
-              className="w-full mt-2 bg-gradient-to-r from-red-600 to-red-700 dark:to-black text-white hover:from-red-700 hover:to-red-800 dark:hover:to-gray-900 shadow-lg"
-              disabled={loading || newPassword !== confirmPassword}
+          {message && (
+            <p
+              className={`text-sm text-center font-medium ${
+                messageType === "success" ? "text-[#00B445]" : "text-[#E01C20]"
+              }`}
             >
-              {loading ? "Memproses..." : "Reset Password"}
-            </Button>
+              {message}
+            </p>
+          )}
 
-            {message && (
-              <p
-                className={`text-sm text-center mt-2 ${
-                  messageType === "success"
-                    ? "text-green-600 dark:text-green-400"
-                    : "text-red-500 dark:text-red-400"
-                }`}
-              >
-                {message}
-              </p>
-            )}
-          </CardContent>
-          <CardFooter className="flex justify-center text-sm mt-3">
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={loading || newPassword !== confirmPassword}
+            className="mia-btn-primary w-full py-3.5 text-base shadow-lg shadow-red-900/30 cursor-pointer disabled:opacity-50 mt-2"
+          >
+            {loading ? "Memproses..." : "Reset Password"}
+          </button>
+
+          {/* Helper Link with Countdown */}
+          <div className="pt-2 text-center text-sm text-[#AAB1BD]">
             <p>
               Belum menerima kode?{" "}
-              <span
-                onClick={() => handleResendOtp(email)}
-                className="cursor-pointer font-semibold text-red-600 dark:text-red-400 hover:underline"
+              <button
+                type="button"
+                onClick={triggerResend}
+                disabled={resendLoading || countdown > 0}
+                className="font-semibold text-[#E01C20] hover:underline cursor-pointer disabled:opacity-50 disabled:no-underline"
               >
-                {resendLoading ? "Mengirim ulang..." : "Kirim ulang OTP"}
-              </span>
+                {resendLoading
+                  ? "Mengirim ulang..."
+                  : countdown > 0
+                  ? `Kirim ulang OTP (${countdown}s)`
+                  : "Kirim ulang OTP"}
+              </button>
             </p>
-          </CardFooter>
+          </div>
         </form>
-      </Card>
+      </div>
     </div>
   );
 }

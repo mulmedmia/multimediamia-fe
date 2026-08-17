@@ -1,35 +1,37 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-
-import { Button } from "@/components/ui/button";
-import { AuthHeader } from "@/components/auth-header";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { EyeOpenIcon, EyeClosedIcon } from "@radix-ui/react-icons";
+  EyeOpenIcon,
+  EyeClosedIcon,
+  EnvelopeClosedIcon,
+  LockClosedIcon,
+  PersonIcon,
+} from "@radix-ui/react-icons";
+import { AuthHeader } from "@/components/auth-header";
 import { useRegister } from "@/hooks/use-auth";
 
-const registerSchema = z.object({
-  fullname: z.string().min(3, { message: "Nama lengkap minimal 3 karakter." }),
-  email: z.string().email({ message: "Format email tidak valid." }),
-  password: z.string().min(6, { message: "Password minimal 6 karakter." }),
-});
+const registerSchema = z
+  .object({
+    fullname: z.string().min(3, { message: "Nama lengkap minimal 3 karakter." }),
+    email: z.string().email({ message: "Format email tidak valid." }),
+    password: z.string().min(6, { message: "Password minimal 6 karakter." }),
+    confirmPassword: z.string().min(6, { message: "Konfirmasi password minimal 6 karakter." }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Konfirmasi password tidak cocok dengan password.",
+    path: ["confirmPassword"],
+  });
 
 export default function RegisterPage() {
-  const { loading, message, messageType, handleRegister } = useRegister();
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const { loading, message, messageType, handleRegister } = useRegister();
 
   const {
     register,
@@ -44,106 +46,182 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-red-50 via-white to-indigo-50 dark:from-red-900/20 dark:via-black dark:to-black p-4">
+    <div className="min-h-screen w-full flex items-center justify-center bg-[#0A0D14] mia-connected-bg p-4 relative overflow-hidden selection:bg-[#E01C20] selection:text-white">
       <AuthHeader />
-      <Card className="mt-5 w-full max-w-md shadow-2xl bg-card/80 dark:bg-black/50 backdrop-blur-lg border-2 dark:border-gray-800">
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold">Buat Akun Baru</CardTitle>
-            <CardDescription className="text-muted-foreground">
+
+      <div className="w-full max-w-md mia-card p-8 shadow-2xl relative z-10 my-16 sm:my-0">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          {/* Card Header */}
+          <div className="text-center space-y-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-[#FFF9F5]">
+              Buat Akun Baru
+            </h1>
+            <p className="text-sm text-[#AAB1BD]">
               Isi data di bawah ini untuk memulai perjalanan kreatif Anda.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2 mt-4">
-              <Label htmlFor="fullname">Nama Lengkap</Label>
-              <Input
-                id="fullname"
-                placeholder="John Doe"
-                {...register("fullname")}
-              />
+            </p>
+          </div>
+
+          <div className="space-y-4 pt-2">
+            {/* Fullname Field */}
+            <div className="space-y-1.5">
+              <label htmlFor="fullname" className="block text-sm font-semibold text-[#FFF9F5]">
+                Nama Lengkap
+              </label>
+              <div className="relative">
+                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#AAB1BD]">
+                  <PersonIcon className="w-4 h-4" />
+                </div>
+                <input
+                  id="fullname"
+                  type="text"
+                  placeholder="Nama Lengkap Anda"
+                  {...register("fullname")}
+                  className="w-full bg-[#141824] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-[#FFF9F5] placeholder-[#99A1AF] focus:border-[#E01C20] focus:ring-1 focus:ring-[#E01C20] transition-all outline-none"
+                />
+              </div>
               {errors.fullname && (
-                <p className="text-xs text-red-500 mt-1">
+                <p className="text-xs text-[#E01C20] mt-1 font-medium">
                   {errors.fullname.message}
                 </p>
               )}
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="account@gmail.com"
-                {...register("email")}
-              />
+
+            {/* Email Field */}
+            <div className="space-y-1.5">
+              <label htmlFor="email" className="block text-sm font-semibold text-[#FFF9F5]">
+                Email
+              </label>
+              <div className="relative">
+                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#AAB1BD]">
+                  <EnvelopeClosedIcon className="w-4 h-4" />
+                </div>
+                <input
+                  id="email"
+                  type="email"
+                  placeholder="account@gmail.com"
+                  {...register("email")}
+                  className="w-full bg-[#141824] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-[#FFF9F5] placeholder-[#99A1AF] focus:border-[#E01C20] focus:ring-1 focus:ring-[#E01C20] transition-all outline-none"
+                />
+              </div>
               {errors.email && (
-                <p className="text-xs text-red-500 mt-1">
+                <p className="text-xs text-[#E01C20] mt-1 font-medium">
                   {errors.email.message}
                 </p>
               )}
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+
+            {/* Password Field */}
+            <div className="space-y-1.5">
+              <label htmlFor="password" className="block text-sm font-semibold text-[#FFF9F5]">
+                Password
+              </label>
               <div className="relative">
-                <Input
+                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#AAB1BD]">
+                  <LockClosedIcon className="w-4 h-4" />
+                </div>
+                <input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="******"
+                  placeholder="••••••••"
                   {...register("password")}
-                  className="pr-10"
+                  className="w-full bg-[#141824] border border-white/10 rounded-xl py-3 pl-10 pr-10 text-sm text-[#FFF9F5] placeholder-[#99A1AF] focus:border-[#E01C20] focus:ring-1 focus:ring-[#E01C20] transition-all outline-none"
                 />
                 <button
                   type="button"
                   tabIndex={-1}
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 dark:hover:text-white cursor-pointer"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#AAB1BD] hover:text-[#FFF9F5] cursor-pointer"
                   aria-label={
                     showPassword ? "Sembunyikan password" : "Lihat password"
                   }
                 >
                   {showPassword ? (
-                    <EyeOpenIcon className="w-5 h-5" />
+                    <EyeOpenIcon className="w-4 h-4" />
                   ) : (
-                    <EyeClosedIcon className="w-5 h-5" />
+                    <EyeClosedIcon className="w-4 h-4" />
                   )}
                 </button>
               </div>
               {errors.password && (
-                <p className="text-xs text-red-500 mt-1">
+                <p className="text-xs text-[#E01C20] mt-1 font-medium">
                   {errors.password.message}
                 </p>
               )}
             </div>
-            <Button
-              type="submit"
-              className="w-full mt-4 cursor-pointer"
-              disabled={loading}
+
+            {/* Confirm Password Field */}
+            <div className="space-y-1.5">
+              <label htmlFor="confirmPassword" className="block text-sm font-semibold text-[#FFF9F5]">
+                Konfirmasi Password
+              </label>
+              <div className="relative">
+                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#AAB1BD]">
+                  <LockClosedIcon className="w-4 h-4" />
+                </div>
+                <input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  {...register("confirmPassword")}
+                  className="w-full bg-[#141824] border border-white/10 rounded-xl py-3 pl-10 pr-10 text-sm text-[#FFF9F5] placeholder-[#99A1AF] focus:border-[#E01C20] focus:ring-1 focus:ring-[#E01C20] transition-all outline-none"
+                />
+                <button
+                  type="button"
+                  tabIndex={-1}
+                  onClick={() => setShowConfirmPassword((v) => !v)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#AAB1BD] hover:text-[#FFF9F5] cursor-pointer"
+                  aria-label={
+                    showConfirmPassword ? "Sembunyikan konfirmasi password" : "Lihat konfirmasi password"
+                  }
+                >
+                  {showConfirmPassword ? (
+                    <EyeOpenIcon className="w-4 h-4" />
+                  ) : (
+                    <EyeClosedIcon className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
+              {errors.confirmPassword && (
+                <p className="text-xs text-[#E01C20] mt-1 font-medium">
+                  {errors.confirmPassword.message}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {message && (
+            <p
+              className={`text-sm text-center font-medium ${
+                messageType === "success" ? "text-[#00B445]" : "text-[#E01C20]"
+              }`}
             >
-              {loading ? "Memproses Akun..." : "Buat Akun"}
-            </Button>
-            {message && (
-              <p
-                className={`text-sm text-center mt-2 ${
-                  messageType === "success" ? "text-green-600" : "text-red-500"
-                }`}
-              >
-                {message}
-              </p>
-            )}
-          </CardContent>
-          <CardFooter className="flex justify-center text-sm mt-5">
+              {message}
+            </p>
+          )}
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="mia-btn-primary w-full py-3.5 text-base shadow-lg shadow-red-900/30 cursor-pointer disabled:opacity-50 mt-2"
+          >
+            {loading ? "Memproses Akun..." : "Buat Akun"}
+          </button>
+
+          {/* Helper Link */}
+          <div className="pt-2 text-center text-sm text-[#AAB1BD]">
             <p>
               Sudah punya akun?{" "}
               <Link
                 href="/login"
-                className="font-semibold text-red-600 dark:text-red-400 hover:underline"
+                className="font-semibold text-[#E01C20] hover:underline"
               >
                 Masuk di sini
               </Link>
             </p>
-          </CardFooter>
+          </div>
         </form>
-      </Card>
+      </div>
     </div>
   );
 }

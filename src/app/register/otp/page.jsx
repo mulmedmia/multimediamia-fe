@@ -1,18 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import React, { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import { AuthHeader } from "@/components/auth-header";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useOtp } from "@/hooks/use-auth";
 import Cookies from "js-cookie";
 
@@ -20,7 +10,8 @@ export default function OtpPage() {
   const [otp, setOtp] = useState("");
   const [email, setEmail] = useState("");
   const [otpArray, setOtpArray] = useState(["", "", "", "", "", ""]);
-  const inputsRef = React.useRef([]);
+  const [countdown, setCountdown] = useState(60);
+  const inputsRef = useRef([]);
 
   const {
     loading,
@@ -39,6 +30,15 @@ export default function OtpPage() {
   useEffect(() => {
     setOtp(otpArray.join(""));
   }, [otpArray]);
+
+  // Countdown timer effect
+  useEffect(() => {
+    if (countdown <= 0) return;
+    const timer = setInterval(() => {
+      setCountdown((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [countdown]);
 
   const handleOtpChange = (e, idx) => {
     const val = e.target.value.replace(/[^0-9]/g, "");
@@ -63,29 +63,43 @@ export default function OtpPage() {
     handleVerifyOtp(email, otp);
   };
 
+  const triggerResend = async () => {
+    if (countdown > 0 || resendLoading) return;
+    await handleResendOtp(email);
+    setCountdown(120); // 120s for second time and onwards
+  };
+
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-red-50 via-white to-indigo-50 dark:from-red-900/20 dark:via-black dark:to-black p-4">
+    <div className="min-h-screen w-full flex items-center justify-center bg-[#0A0D14] mia-connected-bg p-4 relative overflow-hidden selection:bg-[#E01C20] selection:text-white">
       <AuthHeader />
-      <Card className="w-full max-w-md shadow-2xl bg-card/80 dark:bg-black/50 backdrop-blur-lg border-2 dark:border-gray-800">
-        <form onSubmit={handleSubmit}>
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold">Verifikasi OTP</CardTitle>
-            <CardDescription className="text-muted-foreground">
-              Masukkan 6 digit kode yang dikirim ke email Anda.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2 mt-5">
-              <Label htmlFor="otp">Kode OTP : </Label>
+
+      <div className="w-full max-w-md mia-card p-8 shadow-2xl relative z-10 my-16 sm:my-0">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Card Header */}
+          <div className="text-center space-y-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-[#FFF9F5]">
+              Verifikasi OTP
+            </h1>
+            <p className="text-sm text-[#AAB1BD] leading-relaxed">
+              Masukkan 6 digit kode yang dikirim ke{" "}
+              <span className="font-bold text-[#FFF9F5]">{email || "email Anda"}</span>
+            </p>
+          </div>
+
+          <div className="space-y-4 pt-2">
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-center text-[#FFF9F5]">
+                Kode OTP
+              </label>
               <div className="flex gap-2 justify-center">
                 {otpArray.map((digit, idx) => (
-                  <Input
+                  <input
                     key={idx}
                     ref={(el) => (inputsRef.current[idx] = el)}
                     type="text"
                     inputMode="numeric"
                     maxLength={1}
-                    className="w-10 h-12 text-center text-lg font-bold border-2 border-red-300 dark:border-red-700 focus:border-red-600 dark:focus:border-red-400 rounded"
+                    className="w-11 h-13 bg-[#141824] border border-white/10 text-[#FFF9F5] focus:border-[#E01C20] focus:ring-1 focus:ring-[#E01C20] rounded-xl font-bold text-xl text-center shadow-sm outline-none transition-all"
                     value={digit}
                     onChange={(e) => handleOtpChange(e, idx)}
                     onKeyDown={(e) => handleOtpKeyDown(e, idx)}
@@ -104,40 +118,47 @@ export default function OtpPage() {
                 ))}
               </div>
             </div>
+          </div>
 
-            <Button
-              type="submit"
-              className="w-full mt-2 bg-gradient-to-r from-red-600 to-red-700 dark:to-black text-white hover:from-red-700 hover:to-red-800 dark:hover:to-gray-900 shadow-lg"
-              disabled={loading}
+          {message && (
+            <p
+              className={`text-sm text-center font-medium ${
+                messageType === "success" ? "text-[#00B445]" : "text-[#E01C20]"
+              }`}
             >
-              {loading ? "Memverifikasi..." : "Verifikasi"}
-            </Button>
+              {message}
+            </p>
+          )}
 
-            {message && (
-              <p
-                className={`text-sm text-center mt-2 ${
-                  messageType === "success"
-                    ? "text-green-600 dark:text-green-400"
-                    : "text-red-500 dark:text-red-400"
-                }`}
-              >
-                {message}
-              </p>
-            )}
-          </CardContent>
-          <CardFooter className="flex justify-center text-sm mt-3">
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="mia-btn-primary w-full py-3.5 text-base shadow-lg shadow-red-900/30 cursor-pointer disabled:opacity-50 mt-2"
+          >
+            {loading ? "Memverifikasi..." : "Verifikasi"}
+          </button>
+
+          {/* Helper Link with Countdown */}
+          <div className="pt-2 text-center text-sm text-[#AAB1BD]">
             <p>
               Belum menerima kode?{" "}
-              <span
-                onClick={() => handleResendOtp(email)}
-                className="cursor-pointer font-semibold text-red-600 dark:text-red-400 hover:underline"
+              <button
+                type="button"
+                onClick={triggerResend}
+                disabled={resendLoading || countdown > 0}
+                className="font-semibold text-[#E01C20] hover:underline cursor-pointer disabled:opacity-50 disabled:no-underline"
               >
-                {resendLoading ? "Mengirim ulang..." : "Kirim ulang OTP"}
-              </span>
+                {resendLoading
+                  ? "Mengirim ulang..."
+                  : countdown > 0
+                  ? `Kirim ulang OTP (${countdown}s)`
+                  : "Kirim ulang OTP"}
+              </button>
             </p>
-          </CardFooter>
+          </div>
         </form>
-      </Card>
+      </div>
     </div>
   );
 }
