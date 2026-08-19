@@ -42,7 +42,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-[#151C28] mia-glow-hero p-4 relative overflow-hidden">
+    <div className="min-h-screen w-full flex items-center justify-center bg-[#0A0D14] mia-connected-bg p-4 relative overflow-hidden selection:bg-[#E01C20] selection:text-white">
       <AuthHeader />
 
       <div className="w-full max-w-md mia-card p-8 shadow-2xl relative z-10 my-16 sm:my-0">
@@ -56,9 +56,9 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-4 pt-2">
             {/* Email Field */}
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <label htmlFor="email" className="block text-sm font-semibold text-[#FFF9F5]">
                 Email
               </label>
@@ -71,7 +71,7 @@ export default function LoginPage() {
                   type="email"
                   placeholder="account@gmail.com"
                   {...register("email")}
-                  className="w-full bg-[#1E2939] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-[#FFF9F5] placeholder-[#99A1AF] focus:border-[#E01C20] focus:ring-1 focus:ring-[#E01C20] transition-all outline-none"
+                  className="w-full bg-[#141824] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-[#FFF9F5] placeholder-[#99A1AF] focus:border-[#E01C20] focus:ring-1 focus:ring-[#E01C20] transition-all outline-none"
                 />
               </div>
               {errors.email && (
@@ -82,7 +82,7 @@ export default function LoginPage() {
             </div>
 
             {/* Password Field */}
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <label htmlFor="password" className="block text-sm font-semibold text-[#FFF9F5]">
                 Password
               </label>
@@ -95,7 +95,7 @@ export default function LoginPage() {
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
                   {...register("password")}
-                  className="w-full bg-[#1E2939] border border-white/10 rounded-xl py-3 pl-10 pr-10 text-sm text-[#FFF9F5] placeholder-[#99A1AF] focus:border-[#E01C20] focus:ring-1 focus:ring-[#E01C20] transition-all outline-none"
+                  className="w-full bg-[#141824] border border-white/10 rounded-xl py-3 pl-10 pr-10 text-sm text-[#FFF9F5] placeholder-[#99A1AF] focus:border-[#E01C20] focus:ring-1 focus:ring-[#E01C20] transition-all outline-none"
                 />
                 <button
                   type="button"
@@ -135,7 +135,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="mia-btn-primary w-full py-3.5 text-base shadow-lg shadow-red-900/30 cursor-pointer disabled:opacity-50"
+            className="mia-btn-primary w-full py-3.5 text-base shadow-lg shadow-red-900/30 cursor-pointer disabled:opacity-50 mt-2"
           >
             {loading ? "Memproses..." : "Masuk"}
           </button>
@@ -166,4 +166,3 @@ export default function LoginPage() {
     </div>
   );
 }
-

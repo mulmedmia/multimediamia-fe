@@ -1,21 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { AuthHeader } from "@/components/auth-header";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useRequestOtp } from "@/hooks/user-use-forgot-password";
 import Link from "next/link";
-import { Mail } from "lucide-react";
+import { AuthHeader } from "@/components/auth-header";
+import { useRequestOtp } from "@/hooks/user-use-forgot-password";
+import { EnvelopeClosedIcon } from "@radix-ui/react-icons";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -27,69 +16,76 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-red-50 via-white to-indigo-50 dark:from-red-900/20 dark:via-black dark:to-black p-4">
+    <div className="min-h-screen w-full flex items-center justify-center bg-[#0A0D14] mia-connected-bg p-4 relative overflow-hidden selection:bg-[#E01C20] selection:text-white">
       <AuthHeader />
-      <Card className="w-full max-w-md shadow-2xl bg-card/80 dark:bg-black/50 backdrop-blur-lg border-2 dark:border-gray-800">
-        <form onSubmit={handleSubmit}>
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold">
+
+      <div className="w-full max-w-md mia-card p-8 shadow-2xl relative z-10 my-16 sm:my-0">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Header */}
+          <div className="text-center space-y-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-[#FFF9F5]">
               Lupa Password?
-            </CardTitle>
-            <CardDescription className="text-muted-foreground">
-              Masukkan email Anda dan kami akan mengirimkan kode OTP untuk
-              reset password.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+            </h1>
+            <p className="text-sm text-[#AAB1BD] leading-relaxed">
+              Masukkan email Anda dan kami akan mengirimkan kode OTP untuk reset password.
+            </p>
+          </div>
+
+          <div className="space-y-4 pt-2">
+            <div className="space-y-1.5">
+              <label htmlFor="email" className="block text-sm font-semibold text-[#FFF9F5]">
+                Email
+              </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
+                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#AAB1BD]">
+                  <EnvelopeClosedIcon className="w-4 h-4" />
+                </div>
+                <input
                   id="email"
                   type="email"
-                  placeholder="nama@example.com"
-                  className="pl-10 border-2 border-red-300 dark:border-red-700 focus:border-red-600 dark:focus:border-red-400"
+                  placeholder="account@gmail.com"
+                  className="w-full bg-[#141824] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-[#FFF9F5] placeholder-[#99A1AF] focus:border-[#E01C20] focus:ring-1 focus:ring-[#E01C20] transition-all outline-none"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </div>
             </div>
+          </div>
 
-            <Button
-              type="submit"
-              className="w-full bg-gradient-to-r from-red-600 to-red-700 dark:to-black text-white hover:from-red-700 hover:to-red-800 dark:hover:to-gray-900 shadow-lg"
-              disabled={loading}
+          {message && (
+            <p
+              className={`text-sm text-center font-medium ${
+                messageType === "success" ? "text-[#00B445]" : "text-[#E01C20]"
+              }`}
             >
-              {loading ? "Mengirim..." : "Kirim Kode OTP"}
-            </Button>
+              {message}
+            </p>
+          )}
 
-            {message && (
-              <p
-                className={`text-sm text-center mt-2 ${
-                  messageType === "success"
-                    ? "text-green-600 dark:text-green-400"
-                    : "text-red-500 dark:text-red-400"
-                }`}
-              >
-                {message}
-              </p>
-            )}
-          </CardContent>
-          <CardFooter className="flex justify-center text-sm p-3">
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="mia-btn-primary w-full py-3.5 text-base shadow-lg shadow-red-900/30 cursor-pointer disabled:opacity-50 mt-2"
+          >
+            {loading ? "Mengirim..." : "Kirim Kode OTP"}
+          </button>
+
+          {/* Helper Link */}
+          <div className="pt-2 text-center text-sm text-[#AAB1BD]">
             <p>
               Sudah ingat password?{" "}
               <Link
                 href="/login"
-                className="font-semibold text-red-600 dark:text-red-400 hover:underline"
+                className="font-semibold text-[#E01C20] hover:underline"
               >
                 Login di sini
               </Link>
             </p>
-          </CardFooter>
+          </div>
         </form>
-      </Card>
+      </div>
     </div>
   );
 }

@@ -16,7 +16,6 @@ export function useAuth() {
 
   const handleLogin = async (email, password) => {
     setLoading(true);
-    setMessage("");
     try {
       const data = await login(email, password);
       setMessageType("success");
@@ -37,7 +36,7 @@ export function useAuth() {
         setMessage(
           "Please re-register with the same email to get verified by clicking Daftar di Sini"
         );
-        setMessageType("warning"); // atau "info"
+        setMessageType("warning");
       } else {
         setMessage(errorMessage);
       }
