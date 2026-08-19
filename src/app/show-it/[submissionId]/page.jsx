@@ -2,16 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import Iframe from "react-iframe";
 import {
   ArrowLeft,
   User,
   Trophy,
   FileText,
   Link2,
-  Clock,
   CheckCircle2,
   XCircle,
   Star,
@@ -22,10 +18,11 @@ import {
   ExternalLink,
   Sparkles,
   Calendar,
-  Target,
   Play,
+  Mail,
+  Users,
 } from "lucide-react";
-import Header from "@/components/layout/Header";
+import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import Footer from "@/components/layout/Footer";
 
 export default function SubmissionDetailPage(props) {
@@ -70,15 +67,15 @@ export default function SubmissionDetailPage(props) {
     switch (status?.toLowerCase()) {
       case "approved":
       case "terverifikasi":
-        return "text-green-600 bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400";
+        return "text-[#00B445] bg-[#00B445]/15 border-[#00B445]/30";
       case "pending":
       case "menunggu":
-        return "text-yellow-600 bg-yellow-50 border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-400";
+        return "text-[#FED700] bg-[#FED700]/15 border-[#FED700]/30";
       case "rejected":
       case "ditolak":
-        return "text-red-600 bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400";
+        return "text-[#E01C20] bg-[#E01C20]/15 border-[#E01C20]/30";
       default:
-        return "text-gray-600 bg-gray-50 border-gray-200 dark:bg-gray-900/20 dark:border-gray-800 dark:text-gray-400";
+        return "text-[#AAB1BD] bg-[#1E2939] border-white/10";
     }
   };
 
@@ -101,91 +98,9 @@ export default function SubmissionDetailPage(props) {
     }
   };
 
-  if (loading) {
-    return (
-      <>
-        <Header />
-        <main className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-pink-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 pt-20">
-          <div className="container mx-auto px-4 py-8">
-            <div className="flex items-center gap-4 mb-8">
-              <div className="h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-              <div className="h-6 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-            </div>
-            <div className="space-y-6">
-              <div className="h-32 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="h-48 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
-                <div className="h-48 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
-              </div>
-              <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
-            </div>
-          </div>
-        </main>
-        <Footer />
-      </>
-    );
-  }
-
-  if (error) {
-    return (
-      <>
-        <Header />
-        <main className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-pink-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 pt-20">
-          <div className="container mx-auto px-4 py-8">
-            <div className="text-center py-20">
-              <div className="p-4 bg-red-100 dark:bg-red-900/20 rounded-full w-fit mx-auto mb-6">
-                <XCircle className="h-16 w-16 text-red-600 dark:text-red-400" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                Terjadi Kesalahan
-              </h2>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">{error}</p>
-              <Button onClick={() => router.push("/show-it")} variant="outline">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Kembali ke Show It
-              </Button>
-            </div>
-          </div>
-        </main>
-        <Footer />
-      </>
-    );
-  }
-
-  if (!submission) {
-    return (
-      <>
-        <Header />
-        <main className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-pink-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 pt-20">
-          <div className="container mx-auto px-4 py-8">
-            <div className="text-center py-20">
-              <div className="p-4 bg-gray-100 dark:bg-gray-900/20 rounded-full w-fit mx-auto mb-6">
-                <Target className="h-16 w-16 text-gray-600 dark:text-gray-400" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                Submission Tidak Ditemukan
-              </h2>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">
-                Submission yang Anda cari tidak ditemukan atau mungkin telah
-                dihapus.
-              </p>
-              <Button onClick={() => router.push("/show-it")} variant="outline">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Kembali ke Show It
-              </Button>
-            </div>
-          </div>
-        </main>
-        <Footer />
-      </>
-    );
-  }
-
   // Fungsi untuk mengkonversi URL YouTube menjadi embed URL
   const convertToEmbedUrl = (url) => {
     if (!url) return null;
-
-    // Regex untuk menangkap video ID dari berbagai format URL YouTube
     const regExp =
       /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
     const match = url.match(regExp);
@@ -201,344 +116,453 @@ export default function SubmissionDetailPage(props) {
   // Fungsi untuk mencari link YouTube dari submission
   const getYouTubeVideoUrl = () => {
     if (!submission?.links) return null;
-
     const youtubeLink = submission.links.find(
       (link) => link.link_type?.toLowerCase() === "youtube"
     );
-
     if (youtubeLink?.url) {
       return convertToEmbedUrl(youtubeLink.url);
     }
-
     return null;
-  };
-
-  // Fungsi untuk mendapatkan URL YouTube asli (untuk link)
-  const getOriginalYouTubeUrl = () => {
-    if (!submission?.links) return null;
-
-    const youtubeLink = submission.links.find(
-      (link) => link.link_type?.toLowerCase() === "youtube"
-    );
-
-    return youtubeLink?.url || null;
   };
 
   // Fungsi untuk mendapatkan links selain YouTube
   const getNonYouTubeLinks = () => {
     if (!submission?.links) return [];
-
     return submission.links.filter(
       (link) => link.link_type?.toLowerCase() !== "youtube"
     );
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#0A0D14] mia-connected-bg text-[#FFF9F5] flex flex-col justify-between">
+        <div>
+          <DashboardHeader />
+          <main className="pt-24 sm:pt-28 pb-16">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+              <div className="text-center py-24 space-y-4">
+                <div className="animate-spin rounded-full h-10 w-10 border-2 border-[#E01C20] border-t-transparent mx-auto"></div>
+                <p className="text-sm md:text-base text-[#AAB1BD]">Memuat detail karya...</p>
+              </div>
+            </div>
+          </main>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error || !submission) {
+    return (
+      <div className="min-h-screen bg-[#0A0D14] mia-connected-bg text-[#FFF9F5] flex flex-col justify-between">
+        <div>
+          <DashboardHeader />
+          <main className="pt-24 sm:pt-28 pb-16">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-2xl py-12">
+              <div className="mia-card p-8 md:p-12 text-center space-y-5">
+                <div className="w-14 h-14 bg-[#E01C20]/15 border border-[#E01C20]/30 text-[#E01C20] rounded-2xl flex items-center justify-center mx-auto">
+                  <XCircle className="h-7 w-7" />
+                </div>
+                <div className="space-y-2">
+                  <h2 className="text-xl sm:text-2xl font-bold text-[#FFF9F5]">
+                    {error ? "Terjadi Kesalahan" : "Karya Tidak Ditemukan"}
+                  </h2>
+                  <p className="text-sm text-[#AAB1BD]">
+                    {error || "Karya yang Anda cari tidak ditemukan atau mungkin belum disetujui."}
+                  </p>
+                </div>
+                <button
+                  onClick={() => router.push("/show-it")}
+                  className="mia-btn-secondary px-6 py-2.5 text-sm inline-flex items-center gap-2 cursor-pointer transition-all"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  <span>Kembali ke Show It</span>
+                </button>
+              </div>
+            </div>
+          </main>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
-    <>
-      <Header />
-      <main className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-pink-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 pt-20">
-        <div className="container mx-auto px-4">
-          {/* Back Button */}
-          <div>
-            <Button
-              variant="outline"
-              onClick={() => router.back()}
-              className="transition"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Kembali
-            </Button>
-          </div>
+    <div className="min-h-screen bg-[#0A0D14] mia-connected-bg text-[#FFF9F5] flex flex-col justify-between selection:bg-[#E01C20] selection:text-white">
+      <div>
+        <DashboardHeader />
 
-          {/* Header Section - Split into 2 cards */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-8">
-            {/* Left Card - Main Info */}
-            <Card className="lg:col-span-1 shadow-xl border-0 bg-gradient-to-br from-orange-50 to-pink-50 dark:from-gray-900 dark:to-gray-900/50 border-orange-200">
-              <CardContent className="p-6 md:p-8 h-full flex flex-col justify-center">
-                <div className="flex items-start gap-4 mb-6">
-                  <div className="p-3 bg-red-600 rounded-xl">
-                    <Sparkles className="h-8 w-8 text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                      {submission.project_name}
-                    </h1>
-                    <p className="text-gray-600 dark:text-gray-400 mb-4">
-                      oleh Tim {submission.team_name} • {submission.user?.name}
-                    </p>
-                  </div>
-                </div>
+        <main className="pt-24 sm:pt-28 pb-16 relative z-10">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl space-y-6 md:space-y-8">
+            {/* Back Button */}
+            <div>
+              <button
+                onClick={() => router.push("/show-it")}
+                className="mia-btn-secondary px-4 py-2 text-xs md:text-sm inline-flex items-center gap-2 cursor-pointer transition-all"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                <span>Kembali ke Galeri</span>
+              </button>
+            </div>
 
-                {/* Status and Info Pills */}
-                <div className="flex flex-wrap items-center gap-3 mb-4">
-                  <div
-                    className={`px-3 py-1.5 rounded-full text-sm font-medium border ${getStatusColor(
-                      submission.status
-                    )}`}
-                  >
-                    {submission.status === "APPROVED"
-                      ? "✓ Disetujui"
-                      : submission.status === "PENDING"
-                      ? "⏳ Pending"
-                      : submission.status === "REJECTED"
-                      ? "✗ Ditolak"
-                      : submission.status}
+            {/* Header Section - Split into 2 Cards with Larger Video (5:7 ratio on desktop) */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+              {/* Left Card - Main Project Info */}
+              <div className="lg:col-span-5 mia-card p-6 md:p-8 flex flex-col justify-center">
+                <div className="flex items-start gap-4">
+                  {/* Icon Kotak Bintang */}
+                  <div className="p-3 bg-[#E01C20]/20 border border-[#E01C20]/30 rounded-xl text-[#E01C20] flex-shrink-0">
+                    <Sparkles className="h-6 w-6 md:h-7 md:w-7" />
                   </div>
 
-                  {submission.score && (
-                    <div className="flex items-center gap-2 bg-yellow-50 dark:bg-yellow-900/20 px-3 py-1.5 rounded-full border border-yellow-200 dark:border-yellow-800">
-                      <Star className="h-4 w-4 text-yellow-500" />
-                      <span className="text-sm font-semibold text-yellow-700 dark:text-yellow-300">
-                        Skor: {submission.score}
+                  {/* Konten Sejajar Rata Kiri di Sebelah Icon */}
+                  <div className="flex-1 min-w-0 space-y-4">
+                    {/* Info Judul & Peserta */}
+                    <div className="space-y-1.5">
+                      <span className="text-[11px] uppercase tracking-wider text-[#AAB1BD] font-semibold block">
+                        Karya Peserta MIA 2025
                       </span>
+                      <h1 className="text-2xl sm:text-3xl font-bold text-[#FFF9F5] leading-tight">
+                        {submission.project_name}
+                      </h1>
+                      <p className="text-sm text-[#AAB1BD] pt-0.5">
+                        oleh Tim <strong className="text-[#FFF9F5]">{submission.team_name}</strong> • {submission.user?.name}
+                      </p>
                     </div>
-                  )}
 
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-purple-200/50 dark:bg-purple-800/50 rounded-full">
-                    <Trophy className="h-4 w-4 text-purple-600 dark:text-purple-300" />
-                    <span className="text-sm font-medium text-purple-800 dark:text-purple-200">
-                      {submission.category?.name ||
-                        submission.category?.category_name}
-                    </span>
-                  </div>
+                    {/* 4 Item Info Kotak Flex / Grid dengan Ukuran Seragam & Warna Sesuai Badge */}
+                    <div className="grid grid-cols-2 gap-2.5 pt-1 w-full">
+                      {/* 1. Kotak Status */}
+                      <div
+                        className={`p-2.5 rounded-xl border flex items-center gap-2.5 ${
+                          submission.status === "APPROVED"
+                            ? "bg-[#00B445]/10 border-[#00B445]/30"
+                            : submission.status === "PENDING"
+                            ? "bg-[#FED700]/10 border-[#FED700]/30"
+                            : "bg-[#E01C20]/10 border-[#E01C20]/30"
+                        }`}
+                      >
+                        <div
+                          className={`p-1.5 rounded-lg flex-shrink-0 ${
+                            submission.status === "APPROVED"
+                              ? "bg-[#00B445]/20 text-[#00B445]"
+                              : submission.status === "PENDING"
+                              ? "bg-[#FED700]/20 text-[#FED700]"
+                              : "bg-[#E01C20]/20 text-[#E01C20]"
+                          }`}
+                        >
+                          {submission.status === "APPROVED" ? (
+                            <CheckCircle2 className="h-4 w-4" />
+                          ) : submission.status === "PENDING" ? (
+                            <Sparkles className="h-4 w-4" />
+                          ) : (
+                            <XCircle className="h-4 w-4" />
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <span className="text-[10px] text-[#99A1AF] font-medium block uppercase tracking-wider">
+                            Status
+                          </span>
+                          <span
+                            className={`text-xs font-semibold truncate block ${
+                              submission.status === "APPROVED"
+                                ? "text-[#00B445]"
+                                : submission.status === "PENDING"
+                                ? "text-[#FED700]"
+                                : "text-[#E01C20]"
+                            }`}
+                          >
+                            {submission.status === "APPROVED"
+                              ? "Disetujui"
+                              : submission.status === "PENDING"
+                              ? "Pending"
+                              : "Ditolak"}
+                          </span>
+                        </div>
+                      </div>
 
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-200/50 dark:bg-gray-800/50 rounded-full">
-                    <Calendar className="h-4 w-4 text-gray-600 dark:text-gray-300" />
-                    <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
-                      {new Date(submission.created_at).toLocaleDateString(
-                        "id-ID"
-                      )}
-                    </span>
+                      {/* 2. Kotak Skor */}
+                      <div className="p-2.5 rounded-xl bg-[#FED700]/10 border border-[#FED700]/30 flex items-center gap-2.5">
+                        <div className="p-1.5 rounded-lg bg-[#FED700]/20 text-[#FED700] flex-shrink-0">
+                          <Star className="h-4 w-4 fill-[#FED700]" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <span className="text-[10px] text-[#99A1AF] font-medium block uppercase tracking-wider">
+                            Skor
+                          </span>
+                          <span className="text-xs font-semibold text-[#FED700] truncate block">
+                            {submission.score && submission.score > 0
+                              ? `${submission.score} Poin`
+                              : "Belum Dinilai"}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* 3. Kotak Kategori */}
+                      <div className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center gap-2.5">
+                        <div className="p-1.5 rounded-lg bg-purple-500/20 text-purple-400 flex-shrink-0">
+                          <Trophy className="h-4 w-4" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <span className="text-[10px] text-[#99A1AF] font-medium block uppercase tracking-wider">
+                            Kategori
+                          </span>
+                          <span className="text-xs font-semibold text-purple-300 truncate block">
+                            {submission.category?.name ||
+                              submission.category?.category_name ||
+                              "-"}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* 4. Kotak Tanggal */}
+                      <div className="p-2.5 rounded-xl bg-[#1E2939]/70 border border-white/10 flex items-center gap-2.5">
+                        <div className="p-1.5 rounded-lg bg-[#141824] text-[#AAB1BD] flex-shrink-0">
+                          <Calendar className="h-4 w-4" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <span className="text-[10px] text-[#99A1AF] font-medium block uppercase tracking-wider">
+                            Tanggal
+                          </span>
+                          <span className="text-xs font-semibold text-[#AAB1BD] truncate block">
+                            {new Date(submission.created_at).toLocaleDateString(
+                              "id-ID",
+                              {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                              }
+                            )}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
 
-            {/* Right Card - Video */}
-            <Card className="shadow-xl border-0 bg-white dark:bg-gray-900">
-              <CardContent className="p-6">
-                {/* Video Container */}
-                <div className="aspect-video bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
+              {/* Right Card - Larger Video Preview */}
+              <div className="lg:col-span-7 mia-card p-3 sm:p-4 md:p-5 flex flex-col justify-center overflow-hidden shadow-2xl">
+                <div className="aspect-video w-full bg-[#141824] rounded-xl overflow-hidden border border-white/10 relative shadow-inner">
                   {getYouTubeVideoUrl() ? (
                     <iframe
                       src={getYouTubeVideoUrl()}
                       width="100%"
                       height="100%"
+                      title={submission.project_name}
                       frameBorder="0"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
                       className="w-full h-full"
                     />
                   ) : (
-                    <div className="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400">
-                      <Play className="h-12 w-12 mb-2 opacity-50" />
-                      <span className="text-sm text-center">
-                        Video tidak tersedia
+                    <div className="flex flex-col items-center justify-center h-full text-[#AAB1BD] space-y-2 p-8">
+                      <div className="w-14 h-14 rounded-full bg-[#1E2939] flex items-center justify-center text-[#99A1AF]">
+                        <Play className="h-7 w-7 ml-0.5 opacity-60" />
+                      </div>
+                      <span className="text-xs sm:text-sm text-center text-[#99A1AF]">
+                        Video presentasi tidak disematkan
                       </span>
                     </div>
                   )}
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+            </div>
 
-          {/* Main Content */}
-          <div className="space-y-8">
-            {/* User Info & Category */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Identitas Peserta */}
-              <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                      <User className="h-5 w-5 text-blue-600" />
+            {/* Main Content Layout (Aligned with Top Row: 5 cols & 7 cols) */}
+            <div className="space-y-6 md:space-y-8">
+              {/* Row 1: Identitas Peserta (5 cols) & Info Lomba (7 cols) */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                {/* Identitas Peserta - Col span 5 (sama dengan card judul di atas) */}
+                <div className="lg:col-span-5 mia-card p-6 space-y-4 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center gap-3 pb-2 border-b border-white/10 mb-4">
+                      <div className="p-2 bg-[#E01C20]/15 border border-[#E01C20]/30 rounded-lg text-[#E01C20]">
+                        <User className="h-5 w-5" />
+                      </div>
+                      <h3 className="font-bold text-lg text-[#FFF9F5]">
+                        Identitas Peserta
+                      </h3>
                     </div>
-                    <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
-                      Identitas Peserta
-                    </h3>
-                  </div>
-                  <div className="space-y-3">
-                    <div className="flex flex-col">
-                      <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                        Nama
-                      </span>
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">
-                        {submission.user?.name || "-"}
-                      </span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                        Email
-                      </span>
-                      <span className="text-sm text-gray-700 dark:text-gray-300">
-                        {submission.user?.email || "-"}
-                      </span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                        Nama Tim
-                      </span>
-                      <span className="text-sm text-gray-700 dark:text-gray-300">
-                        {submission.team_name || "-"}
-                      </span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Info Lomba */}
-              <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                      <Trophy className="h-5 w-5 text-purple-600" />
-                    </div>
-                    <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
-                      Info Lomba
-                    </h3>
-                  </div>
-                  <div className="space-y-3">
-                    <div className="flex flex-col">
-                      <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                        Kategori
-                      </span>
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">
-                        {submission.category?.category_name ||
-                          submission.category?.name ||
-                          "-"}
-                      </span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                        Judul Proyek
-                      </span>
-                      <span className="text-sm text-gray-700 dark:text-gray-300">
-                        {submission.project_name || "-"}
-                      </span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                        Status Verifikasi
-                      </span>
-                      <div className="flex items-center gap-2 mt-1">
-                        {submission.is_verified ? (
-                          <div className="flex items-center gap-1 text-green-600">
-                            <CheckCircle2 className="h-4 w-4" />
-                            <span className="text-sm font-medium">
-                              Terverifikasi
-                            </span>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-1 text-red-500">
-                            <XCircle className="h-4 w-4" />
-                            <span className="text-sm font-medium">
-                              Belum Terverifikasi
-                            </span>
-                          </div>
-                        )}
+                    <div className="space-y-3.5">
+                      <div>
+                        <span className="text-xs font-semibold text-[#99A1AF] uppercase tracking-wide block mb-0.5">
+                          Nama Peserta
+                        </span>
+                        <span className="text-sm font-medium text-[#FFF9F5]">
+                          {submission.user?.name || "-"}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-xs font-semibold text-[#99A1AF] uppercase tracking-wide block mb-0.5">
+                          Email Kontak
+                        </span>
+                        <span className="text-sm text-[#AAB1BD]">
+                          {submission.user?.email || "-"}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-xs font-semibold text-[#99A1AF] uppercase tracking-wide block mb-0.5">
+                          Nama Tim
+                        </span>
+                        <span className="text-sm text-[#AAB1BD]">
+                          {submission.team_name || "-"}
+                        </span>
                       </div>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Deskripsi Project */}
-            <Card className="shadow-lg">
-              <CardContent className="p-6">
-                <h3 className="font-semibold text-lg mb-4 text-gray-900 dark:text-white">
-                  Deskripsi Proyek
-                </h3>
-                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 min-h-[120px]">
-                  <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
-                    {submission.description || (
-                      <span className="text-gray-400 italic">
-                        Tidak ada deskripsi
-                      </span>
-                    )}
-                  </p>
                 </div>
-              </CardContent>
-            </Card>
 
-            {/* Flow Application */}
-            <Card className="shadow-lg">
-              <CardContent className="p-6">
-                <h3 className="font-semibold text-lg mb-4 text-gray-900 dark:text-white">
-                  Flow Aplikasi
-                </h3>
-                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 min-h-[120px]">
-                  <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
-                    {submission.flow_application || (
-                      <span className="text-gray-400 italic">
-                        Flow tidak tersedia
-                      </span>
-                    )}
-                  </p>
+                {/* Info Lomba - Col span 7 (sama dengan card video di atas) */}
+                <div className="lg:col-span-7 mia-card p-6 space-y-4 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center gap-3 pb-2 border-b border-white/10 mb-4">
+                      <div className="p-2 bg-purple-500/15 border border-purple-500/30 rounded-lg text-purple-400">
+                        <Trophy className="h-5 w-5" />
+                      </div>
+                      <h3 className="font-bold text-lg text-[#FFF9F5]">
+                        Info Lomba
+                      </h3>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <span className="text-xs font-semibold text-[#99A1AF] uppercase tracking-wide block mb-0.5">
+                          Kategori Lomba
+                        </span>
+                        <span className="text-sm font-medium text-[#FFF9F5]">
+                          {submission.category?.category_name ||
+                            submission.category?.name ||
+                            "-"}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-xs font-semibold text-[#99A1AF] uppercase tracking-wide block mb-0.5">
+                          Judul Proyek
+                        </span>
+                        <span className="text-sm text-[#AAB1BD]">
+                          {submission.project_name || "-"}
+                        </span>
+                      </div>
+                      <div className="sm:col-span-2">
+                        <span className="text-xs font-semibold text-[#99A1AF] uppercase tracking-wide block mb-1">
+                          Status Verifikasi
+                        </span>
+                        <div className="flex items-center gap-2">
+                          {submission.is_verified ? (
+                            <div className="flex items-center gap-1.5 text-[#00B445] text-sm font-medium">
+                              <CheckCircle2 className="h-4 w-4" />
+                              <span>Terverifikasi</span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1.5 text-[#AAB1BD] text-sm font-medium">
+                              <XCircle className="h-4 w-4 opacity-50" />
+                              <span>Belum Terverifikasi Khusus</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
 
-            {/* Links */}
-            <Card className="shadow-lg">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <Link2 className="h-5 w-5 text-blue-600" />
-                  <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
-                    Link Project
+              {/* Row 2: Deskripsi Proyek (Full Width) */}
+              <div className="mia-card p-6 md:p-8 space-y-4">
+                <div className="flex items-center gap-2.5 pb-2 border-b border-white/10">
+                  <FileText className="h-5 w-5 text-[#E01C20]" />
+                  <h3 className="font-bold text-lg text-[#FFF9F5]">
+                    Deskripsi Proyek
                   </h3>
                 </div>
-                <div className="space-y-3">
+                <div className="bg-[#141824]/60 border border-white/10 rounded-xl p-4 md:p-6 min-h-[120px]">
+                  <p className="text-sm md:text-base text-[#D5D8DE] leading-relaxed whitespace-pre-wrap">
+                    {submission.description || (
+                      <span className="text-[#99A1AF] italic">
+                        Tidak ada deskripsi detail untuk karya ini.
+                      </span>
+                    )}
+                  </p>
+                </div>
+              </div>
+
+              {/* Row 3: Flow Aplikasi (Full Width, jika ada) */}
+              <div className="mia-card p-6 md:p-8 space-y-4">
+                <div className="flex items-center gap-2.5 pb-2 border-b border-white/10">
+                  <Sparkles className="h-5 w-5 text-[#FED700]" />
+                  <h3 className="font-bold text-lg text-[#FFF9F5]">
+                    Flow Aplikasi
+                  </h3>
+                </div>
+                <div className="bg-[#141824]/60 border border-white/10 rounded-xl p-4 md:p-6 min-h-[100px]">
+                  <p className="text-sm md:text-base text-[#D5D8DE] leading-relaxed whitespace-pre-wrap">
+                    {submission.flow_application || (
+                      <span className="text-[#99A1AF] italic">
+                        Flow aplikasi tidak tersedia.
+                      </span>
+                    )}
+                  </p>
+                </div>
+              </div>
+
+              {/* Row 4: Link Project (Full Width, dengan margin bawah lega terhadap footer) */}
+              <div className="mia-card p-6 md:p-8 space-y-4 mb-12 md:mb-16">
+                <div className="flex items-center gap-2.5 pb-2 border-b border-white/10">
+                  <Link2 className="h-5 w-5 text-[#E01C20]" />
+                  <h3 className="font-bold text-lg text-[#FFF9F5]">
+                    Link Project & Sumber Daya
+                  </h3>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
                   {getNonYouTubeLinks().length > 0 ? (
                     getNonYouTubeLinks().map((link) => (
                       <div
                         key={link.link_id}
-                        className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-700"
+                        className="bg-[#141824] hover:bg-[#1E2939] border border-white/10 hover:border-[#E01C20]/50 rounded-xl p-4 transition-all flex flex-col justify-between space-y-3 group"
                       >
-                        <div className="flex items-center gap-2 mb-2">
-                          {getLinkIcon(link.link_type)}
-                          <span className="font-medium text-blue-900 dark:text-blue-300">
+                        <div className="flex items-center gap-2">
+                          <span className="p-2 rounded-lg bg-[#1E2939] text-[#E01C20] group-hover:text-[#FED700] transition-colors">
+                            {getLinkIcon(link.link_type)}
+                          </span>
+                          <span className="font-semibold text-sm text-[#FFF9F5] capitalize">
                             {link.link_type}
                           </span>
                         </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          asChild
-                          className="w-full text-left justify-start"
+
+                        <a
+                          href={link.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-between gap-2 px-3 py-2 bg-[#1E2939] hover:bg-[#E01C20]/20 border border-white/10 hover:border-[#E01C20]/40 rounded-lg text-xs text-[#FFF9F5] transition-colors w-full"
                         >
-                          <a
-                            href={link.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2"
-                          >
-                            <ExternalLink className="h-3 w-3" />
-                            <span className="truncate">{link.url}</span>
-                          </a>
-                        </Button>
+                          <span className="truncate">{link.url}</span>
+                          <ExternalLink className="h-3.5 w-3.5 flex-shrink-0 text-[#AAB1BD] group-hover:text-[#E01C20]" />
+                        </a>
+
                         {link.description && (
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                          <p className="text-xs text-[#99A1AF]">
                             {link.description}
                           </p>
                         )}
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-8">
-                      <LinkIcon className="h-12 w-12 mx-auto mb-3 text-gray-400" />
-                      <span className="text-gray-400 italic">
-                        Tidak ada link tambahan
+                    <div className="col-span-full text-center py-8 text-[#99A1AF]">
+                      <LinkIcon className="h-10 w-10 mx-auto mb-2 opacity-40" />
+                      <span className="text-xs">
+                        Tidak ada tautan proyek tambahan
                       </span>
                     </div>
                   )}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
+
       <Footer />
-    </>
+    </div>
   );
 }
+
