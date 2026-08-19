@@ -24,11 +24,9 @@ import {
 
 // Zod Validation Schemas
 const profileSchema = z.object({
-  name: z
-    .string()
-    .refine((val) => val.replace(/\s+/g, "").length >= 3, {
-      message: "Nama lengkap minimal 3 karakter",
-    }),
+  name: z.string().refine((val) => val.replace(/\s+/g, "").length >= 3, {
+    message: "Nama lengkap minimal 3 karakter",
+  }),
   nim: z.string().optional(),
 });
 
@@ -91,7 +89,7 @@ export default function ProfilePage() {
         onSuccess: () => {
           passwordForm.reset();
         },
-      }
+      },
     );
   };
 
@@ -100,7 +98,9 @@ export default function ProfilePage() {
       <div className="min-h-screen w-full bg-background mia-connected-bg flex items-center justify-center text-foreground">
         <div className="text-center space-y-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ring mx-auto"></div>
-          <p className="text-base text-muted-foreground">Memuat profil Anda...</p>
+          <p className="text-base text-muted-foreground">
+            Memuat profil Anda...
+          </p>
         </div>
       </div>
     );
@@ -221,7 +221,7 @@ export default function ProfilePage() {
                             "h-11 bg-input rounded-xl pl-10 pr-4 text-sm text-foreground placeholder:text-mia-muted-2 transition-all",
                             profileErrors.name
                               ? "border-destructive focus-visible:ring-destructive"
-                              : "border-border focus-visible:border-ring focus-visible:ring-ring/50"
+                              : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
                           )}
                           required
                           placeholder="Masukkan nama lengkap"
@@ -313,7 +313,10 @@ export default function ProfilePage() {
             </TabsContent>
 
             {/* Password Tab Form */}
-            <TabsContent value="password" className="focus-visible:outline-none">
+            <TabsContent
+              value="password"
+              className="focus-visible:outline-none"
+            >
               <div className="max-w-2xl mx-auto space-y-6">
                 <div className="space-y-1">
                   <h3 className="text-lg font-bold text-foreground">
@@ -390,7 +393,7 @@ export default function ProfilePage() {
                           "h-11 bg-input rounded-xl pl-10 pr-10 text-sm text-foreground placeholder:text-mia-muted-2 transition-all",
                           passwordErrors.new_password
                             ? "border-destructive focus-visible:ring-destructive"
-                            : "border-border focus-visible:border-ring focus-visible:ring-ring/50"
+                            : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
                         )}
                         placeholder="Masukkan password baru"
                       />
