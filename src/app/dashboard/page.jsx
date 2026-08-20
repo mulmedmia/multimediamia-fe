@@ -36,44 +36,55 @@ export default function DashboardPage() {
 
   if (loading || !user) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        Memverifikasi sesi...
+      <div className="min-h-screen w-full bg-background mia-connected-bg flex items-center justify-center text-foreground">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ring mx-auto"></div>
+          <p className="text-base text-muted-foreground">
+            Memverifikasi sesi...
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <>
+    <div className="min-h-screen w-full bg-background mia-connected-bg text-foreground relative selection:bg-primary selection:text-white flex flex-col justify-between">
       <DashboardHeader />
-      <main className="pt-20 bg-gray-50 dark:bg-gray-950 min-h-screen">
-        <div className="container mx-auto py-8 px-4">
-          {!selectedRegistration ? (
-            <section className="mb-12">
-              <h1 className="text-3xl font-bold mb-4">Lomba yang Anda Ikuti</h1>
-              <MyRegistrationsList
-                onSelectRegistration={handleSelectRegistration}
-              />
-            </section>
-          ) : (
-            <section className="mb-12">
-              <div className="flex items-center gap-4 mb-6">
-                <Button
-                  variant="outline"
-                  onClick={handleBackToList}
-                  className="flex items-center gap-2"
-                >
-                  ← Kembali ke Daftar Lomba
-                </Button>
-              </div>
-              <CompetitionDashboard
-                registration={selectedRegistration}
-                initialTab={activeTab}
-              />
-            </section>
-          )}
-        </div>
+      <main className="relative z-10 pt-28 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full flex-1 min-h-screen">
+        {!selectedRegistration ? (
+          <section className="space-y-6">
+            <div className="space-y-2">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground tracking-tight">
+                Lomba yang Anda Ikuti
+              </h1>
+              <p className="text-sm sm:text-base text-muted-foreground">
+                Kelola pendaftaran, kuis, dan pengumpulan berkas lomba Anda di
+                MIA 2026
+              </p>
+            </div>
+            <MyRegistrationsList
+              onSelectRegistration={handleSelectRegistration}
+            />
+          </section>
+        ) : (
+          <section className="space-y-6">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="outline"
+                onClick={handleBackToList}
+                className="flex items-center gap-2 rounded-full bg-input/40 border border-white/20 hover:border-white/40 hover:bg-input text-foreground text-xs sm:text-sm px-4 h-9 cursor-pointer transition-all font-medium shadow-sm"
+              >
+                ← Kembali ke Daftar Lomba
+              </Button>
+            </div>
+            <CompetitionDashboard
+              registration={selectedRegistration}
+              initialTab={activeTab}
+            />
+          </section>
+        )}
       </main>
       <Footer />
-    </>
+    </div>
   );
 }
