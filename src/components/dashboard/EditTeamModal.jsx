@@ -100,7 +100,7 @@ export function EditTeamModal({ open, onClose, registration }) {
           onClose();
           reset();
         },
-      }
+      },
     );
   };
 

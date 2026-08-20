@@ -75,7 +75,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
   // Filter submissions berdasarkan kategori registration
   const submissions =
     submissionsData?.submissions?.filter(
-      (sub) => sub.category_id === activeRegistration.category_id
+      (sub) => sub.category_id === activeRegistration.category_id,
     ) || [];
 
   // Check apakah user sudah punya submission
@@ -144,7 +144,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
       queryKey: ["gamification", activeRegistration.registration_id],
       queryFn: () => getGamificationData(activeRegistration.registration_id),
       enabled: !!activeRegistration.registration_id,
-    }
+    },
   );
 
   const { data: schedule, isLoading: isLoadingSchedule } = useQuery({
@@ -180,7 +180,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
     },
     onError: (error) => {
       toast.error(
-        "Gagal menukar poin: " + (error.message || "Terjadi kesalahan")
+        "Gagal menukar poin: " + (error.message || "Terjadi kesalahan"),
       );
     },
   });
@@ -380,8 +380,8 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                 {!activeRegistration.is_verified
                   ? "Verifikasi akun diperlukan sebelum dapat mengunggah karya."
                   : hasSubmissions
-                  ? "Anda sudah mengupload karya. Gunakan fitur edit untuk mengubah submission."
-                  : "Unggah atau perbarui karya Anda sesuai fase kompetisi."}
+                    ? "Anda sudah mengupload karya. Gunakan fitur edit untuk mengubah submission."
+                    : "Unggah atau perbarui karya Anda sesuai fase kompetisi."}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -565,7 +565,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                                 <p className="text-xs text-muted-foreground">
                                   Diupload:{" "}
                                   {new Date(sub.created_at).toLocaleString(
-                                    "id-ID"
+                                    "id-ID",
                                   )}
                                 </p>
                               </div>
@@ -575,9 +575,9 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                                     sub.status === "PENDING"
                                       ? "secondary"
                                       : sub.status === "VERIFIED" ||
-                                        sub.status === "APPROVED"
-                                      ? "default"
-                                      : "destructive"
+                                          sub.status === "APPROVED"
+                                        ? "default"
+                                        : "destructive"
                                   }
                                 >
                                   {sub.status}
