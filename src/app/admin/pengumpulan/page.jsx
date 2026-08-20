@@ -77,17 +77,15 @@ export default function AdminPengumpulanPage() {
         setStatusData,
         setScoreData,
       }),
-    [isMobile]
+    [isMobile],
   );
 
-  const {
-    data: submissions = [],
-    isLoading,
-    isError,
-  } = useAdminSubmissions({});
+  const { data, isLoading, isError } = useAdminSubmissions({});
   const patchStatus = usePatchSubmissionStatus();
   const patchScore = usePatchSubmissionScore();
   const deleteMutation = useDeleteSubmission();
+
+  const submissions = data?.submissions || [];
 
   const filteredData = useMemo(() => {
     let filtered = submissions;
@@ -121,7 +119,7 @@ export default function AdminPengumpulanPage() {
       ];
 
       return searchableColumns.some((value) =>
-        value?.toString().toLowerCase().includes(searchValue)
+        value?.toString().toLowerCase().includes(searchValue),
       );
     },
     onGlobalFilterChange: setGlobalFilter,
@@ -191,7 +189,7 @@ export default function AdminPengumpulanPage() {
                         >
                           {flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                         </th>
                       ))}
@@ -205,7 +203,7 @@ export default function AdminPengumpulanPage() {
                         <td key={cell.id} className="px-4 py-3 text-sm">
                           {flexRender(
                             cell.column.columnDef.cell,
-                            cell.getContext()
+                            cell.getContext(),
                           )}
                         </td>
                       ))}
@@ -240,7 +238,7 @@ export default function AdminPengumpulanPage() {
           onSubmit={() =>
             patchStatus.mutate(
               { id: statusData.submission_id, status, is_verified },
-              { onSuccess: () => setStatusData(null) }
+              { onSuccess: () => setStatusData(null) },
             )
           }
         />
@@ -257,7 +255,7 @@ export default function AdminPengumpulanPage() {
           onSubmit={() =>
             patchScore.mutate(
               { id: scoreData.submission_id, score: Number(score), feedback },
-              { onSuccess: () => setScoreData(null) }
+              { onSuccess: () => setScoreData(null) },
             )
           }
         />

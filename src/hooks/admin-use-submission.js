@@ -9,10 +9,10 @@ import {
 import { toast } from "sonner";
 
 // Query: ambil semua submission
-export function useAdminSubmissions(params) {
+export function useAdminSubmissions({ limit, page, status, search }) {
   return useQuery({
-    queryKey: ["admin-submissions", params],
-    queryFn: () => getAllSubmissions(params),
+    queryKey: ["admin-submissions", { limit, page, status, search }],
+    queryFn: () => getAllSubmissions({ limit, page, status, search }),
   });
 }
 
