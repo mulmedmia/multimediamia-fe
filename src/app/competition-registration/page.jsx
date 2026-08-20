@@ -6,6 +6,7 @@ import { CompetitionRegistrationForm } from "@/components/forms/CompetitionRegis
 import { useAuthContext } from "@/providers/AuthProvider";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { useMyRegistrations } from "@/hooks/user-use-registration";
 
 function CompetitionRegistrationPageInner() {
   const router = useRouter();
@@ -13,11 +14,20 @@ function CompetitionRegistrationPageInner() {
   const categoryId = searchParams.get("category");
   const { user, isLoading } = useAuthContext();
 
+  const { data: registrations } = useMyRegistrations(user?.users_id);
+
   useEffect(() => {
     if (!isLoading && !user) {
       router.replace("/login");
     }
-  }, [isLoading, user, router]);
+
+    if (
+      Array.isArray(registrations) &&
+      registrations.find((reg) => reg.category_id === String(categoryId))
+    ) {
+      router.replace("/dashboard");
+    }
+  }, [isLoading, user, router, registrations, categoryId]);
 
   if (isLoading) {
     return (

@@ -1,6 +1,17 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { updateRegistration } from "@/services/competition.service";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  getMyRegistrations,
+  updateRegistration,
+} from "@/services/competition.service";
 import { toast } from "sonner";
+
+export function useMyRegistrations(userId) {
+  return useQuery({
+    queryKey: ["myRegistrations", userId],
+    queryFn: () => getMyRegistrations(userId),
+    enabled: !!userId,
+  });
+}
 
 export function useUpdateRegistration() {
   const queryClient = useQueryClient();
@@ -17,7 +28,7 @@ export function useUpdateRegistration() {
     },
     onError: (error) => {
       toast.error(
-        error?.response?.data?.message || "Gagal memperbarui data tim!"
+        error?.response?.data?.message || "Gagal memperbarui data tim!",
       );
     },
   });
