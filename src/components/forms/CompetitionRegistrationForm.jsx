@@ -149,7 +149,7 @@ export function CompetitionRegistrationForm({ defaultCategoryId }) {
     if (selectedCategoryType === "GROUP") {
       payload.team_name = data.team_name;
 
-      const namesArray = [data.team_lead, data.member_2, data.member_3]
+      const namesArray = [data.team_lead, data.member_1, data.member_2]
         .map((name) => (name ? name.trim() : ""))
         .filter((name) => name !== "");
       payload.team_members = `['${namesArray.join("', '")}']`;
