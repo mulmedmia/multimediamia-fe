@@ -37,8 +37,9 @@ const registrationSchema = z
       hostname: /^drive\.google\.com$/,
       message: "Harap masukkan link Google Drive yang valid",
     }),
+    team_lead: z.string(),
+    member_1: z.string().optional(),
     member_2: z.string().optional(),
-    member_3: z.string().optional(),
     selected_category_type: z.string().optional(),
   })
   .superRefine((data, ctx) => {
@@ -50,18 +51,22 @@ const registrationSchema = z
           path: ["team_name"],
         });
       }
-      if (!data.member_2 || data.member_2.replace(/\s+/g, "").length < 3) {
+      if (data.team_lead && data.team_lead.replace(/\s+/g, "").length < 3) {
         ctx.addIssue({
           code: "custom",
-          message: "Nama anggota minimal 3 karakter",
-          path: ["member_2"],
+          path: ["team_lead"],
         });
       }
-      if (data.member_3 && data.member_3.replace(/\s+/g, "").length < 3) {
+      if (data.member_1 && data.member_1.replace(/\s+/g, "").length < 3) {
         ctx.addIssue({
           code: "custom",
-          message: "Nama anggota minimal 3 karakter",
-          path: ["member_3"],
+          path: ["member_1"],
+        });
+      }
+      if (data.member_2 && data.member_2.replace(/\s+/g, "").length < 3) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["member_2"],
         });
       }
     }
@@ -91,8 +96,9 @@ export function CompetitionRegistrationForm({ defaultCategoryId }) {
       category_id: defaultCategoryId || "",
       file_url: "",
       team_name: "",
+      team_lead: user?.name || "",
+      member_1: "",
       member_2: "",
-      member_3: "",
       selected_category_type: "",
     },
   });
@@ -143,7 +149,7 @@ export function CompetitionRegistrationForm({ defaultCategoryId }) {
     if (selectedCategoryType === "GROUP") {
       payload.team_name = data.team_name;
 
-      const namesArray = [user?.name, data.member_2, data.member_3]
+      const namesArray = [data.team_lead, data.member_2, data.member_3]
         .map((name) => (name ? name.trim() : ""))
         .filter((name) => name !== "");
       payload.team_members = `['${namesArray.join("', '")}']`;
@@ -201,7 +207,7 @@ export function CompetitionRegistrationForm({ defaultCategoryId }) {
                       value={String(category.category_id)}
                       className="hover:bg-primary/20 focus:bg-primary/20 text-foreground cursor-pointer py-2.5"
                     >
-                      {category.category_name} ({category.team_type})
+                      {category.category_name}
                     </SelectItem>
                   ))}
               </SelectContent>
@@ -227,7 +233,8 @@ export function CompetitionRegistrationForm({ defaultCategoryId }) {
             </div>
             <Input
               type="text"
-              value={user?.name || ""}
+              required
+              {...register("team_lead")}
               className="h-11 bg-input rounded-xl pl-10 pr-4 text-sm text-foreground placeholder:text-mia-muted-2 transition-all border-border focus-visible:border-ring focus-visible:ring-ring/50"
               disabled
             />
@@ -277,63 +284,74 @@ export function CompetitionRegistrationForm({ defaultCategoryId }) {
             </Label>
 
             {/* Stack 1: Ketua (Current User) */}
-            <div className="relative cursor-not-allowed">
+            <div className="relative">
               <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
                 <PersonIcon className="w-4 h-4" />
               </div>
               <Input
                 type="text"
-                value={user?.name + " (Ketua)" || ""}
-                disabled
-                className="h-11 bg-input rounded-xl pl-10 pr-4 text-sm text-foreground opacity-70 border-border"
+                placeholder="Nama ketua tim (wajib)"
+                required
+                {...register("team_lead")}
+                className={cn(
+                  "h-11 bg-input rounded-xl pl-10 pr-22 text-sm text-foreground placeholder:text-mia-muted-2 transition-all peer",
+                  errors.team_lead
+                    ? "border-destructive focus-visible:ring-destructive"
+                    : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
+                )}
               />
+              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-mia-muted-2 z-10 pointer-events-none select-none peer-placeholder-shown:hidden">
+                Ketua
+              </span>
             </div>
 
-            {/* Stack 2: Anggota 2 (Required) */}
+            {/* Stack 2: Anggota 1 (Optional) */}
             <div className="space-y-1">
               <div className="relative">
                 <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
                   <PersonIcon className="w-4 h-4" />
                 </div>
                 <Input
-                  placeholder="Nama anggota 2"
-                  required
+                  placeholder="Nama anggota 1 (opsional)"
+                  {...register("member_1")}
+                  className={cn(
+                    "h-11 bg-input rounded-xl pl-10 pr-22 text-sm text-foreground placeholder:text-mia-muted-2 transition-all peer",
+                    errors.member_1
+                      ? "border-destructive focus-visible:ring-destructive"
+                      : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
+                  )}
+                />
+                <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-mia-muted-2 z-10 pointer-events-none select-none peer-placeholder-shown:hidden">
+                  Anggota 1
+                </span>
+              </div>
+            </div>
+
+            {/* Stack 3: Anggota 2 (Optional) */}
+            <div className="space-y-1">
+              <div className="relative">
+                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
+                  <PersonIcon className="w-4 h-4" />
+                </div>
+                <Input
+                  placeholder="Nama anggota 2 (opsional)"
                   {...register("member_2")}
                   className={cn(
-                    "h-11 bg-input rounded-xl pl-10 pr-4 text-sm text-foreground placeholder:text-mia-muted-2 transition-all",
+                    "h-11 bg-input rounded-xl pl-10 pr-22 text-sm text-foreground placeholder:text-mia-muted-2 transition-all peer",
                     errors.member_2
                       ? "border-destructive focus-visible:ring-destructive"
                       : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
                   )}
                 />
+                <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-mia-muted-2 z-10 pointer-events-none select-none peer-placeholder-shown:hidden">
+                  Anggota 2
+                </span>
               </div>
             </div>
 
-            {/* Stack 3: Anggota 3 (Optional) */}
-            <div className="space-y-1">
-              <div className="relative">
-                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
-                  <PersonIcon className="w-4 h-4" />
-                </div>
-                <Input
-                  placeholder="Nama anggota 3 (opsional)"
-                  {...register("member_3")}
-                  className={cn(
-                    "h-11 bg-input rounded-xl pl-10 pr-4 text-sm text-foreground placeholder:text-mia-muted-2 transition-all",
-                    errors.member_3
-                      ? "border-destructive focus-visible:ring-destructive"
-                      : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
-                  )}
-                />
-              </div>
-            </div>
-
-            {/* <p className="text-xs text-mia-muted-2">
-              Biarkan anggota 3 kosong jika tim hanya beranggotakan 2 orang
-            </p> */}
-            {(errors.member_2 || errors.member_3) && (
+            {(errors.team_lead || errors.member_1 || errors.member_2) && (
               <p className="text-xs text-destructive mt-1 font-medium">
-                {errors.member_2.message || errors.member_3.message}
+                Nama anggota minimal 3 karakter
               </p>
             )}
           </div>
