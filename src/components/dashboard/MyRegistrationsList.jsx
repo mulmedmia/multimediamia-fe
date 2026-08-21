@@ -29,6 +29,7 @@ import {
   Trophy,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 export function MyRegistrationsList({ onSelectRegistration }) {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
@@ -116,25 +117,24 @@ export function MyRegistrationsList({ onSelectRegistration }) {
 
   if (!registrations || registrations.length === 0) {
     return (
-      <div className="mia-card p-10 sm:p-16 text-center border-dashed space-y-5 max-w-xl">
+      <div className="mia-card p-10 sm:p-16 text-center !border-dashed space-y-5 max-w-xl shadow-2xl">
         <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center mx-auto">
           <Trophy className="w-8 h-8" />
         </div>
         <div className="space-y-1.5">
           <h3 className="text-xl sm:text-2xl font-bold text-foreground">
-            Belum Ada Lomba
+            Anda Belum Mendaftar
           </h3>
           <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-            Anda belum mendaftar lomba apapun. Pilih kategori lomba dan mulai
-            berkompetisi sekarang! (Maksimal 2 lomba per akun).
+            Pilih kategori lomba dan mulai berkompetisi sekarang! (Maksimal 2
+            lomba per akun)
           </p>
         </div>
-        <Button
-          onClick={() => router.push("/#kategori")}
-          className="mia-btn-primary h-11 rounded-full px-7 text-sm font-semibold cursor-pointer shadow-lg shadow-red-900/40"
-        >
-          Lihat Kategori Lomba
-        </Button>
+        <Link href="/#lomba">
+          <Button className="mia-btn-primary h-11 rounded-full px-7 text-sm font-semibold cursor-pointer shadow-lg shadow-red-900/40 max-w-full truncate">
+            Daftar dan Jadi Juara
+          </Button>
+        </Link>
       </div>
     );
   }
