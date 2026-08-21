@@ -25,35 +25,27 @@ const teamFormSchema = z
     team_type: z.string().optional(),
   })
   .superRefine((data, ctx) => {
-    const isTooShort = (val) => val.replace(/\s+/g, "").length < 3;
+    const minCharError = (field = "", minChar = 3, prefixMsg = "") => {
+      if (data[field].replace(/\s+/g, "").length < minChar) {
+        ctx.addIssue({
+          message: `${prefixMsg} minimal ${minChar} karakter`,
+          path: [field],
+        });
+      }
+    };
 
     // Group
     if (data.team_type === "GROUP") {
-      if (!data.team_name || isTooShort(data.team_name)) {
-        ctx.addIssue({
-          message: "Nama tim minimal 3 karakter",
-          path: ["team_name"],
-        });
-      }
-      if (!data.team_lead || isTooShort(data.team_lead)) {
-        ctx.addIssue({ path: ["team_lead"] });
-      }
-      if (data.member_1 && isTooShort(data.member_1)) {
-        ctx.addIssue({ path: ["member_1"] });
-      }
-      if (data.member_2 && isTooShort(data.member_2)) {
-        ctx.addIssue({ path: ["member_2"] });
-      }
+      minCharError("team_name", 3, "Nama tim");
+      minCharError("team_lead", 3, "Nama peserta");
+      if (data.member_1) minCharError("member_1", 3, "Nama peserta");
+      if (data.member_2) minCharError("member_2", 3, "Nama peserta");
     }
 
     // Individual
+    // Asumsikan Nama Ketua = Nama Tim
     else {
-      if (!data.team_lead || isTooShort(data.team_lead)) {
-        ctx.addIssue({
-          message: "Nama peserta minimal 3 karakter",
-          path: ["team_lead"],
-        });
-      }
+      minCharError("team_lead", 3, "Nama peserta");
     }
   });
 
@@ -86,6 +78,16 @@ function PersonInput({
         {role}
       </span>
     </div>
+  );
+}
+
+function InputError({ fieldError }) {
+  return (
+    fieldError && (
+      <p className="text-xs text-destructive mt-1 font-medium">
+        {fieldError.message}
+      </p>
+    )
   );
 }
 
@@ -139,7 +141,6 @@ export function TeamForm({
       let lead = "";
       let m1 = "";
       let m2 = "";
-      console.log(registration.team_members);
 
       if (registration.team_members) {
         try {
@@ -229,11 +230,7 @@ export function TeamForm({
               )}
             />
           </div>
-          {errors.team_lead && (
-            <p className="text-xs text-destructive mt-1 font-medium">
-              {errors.team_lead.message}
-            </p>
-          )}
+          <InputError fieldError={errors.team_lead} />
         </div>
       )}
 
@@ -265,11 +262,7 @@ export function TeamForm({
                 )}
               />
             </div>
-            {errors.team_name && (
-              <p className="text-xs text-destructive mt-1 font-medium">
-                {errors.team_name.message}
-              </p>
-            )}
+            <InputError fieldError={errors.team_name} />
           </div>
 
           {/* Team Members Stacks */}
@@ -287,11 +280,13 @@ export function TeamForm({
               />
             ))}
 
-            {(errors.team_lead || errors.member_1 || errors.member_2) && (
-              <p className="text-xs text-destructive mt-1 font-medium">
-                Nama peserta minimal 3 karakter
-              </p>
-            )}
+            <InputError
+              fieldError={
+                [errors.team_lead, errors.member_1, errors.member_2].filter(
+                  (err) => !!err,
+                )[0]
+              }
+            />
           </div>
         </div>
       )}
@@ -327,11 +322,7 @@ export function TeamForm({
           Upload dokumen-dokumen persyaratan ke Google Drive dan masukkan link
           publiknya di sini
         </p>
-        {errors.file_url && (
-          <p className="text-xs text-destructive mt-1 font-medium">
-            {errors.file_url.message}
-          </p>
-        )}
+        <InputError fieldError={errors.file_url} />
       </div>
 
       {/* Action Buttons */}
