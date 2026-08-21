@@ -46,8 +46,6 @@ export function MyRegistrationsList({ onSelectRegistration }) {
     enabled: !!user?.users_id,
   });
 
-  console.log(registrations);
-
   const { data: submissionsData } = useQuery({
     queryKey: ["mySubmissions"],
     queryFn: () => getMySubmissions(1, 100),
@@ -151,13 +149,13 @@ export function MyRegistrationsList({ onSelectRegistration }) {
             <div
               key={reg.registration_id}
               onClick={() => onSelectRegistration(reg)}
-              className="mia-card p-7 sm:p-8 shadow-2xl flex flex-col justify-between space-y-6 cursor-pointer hover:border-primary/50 transition-all duration-300 group"
+              className="mia-card p-7 sm:p-8 shadow-2xl flex flex-col justify-between space-y-6 cursor-pointer hover:border-primary/50 transition-all duration-300 group hover:-translate-y-1 hover:shadow-mia-bg/40"
             >
               <div className="space-y-5">
                 {/* Header: Title & Badges */}
                 <div className="flex justify-between items-start gap-4">
                   <div className="space-y-1 min-w-0 flex-1">
-                    <h3 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight group-hover:text-primary transition-colors truncate">
+                    <h3 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight truncate">
                       {reg.category?.name || "Nama Lomba"}
                     </h3>
                     <p className="text-sm sm:text-base text-muted-foreground font-medium truncate">

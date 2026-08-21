@@ -45,17 +45,14 @@ const createSubmissionSchema = (teamType) => {
               .min(10, { message: "Flow aplikasi minimal 10 karakter." })
           : z.string().optional(),
       github_url: z
-        .string()
         .url({ message: "Harap masukkan URL GitHub yang valid." })
         .optional()
         .or(z.literal("")),
       youtube_url: z
-        .string()
         .url({ message: "Harap masukkan URL YouTube yang valid." })
         .optional()
         .or(z.literal("")),
       other_url: z
-        .string()
         .url({ message: "Harap masukkan URL yang valid." })
         .optional()
         .or(z.literal("")),

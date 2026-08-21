@@ -1,79 +1,24 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import React from "react";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { TeamForm } from "@/components/forms/TeamForm";
 import { useUpdateRegistration } from "@/hooks/user-use-registration";
-import { useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
-
-// Schema validasi
-const editTeamSchema = z.object({
-  team_name: z.string().min(1, "Nama tim wajib diisi"),
-  team_members: z.string().min(1, "Anggota tim wajib diisi"),
-  file_url: z
-    .string()
-    .url("Format URL tidak valid")
-    .optional()
-    .or(z.literal("")),
-});
 
 export function EditTeamModal({ open, onClose, registration }) {
   const updateMutation = useUpdateRegistration();
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm({
-    resolver: zodResolver(editTeamSchema),
-  });
+  const handleClose = () => {
+    onClose();
+  };
 
-  // Set default values ketika modal dibuka
-  useEffect(() => {
-    if (open && registration) {
-      // Parse team members dari format ['name1', 'name2'] ke "name1, name2"
-      let teamMembersDisplay = "";
-      if (registration.team_members) {
-        try {
-          const parsed = JSON.parse(registration.team_members);
-          if (Array.isArray(parsed)) {
-            teamMembersDisplay = parsed.join(", ");
-          }
-        } catch (e) {
-          // Jika gagal parse sebagai JSON, coba split berdasarkan koma
-          teamMembersDisplay = registration.team_members
-            .replace(/[\[\]']/g, "")
-            .split(",")
-            .map((name) => name.trim())
-            .join(", ");
-        }
-      }
-
-      reset({
-        team_name: registration.team_name || "",
-        team_members: teamMembersDisplay,
-        file_url: registration.file_url || "",
-      });
-    }
-  }, [open, registration, reset]);
-
-  const onSubmit = (data) => {
-    // Format team_members kembali ke format ['name1', 'name2']
+  const handleSubmit = (data) => {
     const namesArray = data.team_members
       .split(",")
       .map((name) => name.trim())
@@ -86,7 +31,6 @@ export function EditTeamModal({ open, onClose, registration }) {
       team_members: formattedTeamMembers,
     };
 
-    // Hanya kirim file_url jika ada
     if (data.file_url && data.file_url.trim() !== "") {
       payload.file_url = data.file_url;
     }
@@ -98,16 +42,10 @@ export function EditTeamModal({ open, onClose, registration }) {
       },
       {
         onSuccess: () => {
-          onClose();
-          reset();
+          handleClose();
         },
       },
     );
-  };
-
-  const handleClose = () => {
-    onClose();
-    reset();
   };
 
   if (!registration) return null;
@@ -116,87 +54,23 @@ export function EditTeamModal({ open, onClose, registration }) {
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent
         onOpenAutoFocus={(e) => e.preventDefault()}
-        className="sm:max-w-md selection:bg-primary selection:text-white"
+        className="sm:max-w-lg max-h-[90vh] overflow-y-auto bg-[#0F121A] border border-border/50 rounded-2xl text-foreground p-6 sm:p-7 shadow-2xl space-y-4 selection:bg-primary selection:text-white"
       >
-        <DialogHeader>
-          <DialogTitle>Edit Data Tim</DialogTitle>
-          <DialogDescription>
+        <DialogHeader className="pb-3 border-b border-border/40 space-y-1">
+          <DialogTitle className="text-lg sm:text-xl font-bold tracking-tight text-foreground">
+            Edit Data Tim
+          </DialogTitle>
+          <DialogDescription className="text-xs text-muted-foreground">
             Perbarui nama tim, anggota tim, atau link dokumen persyaratan.
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Nama Tim */}
-          <div className="space-y-2">
-            <Label htmlFor="team_name">Nama Tim *</Label>
-            <Input
-              id="team_name"
-              placeholder="Masukkan nama tim"
-              {...register("team_name")}
-            />
-            {errors.team_name && (
-              <p className="text-xs text-red-500">{errors.team_name.message}</p>
-            )}
-          </div>
-
-          {/* Anggota Tim */}
-          <div className="space-y-2">
-            <Label htmlFor="team_members">Anggota Tim *</Label>
-            <Textarea
-              id="team_members"
-              placeholder="contoh: Asep, Kakang, Solihin"
-              rows={3}
-              {...register("team_members")}
-              className={cn(
-                "bg-input rounded-xl p-3 text-sm text-foreground placeholder:text-muted-foreground border-border focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-offset-0 focus-visible:outline-none transition-all",
-                errors.team_members && "border-destructive focus-visible:ring-destructive"
-              )}
-            />
-            <p className="text-xs text-muted-foreground">
-              Pisahkan setiap nama dengan koma ( , ).
-            </p>
-            {errors.team_members && (
-              <p className="text-xs text-red-500">
-                {errors.team_members.message}
-              </p>
-            )}
-          </div>
-
-          {/* File URL (Optional) */}
-          <div className="space-y-2">
-            <Label htmlFor="file_url">Link Drive Dokumen (Opsional)</Label>
-            <Input
-              id="file_url"
-              placeholder="https://drive.google.com/..."
-              {...register("file_url")}
-            />
-            <p className="text-xs text-muted-foreground">
-              Update link dokumen persyaratan jika diperlukan.
-            </p>
-            {errors.file_url && (
-              <p className="text-xs text-red-500">{errors.file_url.message}</p>
-            )}
-          </div>
-
-          <DialogFooter className="flex-col sm:flex-row gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleClose}
-              disabled={updateMutation.isPending}
-              className="w-full sm:w-auto"
-            >
-              Batal
-            </Button>
-            <Button
-              type="submit"
-              disabled={updateMutation.isPending}
-              className="w-full sm:w-auto"
-            >
-              {updateMutation.isPending ? "Menyimpan..." : "Simpan Perubahan"}
-            </Button>
-          </DialogFooter>
-        </form>
+        <TeamForm
+          registration={registration}
+          onSubmit={handleSubmit}
+          onCancel={handleClose}
+          isPending={updateMutation.isPending}
+        />
       </DialogContent>
     </Dialog>
   );

@@ -307,19 +307,29 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                   <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                     Anggota Tim ({teamMembers.length} orang)
                   </Label>
-                  <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3 pt-1">
+                  <div className="grid gap-2.5 lg:grid-cols-3 pt-1">
                     {teamMembers.length > 0 ? (
                       teamMembers.map((member, index) => (
                         <div
                           key={index}
-                          className="flex items-center gap-3 p-3 bg-input/40 border border-border/40 rounded-xl"
+                          className="relative flex items-center gap-3 p-3 bg-input/40 border border-border/40 rounded-xl truncate"
                         >
                           <div className="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 select-none">
                             {member.charAt(0).toUpperCase()}
                           </div>
-                          <span className="font-semibold text-sm text-foreground truncate">
+                          <span
+                            className={cn(
+                              "font-semibold text-sm text-foreground truncate grow mr-1",
+                              index === 0 && "mr-14",
+                            )}
+                          >
                             {member}
                           </span>
+                          {index === 0 && (
+                            <span className="absolute -right-0 text-xs text-muted-foreground pointer-events-none -z-10 select-none pr-4">
+                              (Ketua)
+                            </span>
+                          )}
                         </div>
                       ))
                     ) : (
@@ -329,6 +339,32 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                     )}
                   </div>
                 </div>
+
+                {/* Dokumen Persyaratan (Google Drive Link) */}
+                {activeRegistration.file_url && (
+                  <div className="space-y-2">
+                    <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Dokumen Persyaratan
+                    </Label>
+                    <div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        asChild
+                        className="h-8 rounded-full border border-border/30 dark:border-border/30 hover:border-white/40 bg-input/60 hover:bg-input text-foreground text-xs px-3.5 shadow-xs transition-all inline-flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <a
+                          href={activeRegistration.file_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                          <span>Google Drive Dokumen</span>
+                        </a>
+                      </Button>
+                    </div>
+                  </div>
+                )}
 
                 {/* Status Verifikasi */}
                 <div className="pt-3 border-t border-border/40 space-y-2">
@@ -595,7 +631,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                       <div
                         key={sub.submission_id}
                         onClick={() => handleEditSubmission(sub)}
-                        className="bg-input/30 border border-border/50 hover:border-primary/25 backdrop-blur[6px] rounded-2xl p-5 sm:p-6 transition-all space-y-4 cursor-pointer shadow-md"
+                        className="mia-card !bg-input/30 !border-border/50 hover:!border-primary/25 !rounded-2xl p-5 sm:p-6 transition-all space-y-4 cursor-pointer shadow-md"
                       >
                         <div className="space-y-4">
                           {/* Header Info */}
@@ -723,7 +759,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                     ))}
                   </>
                 ) : (
-                  <div className="mia-card p-10 sm:p-12 text-center border border-dashed border-border/60 rounded-2xl bg-input/20 space-y-3 flex flex-col items-center justify-center">
+                  <div className="mia-card p-10 sm:p-12 text-center border !border-dashed border-border/60 rounded-2xl !bg-input/20 space-y-3 flex flex-col items-center justify-center">
                     <Award className="h-12 w-12 text-primary/60 animate-pulse mx-auto" />
                     <p className="text-base font-semibold text-foreground">
                       Belum ada karya yang diunggah.
