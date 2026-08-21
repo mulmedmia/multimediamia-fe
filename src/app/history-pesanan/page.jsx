@@ -1,209 +1,273 @@
 "use client";
 
+import Link from "next/link";
 import { useMyRedemptions } from "@/hooks/user-use-gamifikasi";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { AlertCircle, Package, Calendar, Coins, Trophy, Sparkles } from "lucide-react";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
+import Footer from "@/components/layout/Footer";
+import {
+  AlertCircle,
+  Package,
+  Calendar,
+  Trophy,
+  Sparkles,
+  ArrowRight,
+  ShoppingBag,
+  CheckCircle2,
+  RefreshCw,
+} from "lucide-react";
 
 export default function HistoryPesananPage() {
-  const { data, isLoading, isError } = useMyRedemptions();
-
-  if (isLoading) {
-    return (
-      <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <div className="container mx-auto py-8 px-4">
-          <div className="space-y-8">
-            <div className="space-y-4">
-              <Skeleton className="h-10 w-80 rounded-xl" />
-              <Skeleton className="h-6 w-96 rounded-lg" />
-            </div>
-            <Skeleton className="h-32 w-full rounded-2xl" />
-            <div className="grid gap-6">
-              {[...Array(3)].map((_, i) => (
-                <Skeleton key={i} className="h-40 w-full rounded-2xl" />
-              ))}
-            </div>
-          </div>
-        </div>
-      </main>
-    );
-  }
-
-  if (isError) {
-    return (
-      <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <div className="container mx-auto py-20 px-4">
-          <Card className="border-red-200 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-950 dark:to-pink-950 dark:border-red-800 shadow-xl rounded-2xl overflow-hidden">
-            <CardContent className="flex items-center gap-4 p-8">
-              <div className="p-3 bg-red-100 dark:bg-red-900 rounded-full">
-                <AlertCircle className="h-6 w-6 text-red-600 dark:text-red-400" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-red-800 dark:text-red-200 mb-1">
-                  Terjadi Kesalahan
-                </h3>
-                <p className="text-red-700 dark:text-red-300">
-                  Gagal memuat data history penukaran. Silakan coba lagi.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </main>
-    );
-  }
+  const { data, isLoading, isError, refetch } = useMyRedemptions();
 
   return (
-    <>
-      <DashboardHeader />
-      <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <div className="container mx-auto py-20 px-2 sm:px-4">
-          <div className="space-y-8">
-            {/* Enhanced Header */}
-            <div className="text-center space-y-4">
-              <div className="inline-flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-red-100 to-pink-100 dark:from-red-950 dark:to-pink-950 rounded-full mb-4">
-                <Trophy className="h-5 w-5 text-red-600 dark:text-red-400" />
-                <span className="text-sm font-medium text-red-700 dark:text-red-300">
-                  Riwayat Pencapaian
-                </span>
+    <div className="min-h-screen bg-[#0A0D14] mia-connected-bg text-[#FFF9F5] flex flex-col justify-between selection:bg-[#E01C20] selection:text-white">
+      <div>
+        <DashboardHeader />
+
+        <main className="pt-24 sm:pt-28 pb-16 relative z-10">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl space-y-8 md:space-y-10">
+            
+            {/* Eyebrow & Page Header */}
+            <div className="text-center space-y-3 md:space-y-4 max-w-3xl mx-auto">
+              <div className="mia-pill-badge mx-auto">
+                <Trophy className="h-3.5 w-3.5 text-[#FED700]" />
+                <span>Riwayat Penukaran Hadiah</span>
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-900 via-red-600 to-pink-600 dark:from-white dark:via-red-400 dark:to-pink-400 bg-clip-text text-transparent">
-                History Penukaran
+
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-[#FFF9F5]">
+                History <span className="text-[#E01C20]">Penukaran</span>
               </h1>
-              <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-                Riwayat penukaran <span className="inline-flex items-center gap-1 font-semibold text-red-600 dark:text-red-400">Diamonds <span role="img" aria-label="diamond">💎</span></span> Anda dengan berbagai produk menarik
+
+              <p className="text-sm sm:text-base md:text-lg text-[#AAB1BD] leading-relaxed">
+                Pantau seluruh riwayat penukaran Diamonds <span className="inline-block">💎</span> Anda dengan berbagai produk dan hadiah eksklusif MIA 2025.
               </p>
             </div>
 
-            {/* Enhanced Stats Card */}
-            {data && (
-              <Card className="bg-gradient-to-r from-red-500 via-red-600 to-pink-600 dark:from-red-600 dark:via-red-700 dark:to-pink-700 border-0 shadow-2xl rounded-3xl overflow-hidden relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-red-500/20 via-transparent to-pink-500/20"></div>
-                <CardContent className="p-8 relative">
-                  <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                    <div className="flex items-center gap-4">
-                      <div className="p-4 bg-white/20 dark:bg-black/20 rounded-2xl backdrop-blur-sm">
-                        <Package className="h-8 w-8 text-white" />
-                      </div>
-                      <div>
-                        <p className="text-red-100 dark:text-red-200 font-medium mb-1">
-                          Total Penukaran Berhasil
-                        </p>
-                        <p className="text-4xl font-bold text-white">
-                          {data.meta?.total || 0} <span className="text-2xl font-normal">item</span>
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="h-6 w-6 text-yellow-300 animate-pulse" />
-                      <Sparkles className="h-4 w-4 text-yellow-200 animate-pulse delay-75" />
-                      <Sparkles className="h-5 w-5 text-yellow-400 animate-pulse delay-150" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Enhanced Content */}
-            {data && data.redemptions.length === 0 ? (
-              <Card className="border-dashed border-2 border-gray-300 dark:border-gray-600 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-3xl shadow-lg">
-                <CardContent className="flex flex-col items-center justify-center py-16">
-                  <div className="p-6 bg-gradient-to-r from-red-100 to-pink-100 dark:from-red-950 dark:to-pink-950 rounded-full mb-6">
-                    <Package className="h-16 w-16 text-red-400 dark:text-red-500" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
-                    Belum ada riwayat penukaran
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-400 text-center text-lg max-w-md">
-                    Anda belum melakukan penukaran <span className="inline-flex items-center gap-1 font-semibold text-red-600 dark:text-red-400">Diamonds <span role="img" aria-label="diamond">💎</span></span> dengan produk apapun. Mulai tukarkan Diamonds Anda sekarang!
-                  </p>
-                </CardContent>
-              </Card>
-            ) : (
+            {/* Loading State */}
+            {isLoading && (
               <div className="space-y-6">
-                {data?.redemptions.map((item, index) => (
-                  <Card 
-                    key={item.redemption_id} 
-                    className="hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-r from-white via-gray-50 to-white dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 border-0 shadow-lg rounded-2xl overflow-hidden group"
-                  >
-                    <CardContent className="p-6 sm:p-8">
-                      <div className="flex flex-col md:flex-row items-start justify-between gap-6">
-                        <div className="flex items-start gap-4 sm:gap-6 flex-1 w-full">
-                          <div className="relative">
-                            <div className="p-4 bg-gradient-to-r from-red-500 to-pink-500 dark:from-red-600 dark:to-pink-600 rounded-2xl shadow-lg group-hover:shadow-xl transition-shadow">
-                              <Package className="h-8 w-8 text-white" />
-                            </div>
-                            <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white dark:border-gray-800"></div>
+                {/* Stats Skeleton */}
+                <div className="mia-card p-6 md:p-8 animate-pulse flex flex-col sm:flex-row items-center justify-between gap-6">
+                  <div className="flex items-center gap-4 w-full sm:w-auto">
+                    <div className="w-14 h-14 bg-[#1E2939] rounded-2xl"></div>
+                    <div className="space-y-2">
+                      <div className="h-3 w-32 bg-[#1E2939] rounded"></div>
+                      <div className="h-6 w-20 bg-[#1E2939] rounded"></div>
+                    </div>
+                  </div>
+                  <div className="h-10 w-44 bg-[#1E2939] rounded-full self-stretch sm:self-auto"></div>
+                </div>
+
+                {/* List Skeleton */}
+                <div className="space-y-3">
+                  {[1, 2, 3].map((i) => (
+                    <div
+                      key={i}
+                      className="mia-card p-5 sm:p-6 animate-pulse flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                    >
+                      <div className="flex items-center gap-4 flex-1">
+                        <div className="w-12 h-12 rounded-xl bg-[#1E2939] flex-shrink-0"></div>
+                        <div className="space-y-2.5 flex-1">
+                          <div className="h-4 w-48 bg-[#1E2939] rounded"></div>
+                          <div className="flex gap-2">
+                            <div className="h-6 w-28 bg-[#1E2939] rounded-md"></div>
+                            <div className="h-6 w-36 bg-[#1E2939] rounded-md"></div>
                           </div>
-                          <div className="flex-1 space-y-4">
-                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 flex-wrap">
-                              <h3 className="font-bold text-gray-900 dark:text-white text-xl">
-                                {item.product?.name}
-                              </h3>
-                              <Badge 
-                                variant="secondary" 
-                                className="bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0 px-4 py-1 rounded-full font-medium shadow-md"
-                              >
-                                ✓ Berhasil
-                              </Badge>
-                            </div>
-                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6 text-gray-600 dark:text-gray-400">
-                              <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg">
-                                <Calendar className="h-4 w-4 text-red-500" />
-                                <span className="font-medium">
-                                  {new Date(item.created_at).toLocaleDateString('id-ID', {
-                                    day: 'numeric',
-                                    month: 'long',
-                                    year: 'numeric',
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                  })}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg">
-                                <span className="text-lg" role="img" aria-label="diamond">💎</span>
-                                <span className="font-medium">{item.points_used} Diamonds</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="text-right bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-950 dark:to-red-950 p-4 rounded-xl min-w-[120px]">
-                          <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Harga Tukar</p>
-                          <p className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 dark:from-orange-400 dark:to-red-400 bg-clip-text text-transparent flex items-center gap-1 justify-end">
-                            {item.product?.price} <span className="text-lg" role="img" aria-label="diamond">Diamonds</span>
-                          </p>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                      <div className="h-10 w-28 bg-[#1E2939] rounded-xl self-stretch sm:self-auto"></div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
-            {/* Enhanced Pagination info */}
-            {data && data.meta && data.meta.totalPages > 1 && (
-              <Card className="bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 border-0 shadow-lg rounded-2xl">
-                <CardContent className="p-6">
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                      <p className="text-gray-700 dark:text-gray-300 font-medium">
-                        Halaman {data.meta.page} dari {data.meta.totalPages}
+            {/* Error State */}
+            {!isLoading && isError && (
+              <div className="mia-card border-[#E01C20]/40 p-8 md:p-12 text-center space-y-6 max-w-xl mx-auto">
+                <div className="w-16 h-16 bg-[#E01C20]/15 border border-[#E01C20]/30 text-[#E01C20] rounded-2xl flex items-center justify-center mx-auto shadow-[0_0_20px_rgba(224,28,32,0.2)]">
+                  <AlertCircle className="h-8 w-8" />
+                </div>
+                <div className="space-y-2">
+                  <h2 className="text-xl sm:text-2xl font-bold text-[#FFF9F5]">
+                    Terjadi Kesalahan
+                  </h2>
+                  <p className="text-sm text-[#AAB1BD] max-w-md mx-auto">
+                    Gagal memuat data riwayat penukaran hadiah. Silakan periksa koneksi internet Anda dan coba beberapa saat lagi.
+                  </p>
+                </div>
+                <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+                  <button
+                    onClick={() => refetch()}
+                    className="mia-btn-secondary px-5 py-2.5 text-xs sm:text-sm inline-flex items-center gap-2 cursor-pointer w-full sm:w-auto justify-center"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                    <span>Coba Lagi</span>
+                  </button>
+                  <Link
+                    href="/product"
+                    className="mia-btn-primary px-5 py-2.5 text-xs sm:text-sm inline-flex items-center gap-2 cursor-pointer w-full sm:w-auto justify-center"
+                  >
+                    <ShoppingBag className="h-4 w-4" />
+                    <span>Ke Katalog Produk</span>
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            {/* Content Loaded */}
+            {!isLoading && !isError && data && (
+              <>
+                {/* Stats Summary Card */}
+                <div className="mia-card p-6 md:p-8 relative overflow-hidden">
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+                    <div className="flex items-center gap-4 w-full sm:w-auto">
+                      <div className="w-14 h-14 bg-[#E01C20]/15 border border-[#E01C20]/30 rounded-2xl flex items-center justify-center text-[#E01C20] flex-shrink-0 shadow-[0_0_15px_rgba(224,28,32,0.15)]">
+                        <Package className="h-7 w-7" />
+                      </div>
+                      <div>
+                        <p className="text-xs uppercase tracking-wider text-[#AAB1BD] font-semibold mb-0.5">
+                          Total Penukaran Berhasil
+                        </p>
+                        <p className="text-2xl sm:text-3xl font-bold text-[#FFF9F5]">
+                          {data.meta?.total || data.redemptions?.length || 0}{" "}
+                          <span className="text-sm sm:text-base font-normal text-[#AAB1BD]">
+                            Item
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+
+                    <Link
+                      href="/product"
+                      className="mia-btn-secondary px-5 py-2.5 text-xs sm:text-sm inline-flex items-center gap-2 cursor-pointer transition-all self-stretch sm:self-auto justify-center group"
+                    >
+                      <ShoppingBag className="h-4 w-4 text-[#E01C20] group-hover:scale-110 transition-transform" />
+                      <span>Tukar Produk Lainnya</span>
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Empty State */}
+                {(!data.redemptions || data.redemptions.length === 0) ? (
+                  <div className="mia-card p-8 md:p-14 text-center space-y-6 border-dashed border-white/15 max-w-2xl mx-auto">
+                    <div className="w-16 h-16 bg-[#E01C20]/15 border border-[#E01C20]/30 text-[#E01C20] rounded-2xl flex items-center justify-center mx-auto mb-2 shadow-[0_0_20px_rgba(224,28,32,0.2)]">
+                      <Package className="h-8 w-8" />
+                    </div>
+                    <div className="space-y-2 max-w-md mx-auto">
+                      <h3 className="text-xl sm:text-2xl font-bold text-[#FFF9F5]">
+                        Belum Ada Riwayat Penukaran
+                      </h3>
+                      <p className="text-sm text-[#AAB1BD] leading-relaxed">
+                        Anda belum melakukan penukaran Diamonds <span className="inline-block">💎</span> dengan hadiah apapun. Kumpulkan Diamonds melalui kompetisi dan tukarkan dengan hadiah favoritmu!
                       </p>
                     </div>
-                    <div className="hidden sm:block w-px h-4 bg-gray-400 dark:bg-gray-500"></div>
-                    <p className="text-gray-600 dark:text-gray-400">
-                      {data.meta.total} total item
-                    </p>
+                    <div className="pt-2">
+                      <Link
+                        href="/product"
+                        className="mia-btn-primary px-6 py-2.5 text-sm inline-flex items-center gap-2 cursor-pointer group"
+                      >
+                        <span>Jelajahi Katalog Hadiah</span>
+                        <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                      </Link>
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
+                ) : (
+                  /* Redemptions List */
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between pb-2 border-b border-white/10 text-xs sm:text-sm text-[#AAB1BD]">
+                      <span className="font-medium">Daftar Transaksi</span>
+                      <span className="bg-[#141824] px-3 py-1 rounded-full border border-white/10 text-[#FFF9F5] text-xs">
+                        {data.redemptions.length} Penukaran
+                      </span>
+                    </div>
+
+                    <div className="space-y-3">
+                      {data.redemptions.map((item) => (
+                        <div
+                          key={item.redemption_id}
+                          className="mia-card p-5 sm:p-6 hover:border-[#E01C20]/50 hover:shadow-[0_0_25px_rgba(224,28,32,0.12)] transition-all duration-300 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 group"
+                        >
+                          {/* Left: Product & Transaction Info */}
+                          <div className="flex items-start gap-4 flex-1 min-w-0">
+                            <div className="w-12 h-12 rounded-xl bg-[#141824] border border-white/10 flex items-center justify-center text-[#E01C20] flex-shrink-0 group-hover:border-[#E01C20]/40 group-hover:bg-[#E01C20]/10 transition-all">
+                              <Package className="h-6 w-6" />
+                            </div>
+
+                            <div className="space-y-2 min-w-0 flex-1">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <h3 className="font-bold text-base sm:text-lg text-[#FFF9F5] group-hover:text-[#E01C20] transition-colors truncate">
+                                  {item.product?.name || "Produk Hadiah"}
+                                </h3>
+                                <span className="inline-flex items-center gap-1 bg-[#00B445]/15 text-[#00B445] border border-[#00B445]/30 text-[11px] font-semibold px-2.5 py-0.5 rounded-full">
+                                  <CheckCircle2 className="h-3 w-3" />
+                                  <span>Berhasil</span>
+                                </span>
+                              </div>
+
+                              <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs text-[#AAB1BD]">
+                                <div className="inline-flex items-center gap-1.5 bg-[#141824] border border-white/10 px-2.5 py-1 rounded-md">
+                                  <Calendar className="h-3.5 w-3.5 text-[#E01C20]" />
+                                  <span>
+                                    {item.created_at
+                                      ? new Date(item.created_at).toLocaleDateString("id-ID", {
+                                          day: "numeric",
+                                          month: "short",
+                                          year: "numeric",
+                                          hour: "2-digit",
+                                          minute: "2-digit",
+                                        })
+                                      : "-"}
+                                  </span>
+                                </div>
+
+                                <div className="inline-flex items-center gap-1.5 bg-[#141824] border border-white/10 px-2.5 py-1 rounded-md">
+                                  <span className="text-xs">💎</span>
+                                  <span className="font-semibold text-[#FED700]">
+                                    {item.points_used ?? item.product?.price ?? 0}
+                                  </span>
+                                  <span className="text-[#AAB1BD]">Diamonds Terpakai</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Right: Point Price Box */}
+                          <div className="w-full md:w-auto self-stretch md:self-auto bg-[#141824] border border-white/10 rounded-xl p-3 sm:px-5 sm:py-3 flex md:flex-col items-center md:items-end justify-between md:justify-center gap-1 min-w-[140px] group-hover:border-[#E01C20]/20 transition-colors">
+                            <span className="text-[11px] uppercase tracking-wider text-[#99A1AF] font-semibold">
+                              Nilai Tukar
+                            </span>
+                            <span className="text-lg sm:text-xl font-bold text-[#FED700] flex items-center gap-1.5">
+                              <span className="text-base">💎</span>
+                              <span>{item.product?.price || item.points_used || 0}</span>
+                              <span className="text-xs font-normal text-[#AAB1BD]">Diamonds</span>
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Pagination / Meta info */}
+                {data.meta && data.meta.totalPages > 1 && (
+                  <div className="mia-card p-4 flex items-center justify-center gap-3 text-xs sm:text-sm text-[#AAB1BD]">
+                    <span>
+                      Halaman <strong className="text-[#FFF9F5]">{data.meta.page}</strong> dari{" "}
+                      <strong className="text-[#FFF9F5]">{data.meta.totalPages}</strong>
+                    </span>
+                    <span className="w-1.5 h-1.5 bg-white/20 rounded-full"></span>
+                    <span>Total {data.meta.total} transaksi</span>
+                  </div>
+                )}
+              </>
             )}
+
           </div>
-        </div>
-      </main>
-    </>
+        </main>
+      </div>
+
+      <Footer />
+    </div>
   );
-}
+}
