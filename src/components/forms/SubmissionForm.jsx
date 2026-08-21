@@ -27,6 +27,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "../ui/textarea";
 
+// !!! Asumsikan zod object punya `keys` yang sama dengan yang dilempar oleh Backend
 // Schema dinamis berdasarkan team type
 const createSubmissionSchema = (teamType) => {
   return z
@@ -45,15 +46,26 @@ const createSubmissionSchema = (teamType) => {
               .min(10, { message: "Flow aplikasi minimal 10 karakter." })
           : z.string().optional(),
       github_url: z
-        .url({ message: "Harap masukkan URL GitHub yang valid." })
+        .url({
+          protocol: /^https?$/,
+          hostname: /^github\.com/,
+          message: "Harap masukkan URL GitHub yang valid.",
+        })
         .optional()
         .or(z.literal("")),
       youtube_url: z
-        .url({ message: "Harap masukkan URL YouTube yang valid." })
+        .url({
+          protocol: /^https?$/,
+          hostname: /^youtu(\.be|be\.com)$/,
+          message: "Harap masukkan URL YouTube yang valid.",
+        })
         .optional()
         .or(z.literal("")),
       other_url: z
-        .url({ message: "Harap masukkan URL yang valid." })
+        .url({
+          protocol: /^https?$/,
+          message: "Harap masukkan URL yang valid.",
+        })
         .optional()
         .or(z.literal("")),
       github_description: z.string().optional(),
@@ -61,17 +73,15 @@ const createSubmissionSchema = (teamType) => {
       other_description: z.string().optional(),
     })
     .superRefine((data, ctx) => {
-      const hasGithub = Boolean(
-        data.github_url && data.github_url.trim() !== "",
-      );
-      const hasYoutube = Boolean(
-        data.youtube_url && data.youtube_url.trim() !== "",
-      );
-      const hasOther = Boolean(data.other_url && data.other_url.trim() !== "");
+      const hasUrl = (field) =>
+        Boolean(data[field] && data[field].trim() !== "");
 
-      if (!hasGithub && !hasYoutube && !hasOther) {
+      // If all links are empty
+      if (
+        !(hasUrl("github_url") || hasUrl("youtube_url") || hasUrl("other_url"))
+      ) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: "custom",
           message:
             "Harap isi minimal satu link project (GitHub, YouTube, atau Link Lainnya).",
           path: ["links_required"],
@@ -79,6 +89,96 @@ const createSubmissionSchema = (teamType) => {
       }
     });
 };
+
+const LINK_CONFIGS = [
+  {
+    field: "github_url",
+    placeholder: "https://github.com/username/repository",
+    descField: "github_description",
+    descPlaceholder: "Repository source code",
+    label: "Link GitHub",
+    Icon: CodeIcon,
+    type: "GITHUB",
+  },
+  {
+    field: "youtube_url",
+    placeholder: "https://youtube.com/watch?v=...",
+    descField: "youtube_description",
+    descPlaceholder: "Video demo project",
+    label: "Link YouTube",
+    Icon: VideoIcon,
+    type: "YOUTUBE",
+  },
+  {
+    field: "other_url",
+    placeholder: "https://example.com/live-demo",
+    descField: "other_description",
+    descPlaceholder: "Live demo website",
+    label: "Link Lainnya",
+    Icon: Link2Icon,
+    type: "OTHER",
+  },
+];
+
+function LinkInput({
+  field = "",
+  placeholder = "",
+  descField = "",
+  descPlaceholder = "",
+  label = "",
+  Icon,
+  register,
+  errors,
+}) {
+  return (
+    <div className="space-y-2">
+      <Label
+        htmlFor={field}
+        className="block text-sm font-semibold text-foreground"
+      >
+        {label}
+      </Label>
+      <div className="relative">
+        <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
+          <Icon className="w-4 h-4" />
+        </div>
+        <Input
+          id={field}
+          placeholder={placeholder}
+          {...register(field)}
+          className={cn(
+            "h-11 bg-input rounded-xl pl-10 pr-4 text-sm text-foreground placeholder:text-mia-muted-2 transition-all",
+            errors[field]
+              ? "border-destructive focus-visible:ring-destructive"
+              : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
+          )}
+        />
+      </div>
+      <InputError fieldError={errors[field]} />
+      <div className="relative">
+        <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
+          <Pencil1Icon className="w-3.5 h-3.5" />
+        </div>
+        <Input
+          id={descField}
+          placeholder={descPlaceholder}
+          {...register(descField)}
+          className="h-10 bg-input/60 rounded-xl pl-9 pr-4 text-xs text-foreground placeholder:text-mia-muted-2 border-border/60 focus-visible:border-ring focus-visible:ring-ring/50"
+        />
+      </div>
+    </div>
+  );
+}
+
+function InputError({ fieldError }) {
+  return (
+    fieldError && (
+      <p className="text-xs text-destructive mt-1 font-medium">
+        {fieldError.message}
+      </p>
+    )
+  );
+}
 
 export function SubmissionForm({
   registrationId,
@@ -103,30 +203,20 @@ export function SubmissionForm({
 
   // Default values berdasarkan team type
   const getDefaultValues = useMemo(() => {
+    const linksInfo = LINK_CONFIGS.reduce((acc, { type, field, descField }) => {
+      const found = editingSubmission?.links?.find((l) => l.link_type === type);
+      acc[field] = found?.url || "";
+      acc[descField] = found?.description || "";
+      return acc;
+    }, {});
+
     return {
       team_name: teamType === "GROUP" ? registration?.team_name || "" : "",
       project_name: editingSubmission?.project_name || "",
       description: editingSubmission?.description || "",
       flow_application:
         teamType === "GROUP" ? editingSubmission?.flow_application || "" : "",
-      github_url:
-        editingSubmission?.links?.find((l) => l.link_type === "GITHUB")?.url ||
-        "",
-      youtube_url:
-        editingSubmission?.links?.find((l) => l.link_type === "YOUTUBE")?.url ||
-        "",
-      other_url:
-        editingSubmission?.links?.find((l) => l.link_type === "OTHER")?.url ||
-        "",
-      github_description:
-        editingSubmission?.links?.find((l) => l.link_type === "GITHUB")
-          ?.description || "",
-      youtube_description:
-        editingSubmission?.links?.find((l) => l.link_type === "YOUTUBE")
-          ?.description || "",
-      other_description:
-        editingSubmission?.links?.find((l) => l.link_type === "OTHER")
-          ?.description || "",
+      ...linksInfo,
     };
   }, [registration, editingSubmission, teamType]);
 
@@ -147,38 +237,10 @@ export function SubmissionForm({
   // Effect untuk reset form ketika data atau teamType berubah
   useEffect(() => {
     if (registration) {
-      const newDefaultValues = {
-        team_name: teamType === "GROUP" ? registration.team_name || "" : "",
-        project_name: editingSubmission?.project_name || "",
-        description: editingSubmission?.description || "",
-        flow_application:
-          teamType === "GROUP" ? editingSubmission?.flow_application || "" : "",
-        github_url:
-          editingSubmission?.links?.find((l) => l.link_type === "GITHUB")
-            ?.url || "",
-        youtube_url:
-          editingSubmission?.links?.find((l) => l.link_type === "YOUTUBE")
-            ?.url || "",
-        other_url:
-          editingSubmission?.links?.find((l) => l.link_type === "OTHER")?.url ||
-          "",
-        github_description:
-          editingSubmission?.links?.find((l) => l.link_type === "GITHUB")
-            ?.description || "",
-        youtube_description:
-          editingSubmission?.links?.find((l) => l.link_type === "YOUTUBE")
-            ?.description || "",
-        other_description:
-          editingSubmission?.links?.find((l) => l.link_type === "OTHER")
-            ?.description || "",
-      };
-
-      reset(newDefaultValues);
+      reset(getDefaultValues);
       clearErrors(); // Clear existing errors when resetting
     }
-  }, [registration, editingSubmission, teamType, reset, clearErrors]);
-
-  const teamName = watch("team_name");
+  }, [registration, getDefaultValues, reset, clearErrors]);
 
   const mutation = useMutation({
     mutationFn: (data) => {
@@ -215,28 +277,14 @@ export function SubmissionForm({
     // Prepare links array based on filled URLs
     const links = [];
 
-    if (data.github_url) {
-      links.push({
-        link_type: "GITHUB",
-        url: data.github_url,
-        description: data.github_description || "Source code repository",
-      });
-    }
-
-    if (data.youtube_url) {
-      links.push({
-        link_type: "YOUTUBE",
-        url: data.youtube_url,
-        description: data.youtube_description || "Project demo video",
-      });
-    }
-
-    if (data.other_url) {
-      links.push({
-        link_type: "OTHER",
-        url: data.other_url,
-        description: data.other_description || "Live demo website",
-      });
+    for (const { field, type, descField, descPlaceholder } of LINK_CONFIGS) {
+      if (data[field]) {
+        links.push({
+          link_type: type,
+          url: data[field],
+          description: data[descField] || descPlaceholder,
+        });
+      }
     }
 
     // Prepare submission payload
@@ -249,6 +297,7 @@ export function SubmissionForm({
       description: data.description,
       links: links,
     };
+
     // PERBAIKAN: Selalu sediakan nilai untuk team_name & flow_application
     if (teamType === "GROUP") {
       // Untuk GROUP: kirim team_name dan flow_application
@@ -266,6 +315,7 @@ export function SubmissionForm({
       // TIDAK mengirim flow_application untuk INDIVIDUAL
       submissionPayload.flow_application = "N/A - Individual Participant";
     }
+
     mutation.mutate(submissionPayload);
   };
 
@@ -334,11 +384,7 @@ export function SubmissionForm({
               )}
             />
           </div>
-          {errors.project_name && (
-            <p className="text-xs text-destructive mt-1 font-medium">
-              {errors.project_name.message}
-            </p>
-          )}
+          <InputError fieldError={errors.project_name} />
         </div>
 
         {/* Project Description */}
@@ -362,11 +408,7 @@ export function SubmissionForm({
                 : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
             )}
           />
-          {errors.description && (
-            <p className="text-xs text-destructive mt-1 font-medium">
-              {errors.description.message}
-            </p>
-          )}
+          <InputError fieldError={errors.description} />
         </div>
 
         {/* Flow Aplikasi - Hanya tampil untuk GROUP */}
@@ -391,11 +433,7 @@ export function SubmissionForm({
                   : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
               )}
             />
-            {errors.flow_application && (
-              <p className="text-xs text-destructive mt-1 font-medium">
-                {errors.flow_application.message}
-              </p>
-            )}
+            <InputError fieldError={errors.flow_application} />
           </div>
         )}
 
@@ -429,131 +467,14 @@ export function SubmissionForm({
           )}
         </div>
 
-        {/* GitHub Link */}
-        <div className="space-y-2">
-          <Label
-            htmlFor="github_url"
-            className="block text-sm font-semibold text-foreground"
-          >
-            Link GitHub
-          </Label>
-          <div className="relative">
-            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
-              <CodeIcon className="w-4 h-4" />
-            </div>
-            <Input
-              id="github_url"
-              placeholder="https://github.com/username/repository"
-              {...register("github_url")}
-              className={cn(
-                "h-11 bg-input rounded-xl pl-10 pr-4 text-sm text-foreground placeholder:text-mia-muted-2 transition-all",
-                errors.github_url
-                  ? "border-destructive focus-visible:ring-destructive"
-                  : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
-              )}
-            />
-          </div>
-          {errors.github_url && (
-            <p className="text-xs text-destructive mt-1 font-medium">
-              {errors.github_url.message}
-            </p>
-          )}
-          <div className="relative">
-            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
-              <Pencil1Icon className="w-3.5 h-3.5" />
-            </div>
-            <Input
-              id="github_description"
-              placeholder="Repository source code"
-              {...register("github_description")}
-              className="h-10 bg-input/60 rounded-xl pl-9 pr-4 text-xs text-foreground placeholder:text-mia-muted-2 border-border/60 focus-visible:border-ring focus-visible:ring-ring/50"
-            />
-          </div>
-        </div>
-
-        {/* YouTube Link */}
-        <div className="space-y-2">
-          <Label
-            htmlFor="youtube_url"
-            className="block text-sm font-semibold text-foreground"
-          >
-            Link YouTube
-          </Label>
-          <div className="relative">
-            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
-              <VideoIcon className="w-4 h-4" />
-            </div>
-            <Input
-              id="youtube_url"
-              placeholder="https://youtube.com/watch?v=..."
-              {...register("youtube_url")}
-              className={cn(
-                "h-11 bg-input rounded-xl pl-10 pr-4 text-sm text-foreground placeholder:text-mia-muted-2 transition-all",
-                errors.youtube_url
-                  ? "border-destructive focus-visible:ring-destructive"
-                  : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
-              )}
-            />
-          </div>
-          {errors.youtube_url && (
-            <p className="text-xs text-destructive mt-1 font-medium">
-              {errors.youtube_url.message}
-            </p>
-          )}
-          <div className="relative">
-            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
-              <Pencil1Icon className="w-3.5 h-3.5" />
-            </div>
-            <Input
-              id="youtube_description"
-              placeholder="Video demo project"
-              {...register("youtube_description")}
-              className="h-10 bg-input/60 rounded-xl pl-9 pr-4 text-xs text-foreground placeholder:text-mia-muted-2 border-border/60 focus-visible:border-ring focus-visible:ring-ring/50"
-            />
-          </div>
-        </div>
-
-        {/* Other Link */}
-        <div className="space-y-2">
-          <Label
-            htmlFor="other_url"
-            className="block text-sm font-semibold text-foreground"
-          >
-            Link Lainnya
-          </Label>
-          <div className="relative">
-            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
-              <Link2Icon className="w-4 h-4" />
-            </div>
-            <Input
-              id="other_url"
-              placeholder="https://example.com/live-demo"
-              {...register("other_url")}
-              className={cn(
-                "h-11 bg-input rounded-xl pl-10 pr-4 text-sm text-foreground placeholder:text-mia-muted-2 transition-all",
-                errors.other_url
-                  ? "border-destructive focus-visible:ring-destructive"
-                  : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
-              )}
-            />
-          </div>
-          {errors.other_url && (
-            <p className="text-xs text-destructive mt-1 font-medium">
-              {errors.other_url.message}
-            </p>
-          )}
-          <div className="relative">
-            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
-              <Pencil1Icon className="w-3.5 h-3.5" />
-            </div>
-            <Input
-              id="other_description"
-              placeholder="Live demo website"
-              {...register("other_description")}
-              className="h-10 bg-input/60 rounded-xl pl-9 pr-4 text-xs text-foreground placeholder:text-mia-muted-2 border-border/60 focus-visible:border-ring focus-visible:ring-ring/50"
-            />
-          </div>
-        </div>
+        {LINK_CONFIGS.map((link, index) => (
+          <LinkInput
+            key={index}
+            {...link}
+            register={register}
+            errors={errors}
+          />
+        ))}
       </div>
 
       <div className="flex items-center gap-3 pt-3">
