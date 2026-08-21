@@ -19,16 +19,9 @@ export function EditTeamModal({ open, onClose, registration }) {
   };
 
   const handleSubmit = (data) => {
-    const namesArray = data.team_members
-      .split(",")
-      .map((name) => name.trim())
-      .filter((name) => name !== "");
-
-    const formattedTeamMembers = `['${namesArray.join("', '")}']`;
-
     const payload = {
       team_name: data.team_name,
-      team_members: formattedTeamMembers,
+      team_members: data.team_members,
     };
 
     if (data.file_url && data.file_url.trim() !== "") {

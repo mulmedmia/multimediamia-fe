@@ -185,17 +185,13 @@ export function TeamForm({
     const trimmedM1 = cleanString(data.member_1);
     const trimmedM2 = cleanString(data.member_2);
 
-    let formattedTeamMembers = "";
-    if (teamType === "INDIVIDUAL") {
-      formattedTeamMembers = `['${trimmedLead}']`;
-    } else {
-      const names = [trimmedLead, trimmedM1, trimmedM2].filter((n) => n !== "");
-      formattedTeamMembers = `['${names.join("', '")}']`;
-    }
+    const validNames = [trimmedLead, trimmedM1, trimmedM2].filter(
+      (n) => n !== "",
+    );
 
     const payload = {
       team_name: teamType === "INDIVIDUAL" ? trimmedLead : trimmedTeamName,
-      team_members: formattedTeamMembers,
+      team_members: JSON.stringify(validNames),
       file_url: trimmedFileUrl,
     };
 
