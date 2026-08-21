@@ -3,12 +3,12 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthContext } from "@/providers/AuthProvider";
-import { CompetitionRegistrationForm } from "@/components/forms/CompetitionRegistrationForm";
 import { CompetitionDashboard } from "@/components/dashboard/CompetitionDashboard";
 import { MyRegistrationsList } from "@/components/dashboard/MyRegistrationsList";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { Button } from "@/components/ui/button";
 import Footer from "@/components/layout/Footer";
+import { ChevronLeft } from "lucide-react";
 
 export default function DashboardPage() {
   const { user, loading } = useAuthContext();
@@ -72,9 +72,10 @@ export default function DashboardPage() {
               <Button
                 variant="outline"
                 onClick={handleBackToList}
-                className="flex items-center gap-2 rounded-full bg-input/40 border border-white/20 hover:border-white/40 hover:bg-input text-foreground text-xs sm:text-sm px-4 h-9 cursor-pointer transition-all font-medium shadow-sm"
+                className="inline-flex items-center gap-1.5 rounded-full bg-input/40 border border-white/20 hover:border-white/40 hover:bg-input text-foreground text-xs sm:text-sm px-4 h-9 font-medium cursor-pointer transition-all shadow-xs"
               >
-                ← Kembali ke Daftar Lomba
+                <ChevronLeft className="w-4 h-4 text-muted-foreground" />
+                <span>Kembali ke Daftar Lomba</span>
               </Button>
             </div>
             <CompetitionDashboard
