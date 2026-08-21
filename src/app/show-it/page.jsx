@@ -1,13 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation"; // Import useRouter
+import { useRouter } from "next/navigation";
 import { useAllSubmissions } from "@/hooks/user-use-submissions";
 import { useCategories } from "@/hooks/user-use-gamifikasi";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
+import Footer from "@/components/layout/Footer";
 import {
   Select,
   SelectContent,
@@ -16,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Eye,
+  Sparkles,
   Users,
   Calendar,
   AlertCircle,
@@ -28,12 +26,12 @@ import {
   User,
   Lightbulb,
   Grid3X3,
-  MousePointer, // Icon untuk indikator clickable
+  ArrowRight,
 } from "lucide-react";
 
-export default function ThinkItPage() {
+export default function ShowItPage() {
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
-  const router = useRouter(); // Initialize router
+  const router = useRouter();
 
   const { data: categories, isLoading: categoriesLoading } = useCategories();
   const {
@@ -51,29 +49,28 @@ export default function ThinkItPage() {
   const submissions = allSubmissions.filter(
     (submission) => submission.status === "APPROVED"
   );
-  const meta = submissionsData?.meta || {};
 
   const getStatusBadge = (status) => {
     switch (status) {
       case "APPROVED":
-        return "bg-green-600 text-white border-green-500";
+        return "bg-[#00B445]/15 text-[#00B445] border border-[#00B445]/30";
       case "PENDING":
-        return "bg-yellow-600 text-white border-yellow-500";
+        return "bg-[#FED700]/15 text-[#FED700] border border-[#FED700]/30";
       case "REJECTED":
-        return "bg-red-600 text-white border-red-500";
+        return "bg-[#E01C20]/15 text-[#E01C20] border border-[#E01C20]/30";
       default:
-        return "bg-gray-600 text-white border-gray-500";
+        return "bg-[#1E2939] text-[#AAB1BD] border border-white/10";
     }
   };
 
   const getLinkIcon = (linkType) => {
-    switch (linkType) {
+    switch (linkType?.toUpperCase()) {
       case "GITHUB":
-        return <Github className="h-4 w-4" />;
+        return <Github className="h-3.5 w-3.5" />;
       case "YOUTUBE":
-        return <Youtube className="h-4 w-4" />;
+        return <Youtube className="h-3.5 w-3.5" />;
       default:
-        return <ExternalLink className="h-4 w-4" />;
+        return <ExternalLink className="h-3.5 w-3.5" />;
     }
   };
 
@@ -81,335 +78,311 @@ export default function ThinkItPage() {
     setSelectedCategoryId(categoryId);
   };
 
-  // Function untuk navigate ke detail submission
   const handleSubmissionClick = (submissionId) => {
     router.push(`/show-it/${submissionId}`);
   };
 
   return (
-    <>
-      <DashboardHeader />
-      <main className="min-h-screen pt-20 bg-gray-50 dark:bg-gradient-to-r dark:from-red-900 dark:via-black dark:to-black  text-gray-900 dark:text-white">
-        <div className="container mx-auto py-6 md:py-8 px-4 max-w-7xl">
-          <div className="space-y-6 md:space-y-8">
-            {/* Enhanced Header */}
-            <div className="text-center space-y-3 md:space-y-4 py-6 md:py-8">
-              <div className="flex items-center justify-center gap-2 md:gap-3 mb-4">
-                <div className="p-2 md:p-3 bg-red-600 rounded-xl md:rounded-2xl shadow-lg">
-                  <Lightbulb className="h-6 w-6 md:h-8 md:w-8 text-white" />
-                </div>
-                <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-black dark:text-white bg-clip-text">
-                  Show It -
-                </h1>
-                <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-red-600 bg-clip-text">
-                  Galeri Karya
-                </h1>
+    <div className="min-h-screen bg-[#0A0D14] mia-connected-bg text-[#FFF9F5] flex flex-col justify-between selection:bg-[#E01C20] selection:text-white">
+      <div>
+        <DashboardHeader />
+
+        <main className="pt-24 sm:pt-28 pb-16 relative z-10">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl space-y-8 md:space-y-12">
+            {/* Header Section */}
+            <div className="text-center space-y-3 md:space-y-4 max-w-3xl mx-auto">
+              <div className="mia-pill-badge mx-auto">
+                <Sparkles className="h-3.5 w-3.5 text-[#E01C20]" />
+                <span>Showcase Karya Peserta</span>
               </div>
-              <p className="text-base md:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto px-4">
-                Jelajahi dan temukan inspirasi dari karya-karya luar biasa
-                peserta kompetisi!
+
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-[#FFF9F5]">
+                Show It — <span className="text-[#E01C20]">Galeri Karya</span>
+              </h1>
+
+              <p className="text-sm sm:text-base md:text-lg text-[#AAB1BD] leading-relaxed">
+                Jelajahi dan temukan inspirasi dari karya-karya inovatif dan kreatif
+                peserta kompetisi Multimedia in Action 2025!
               </p>
             </div>
 
-            {/* Enhanced Category Selection */}
-            <Card className="shadow-lg border-0 bg-gradient-to-br from-orange-50 to-pink-50 dark:from-gray-900 dark:to-gray-900/50 border-orange-200 dark:backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 md:gap-3 text-lg md:text-xl text-gray-900 dark:text-white">
-                  <div className="p-1.5 md:p-2 bg-red-600 rounded-lg">
-                    <Target className="h-4 w-4 md:h-5 md:w-5 text-white" />
-                  </div>
-                  Pilih Kategori Lomba
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4 md:space-y-6">
+            {/* Category Selection Card */}
+            <div className="mia-card p-6 md:p-8 space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#E01C20]/15 border border-[#E01C20]/30 flex items-center justify-center text-[#E01C20] flex-shrink-0">
+                  <Target className="h-5 w-5" />
+                </div>
+                <div>
+                  <h2 className="text-lg md:text-xl font-bold text-[#FFF9F5]">
+                    Pilih Kategori Lomba
+                  </h2>
+                  <p className="text-xs md:text-sm text-[#AAB1BD]">
+                    Pilih kategori untuk melihat karya yang telah dikumpulkan
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
                 <Select
                   value={selectedCategoryId}
                   onValueChange={handleCategoryChange}
                   disabled={categoriesLoading}
                 >
-                  <SelectTrigger className="w-full h-10 md:h-12 bg-white dark:from-gray-900 dark:to-gray-900/50 border-2 hover:border-orange-400 transition-colors text-gray-900 dark:text-white cursor-pointer">
+                  <SelectTrigger className="w-full h-12 bg-[#141824] border border-white/15 hover:border-[#E01C20]/60 rounded-xl text-[#FFF9F5] focus:ring-[#E01C20] transition-colors cursor-pointer">
                     <SelectValue
                       placeholder={
                         categoriesLoading
                           ? "Memuat kategori..."
-                          : "💡 Pilih kategori lomba"
+                          : "💡 Pilih kategori lomba..."
                       }
                     />
                   </SelectTrigger>
-                  <SelectContent className="bg-white dark:bg-gradient-to-r dark:from-gray-900 dark:to-gray-900/50 border-orange-200 dark:border-orange-200">
+                  <SelectContent className="bg-[#141824] border border-white/15 text-[#FFF9F5] rounded-xl shadow-2xl">
                     {categories?.map((category) => (
                       <SelectItem
                         key={category.category_id}
                         value={category.category_id}
-                        className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                        className="flex flex-col items-start py-2.5 px-3.5 gap-1 text-left text-[#FFF9F5] hover:bg-[#E01C20]/20 focus:bg-[#E01C20]/20 rounded-lg cursor-pointer transition-colors"
                       >
-                        <div className="flex flex-row space-x-1 py-2 cursor-pointer">
-                          <span className="font-semibold text-gray-900 dark:text-white">
-                            {category.name}
-                          </span>
-                          <span className="text-xs md:text-sm text-gray-500 dark:text-gray-400">
-                            {category.category_name}
-                          </span>
-                        </div>
+                        <span className="font-semibold text-sm md:text-base">
+                          {category.name}
+                        </span>
+                        <span className="text-xs text-[#AAB1BD]">
+                          {category.category_name}
+                        </span>
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
 
                 {selectedCategory && (
-                  <Card className="dark:bg-gradient-to-r dark:from-gray-900 dark:to-gray-900/50 border-orange-200 dark:border-orange-200">
-                    <CardContent className="p-4 md:p-6">
-                      <div className="space-y-3 md:space-y-4">
-                        <div className="flex items-start gap-2 md:gap-3">
-                          <div className="p-1.5 md:p-2 bg-red-600 rounded-lg">
-                            <Star className="h-3 w-3 md:h-4 md:w-4 text-white" />
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="text-lg md:text-xl font-bold text-gray-900 dark:text-orange-100 mb-1 md:mb-2">
-                              {selectedCategory.name}
-                            </h3>
-                            <p className="text-sm md:text-base text-gray-900 dark:text-orange-200 leading-relaxed">
-                              {selectedCategory.description}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 md:gap-4 pt-2">
-                          <div className="flex items-center gap-2 px-2 md:px-3 py-1 bg-orange-200/50 dark:bg-orange-800/50 rounded-full">
-                            <Calendar className="h-3 w-3 md:h-4 md:w-4 text-gray-900 dark:text-orange-300" />
-                            <span className="text-xs md:text-sm font-medium text-gray-900 dark:text-orange-200">
-                              Berakhir:{" "}
-                              {new Date(
-                                selectedCategory.deadline
-                              ).toLocaleDateString("id-ID")}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2 px-2 md:px-3 py-1 bg-orange-200/50 dark:bg-orange-800/50 rounded-full">
-                            <Users className="h-3 w-3 md:h-4 md:w-4 text-gray-900 dark:text-orange-300" />
-                            <span className="text-xs md:text-sm font-medium text-gray-900 dark:text-orange-200">
-                              Tim: {selectedCategory.team_type}
-                            </span>
-                          </div>
-                          {submissions.length > 0 && (
-                            <div className="flex items-center gap-2 px-2 md:px-3 py-1 bg-orange-200/50 dark:bg-orange-800/50 rounded-full">
-                              <Grid3X3 className="h-3 w-3 md:h-4 md:w-4 text-gray-900 dark:text-orange-300" />
-                              <span className="text-xs md:text-sm font-medium text-gray-900 dark:text-orange-200">
-                                {submissions.length} Karya
-                              </span>
-                            </div>
-                          )}
-                        </div>
+                  <div className="bg-[#1E2939]/40 border border-white/10 rounded-xl p-4 md:p-6 space-y-4">
+                    <div className="flex items-start gap-3">
+                      <div className="p-2 bg-[#E01C20]/20 border border-[#E01C20]/30 rounded-lg text-[#E01C20] flex-shrink-0">
+                        <Star className="h-4 w-4" />
                       </div>
-                    </CardContent>
-                  </Card>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-base md:text-lg font-bold text-[#FFF9F5] mb-1">
+                          {selectedCategory.name}
+                        </h3>
+                        <p className="text-xs md:text-sm text-[#AAB1BD] leading-relaxed">
+                          {selectedCategory.description}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2 md:gap-3 pt-2">
+                      <div className="flex items-center gap-2 px-3 py-1.5 bg-[#1E2939] border border-white/10 rounded-full text-xs md:text-sm text-[#AAB1BD]">
+                        <Calendar className="h-3.5 w-3.5 text-[#E01C20]" />
+                        <span>
+                          Deadline:{" "}
+                          <strong className="text-[#FFF9F5]">
+                            {new Date(selectedCategory.deadline).toLocaleDateString("id-ID", {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                            })}
+                          </strong>
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-2 px-3 py-1.5 bg-[#1E2939] border border-white/10 rounded-full text-xs md:text-sm text-[#AAB1BD]">
+                        <Users className="h-3.5 w-3.5 text-[#FED700]" />
+                        <span>
+                          Tipe Tim: <strong className="text-[#FFF9F5]">{selectedCategory.team_type}</strong>
+                        </span>
+                      </div>
+
+                      {submissions.length > 0 && (
+                        <div className="flex items-center gap-2 px-3 py-1.5 bg-[#1E2939] border border-white/10 rounded-full text-xs md:text-sm text-[#AAB1BD]">
+                          <Grid3X3 className="h-3.5 w-3.5 text-[#00B445]" />
+                          <span>
+                            <strong className="text-[#FFF9F5]">{submissions.length}</strong> Karya Disetujui
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
             {/* Loading State */}
             {submissionsLoading && selectedCategoryId && (
-              <div className="text-center py-6 md:py-8">
-                <div className="inline-flex items-center gap-3 text-gray-600 dark:text-gray-300">
-                  <div className="animate-spin rounded-full h-5 w-5 md:h-6 md:w-6 border-b-2 border-orange-400"></div>
-                  <span className="text-base md:text-lg">Memuat karya...</span>
+              <div className="text-center py-12 md:py-16">
+                <div className="inline-flex items-center gap-3 text-[#AAB1BD]">
+                  <div className="animate-spin rounded-full h-6 w-6 border-2 border-[#E01C20] border-t-transparent"></div>
+                  <span className="text-base font-medium">Memuat karya...</span>
                 </div>
               </div>
             )}
 
             {/* Error State */}
             {isError && selectedCategoryId && (
-              <Card className="border-red-400 bg-red-50 dark:bg-red-900/20 shadow-lg">
-                <CardContent className="flex items-center gap-3 md:gap-4 p-6 md:p-8">
-                  <div className="p-2 md:p-3 bg-red-500 rounded-full flex-shrink-0">
-                    <AlertCircle className="h-5 w-5 md:h-6 md:w-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-red-800 dark:text-red-200 mb-1">
-                      Gagal Memuat Data
-                    </h3>
-                    <p className="text-sm md:text-base text-red-700 dark:text-red-300">
-                      Tidak dapat memuat karya. Silakan coba lagi dalam beberapa
-                      saat.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="mia-card border-[#E01C20]/40 p-6 md:p-8 flex items-center gap-4">
+                <div className="p-3 bg-[#E01C20]/20 text-[#E01C20] rounded-xl flex-shrink-0">
+                  <AlertCircle className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-base md:text-lg text-[#FFF9F5] mb-1">
+                    Gagal Memuat Data
+                  </h3>
+                  <p className="text-xs md:text-sm text-[#AAB1BD]">
+                    Tidak dapat memuat karya untuk kategori ini. Silakan coba beberapa saat lagi.
+                  </p>
+                </div>
+              </div>
             )}
 
             {/* Empty State */}
-            {submissions.length === 0 &&
-              selectedCategoryId &&
-              !submissionsLoading && (
-                <Card className="border-2 border-dashed bg-gradient-to-r dark:from-gray-900 dark:to-gray-900/50 border-orange-200">
-                  <CardContent className="flex flex-col items-center justify-center py-12 md:py-16">
-                    <div className="p-3 md:p-4 bg-red-600 rounded-full mb-4 md:mb-6">
-                      <Lightbulb className="h-12 w-12 md:h-16 md:w-16 text-white " />
-                    </div>
-                    <h3 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-2 md:mb-3">
-                      Belum Ada Karya
-                    </h3>
-                    <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 text-center max-w-md px-4">
-                      Belum ada karya yang dikumpulkan untuk kategori ini.
-                      Jadilah yang pertama mengirimkan karya!
-                    </p>
-                  </CardContent>
-                </Card>
-              )}
+            {submissions.length === 0 && selectedCategoryId && !submissionsLoading && !isError && (
+              <div className="mia-card p-8 md:p-14 text-center space-y-4 border-dashed border-white/15">
+                <div className="w-14 h-14 bg-[#E01C20]/15 border border-[#E01C20]/30 text-[#E01C20] rounded-2xl flex items-center justify-center mx-auto">
+                  <Lightbulb className="h-7 w-7" />
+                </div>
+                <div className="space-y-1 max-w-md mx-auto">
+                  <h3 className="text-xl font-bold text-[#FFF9F5]">
+                    Belum Ada Karya
+                  </h3>
+                  <p className="text-sm text-[#AAB1BD]">
+                    Belum ada karya yang disetujui untuk kategori ini. Jadilah yang pertama mengirimkan karya terbaikmu!
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Submissions Grid */}
             {submissions.length > 0 && (
-              <div className="space-y-6 md:space-y-8">
-                <div className="text-center">
-                  <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                    💡 Karya-Karya Kreatif
-                  </h2>
-                  <p className="text-sm md:text-base text-gray-600 dark:text-gray-300">
-                    Menampilkan {submissions.length} karya dalam kategori ini
-                  </p>
-                  {/* Hint untuk user bahwa card bisa diklik */}
-                  <div className="flex items-center justify-center gap-2 mt-3 text-xs text-gray-500 dark:text-gray-400">
-                    <MousePointer className="h-3 w-3" />
-                    <span>Klik pada karya untuk melihat detail lengkap</span>
+              <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-4">
+                  <div>
+                    <h2 className="text-xl sm:text-2xl font-bold text-[#FFF9F5]">
+                      Daftar Karya Peserta
+                    </h2>
+                    <p className="text-xs sm:text-sm text-[#AAB1BD]">
+                      Menampilkan {submissions.length} karya inovatif dalam kategori ini
+                    </p>
                   </div>
+                  <span className="text-xs text-[#AAB1BD] bg-[#1E2939] border border-white/10 px-3 py-1.5 rounded-full w-fit">
+                    Klik karya untuk melihat detail & media
+                  </span>
                 </div>
 
                 {/* Grid Layout */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {submissions.map((submission) => (
-                    <Card
+                    <div
                       key={submission.submission_id}
-                      onClick={() =>
-                        handleSubmissionClick(submission.submission_id)
-                      }
-                      className="g-gradient-to-br from-gray-900 to-gray-900/50 dark:from-gray-900 dark:to-gray-900/50 border-orange-200 dark:border-orange-200 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer group"
+                      onClick={() => handleSubmissionClick(submission.submission_id)}
+                      className="mia-card p-6 flex flex-col justify-between hover:border-[#E01C20]/60 hover:shadow-[0_0_30px_rgba(224,28,32,0.15)] transition-all duration-300 group cursor-pointer"
                     >
-                      <CardContent className="p-6">
-                        <div className="space-y-4">
-                          {/* Header dengan indikator clickable */}
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
-                                <h3 className="text-lg font-bold text-gray-900 dark:text-white line-clamp-2 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">
-                                  {submission.project_name}
-                                </h3>
-                                <Eye className="h-4 w-4 text-gray-400 group-hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100" />
-                              </div>
-                              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                                <User className="h-4 w-4" />
-                                <span>{submission.team_name}</span>
-                              </div>
-                            </div>
-                            <Badge
-                              className={`${getStatusBadge(
-                                submission.status
-                              )} text-xs flex-shrink-0`}
-                            >
-                              {submission.status === "APPROVED"
-                                ? "✓ Disetujui"
-                                : submission.status === "PENDING"
-                                ? "⏳ Pending"
-                                : submission.status === "REJECTED"
-                                ? "✗ Ditolak"
-                                : submission.status}
-                            </Badge>
-                          </div>
-
-                          {/* Description */}
-                          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3">
-                            {submission.description}
-                          </p>
-
-                          {/* Score */}
-                          {submission.score && submission.score > 0 && (
-                            <div className="flex items-center gap-2 p-2 bg-yellow-100 dark:bg-yellow-900/20 rounded-lg">
-                              <Star className="h-4 w-4 text-yellow-500" />
-                              <span className="text-sm font-semibold text-yellow-700 dark:text-yellow-300">
-                                Skor: {submission.score}
-                              </span>
-                            </div>
-                          )}
-
-                          {/* Links */}
-                          {submission.links && submission.links.length > 0 && (
-                            <div className="space-y-2">
-                              <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                                Links:
-                              </p>
-                              <div className="flex flex-wrap gap-2">
-                                {submission.links.slice(0, 3).map((link) => (
-                                  <Button
-                                    key={link.link_id}
-                                    variant="outline"
-                                    size="sm"
-                                    asChild
-                                    className="text-xs h-7"
-                                    onClick={(e) => e.stopPropagation()} // Prevent card click when clicking link
-                                  >
-                                    <a
-                                      href={link.url}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="flex items-center gap-1"
-                                    >
-                                      {getLinkIcon(link.link_type)}
-                                      {link.link_type}
-                                    </a>
-                                  </Button>
-                                ))}
-                                {submission.links.length > 3 && (
-                                  <span className="text-xs text-gray-500 dark:text-gray-400 px-2 py-1">
-                                    +{submission.links.length - 3} lainnya
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Footer */}
-                          <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
-                            <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-                              <span>oleh {submission.user.name}</span>
-                              <span>
-                                {new Date(
-                                  submission.created_at
-                                ).toLocaleDateString("id-ID")}
-                              </span>
+                      <div className="space-y-4">
+                        {/* Header & Status */}
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-lg font-bold text-[#FFF9F5] group-hover:text-[#E01C20] transition-colors line-clamp-2">
+                              {submission.project_name}
+                            </h3>
+                            <div className="flex items-center gap-1.5 text-xs text-[#AAB1BD] mt-1.5">
+                              <Users className="h-3.5 w-3.5 text-[#FED700]" />
+                              <span className="truncate font-medium">{submission.team_name}</span>
                             </div>
                           </div>
+                          <span
+                            className={`text-xs font-semibold px-2.5 py-1 rounded-full whitespace-nowrap ${getStatusBadge(
+                              submission.status
+                            )}`}
+                          >
+                            {submission.status === "APPROVED"
+                              ? "✓ Disetujui"
+                              : submission.status}
+                          </span>
+                        </div>
 
-                          {/* Clickable indicator */}
-                          <div className="text-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <span className="text-xs text-red-600 dark:text-red-400 font-medium">
-                              Klik untuk melihat detail →
+                        {/* Description */}
+                        <p className="text-sm text-[#AAB1BD] line-clamp-3 leading-relaxed">
+                          {submission.description || "Tidak ada deskripsi singkat."}
+                        </p>
+
+                        {/* Score (If Available) */}
+                        {submission.score && submission.score > 0 && (
+                          <div className="flex items-center gap-2 p-2 bg-[#FED700]/10 border border-[#FED700]/20 rounded-lg w-fit">
+                            <Star className="h-4 w-4 text-[#FED700] fill-[#FED700]" />
+                            <span className="text-xs font-bold text-[#FED700]">
+                              Skor: {submission.score}
                             </span>
                           </div>
+                        )}
+
+                        {/* Project Links */}
+                        {submission.links && submission.links.length > 0 && (
+                          <div className="space-y-1.5 pt-1">
+                            <span className="text-[11px] uppercase tracking-wider text-[#99A1AF] font-semibold">
+                              Tautan Karya:
+                            </span>
+                            <div className="flex flex-wrap gap-2">
+                              {submission.links.slice(0, 3).map((link) => (
+                                <a
+                                  key={link.link_id}
+                                  href={link.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#1E2939] hover:bg-[#E01C20]/20 border border-white/10 hover:border-[#E01C20]/40 rounded-md text-xs text-[#FFF9F5] transition-colors"
+                                >
+                                  {getLinkIcon(link.link_type)}
+                                  <span className="capitalize">{link.link_type?.toLowerCase()}</span>
+                                </a>
+                              ))}
+                              {submission.links.length > 3 && (
+                                <span className="text-xs text-[#AAB1BD] self-center px-1">
+                                  +{submission.links.length - 3} lainnya
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Footer Info */}
+                      <div className="mt-5 pt-4 border-t border-white/10 flex items-center justify-between text-xs text-[#99A1AF]">
+                        <div className="flex items-center gap-1.5 truncate max-w-[150px]">
+                          <User className="h-3.5 w-3.5 flex-shrink-0" />
+                          <span className="truncate">{submission.user?.name || "Peserta"}</span>
                         </div>
-                      </CardContent>
-                    </Card>
+                        <div className="flex items-center gap-1 text-[#E01C20] font-semibold group-hover:translate-x-1 transition-transform">
+                          <span>Detail</span>
+                          <ArrowRight className="h-3.5 w-3.5" />
+                        </div>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Call to Action */}
+            {/* Default Call to Action (When No Category Selected) */}
             {!selectedCategoryId && (
-              <Card className="bg-gradient-to-br from-orange-50 to-pink-50 dark:from-gray-900 dark:to-gray-900/50 border-orange-200 shadow-xl">
-                <CardContent className="text-center py-12 md:py-16 px-4">
-                  <div className="p-3 md:p-4 bg-red-600 rounded-xl md:rounded-2xl w-fit mx-auto mb-4 md:mb-6">
-                    <Lightbulb className="h-12 w-12 md:h-16 md:w-16 text-white" />
-                  </div>
-                  <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-3 md:mb-4">
-                    Pilih Kategori untuk Melihat Karya
+              <div className="mia-card p-8 md:p-16 text-center space-y-4">
+                <div className="w-16 h-16 bg-[#E01C20]/15 border border-[#E01C20]/30 text-[#E01C20] rounded-2xl flex items-center justify-center mx-auto mb-2">
+                  <Lightbulb className="h-8 w-8" />
+                </div>
+                <div className="space-y-2 max-w-lg mx-auto">
+                  <h3 className="text-xl sm:text-2xl font-bold text-[#FFF9F5]">
+                    Pilih Kategori untuk Melihat Galeri Karya
                   </h3>
-                  <p className="text-base md:text-lg text-gray-600 dark:text-gray-300 max-w-md mx-auto">
-                    Temukan inspirasi dari karya-karya kreatif peserta kompetisi
-                    dan lihat apa yang bisa Anda ciptakan!
+                  <p className="text-sm sm:text-base text-[#AAB1BD] leading-relaxed">
+                    Pilih salah satu kategori lomba di atas untuk melihat karya-karya terbaik yang telah dipublikasikan oleh para peserta.
                   </p>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             )}
           </div>
-        </div>
-      </main>
-    </>
+        </main>
+      </div>
+
+      <Footer />
+    </div>
   );
 }
+
