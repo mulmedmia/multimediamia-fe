@@ -29,7 +29,7 @@ export function EditSubmissionModal({
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && handleClose()}>
       <DialogContent
         onOpenAutoFocus={(e) => e.preventDefault()}
-        className="sm:max-w-2xl max-h-[90vh] overflow-y-auto bg-[#0F121A] border border-border/50 rounded-2xl text-foreground p-6 sm:p-7 shadow-2xl space-y-4"
+        className="sm:max-w-2xl max-h-[90vh] overflow-y-auto bg-[#0F121A] border border-border/50 rounded-2xl text-foreground p-6 sm:p-7 shadow-2xl space-y-4 selection:bg-primary selection:text-white"
       >
         <DialogHeader className="pb-3 border-b border-border/40 space-y-1">
           <DialogTitle className="text-lg sm:text-xl font-bold tracking-tight text-foreground">

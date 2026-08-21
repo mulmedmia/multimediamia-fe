@@ -116,7 +116,7 @@ export function EditTeamModal({ open, onClose, registration }) {
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent
         onOpenAutoFocus={(e) => e.preventDefault()}
-        className="sm:max-w-md"
+        className="sm:max-w-md selection:bg-primary selection:text-white"
       >
         <DialogHeader>
           <DialogTitle>Edit Data Tim</DialogTitle>
