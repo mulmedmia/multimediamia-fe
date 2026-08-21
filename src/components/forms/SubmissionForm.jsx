@@ -12,46 +12,78 @@ import { getRegistrationById } from "@/services/competition.service.js";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useEffect, useMemo } from "react";
+import { cn } from "@/lib/utils";
+import {
+  Link2Icon,
+  LayersIcon,
+  FileTextIcon,
+  CodeIcon,
+  VideoIcon,
+  InfoCircledIcon,
+  Pencil1Icon,
+} from "@radix-ui/react-icons";
+import { Separator } from "@/components/ui/separator";
+import { Textarea } from "../ui/textarea";
 
 // Schema dinamis berdasarkan team type
 const createSubmissionSchema = (teamType) => {
-  return z.object({
-    // team_name hanya required untuk GROUP
-    team_name:
-      teamType === "GROUP"
-        ? z.string().min(1, { message: "Nama tim wajib diisi." })
-        : z.string().optional(),
-    project_name: z.string().min(1, { message: "Nama project wajib diisi." }),
-    description: z
-      .string()
-      .min(10, { message: "Deskripsi minimal 10 karakter." }),
-    // flow_application hanya required untuk GROUP
-    flow_application:
-      teamType === "GROUP"
-        ? z.string().min(10, { message: "Flow aplikasi minimal 10 karakter." })
-        : z.string().optional(),
-    github_url: z
-      .string()
-      .url({ message: "Harap masukkan URL GitHub yang valid." })
-      .optional()
-      .or(z.literal("")),
-    youtube_url: z
-      .string()
-      .url({ message: "Harap masukkan URL YouTube yang valid." })
-      .optional()
-      .or(z.literal("")),
-    other_url: z
-      .string()
-      .url({ message: "Harap masukkan URL yang valid." })
-      .optional()
-      .or(z.literal("")),
-    github_description: z.string().optional(),
-    youtube_description: z.string().optional(),
-    other_description: z.string().optional(),
-  });
+  return z
+    .object({
+      // team_name hanya required untuk GROUP
+      team_name:
+        teamType === "GROUP"
+          ? z.string().min(1, { message: "Nama tim wajib diisi." })
+          : z.string().optional(),
+      project_name: z.string().min(1, { message: "Nama project wajib diisi." }),
+      description: z
+        .string()
+        .min(10, { message: "Deskripsi minimal 10 karakter." }),
+      // flow_application hanya required untuk GROUP
+      flow_application:
+        teamType === "GROUP"
+          ? z
+              .string()
+              .min(10, { message: "Flow aplikasi minimal 10 karakter." })
+          : z.string().optional(),
+      github_url: z
+        .string()
+        .url({ message: "Harap masukkan URL GitHub yang valid." })
+        .optional()
+        .or(z.literal("")),
+      youtube_url: z
+        .string()
+        .url({ message: "Harap masukkan URL YouTube yang valid." })
+        .optional()
+        .or(z.literal("")),
+      other_url: z
+        .string()
+        .url({ message: "Harap masukkan URL yang valid." })
+        .optional()
+        .or(z.literal("")),
+      github_description: z.string().optional(),
+      youtube_description: z.string().optional(),
+      other_description: z.string().optional(),
+    })
+    .superRefine((data, ctx) => {
+      const hasGithub = Boolean(
+        data.github_url && data.github_url.trim() !== "",
+      );
+      const hasYoutube = Boolean(
+        data.youtube_url && data.youtube_url.trim() !== "",
+      );
+      const hasOther = Boolean(data.other_url && data.other_url.trim() !== "");
+
+      if (!hasGithub && !hasYoutube && !hasOther) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message:
+            "Harap isi minimal satu link project (GitHub, YouTube, atau Link Lainnya).",
+          path: ["links_required"],
+        });
+      }
+    });
 };
 
 export function SubmissionForm({
@@ -166,7 +198,7 @@ export function SubmissionForm({
       toast.success(
         editingSubmission
           ? "Submission berhasil diperbarui!"
-          : "Karya berhasil diunggah!"
+          : "Karya berhasil diunggah!",
       );
       if (onSuccess) onSuccess();
     },
@@ -175,7 +207,7 @@ export function SubmissionForm({
       toast.error(
         `Gagal ${editingSubmission ? "memperbarui" : "mengunggah"}: ${
           error.response?.data?.message || error.message || "Terjadi kesalahan"
-        }`
+        }`,
       );
     },
   });
@@ -252,183 +284,313 @@ export function SubmissionForm({
   }
 
   return (
-    <div className="space-y-6">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {/* Basic Information */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Informasi Project</h3>
-
-          {/* Team Name - Hanya tampil untuk GROUP */}
-          {teamType === "GROUP" && (
-            <div className="space-y-2">
-              <Label htmlFor="team_name">Nama Tim *</Label>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      {/* Basic Information */}
+      <div className="space-y-4">
+        {/* Team Name - Hanya tampil untuk GROUP */}
+        {teamType === "GROUP" && (
+          <div className="space-y-2">
+            <Label
+              htmlFor="team_name"
+              className="block text-sm font-semibold text-foreground"
+            >
+              Nama Tim
+            </Label>
+            <div className="relative cursor-not-allowed">
+              <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
+                <LayersIcon className="w-4 h-4" />
+              </div>
               <Input
                 id="team_name"
+                placeholder="Masukkan nama tim Anda"
                 {...register("team_name")}
-                placeholder="Nama tim Anda"
+                disabled
+                className="h-11 bg-input rounded-xl pl-10 pr-4 text-sm text-foreground placeholder:text-mia-muted-2 border-border cursor-not-allowed pointer-events-auto opacity-75"
               />
-              {errors.team_name && (
-                <p className="text-xs text-red-500">
-                  {errors.team_name.message}
-                </p>
-              )}
             </div>
-          )}
+            <p className="text-xs text-mia-muted-2">
+              Nama tim dapat diperbarui melalui opsi Edit Tim pada halaman
+              Beranda.
+            </p>
+          </div>
+        )}
 
-          <div className="space-y-2">
-            <Label htmlFor="project_name">Nama Project *</Label>
+        {/* Project Name */}
+        <div className="space-y-2">
+          <Label
+            htmlFor="project_name"
+            className="block text-sm font-semibold text-foreground"
+          >
+            Nama Project
+          </Label>
+          <div className="relative">
+            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
+              <FileTextIcon className="w-4 h-4" />
+            </div>
             <Input
               id="project_name"
-              placeholder="My Amazing Project"
+              placeholder="Masukkan nama project"
               {...register("project_name")}
-            />
-            {errors.project_name && (
-              <p className="text-xs text-red-500">
-                {errors.project_name.message}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="description">Deskripsi Project *</Label>
-            <Textarea
-              id="description"
-              placeholder="Deskripsi detail tentang project Anda, apa yang dilakukan dan bagaimana cara kerjanya..."
-              rows={4}
-              {...register("description")}
-            />
-            {errors.description && (
-              <p className="text-xs text-red-500">
-                {errors.description.message}
-              </p>
-            )}
-          </div>
-
-          {/* Flow Aplikasi - Hanya tampil untuk GROUP */}
-          {teamType === "GROUP" && (
-            <div className="space-y-2">
-              <Label htmlFor="flow_application">Flow Aplikasi *</Label>
-              <Textarea
-                id="flow_application"
-                placeholder="User buka app -> Login -> Dashboard -> Browse fitur -> Gunakan fitur spesifik..."
-                rows={3}
-                {...register("flow_application")}
-              />
-              {errors.flow_application && (
-                <p className="text-xs text-red-500">
-                  {errors.flow_application.message}
-                </p>
+              className={cn(
+                "h-11 bg-input rounded-xl pl-10 pr-4 text-sm text-foreground placeholder:text-mia-muted-2 transition-all",
+                errors.project_name
+                  ? "border-destructive focus-visible:ring-destructive"
+                  : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
               )}
-            </div>
+            />
+          </div>
+          {errors.project_name && (
+            <p className="text-xs text-destructive mt-1 font-medium">
+              {errors.project_name.message}
+            </p>
           )}
+        </div>
 
-          {/* Untuk INDIVIDUAL, tampilkan info bahwa flow app tidak diperlukan */}
-          {teamType === "INDIVIDUAL" && (
-            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-              <p className="text-sm text-blue-700 dark:text-blue-300">
-                ℹ️ Untuk kategori Individual, Tim dan Flow Aplikasi tidak
-                diperlukan.
+        {/* Project Description */}
+        <div className="space-y-2">
+          <Label
+            htmlFor="description"
+            className="block text-sm font-semibold text-foreground"
+          >
+            Deskripsi Project
+          </Label>
+          <Textarea
+            id="description"
+            placeholder="Deskripsi detail tentang project Anda, apa yang dilakukan dan bagaimana cara kerjanya..."
+            rows={4}
+            {...register("description")}
+            className={cn(
+              "bg-input dark:bg-input/30 rounded-xl p-3.5 text-sm text-foreground placeholder:text-mia-muted-2 transition-colors focus-visible:ring-offset-0 focus-visible:outline-none",
+              errors.description
+                ? "border-destructive focus-visible:ring-destructive"
+                : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
+            )}
+          />
+          {errors.description && (
+            <p className="text-xs text-destructive mt-1 font-medium">
+              {errors.description.message}
+            </p>
+          )}
+        </div>
+
+        {/* Flow Aplikasi - Hanya tampil untuk GROUP */}
+        {teamType === "GROUP" && (
+          <div className="space-y-2">
+            <Label
+              htmlFor="flow_application"
+              className="block text-sm font-semibold text-foreground"
+            >
+              Flow Aplikasi
+            </Label>
+            <Textarea
+              id="flow_application"
+              placeholder="User buka app -> Login -> Dashboard -> Browse fitur -> Gunakan fitur spesifik..."
+              rows={3}
+              {...register("flow_application")}
+              className={cn(
+                "bg-input dark:bg-input/30 rounded-xl p-3.5 text-sm text-foreground placeholder:text-mia-muted-2 transition-colors focus-visible:ring-offset-0 focus-visible:outline-none",
+                errors.flow_application
+                  ? "border-destructive focus-visible:ring-destructive"
+                  : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
+              )}
+            />
+            {errors.flow_application && (
+              <p className="text-xs text-destructive mt-1 font-medium">
+                {errors.flow_application.message}
               </p>
+            )}
+          </div>
+        )}
+
+        {/* Untuk INDIVIDUAL */}
+        {teamType === "INDIVIDUAL" && (
+          <div className="p-3.5 bg-sky-500/10 rounded-xl border border-sky-500/25 text-xs text-sky-300 flex items-center gap-2">
+            <InfoCircledIcon className="w-4 h-4 flex-shrink-0" />
+            <p>
+              Untuk kategori Individual, Tim dan Flow Aplikasi tidak diperlukan.
+            </p>
+          </div>
+        )}
+      </div>
+
+      <Separator />
+
+      {/* Links Section */}
+      <div className="space-y-4">
+        <div>
+          <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+            Link Project & Berkas
+          </h3>
+          <p className="text-xs text-mia-muted-2 mt-0.5">
+            Isi minimal satu link. Semua link bersifat opsional.
+          </p>
+          {errors.links_required && (
+            <div className="mt-2.5 p-3 bg-rose-500/10 border border-rose-500/25 rounded-xl text-xs text-rose-300 flex items-center gap-2">
+              <InfoCircledIcon className="w-4 h-4 text-rose-400 flex-shrink-0" />
+              <span>{errors.links_required.message}</span>
             </div>
           )}
         </div>
 
-        {/* Links Section */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Link Project</h3>
-          <p className="text-sm text-muted-foreground">
-            Isi minimal satu link. Semua link bersifat opsional.
-          </p>
-
-          {/* GitHub Link */}
-          <div className="space-y-3 mb-8">
-            <Label htmlFor="github_url">Link GitHub</Label>
+        {/* GitHub Link */}
+        <div className="space-y-2">
+          <Label
+            htmlFor="github_url"
+            className="block text-sm font-semibold text-foreground"
+          >
+            Link GitHub
+          </Label>
+          <div className="relative">
+            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
+              <CodeIcon className="w-4 h-4" />
+            </div>
             <Input
               id="github_url"
               placeholder="https://github.com/username/repository"
               {...register("github_url")}
-            />
-            {errors.github_url && (
-              <p className="text-xs text-red-500">
-                {errors.github_url.message}
-              </p>
-            )}
-            <Label htmlFor="github_description">Description</Label>
-            <Input
-              id="github_description"
-              placeholder="Source code repository"
-              {...register("github_description")}
+              className={cn(
+                "h-11 bg-input rounded-xl pl-10 pr-4 text-sm text-foreground placeholder:text-mia-muted-2 transition-all",
+                errors.github_url
+                  ? "border-destructive focus-visible:ring-destructive"
+                  : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
+              )}
             />
           </div>
+          {errors.github_url && (
+            <p className="text-xs text-destructive mt-1 font-medium">
+              {errors.github_url.message}
+            </p>
+          )}
+          <div className="relative">
+            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
+              <Pencil1Icon className="w-3.5 h-3.5" />
+            </div>
+            <Input
+              id="github_description"
+              placeholder="Repository source code"
+              {...register("github_description")}
+              className="h-10 bg-input/60 rounded-xl pl-9 pr-4 text-xs text-foreground placeholder:text-mia-muted-2 border-border/60 focus-visible:border-ring focus-visible:ring-ring/50"
+            />
+          </div>
+        </div>
 
-          {/* YouTube Link */}
-          <div className="space-y-3 mb-8">
-            <Label htmlFor="youtube_url">Link YouTube</Label>
+        {/* YouTube Link */}
+        <div className="space-y-2">
+          <Label
+            htmlFor="youtube_url"
+            className="block text-sm font-semibold text-foreground"
+          >
+            Link YouTube
+          </Label>
+          <div className="relative">
+            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
+              <VideoIcon className="w-4 h-4" />
+            </div>
             <Input
               id="youtube_url"
               placeholder="https://youtube.com/watch?v=..."
               {...register("youtube_url")}
-            />
-            {errors.youtube_url && (
-              <p className="text-xs text-red-500">
-                {errors.youtube_url.message}
-              </p>
-            )}
-            <Label htmlFor="youtube_description">Description</Label>
-            <Input
-              id="youtube_description"
-              placeholder="Project demo video"
-              {...register("youtube_description")}
+              className={cn(
+                "h-11 bg-input rounded-xl pl-10 pr-4 text-sm text-foreground placeholder:text-mia-muted-2 transition-all",
+                errors.youtube_url
+                  ? "border-destructive focus-visible:ring-destructive"
+                  : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
+              )}
             />
           </div>
+          {errors.youtube_url && (
+            <p className="text-xs text-destructive mt-1 font-medium">
+              {errors.youtube_url.message}
+            </p>
+          )}
+          <div className="relative">
+            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
+              <Pencil1Icon className="w-3.5 h-3.5" />
+            </div>
+            <Input
+              id="youtube_description"
+              placeholder="Video demo project"
+              {...register("youtube_description")}
+              className="h-10 bg-input/60 rounded-xl pl-9 pr-4 text-xs text-foreground placeholder:text-mia-muted-2 border-border/60 focus-visible:border-ring focus-visible:ring-ring/50"
+            />
+          </div>
+        </div>
 
-          {/* Other Link */}
-          <div className="space-y-3 mb-5">
-            <Label htmlFor="other_url">Link Lainnya</Label>
+        {/* Other Link */}
+        <div className="space-y-2">
+          <Label
+            htmlFor="other_url"
+            className="block text-sm font-semibold text-foreground"
+          >
+            Link Lainnya
+          </Label>
+          <div className="relative">
+            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
+              <Link2Icon className="w-4 h-4" />
+            </div>
             <Input
               id="other_url"
               placeholder="https://example.com/live-demo"
               {...register("other_url")}
+              className={cn(
+                "h-11 bg-input rounded-xl pl-10 pr-4 text-sm text-foreground placeholder:text-mia-muted-2 transition-all",
+                errors.other_url
+                  ? "border-destructive focus-visible:ring-destructive"
+                  : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
+              )}
             />
-            {errors.other_url && (
-              <p className="text-xs text-red-500">{errors.other_url.message}</p>
-            )}
-            <Label htmlFor="other_description">Description</Label>
+          </div>
+          {errors.other_url && (
+            <p className="text-xs text-destructive mt-1 font-medium">
+              {errors.other_url.message}
+            </p>
+          )}
+          <div className="relative">
+            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
+              <Pencil1Icon className="w-3.5 h-3.5" />
+            </div>
             <Input
               id="other_description"
               placeholder="Live demo website"
               {...register("other_description")}
+              className="h-10 bg-input/60 rounded-xl pl-9 pr-4 text-xs text-foreground placeholder:text-mia-muted-2 border-border/60 focus-visible:border-ring focus-visible:ring-ring/50"
             />
           </div>
         </div>
+      </div>
 
-        <div className="flex gap-2">
+      <div className="flex items-center gap-3 pt-3">
+        {editingSubmission && onCancel && (
           <Button
-            type="submit"
-            className="flex-1"
+            type="button"
+            variant="outline"
+            onClick={onCancel}
             disabled={mutation.isPending}
+            className="h-11 rounded-full border border-border bg-input hover:bg-input/80 text-foreground text-sm font-semibold px-6 cursor-pointer"
           >
-            {mutation.isPending
-              ? editingSubmission
-                ? "Mengupdate..."
-                : "Mengunggah..."
-              : editingSubmission
-              ? "Update Submission"
-              : "Upload Karya"}
+            Batal
           </Button>
+        )}
 
-          {editingSubmission && onCancel && (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onCancel}
-              disabled={mutation.isPending}
-            >
-              Batal
-            </Button>
+        <Button
+          type="submit"
+          disabled={mutation.isPending}
+          className="flex-1 mia-btn-primary h-11 text-sm font-semibold shadow-lg shadow-red-900/30 cursor-pointer disabled:opacity-50 inline-flex items-center justify-center gap-2"
+        >
+          {mutation.isPending ? (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              <span>
+                {editingSubmission ? "Mengupdate..." : "Mengunggah..."}
+              </span>
+            </>
+          ) : (
+            <span>
+              {editingSubmission ? "Update Submission" : "Upload Karya"}
+            </span>
           )}
-        </div>
-      </form>
-    </div>
+        </Button>
+      </div>
+    </form>
   );
 }

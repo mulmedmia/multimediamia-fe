@@ -18,6 +18,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useUpdateRegistration } from "@/hooks/user-use-registration";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 // Schema validasi
 const editTeamSchema = z.object({
@@ -113,7 +114,10 @@ export function EditTeamModal({ open, onClose, registration }) {
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent
+        onOpenAutoFocus={(e) => e.preventDefault()}
+        className="sm:max-w-md"
+      >
         <DialogHeader>
           <DialogTitle>Edit Data Tim</DialogTitle>
           <DialogDescription>
@@ -143,6 +147,10 @@ export function EditTeamModal({ open, onClose, registration }) {
               placeholder="contoh: Asep, Kakang, Solihin"
               rows={3}
               {...register("team_members")}
+              className={cn(
+                "bg-input rounded-xl p-3 text-sm text-foreground placeholder:text-muted-foreground border-border focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-offset-0 focus-visible:outline-none transition-all",
+                errors.team_members && "border-destructive focus-visible:ring-destructive"
+              )}
             />
             <p className="text-xs text-muted-foreground">
               Pisahkan setiap nama dengan koma ( , ).

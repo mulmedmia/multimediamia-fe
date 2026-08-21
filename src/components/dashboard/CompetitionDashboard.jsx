@@ -39,6 +39,7 @@ import {
   redeemPoints,
 } from "@/services/gamification.service";
 import { EditTeamModal } from "./EditTeamModal";
+import { EditSubmissionModal } from "./EditSubmissionModal";
 
 export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -192,7 +193,11 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
             {activeRegistration.category.name}
           </h2>
           <p className="text-sm text-muted-foreground mt-0.5">
-            Selamat berkompetisi, {activeRegistration.team_name || "Nama Tim"}!
+            Selamat berkompetisi,{" "}
+            <span className="text-foreground font-medium">
+              {activeRegistration.team_name || "Nama Tim"}
+            </span>
+            !
           </p>
         </div>
       </div>
@@ -604,21 +609,23 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                               </p>
                             </div>
                             <div className="flex sm:flex-col items-center sm:items-end justify-between gap-2">
-                              <span
-                                className={cn(
-                                  "text-xs px-3 py-1 rounded-full font-semibold border inline-flex items-center gap-1.5",
-                                  sub.status === "PENDING"
-                                    ? "bg-input/60 border-border/50 text-muted-foreground"
-                                    : sub.status === "VERIFIED" ||
-                                        sub.status === "APPROVED"
-                                      ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-400"
-                                      : "bg-rose-500/15 border-rose-500/30 text-rose-400",
-                                )}
-                              >
-                                {sub.status}
-                              </span>
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className={cn(
+                                    "text-xs px-3 py-1 rounded-full font-semibold border inline-flex items-center gap-1.5",
+                                    sub.status === "PENDING"
+                                      ? "bg-input/60 border-border/50 text-muted-foreground"
+                                      : sub.status === "VERIFIED" ||
+                                          sub.status === "APPROVED"
+                                        ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-400"
+                                        : "bg-rose-500/15 border-rose-500/30 text-rose-400",
+                                  )}
+                                >
+                                  {sub.status}
+                                </span>
+                              </div>
                               {sub.score && (
-                                <p className="text-xs sm:text-sm font-medium text-muted-foreground">
+                                <p className="text-xs sm:text-sm font-medium text-muted-foreground pr-2">
                                   Skor:{" "}
                                   <span className="font-bold text-foreground">
                                     {sub.score}
@@ -664,7 +671,8 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                                     size="sm"
                                     asChild
                                     onClick={(e) => e.stopPropagation()}
-                                    className="h-8 rounded-full border border-white/20 hover:border-white/40 bg-input/60 hover:bg-input text-foreground text-xs px-3.5 shadow-xs transition-all inline-flex items-center gap-1.5"
+                                    title={link.description}
+                                    className="h-8 rounded-full border border-border/30 dark:border-border/30 hover:border-white/40 bg-input/60 hover:bg-input text-foreground text-xs px-3.5 shadow-xs transition-all inline-flex items-center gap-1.5"
                                   >
                                     <a
                                       href={link.url}
@@ -715,36 +723,12 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
       </Tabs>
 
       {/* Modal Edit Submission */}
-      {editingSubmission && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="mia-card bg-[#0F121A] border border-border/50 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 sm:p-7 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-border/40">
-              <h3 className="text-lg sm:text-xl font-bold text-foreground tracking-tight">
-                Edit Submission
-              </h3>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleCloseEditModal}
-                className="h-8 w-8 p-0 rounded-full hover:bg-input/60 text-muted-foreground hover:text-foreground transition-all"
-              >
-                ✕
-              </Button>
-            </div>
-
-            <SubmissionForm
-              registrationId={activeRegistration.registration_id}
-              editingSubmission={editingSubmission}
-              onSuccess={() => {
-                handleCloseEditModal();
-                queryClient.invalidateQueries(["mySubmissions"]);
-                toast.success("Submission berhasil diperbarui!");
-              }}
-              onCancel={handleCloseEditModal}
-            />
-          </div>
-        </div>
-      )}
+      <EditSubmissionModal
+        open={!!editingSubmission}
+        onClose={handleCloseEditModal}
+        registrationId={activeRegistration.registration_id}
+        editingSubmission={editingSubmission}
+      />
       {/* Modal Edit Team */}
       <EditTeamModal
         open={editTeamModalOpen}
