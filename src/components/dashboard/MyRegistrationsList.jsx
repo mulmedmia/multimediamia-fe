@@ -10,33 +10,25 @@ import {
 import { getMySubmissions } from "@/services/submission.service";
 import { useAuthContext } from "@/providers/AuthProvider";
 import { toast } from "sonner";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardFooter,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
-import { SubmissionForm } from "@/components/forms/SubmissionForm";
 import {
-  LayoutDashboard,
   AlertTriangle,
   MessageSquare,
   Upload,
   FileText,
+  Trash2,
+  Calendar,
+  Trophy,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export function MyRegistrationsList({ onSelectRegistration }) {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
@@ -54,32 +46,27 @@ export function MyRegistrationsList({ onSelectRegistration }) {
     enabled: !!user?.users_id,
   });
 
-  // Query untuk mendapatkan submissions user
   const { data: submissionsData } = useQuery({
     queryKey: ["mySubmissions"],
-    queryFn: () => getMySubmissions(1, 100), // Get semua submissions
+    queryFn: () => getMySubmissions(1, 100),
     enabled: !!user?.users_id,
   });
 
-  // Function untuk mengecek apakah user sudah punya submission untuk kategori tertentu
   const hasSubmissionForCategory = (categoryId) => {
     if (!submissionsData?.submissions) return false;
     return submissionsData.submissions.some(
-      (submission) => submission.category_id === categoryId
+      (submission) => submission.category_id === categoryId,
     );
   };
 
   const handleUploadSubmission = (registration) => {
-    // Pilih registration dan arahkan ke tab upload
     onSelectRegistration(registration, "upload");
   };
 
   const handleViewStatus = (registration) => {
-    // Pilih registration dan arahkan ke tab status
     onSelectRegistration(registration, "status");
   };
 
-  // Mutation untuk menghapus registrasi
   const deleteMutation = useMutation({
     mutationFn: deleteRegistration,
     onSuccess: () => {
@@ -89,7 +76,7 @@ export function MyRegistrationsList({ onSelectRegistration }) {
     },
     onError: (error) => {
       toast.error(
-        `Gagal menghapus pendaftaran: ${error.message || "Terjadi kesalahan"}`
+        `Gagal menghapus pendaftaran: ${error.message || "Terjadi kesalahan"}`,
       );
       setDeleteConfirmId(null);
     },
@@ -99,151 +86,193 @@ export function MyRegistrationsList({ onSelectRegistration }) {
     deleteMutation.mutate(registrationId);
   };
 
-  const handleViewDashboard = (registrationId) => {
-    router.push(`/dashboard/${registrationId}`);
-  };
-
   if (isLoading)
     return (
-      <p className="text-center text-muted-foreground">
-        Memuat riwayat pendaftaran...
-      </p>
+      <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 w-full">
+        {[1, 2].map((i) => (
+          <div
+            key={i}
+            className="mia-card p-7 sm:p-8 h-80 animate-pulse space-y-5"
+          >
+            <div className="h-7 w-2/3 bg-muted/50 rounded-lg"></div>
+            <div className="h-5 w-1/2 bg-muted/50 rounded-lg"></div>
+            <div className="h-28 bg-muted/30 rounded-2xl"></div>
+          </div>
+        ))}
+      </div>
     );
+
   if (isError)
     return (
-      <p className="text-center text-red-500">Gagal memuat data pendaftaran.</p>
+      <div className="mia-card p-8 sm:p-10 text-center space-y-2 max-w-xl">
+        <p className="text-destructive font-semibold text-base sm:text-lg">
+          Gagal memuat data pendaftaran.
+        </p>
+        <p className="text-xs sm:text-sm text-muted-foreground">
+          Silakan muat ulang halaman atau coba beberapa saat lagi.
+        </p>
+      </div>
     );
 
   if (!registrations || registrations.length === 0) {
     return (
-      <div className="text-center py-10 border-2 border-dashed rounded-lg">
-        <p className="text-muted-foreground">
-          Anda belum mendaftar lomba apapun.
-        </p>
+      <div className="mia-card p-10 sm:p-16 text-center border-dashed space-y-5 max-w-xl">
+        <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center mx-auto">
+          <Trophy className="w-8 h-8" />
+        </div>
+        <div className="space-y-1.5">
+          <h3 className="text-xl sm:text-2xl font-bold text-foreground">
+            Belum Ada Lomba
+          </h3>
+          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+            Anda belum mendaftar lomba apapun. Pilih kategori lomba dan mulai
+            berkompetisi sekarang! (Maksimal 2 lomba per akun).
+          </p>
+        </div>
+        <Button
+          onClick={() => router.push("/#kategori")}
+          className="mia-btn-primary h-11 rounded-full px-7 text-sm font-semibold cursor-pointer shadow-lg shadow-red-900/40"
+        >
+          Lihat Kategori Lomba
+        </Button>
       </div>
     );
   }
 
   return (
     <>
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 w-full">
         {registrations?.map((reg) => {
-          // Check apakah user sudah punya submission untuk kategori ini
           const hasSubmission = hasSubmissionForCategory(reg.category_id);
 
           return (
-            <Card
+            <div
               key={reg.registration_id}
-              className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
-              onClick={() => onSelectRegistration(reg)} // Default ke tab beranda
+              onClick={() => onSelectRegistration(reg)}
+              className="mia-card p-7 sm:p-8 shadow-2xl flex flex-col justify-between space-y-6 cursor-pointer hover:border-primary/50 transition-all duration-300 group hover:-translate-y-1 hover:shadow-mia-bg/40"
             >
-              <div>
-                <CardHeader>
-                  <CardTitle className="flex justify-between items-start">
-                    <span className="pr-2">
+              <div className="space-y-5">
+                {/* Header: Title & Badges */}
+                <div className="flex justify-between items-start gap-4">
+                  <div className="space-y-1 min-w-0 flex-1">
+                    <h3 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight truncate">
                       {reg.category?.name || "Nama Lomba"}
+                    </h3>
+                    <p className="text-sm sm:text-base text-muted-foreground font-medium truncate">
+                      {reg.team_name ? `Tim: ${reg.team_name}` : reg.user?.name}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                    <span
+                      className={cn(
+                        "text-xs sm:text-sm px-3 py-1 rounded-full font-semibold border",
+                        reg.is_verified
+                          ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-400"
+                          : "bg-amber-500/15 border-amber-500/30 text-amber-400",
+                      )}
+                    >
+                      {reg.is_verified
+                        ? "Terverifikasi"
+                        : "Belum Terverifikasi"}
                     </span>
-                    <div className="flex flex-col gap-1">
-                      <Badge
-                        variant={reg.is_verified ? "success" : "secondary"}
-                        className={
-                          reg.is_verified
-                            ? "bg-green-600 text-white"
-                            : "bg-red-600 text-white"
-                        }
-                      >
-                        {reg.is_verified
-                          ? "Terverifikasi"
-                          : "Belum Terverifikasi"}
-                      </Badge>
-                      {/* Badge untuk status submission */}
-                      {hasSubmission && (
-                        <Badge
-                          variant="outline"
-                          className="text-xs bg-blue-50 text-blue-600 border-blue-200"
-                        >
-                          Karya Terupload
-                        </Badge>
+                    {hasSubmission && (
+                      <span className="text-xs sm:text-sm px-3 py-1 rounded-full font-semibold bg-sky-500/15 border border-sky-500/30 text-sky-400">
+                        Karya Terupload
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Registration Date */}
+                <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+                  <Calendar className="w-4 h-4 text-muted-foreground" />
+                  <span>
+                    Terdaftar:{" "}
+                    {new Date(reg.created_at).toLocaleDateString("id-ID", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  </span>
+                </div>
+
+                {/* Feedback Box - MIA Red Theme */}
+                <div className="p-4 sm:p-5 bg-primary/10 border border-primary/25 rounded-2xl space-y-1.5 backdrop-blur-xs">
+                  <div className="flex items-start gap-2.5">
+                    <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs sm:text-sm font-semibold text-primary">
+                        Feedback Panitia:
+                      </p>
+                      {reg.feedback ? (
+                        <p className="text-xs sm:text-sm text-foreground/90 leading-relaxed mt-1 font-normal">
+                          {reg.feedback}
+                        </p>
+                      ) : (
+                        <p className="text-xs sm:text-sm text-muted-foreground italic leading-relaxed mt-1">
+                          Belum ada feedback. Feedback akan muncul setelah
+                          pendaftaran Anda direview oleh panitia.
+                        </p>
                       )}
                     </div>
-                  </CardTitle>
-                  <CardDescription>
-                    {reg.team_name ? `Tim: ${reg.team_name}` : reg.user.name}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-xs text-muted-foreground">
-                    Terdaftar pada:{" "}
-                    {new Date(reg.created_at).toLocaleDateString("id-ID")}
-                  </p>
-
-                  {/* Feedback Box - Selalu tampil */}
-                  <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                    <div className="flex items-start gap-2">
-                      <MessageSquare className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                      <div className="flex-1">
-                        <p className="text-xs font-medium text-blue-800 dark:text-blue-300 mb-1">
-                          Feedback:
-                        </p>
-                        {reg.feedback ? (
-                          <p className="text-xs text-blue-700 dark:text-blue-200 leading-relaxed">
-                            {reg.feedback}
-                          </p>
-                        ) : (
-                          <p className="text-xs text-blue-500 dark:text-blue-400 leading-relaxed italic">
-                            Belum ada feedback. Feedback akan muncul setelah
-                            dilakukan review terhadap pendaftaran Anda.
-                          </p>
-                        )}
-                      </div>
-                    </div>
                   </div>
-                </CardContent>
+                </div>
               </div>
-              <CardFooter className="flex justify-between gap-2 w-full">
-                {/* Tombol Hapus */}
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-between gap-3 pt-4 border-t border-border/40">
+                {/* Subtle Hapus Action */}
                 <Button
-                  variant="destructive"
+                  variant="ghost"
+                  size="sm"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setDeleteConfirmId(reg.registration_id);
+                    if (!reg.is_verified) {
+                      setDeleteConfirmId(reg.registration_id);
+                    }
                   }}
-                  className="flex-1"
-                  disabled={deleteMutation.isPending}
+                  disabled={deleteMutation.isPending || reg.is_verified}
+                  title={
+                    reg.is_verified
+                      ? "Pendaftaran yang sudah terverifikasi tidak dapat dihapus"
+                      : "Hapus Pendaftaran"
+                  }
+                  className="h-10 px-4 rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 border border-border/40 hover:border-destructive/40 text-xs sm:text-sm font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-muted-foreground disabled:hover:border-border/40 inline-flex items-center gap-1.5 flex-shrink-0 cursor-pointer"
                 >
-                  <LayoutDashboard className="mr-2 h-4 w-4" />
-                  {deleteMutation.isPending ? "Menghapus..." : "Hapus"}
+                  <Trash2 className="h-4 w-4" />
+                  <span>
+                    {deleteMutation.isPending ? "Menghapus..." : "Hapus"}
+                  </span>
                 </Button>
 
-                {/* Tombol Upload Karya atau Lihat Status - Conditional */}
+                {/* Primary CTA Action */}
                 {hasSubmission ? (
-                  // Jika sudah ada submission, tampilkan tombol "Lihat Status"
                   <Button
                     onClick={(e) => {
                       e.stopPropagation();
                       handleViewStatus(reg);
                     }}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                    className="h-10 sm:h-11 flex-1 bg-sky-600/20 border border-sky-500/50 hover:bg-sky-600 hover:border-sky-400 text-sky-300 hover:text-white rounded-full px-5 text-xs sm:text-sm font-semibold shadow-md shadow-sky-950/40 cursor-pointer inline-flex items-center justify-center gap-2 transition-all"
                   >
-                    <FileText className="mr-2 h-4 w-4" />
-                    Lihat Status
+                    <FileText className="h-4 w-4" />
+                    <span>Lihat Status</span>
                   </Button>
                 ) : (
-                  // Jika belum ada submission, tampilkan tombol "Upload Karya"
                   <Button
                     onClick={(e) => {
                       e.stopPropagation();
                       handleUploadSubmission(reg);
                     }}
                     disabled={!reg.is_verified}
-                    className="flex-1"
+                    className="h-10 sm:h-11 flex-1 mia-btn-primary rounded-full px-5 text-xs sm:text-sm font-semibold shadow-lg shadow-red-900/40 cursor-pointer disabled:opacity-50 inline-flex items-center justify-center gap-2 transition-all"
                   >
-                    <Upload className="mr-2 h-4 w-4" />
-                    Upload Karya
+                    <Upload className="h-4 w-4" />
+                    <span>Upload Karya</span>
                   </Button>
                 )}
-              </CardFooter>
-            </Card>
+              </div>
+            </div>
           );
         })}
       </div>
@@ -253,37 +282,37 @@ export function MyRegistrationsList({ onSelectRegistration }) {
         open={!!deleteConfirmId}
         onOpenChange={(isOpen) => !isOpen && setDeleteConfirmId(null)}
       >
-        <DialogContent className="w-[95vw] max-w-md">
+        <DialogContent className="w-[95vw] max-w-md bg-[#0F121A] border border-border/60 text-foreground rounded-2xl p-6 shadow-2xl space-y-4">
           <DialogHeader>
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-red-100 dark:bg-red-900/20 rounded-full">
-                <AlertTriangle className="h-5 w-5 text-red-600" />
+              <div className="p-2.5 bg-destructive/10 border border-destructive/20 rounded-2xl text-destructive flex-shrink-0">
+                <AlertTriangle className="h-5 w-5" />
               </div>
-              <DialogTitle className="text-lg font-semibold">
-                Konfirmasi Hapus
+              <DialogTitle className="text-lg font-bold text-foreground">
+                Hapus Pendaftaran?
               </DialogTitle>
             </div>
           </DialogHeader>
-          <div className="py-4">
-            <p className="text-sm text-muted-foreground">
+          <div className="py-1">
+            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
               Apakah Anda yakin ingin menghapus pendaftaran lomba ini? Tindakan
               ini tidak dapat dibatalkan dan semua data terkait akan hilang.
             </p>
           </div>
-          <DialogFooter className="flex-col sm:flex-row gap-2">
+          <DialogFooter className="flex flex-col sm:flex-row gap-2 pt-2">
             <DialogClose asChild>
               <Button
                 variant="outline"
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto rounded-full border border-white/20 hover:border-white/40 bg-input/40 hover:bg-input text-foreground text-xs font-medium h-9 px-4 cursor-pointer transition-all"
                 disabled={deleteMutation.isPending}
               >
-                Tidak, Batal
+                Batal
               </Button>
             </DialogClose>
             <Button
               variant="destructive"
               onClick={() => handleDeleteRegistration(deleteConfirmId)}
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto rounded-full bg-destructive text-white hover:bg-destructive/90 text-xs font-semibold h-9 px-4 cursor-pointer transition-all shadow-md shadow-red-900/30"
               disabled={deleteMutation.isPending}
             >
               {deleteMutation.isPending ? "Menghapus..." : "Ya, Hapus"}

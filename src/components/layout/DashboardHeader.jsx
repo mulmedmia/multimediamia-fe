@@ -3,8 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuthContext } from "@/providers/AuthProvider";
-import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/theme-toggle";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,62 +11,58 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  LogOut,
-  User,
-  LayoutDashboard,
-  Clock,
-  Trophy,
-  Sparkles,
-  Menu,
-} from "lucide-react";
+import { LogOut, User, LayoutDashboard, Clock, Trophy } from "lucide-react";
 
 export function DashboardHeader() {
-  const { user, loading, logout } = useAuthContext();
-  const pathname = usePathname();
-
-  const dashboardLink = user?.role === "ADMIN" ? "/admin/dashboard" : "/dashboard";
+  const { user, logout } = useAuthContext();
+  const dashboardLink =
+    user?.role === "ADMIN" ? "/admin/dashboard" : "/dashboard";
   const profileLink = "/profile";
   const historyPesananLink = "/history-pesanan";
   const leaderboardLink = "/leaderboard";
-  const showItLink = "/show-it";
-
-  const getNavLinkClass = (href) => {
-    const isActive = pathname === href;
-    return isActive
-      ? "px-3.5 py-1.5 rounded-full bg-[#1E2939] text-[#FFF9F5] text-sm font-medium border border-white/10 shadow-sm flex items-center gap-1.5 transition-all"
-      : "px-3.5 py-1.5 rounded-full text-sm font-medium text-[#AAB1BD] hover:text-[#FFF9F5] hover:bg-[#1E2939]/50 flex items-center gap-1.5 transition-all";
-  };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-[#0A0D14]/90 backdrop-blur-md border-b border-white/10 transition-all duration-300">
-      <div className="container mx-auto px-4 max-w-7xl">
+    <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-[#0F121A]/60 backdrop-blur-md text-foreground w-full">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 sm:h-20 items-center justify-between">
-          {/* Logo Section */}
-          <Link href="/" className="flex items-center space-x-2.5 flex-shrink-0">
+          {/* Logo & Brand Title matching Admin Layout */}
+          <Link
+            href="/"
+            className="flex items-center space-x-2.5 flex-shrink-0"
+          >
             <img
               src="/mia2026_logo.png"
               alt="Multimedia in Action Logo"
-              className="h-8 w-8 object-contain"
+              className="h-7 w-7 sm:h-8 sm:w-8 object-contain"
             />
-            <span className="text-lg sm:text-xl font-bold text-[#FFF9F5] tracking-tight">
-              Multimedia <span className="text-[#E01C20]">in Action</span>
+            <span className="text-base sm:text-lg font-bold text-foreground tracking-tight">
+              Multimedia{" "}
+              <span className="bg-gradient-to-b from-mia-orange to-mia-yellow bg-clip-text text-transparent">
+                In Action
+              </span>
             </span>
           </Link>
 
-          {/* Center Navigation Links for Desktop */}
-          <nav className="hidden md:flex items-center space-x-2">
-            <Link href={showItLink} className={getNavLinkClass(showItLink)}>
-              <Sparkles className="h-4 w-4 text-[#E01C20]" />
-              <span>Show It</span>
+          {/* Right Side Controls matching Admin Layout */}
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+            {/* Desktop Navigation Links */}
+            <Link
+              href={historyPesananLink}
+              className="hidden md:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-input/40 border border-border/50 hover:bg-input text-xs sm:text-sm text-foreground transition-all"
+            >
+              <Clock className="h-4 w-4 text-muted-foreground" />
+              <span>History Pesanan</span>
             </Link>
 
-            <Link href={leaderboardLink} className={getNavLinkClass(leaderboardLink)}>
-              <Trophy className="h-4 w-4 text-[#FED700]" />
+            <Link
+              href={leaderboardLink}
+              className="hidden md:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-input/40 border border-border/50 hover:bg-input text-xs sm:text-sm text-foreground transition-all"
+            >
+              <Trophy className="h-4 w-4 text-amber-400" />
               <span>Leaderboard</span>
             </Link>
 
-            {/* History Pesanan HANYA tampil jika user sudah login */}
+            {/* User Profile Dropdown matching Admin Layout */}
             {user && (
               <Link href={historyPesananLink} className={getNavLinkClass(historyPesananLink)}>
                 <Clock className="h-4 w-4 text-[#E01C20]" />
@@ -84,70 +78,70 @@ export function DashboardHeader() {
             ) : user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#1E2939] border border-white/10 text-[#FFF9F5] text-sm font-medium hover:border-white/20 transition-all cursor-pointer">
-                    <div className="w-6 h-6 rounded-full bg-[#E01C20] text-white flex items-center justify-center text-xs font-bold">
+                  <button className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-input/40 border border-border/50 hover:bg-input text-xs sm:text-sm text-foreground transition-all cursor-pointer">
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
                       {user.name ? user.name[0].toUpperCase() : "U"}
                     </div>
-                    <span className="font-medium hidden sm:inline max-w-[120px] truncate">
+                    <span className="hidden sm:inline font-medium max-w-32 truncate">
                       {user.name || "User"}
                     </span>
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
-                  className="w-56 bg-[#1E2939] border border-white/10 text-[#FFF9F5]"
+                  className="w-56 bg-[#0F121A] border border-border/50 text-foreground rounded-2xl p-2 shadow-2xl z-50"
                   align="end"
                   forceMount
                 >
-                  <DropdownMenuLabel className="font-normal">
+                  <DropdownMenuLabel className="font-normal px-3 py-2">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-semibold text-[#FFF9F5] truncate">
+                      <p className="text-sm font-semibold text-foreground truncate">
                         {user.name}
                       </p>
-                      <p className="text-xs text-[#AAB1BD] truncate">
+                      <p className="text-xs text-muted-foreground truncate">
                         {user.email}
                       </p>
                     </div>
                   </DropdownMenuLabel>
-                  <DropdownMenuSeparator className="bg-white/10" />
-
+                  <DropdownMenuSeparator className="bg-border/40" />
                   <DropdownMenuItem asChild>
                     <Link
                       href={dashboardLink}
-                      className="flex items-center text-sm text-[#FFF9F5] hover:bg-[#0A0D14] cursor-pointer"
+                      className="flex items-center px-3 py-2 rounded-xl text-sm text-foreground hover:bg-white/5 cursor-pointer"
                     >
-                      <LayoutDashboard className="mr-2 h-4 w-4 text-[#E01C20]" />
+                      <LayoutDashboard className="mr-2 h-4 w-4 text-muted-foreground" />
                       <span>Dashboard</span>
                     </Link>
                   </DropdownMenuItem>
-
+                  <DropdownMenuSeparator className="bg-border/40" />
                   <DropdownMenuItem asChild>
                     <Link
                       href={profileLink}
-                      className="flex items-center text-sm text-[#FFF9F5] hover:bg-[#0A0D14] cursor-pointer"
+                      className="flex items-center px-3 py-2 rounded-xl text-sm text-foreground hover:bg-white/5 cursor-pointer"
                     >
-                      <User className="mr-2 h-4 w-4 text-[#E01C20]" />
+                      <User className="mr-2 h-4 w-4 text-muted-foreground" />
                       <span>Profile</span>
                     </Link>
                   </DropdownMenuItem>
 
-                  {/* Menu untuk mobile view di dalam dropdown */}
+                  {/* Mobile Navigation inside Dropdown */}
                   <div className="md:hidden">
-                    <DropdownMenuSeparator className="bg-white/10" />
+                    <DropdownMenuSeparator className="bg-border/40" />
                     <DropdownMenuItem asChild>
                       <Link
-                        href={showItLink}
-                        className="flex items-center text-sm text-[#FFF9F5] hover:bg-[#0A0D14] cursor-pointer"
+                        href={historyPesananLink}
+                        className="flex items-center px-3 py-2 rounded-xl text-sm text-foreground hover:bg-white/5 cursor-pointer"
                       >
-                        <Sparkles className="mr-2 h-4 w-4 text-[#E01C20]" />
-                        <span>Show It</span>
+                        <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
+                        <span>History Pesanan</span>
                       </Link>
                     </DropdownMenuItem>
+                    <DropdownMenuSeparator className="bg-border/40" />
                     <DropdownMenuItem asChild>
                       <Link
                         href={leaderboardLink}
-                        className="flex items-center text-sm text-[#FFF9F5] hover:bg-[#0A0D14] cursor-pointer"
+                        className="flex items-center px-3 py-2 rounded-xl text-sm text-foreground hover:bg-white/5 cursor-pointer"
                       >
-                        <Trophy className="mr-2 h-4 w-4 text-[#FED700]" />
+                        <Trophy className="mr-2 h-4 w-4 text-amber-400" />
                         <span>Leaderboard</span>
                       </Link>
                     </DropdownMenuItem>
@@ -162,12 +156,12 @@ export function DashboardHeader() {
                     </DropdownMenuItem>
                   </div>
 
-                  <DropdownMenuSeparator className="bg-white/10" />
+                  <DropdownMenuSeparator className="bg-border/40" />
                   <DropdownMenuItem
                     onClick={logout}
-                    className="flex items-center text-sm text-[#E01C20] hover:bg-[#0A0D14] cursor-pointer"
+                    className="flex items-center px-3 py-2 rounded-xl text-sm text-destructive hover:bg-destructive/10 focus:text-destructive cursor-pointer"
                   >
-                    <LogOut className="mr-2 h-4 w-4" />
+                    <LogOut className="mr-2 h-4 w-4 text-inherit" />
                     <span>Logout</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -240,8 +234,6 @@ export function DashboardHeader() {
                 </div>
               </div>
             )}
-
-            <ThemeToggle />
           </div>
         </div>
       </div>
