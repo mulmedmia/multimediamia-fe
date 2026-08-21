@@ -407,109 +407,118 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
 
         {/* Tab Upload - Conditional content */}
         <TabsContent value="upload">
-          <Card>
-            <CardHeader>
-              <CardTitle>Upload Karya</CardTitle>
-              <CardDescription>
-                {!activeRegistration.is_verified
-                  ? "Verifikasi akun diperlukan sebelum dapat mengunggah karya."
-                  : hasSubmissions
-                    ? "Anda sudah mengupload karya. Gunakan fitur edit untuk mengubah submission."
-                    : "Unggah atau perbarui karya Anda sesuai fase kompetisi."}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+          <div className="mia-card p-6 sm:p-7 shadow-xl space-y-6">
+            <div className="flex items-center gap-3 pb-4 border-b border-border/40">
+              <div className="p-2.5 bg-primary/10 border border-primary/20 rounded-2xl text-primary flex items-center justify-center flex-shrink-0">
+                <Upload className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="text-lg sm:text-xl font-bold text-foreground tracking-tight">
+                  Upload Karya
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  {!activeRegistration.is_verified
+                    ? "Verifikasi akun diperlukan sebelum dapat mengunggah karya."
+                    : hasSubmissions
+                      ? "Karya telah berhasil diunggah. Gunakan tab Status untuk melihat atau mengedit submission"
+                      : "Unggah karya terbaikmu untuk mengikuti kompetisi ini"}
+                </p>
+              </div>
+            </div>
+
+            <div>
               {!activeRegistration.is_verified ? (
                 // Jika belum diverifikasi, tampilkan pesan verifikasi
-                <div className="text-center py-12">
-                  <div className="mx-auto w-24 h-24 bg-orange-100 dark:bg-orange-900/20 rounded-full flex items-center justify-center mb-6">
-                    <CheckCircle className="h-12 w-12 text-orange-600 dark:text-orange-400" />
+                <div className="text-center py-8 sm:py-12 space-y-6">
+                  <div className="mx-auto w-20 h-20 sm:w-24 sm:h-24 bg-amber-500/10 border border-amber-500/20 rounded-full flex items-center justify-center">
+                    <CheckCircle className="h-10 w-10 sm:h-12 sm:w-12 text-amber-400" />
                   </div>
 
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                    Akun Belum Diverifikasi
-                  </h3>
+                  <div className="space-y-2">
+                    <h3 className="text-lg sm:text-xl font-bold text-foreground">
+                      Akun Belum Diverifikasi
+                    </h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
+                      Untuk dapat mengunggah karya, akun Anda perlu diverifikasi
+                      terlebih dahulu oleh admin. Proses verifikasi biasanya
+                      memakan waktu 1-3 hari kerja.
+                    </p>
+                  </div>
 
-                  <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
-                    Untuk dapat mengunggah karya, akun Anda perlu diverifikasi
-                    terlebih dahulu oleh admin. Proses verifikasi biasanya
-                    memakan waktu 1-3 hari kerja.
-                  </p>
-
-                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6 max-w-md mx-auto">
+                  <div className="bg-sky-500/10 border border-sky-500/25 rounded-2xl p-4 max-w-md mx-auto text-left">
                     <div className="flex items-start gap-3">
-                      <div className="p-1 bg-blue-500 rounded-full mt-0.5">
-                        <CheckCircle className="h-4 w-4 text-white" />
+                      <div className="p-1 bg-sky-500/20 rounded-full mt-0.5 flex-shrink-0">
+                        <CheckCircle className="h-4 w-4 text-sky-400" />
                       </div>
-                      <div className="text-left">
-                        <h4 className="font-medium text-blue-800 dark:text-blue-300 mb-1">
+                      <div>
+                        <h4 className="font-bold text-sky-300 text-sm mb-1">
                           Status Verifikasi
                         </h4>
-                        <p className="text-sm text-blue-700 dark:text-blue-200">
+                        <p className="text-xs sm:text-sm text-sky-100/90 leading-relaxed">
                           Tim{" "}
-                          <span className="font-semibold">
+                          <span className="font-semibold text-foreground">
                             {activeRegistration.team_name}
                           </span>{" "}
-                          sedang dalam proses verifikasi.
+                          sedang dalam proses verifikasi admin.
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="space-y-3 text-sm text-gray-600 dark:text-gray-400 max-w-md mx-auto">
+                  <div className="space-y-2.5 text-xs sm:text-sm text-muted-foreground max-w-md mx-auto">
                     <div className="flex items-center gap-2 justify-center">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
                       <span>Data registrasi telah diterima</span>
                     </div>
                     <div className="flex items-center gap-2 justify-center">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+                      <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></div>
                       <span>Sedang dalam proses verifikasi admin</span>
                     </div>
                     <div className="flex items-center gap-2 justify-center">
-                      <div className="w-2 h-2 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+                      <div className="w-2 h-2 bg-muted-foreground/40 rounded-full"></div>
                       <span>Akses upload karya akan tersedia</span>
                     </div>
                   </div>
 
-                  <div className="mt-8 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg max-w-md mx-auto">
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                      <strong>Butuh bantuan?</strong>
+                  <div className="mt-6 p-4 bg-input/20 border border-border/30 rounded-2xl max-w-md mx-auto text-center space-y-1">
+                    <p className="text-xs sm:text-sm font-semibold text-foreground">
+                      Butuh bantuan?
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-500">
-                      Jika proses verifikasi memakan waktu lebih dari 3 hari
-                      kerja, silakan hubungi admin melalui kontak yang tersedia.
+                    <p className="text-xs text-muted-foreground">
+                      Jika verifikasi belum selesai dalam 3 hari kerja, silakan
+                      hubungi kontak panitia.
                     </p>
                   </div>
                 </div>
               ) : hasSubmissions ? (
                 // Jika sudah ada submission, tampilkan pesan bahwa sudah upload
-                <div className="text-center py-12">
-                  <div className="mx-auto w-24 h-24 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mb-6">
-                    <CheckCircle className="h-12 w-12 text-green-600 dark:text-green-400" />
+                <div className="text-center py-8 sm:py-12 space-y-6">
+                  <div className="mx-auto w-20 h-20 sm:w-24 sm:h-24 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center">
+                    <CheckCircle className="h-10 w-10 sm:h-12 sm:w-12 text-emerald-400" />
                   </div>
 
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                    Karya Sudah Diunggah
-                  </h3>
+                  <div className="space-y-2">
+                    <h3 className="text-lg sm:text-xl font-bold text-foreground">
+                      Karya Sudah Diunggah
+                    </h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
+                      Anda sudah berhasil mengunggah karya untuk kompetisi ini.
+                      Untuk mengubah submission, gunakan fitur edit.
+                    </p>
+                  </div>
 
-                  <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
-                    Anda sudah berhasil mengupload karya untuk kompetisi ini.
-                    Untuk mengubah atau memperbarui submission, gunakan fitur
-                    edit.
-                  </p>
-
-                  <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-6 max-w-md mx-auto">
+                  <div className="bg-emerald-500/10 border border-emerald-500/25 rounded-2xl p-4 max-w-md mx-auto text-left">
                     <div className="flex items-start gap-3">
-                      <div className="p-1 bg-green-500 rounded-full mt-0.5">
-                        <CheckCircle className="h-4 w-4 text-white" />
+                      <div className="p-1 bg-emerald-500/20 rounded-full mt-0.5 flex-shrink-0">
+                        <CheckCircle className="h-4 w-4 text-emerald-400" />
                       </div>
-                      <div className="text-left">
-                        <h4 className="font-medium text-green-800 dark:text-green-300 mb-1">
+                      <div>
+                        <h4 className="font-bold text-emerald-300 text-sm mb-1">
                           Status Submission
                         </h4>
-                        <p className="text-sm text-green-700 dark:text-green-200">
-                          Karya Anda telah berhasil diunggah dan sedang dalam
-                          proses review.
+                        <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed">
+                          Karya Anda telah berhasil tersimpan dan siap untuk
+                          direview juri.
                         </p>
                       </div>
                     </div>
@@ -517,10 +526,10 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
 
                   <Button
                     onClick={() => setActiveTab("status")}
-                    className="bg-green-600 hover:bg-green-700"
+                    className="mia-btn-primary h-11 px-6 text-sm font-semibold rounded-full shadow-lg shadow-red-900/30 cursor-pointer inline-flex items-center gap-2"
                   >
-                    <FileText className="mr-2 h-4 w-4" />
-                    Lihat Status Submission
+                    <FileText className="h-4 w-4" />
+                    <span>Lihat Status Submission</span>
                   </Button>
                 </div>
               ) : (
@@ -533,8 +542,8 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                   }}
                 />
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </TabsContent>
 
         {/* Tab Status - Selalu bisa diakses */}
@@ -592,12 +601,22 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                           {/* Header Info */}
                           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                             <div className="space-y-1">
-                              <h4 className="font-bold text-base sm:text-lg text-foreground transition-colors flex items-center gap-2.5 flex-wrap">
-                                {sub.project_name}
-                                <span className="text-[11px] font-medium text-muted-foreground bg-input/60 border border-border/40 px-2.5 py-0.5 rounded-full">
-                                  Klik untuk edit
-                                </span>
-                              </h4>
+                              <div className="flex space-x-2">
+                                <h4 className="font-bold text-base sm:text-lg text-foreground transition-colors flex items-center gap-2.5 flex-wrap pt-1 sm:pt-0">
+                                  {sub.project_name}
+                                  <span className="text-[11px] font-medium text-muted-foreground bg-input/60 border border-border/40 px-2.5 py-0.5 rounded-full hidden sm:inline-block">
+                                    Klik untuk edit
+                                  </span>
+                                </h4>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="rounded-full border border-white/20 hover:border-white/40 bg-input/40 hover:bg-input text-foreground text-xs font-semibold h-9 px-4 transition-all shadow-xs inline-flex sm:hidden items-center gap-1.5 cursor-pointer dark:border-border/30"
+                                >
+                                  <Edit className="h-3.5 w-3.5" />
+                                  <span>Edit</span>
+                                </Button>
+                              </div>
                               <p className="text-xs sm:text-sm text-muted-foreground font-medium">
                                 Tim: {sub.team_name}
                               </p>

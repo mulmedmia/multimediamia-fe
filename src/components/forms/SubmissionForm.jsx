@@ -32,11 +32,8 @@ const createSubmissionSchema = (teamType) => {
   return z
     .object({
       // team_name hanya required untuk GROUP
-      team_name:
-        teamType === "GROUP"
-          ? z.string().min(1, { message: "Nama tim wajib diisi." })
-          : z.string().optional(),
-      project_name: z.string().min(1, { message: "Nama project wajib diisi." }),
+      team_name: teamType === "GROUP" ? z.string() : z.string().optional(),
+      project_name: z.string(),
       description: z
         .string()
         .min(10, { message: "Deskripsi minimal 10 karakter." }),
@@ -330,6 +327,7 @@ export function SubmissionForm({
             <Input
               id="project_name"
               placeholder="Masukkan nama project"
+              required
               {...register("project_name")}
               className={cn(
                 "h-11 bg-input rounded-xl pl-10 pr-4 text-sm text-foreground placeholder:text-mia-muted-2 transition-all",
@@ -357,6 +355,7 @@ export function SubmissionForm({
           <Textarea
             id="description"
             placeholder="Deskripsi detail tentang project Anda, apa yang dilakukan dan bagaimana cara kerjanya..."
+            required
             rows={4}
             {...register("description")}
             className={cn(
@@ -385,6 +384,7 @@ export function SubmissionForm({
             <Textarea
               id="flow_application"
               placeholder="User buka app -> Login -> Dashboard -> Browse fitur -> Gunakan fitur spesifik..."
+              required
               rows={3}
               {...register("flow_application")}
               className={cn(
