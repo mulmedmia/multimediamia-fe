@@ -28,7 +28,7 @@ import { Separator } from "../ui/separator";
 
 const registrationSchema = z
   .object({
-    team_name: z.string().optional(),
+    team_name: z.string().max(25, "Nama tim maksimal 25 karakter").optional(),
     category_id: z
       .string({ required_error: "Anda harus memilih kategori." })
       .min(1, "Kategori harus dipilih."),
@@ -43,34 +43,71 @@ const registrationSchema = z
     selected_category_type: z.string().optional(),
   })
   .superRefine((data, ctx) => {
+    const minCharError = (field = "", minChar = 3, prefixMsg = "") => {
+      if (data[field].replace(/\s+/g, "").length < minChar) {
+        ctx.addIssue({
+          message: `${prefixMsg} minimal ${minChar} karakter`,
+          path: [field],
+        });
+      }
+    };
+
+    // Group
     if (data.selected_category_type === "GROUP") {
-      if (!data.team_name || data.team_name.replace(/\s+/g, "").length < 3) {
-        ctx.addIssue({
-          code: "custom",
-          message: "Nama tim minimal 3 karakter",
-          path: ["team_name"],
-        });
-      }
-      if (data.team_lead && data.team_lead.replace(/\s+/g, "").length < 3) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["team_lead"],
-        });
-      }
-      if (data.member_1 && data.member_1.replace(/\s+/g, "").length < 3) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["member_1"],
-        });
-      }
-      if (data.member_2 && data.member_2.replace(/\s+/g, "").length < 3) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["member_2"],
-        });
-      }
+      minCharError("team_name", 3, "Nama tim");
+      minCharError("team_lead", 3, "Nama peserta");
+      if (data.member_1) minCharError("member_1", 3, "Nama peserta");
+      if (data.member_2) minCharError("member_2", 3, "Nama peserta");
+    }
+
+    // Individual
+    // Asumsikan Nama Ketua = Nama Tim
+    else {
+      minCharError("team_lead", 3, "Nama peserta");
     }
   });
+
+function PersonInput({
+  field,
+  register,
+  errors,
+  placeholder,
+  role,
+  required = false,
+}) {
+  return (
+    <div className="relative">
+      <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
+        <PersonIcon className="w-4 h-4" />
+      </div>
+      <Input
+        type="text"
+        placeholder={placeholder}
+        required={required}
+        {...register(field)}
+        className={cn(
+          "h-11 bg-input rounded-xl pl-10 pr-22 text-sm text-foreground placeholder:text-mia-muted-2 transition-all peer",
+          errors[field]
+            ? "border-destructive focus-visible:ring-destructive"
+            : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
+        )}
+      />
+      <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-mia-muted-2 z-10 pointer-events-none select-none peer-placeholder-shown:hidden">
+        {role}
+      </span>
+    </div>
+  );
+}
+
+function InputError({ fieldError }) {
+  return (
+    fieldError && (
+      <p className="text-xs text-destructive mt-1 font-medium">
+        {fieldError.message}
+      </p>
+    )
+  );
+}
 
 export function CompetitionRegistrationForm({ defaultCategoryId }) {
   const router = useRouter();
@@ -104,6 +141,26 @@ export function CompetitionRegistrationForm({ defaultCategoryId }) {
   });
 
   const selectedCategoryType = watch("selected_category_type");
+
+  // Untuk lomba Grup (2-3 orang) dengan 1 ketua + 2 anggota
+  const groupPersonInputs = [
+    {
+      field: "team_lead",
+      placeholder: "Nama ketua (wajib)",
+      role: "Ketua",
+      required: true,
+    },
+    {
+      field: "member_1",
+      placeholder: "Nama anggota 1 (opsional)",
+      role: "Anggota 1",
+    },
+    {
+      field: "member_2",
+      placeholder: "Nama anggota 2 (opsional)",
+      role: "Anggota 2",
+    },
+  ];
 
   // Effect untuk mengatur kategori dan tipe ketika defaultCategoryId berubah
   useEffect(() => {
@@ -214,11 +271,7 @@ export function CompetitionRegistrationForm({ defaultCategoryId }) {
             </Select>
           )}
         />
-        {errors.category_id && (
-          <p className="text-xs text-destructive mt-1 font-medium">
-            {errors.category_id.message}
-          </p>
-        )}
+        <InputError fieldError={errors.category_id} />
       </div>
 
       {/* Individual Competition Field */}
@@ -270,11 +323,7 @@ export function CompetitionRegistrationForm({ defaultCategoryId }) {
                 )}
               />
             </div>
-            {errors.team_name && (
-              <p className="text-xs text-destructive mt-1 font-medium">
-                {errors.team_name.message}
-              </p>
-            )}
+            <InputError fieldError={errors.team_name} />
           </div>
 
           {/* Team Members Stacks */}
@@ -283,77 +332,22 @@ export function CompetitionRegistrationForm({ defaultCategoryId }) {
               Anggota Tim
             </Label>
 
-            {/* Stack 1: Ketua (Current User) */}
-            <div className="relative">
-              <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
-                <PersonIcon className="w-4 h-4" />
-              </div>
-              <Input
-                type="text"
-                placeholder="Nama ketua tim (wajib)"
-                required
-                {...register("team_lead")}
-                className={cn(
-                  "h-11 bg-input rounded-xl pl-10 pr-22 text-sm text-foreground placeholder:text-mia-muted-2 transition-all peer",
-                  errors.team_lead
-                    ? "border-destructive focus-visible:ring-destructive"
-                    : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
-                )}
+            {groupPersonInputs.map((person, index) => (
+              <PersonInput
+                key={index}
+                {...person}
+                register={register}
+                errors={errors}
               />
-              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-mia-muted-2 z-10 pointer-events-none select-none peer-placeholder-shown:hidden">
-                Ketua
-              </span>
-            </div>
+            ))}
 
-            {/* Stack 2: Anggota 1 (Optional) */}
-            <div className="space-y-1">
-              <div className="relative">
-                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
-                  <PersonIcon className="w-4 h-4" />
-                </div>
-                <Input
-                  placeholder="Nama anggota 1 (opsional)"
-                  {...register("member_1")}
-                  className={cn(
-                    "h-11 bg-input rounded-xl pl-10 pr-22 text-sm text-foreground placeholder:text-mia-muted-2 transition-all peer",
-                    errors.member_1
-                      ? "border-destructive focus-visible:ring-destructive"
-                      : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
-                  )}
-                />
-                <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-mia-muted-2 z-10 pointer-events-none select-none peer-placeholder-shown:hidden">
-                  Anggota 1
-                </span>
-              </div>
-            </div>
-
-            {/* Stack 3: Anggota 2 (Optional) */}
-            <div className="space-y-1">
-              <div className="relative">
-                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
-                  <PersonIcon className="w-4 h-4" />
-                </div>
-                <Input
-                  placeholder="Nama anggota 2 (opsional)"
-                  {...register("member_2")}
-                  className={cn(
-                    "h-11 bg-input rounded-xl pl-10 pr-22 text-sm text-foreground placeholder:text-mia-muted-2 transition-all peer",
-                    errors.member_2
-                      ? "border-destructive focus-visible:ring-destructive"
-                      : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
-                  )}
-                />
-                <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-mia-muted-2 z-10 pointer-events-none select-none peer-placeholder-shown:hidden">
-                  Anggota 2
-                </span>
-              </div>
-            </div>
-
-            {(errors.team_lead || errors.member_1 || errors.member_2) && (
-              <p className="text-xs text-destructive mt-1 font-medium">
-                Nama anggota minimal 3 karakter
-              </p>
-            )}
+            <InputError
+              fieldError={
+                [errors.team_lead, errors.member_1, errors.member_2].filter(
+                  (err) => !!err,
+                )[0]
+              }
+            />
           </div>
         </div>
       )}
@@ -389,11 +383,7 @@ export function CompetitionRegistrationForm({ defaultCategoryId }) {
           Upload dokumen persyaratan ke Google Drive dan masukkan link publik di
           sini
         </p>
-        {errors.file_url && (
-          <p className="text-xs text-destructive mt-1 font-medium">
-            {errors.file_url.message}
-          </p>
-        )}
+        <InputError fieldError={errors.file_url} />
       </div>
 
       {/* Submit Button */}
