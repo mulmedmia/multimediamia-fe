@@ -1,311 +1,453 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { cn } from "@/lib/utils";
 import { useUserProfile, useUpdateUserProfile } from "@/hooks/user-use-profile";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
-  Pencil2Icon,
   PersonIcon,
   LockClosedIcon,
   CheckIcon,
+  EnvelopeClosedIcon,
+  EyeOpenIcon,
+  EyeClosedIcon,
+  IdCardIcon,
 } from "@radix-ui/react-icons";
+
+// Zod Validation Schemas
+const profileSchema = z.object({
+  name: z.string().refine((val) => val.replace(/\s+/g, "").length >= 3, {
+    message: "Nama lengkap minimal 3 karakter",
+  }),
+  nim: z.string().optional(),
+});
+
+const passwordSchema = z.object({
+  current_password: z.string(),
+  new_password: z
+    .string()
+    .min(6, { message: "Password baru minimal 6 karakter" }),
+});
 
 export default function ProfilePage() {
   const { data: profile, isLoading } = useUserProfile();
   const updateMutation = useUpdateUserProfile();
 
-  const [form, setForm] = useState({
-    name: "",
-    nim: "",
-    current_password: "",
-    new_password: "",
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+
+  // React Hook Form for Profile
+  const profileForm = useForm({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      name: "",
+      nim: "",
+    },
   });
 
-  React.useEffect(() => {
+  // React Hook Form for Password
+  const passwordForm = useForm({
+    resolver: zodResolver(passwordSchema),
+    defaultValues: {
+      current_password: "",
+      new_password: "",
+    },
+  });
+
+  // Reset profile form values when profile query finishes loading
+  useEffect(() => {
     if (profile) {
-      setForm((f) => ({
-        ...f,
+      profileForm.reset({
         name: profile.name || "",
         nim: profile.nim || "",
-      }));
+      });
     }
-  }, [profile]);
+  }, [profile, profileForm]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((f) => ({ ...f, [name]: value }));
-  };
-
-  const handleProfileSubmit = (e) => {
-    e.preventDefault();
+  const onProfileSubmit = (data) => {
     updateMutation.mutate({
-      name: form.name,
-      nim: form.nim,
+      name: data.name.trim(),
+      nim: data.nim,
     });
   };
 
-  const handlePasswordSubmit = (e) => {
-    e.preventDefault();
-    updateMutation.mutate({
-      current_password: form.current_password,
-      new_password: form.new_password,
-    });
+  const onPasswordSubmit = (data) => {
+    updateMutation.mutate(
+      {
+        current_password: data.current_password,
+        new_password: data.new_password,
+      },
+      {
+        onSuccess: () => {
+          passwordForm.reset();
+        },
+      },
+    );
   };
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-lg text-gray-600 dark:text-gray-300">
-            Memuat profil...
+      <div className="min-h-screen w-full bg-background mia-connected-bg flex items-center justify-center text-foreground">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ring mx-auto"></div>
+          <p className="text-base text-muted-foreground">
+            Memuat profil Anda...
           </p>
         </div>
       </div>
     );
   }
 
+  const profileErrors = profileForm.formState.errors;
+  const passwordErrors = passwordForm.formState.errors;
+
   return (
-    <>
-      <DashboardHeader />
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 py-20 px-4">
-        <div className="max-w-4xl mx-auto">
-          {/* Page Title */}
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-red-900 via-red-800 to-red-700 bg-clip-text text-transparent pb-2">
-              Profile Settings
-            </h1>
-            <p className="text-gray-600 dark:text-gray-300">
-              Kelola informasi profil dan keamanan akun Anda
-            </p>
-          </div>
+    <div className="min-h-screen w-full bg-background mia-connected-bg text-foreground relative overflow-hidden selection:bg-primary selection:text-white flex flex-col justify-between">
+      <Header />
 
-          <Card className="overflow-hidden shadow-2xl border-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm pt-0">
-            {/* Enhanced Header with Gradient */}
-            <div className="bg-gradient-to-r from-red-900 via-red-800 to-red-700 p-8 relative">
-              <div className="absolute inset-0 bg-black/10"></div>
+      <main className="relative z-10 pt-28 pb-20 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto w-full space-y-8 flex-1">
+        {/* Page Title Section */}
+        <div className="space-y-2">
+          <h1 className="text-3xl sm:text-4xl font-bold text-foreground">
+            Profile Settings
+          </h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
+            Kelola informasi profil dan keamanan akun Anda
+          </p>
+        </div>
 
-              <div className="relative z-10 flex flex-col items-center text-white">
-                {/* Enhanced Avatar */}
-                <div className="relative mb-4">
-                  <div className="w-32 h-32 rounded-full bg-white shadow-2xl flex items-center justify-center ring-4 ring-white/30">
-                    <span className="text-5xl font-bold bg-gradient-to-br from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                      {profile?.name?.[0]?.toUpperCase() || "U"}
-                    </span>
-                  </div>
-                  <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-green-500 rounded-full flex items-center justify-center ring-4 ring-white">
-                    <CheckIcon className="w-5 h-5 text-white" />
-                  </div>
-                </div>
-
-                {/* Profile Info */}
-                <div className="text-center">
-                  <h2 className="text-3xl font-bold mb-2">
-                    {profile?.name || "Nama Pengguna"}
-                  </h2>
-                  <div className="inline-flex items-center px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm mb-3">
-                    <span className="text-sm font-semibold uppercase tracking-wider">
-                      {profile?.role || "USER"}
-                    </span>
-                  </div>
-                  <p className="text-white/90 text-lg mb-2">{profile?.email}</p>
-                  {typeof profile?.points === "number" && (
-                    <div className="inline-flex items-center px-4 py-2 rounded-full bg-yellow-400/20 backdrop-blur-sm">
-                      <span className="text-yellow-100 font-semibold">
-                        💎 {profile.points} Diamonds
-                      </span>
-                    </div>
-                  )}
-                </div>
+        {/* Profile Card Container */}
+        <div className="mia-card p-6 sm:p-10 shadow-2xl space-y-8">
+          {/* Header Profile Info Banner - Centered */}
+          <div className="flex flex-col items-center text-center gap-5 pb-6 border-b border-border">
+            {/* Avatar Container */}
+            <div className="relative flex-shrink-0">
+              <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-input border-2 border-primary flex items-center justify-center shadow-xl shadow-red-900/30">
+                <span className="text-4xl sm:text-5xl font-bold text-primary select-none">
+                  {profile?.name?.[0]?.toUpperCase() || "U"}
+                </span>
+              </div>
+              <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-mia-success rounded-full flex items-center justify-center ring-4 ring-background shadow-md">
+                <CheckIcon className="w-4 h-4 text-white" />
               </div>
             </div>
 
-            {/* Enhanced Tabs */}
-            <CardContent className="p-8">
-              <Tabs defaultValue="profile" className="w-full">
-                <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8 h-12 bg-gray-100 dark:bg-slate-700 rounded-xl p-1">
-                  <TabsTrigger
-                    value="profile"
-                    className="flex items-center gap-2 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm cursor-pointer"
-                  >
-                    <PersonIcon className="w-4 h-4" />
-                    Profile
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="password"
-                    className="flex items-center gap-2 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm cursor-pointer"
-                  >
-                    <LockClosedIcon className="w-4 h-4" />
-                    Password
-                  </TabsTrigger>
-                </TabsList>
+            {/* Profile Meta Information - Centered */}
+            <div className="space-y-3 text-center w-full max-w-md">
+              <div>
+                <h2 className="text-2xl sm:text-3xl font-bold text-foreground truncate">
+                  {profile?.name || "Nama Pengguna"}
+                </h2>
+                <p className="text-sm text-muted-foreground truncate mt-0.5">
+                  {profile?.email}
+                </p>
+              </div>
 
-                {/* Profile Tab */}
-                <TabsContent value="profile">
-                  <div className="max-w-2xl mx-auto">
-                    <div className="mb-6">
-                      <h3 className="text-xl font-semibold mb-2">
-                        Informasi Profil
-                      </h3>
-                      <p className="text-gray-600 dark:text-gray-300">
-                        Perbarui informasi dasar profil Anda
-                      </p>
+              <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+                <span className="mia-pill-badge text-xs uppercase tracking-wider">
+                  {profile?.role || "USER"}
+                </span>
+
+                {typeof profile?.points === "number" && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mia-yellow/10 border border-mia-yellow/30 text-mia-yellow text-xs font-semibold">
+                    💎 {profile.points} Diamonds
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Navigation Tabs */}
+          <Tabs defaultValue="profile" className="w-full">
+            <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8 h-12 bg-input border border-border rounded-xl p-1">
+              <TabsTrigger
+                value="profile"
+                className="flex items-center justify-center gap-2 rounded-full text-xs sm:text-sm font-medium text-muted-foreground dark:data-[state=active]:bg-mia-bg/30 transition-all cursor-pointer"
+              >
+                <PersonIcon className="w-4 h-4" />
+                Profile
+              </TabsTrigger>
+              <TabsTrigger
+                value="password"
+                className="flex items-center justify-center gap-2 rounded-lg text-xs sm:text-sm font-medium text-muted-foreground dark:data-[state=active]:bg-mia-bg/30 transition-all cursor-pointer"
+              >
+                <LockClosedIcon className="w-4 h-4" />
+                Password
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Profile Tab Form */}
+            <TabsContent value="profile" className="focus-visible:outline-none">
+              <div className="max-w-2xl mx-auto space-y-6">
+                <div className="space-y-1">
+                  <h3 className="text-lg font-bold text-foreground">
+                    Informasi Dasar
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    Perbarui nama lengkap dan nomor induk mahasiswa Anda
+                  </p>
+                </div>
+
+                <form
+                  onSubmit={profileForm.handleSubmit(onProfileSubmit)}
+                  className="space-y-5"
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    {/* Name Field */}
+                    <div className="space-y-1.5">
+                      <Label
+                        htmlFor="name"
+                        className="block text-sm font-semibold text-foreground"
+                      >
+                        Nama Lengkap
+                      </Label>
+                      <div className="relative">
+                        <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
+                          <PersonIcon className="w-4 h-4" />
+                        </div>
+                        <Input
+                          id="name"
+                          type="text"
+                          {...profileForm.register("name")}
+                          className={cn(
+                            "h-11 bg-input rounded-xl pl-10 pr-4 text-sm text-foreground placeholder:text-mia-muted-2 transition-all",
+                            profileErrors.name
+                              ? "border-destructive focus-visible:ring-destructive"
+                              : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
+                          )}
+                          required
+                          placeholder="Masukkan nama lengkap"
+                        />
+                      </div>
+                      {profileErrors.name && (
+                        <p className="text-xs text-destructive mt-1 font-medium">
+                          {profileErrors.name.message}
+                        </p>
+                      )}
                     </div>
 
-                    <form onSubmit={handleProfileSubmit} className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <Label htmlFor="name" className="text-sm font-medium">
-                            Nama Lengkap
-                          </Label>
-                          <Input
-                            id="name"
-                            name="name"
-                            value={form.name}
-                            onChange={handleChange}
-                            required
-                            className="h-11 rounded-lg border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="Masukkan nama lengkap"
-                          />
+                    {/* NIM Field */}
+                    <div className="space-y-1.5">
+                      <Label
+                        htmlFor="nim"
+                        className="block text-sm font-semibold text-foreground"
+                      >
+                        NIM
+                      </Label>
+                      <div className="relative">
+                        <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
+                          <IdCardIcon className="w-4 h-4" />
                         </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="nim" className="text-sm font-medium">
-                            NIM
-                          </Label>
-                          <Input
-                            id="nim"
-                            name="nim"
-                            value={form.nim}
-                            onChange={handleChange}
-                            type="number"
-                            className="h-11 rounded-lg border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="Masukkan NIM"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="email" className="text-sm font-medium">
-                          Email
-                        </Label>
                         <Input
-                          id="email"
-                          name="email"
-                          value={profile?.email || ""}
-                          type="email"
-                          disabled
-                          className="h-11 rounded-lg bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-600 text-gray-500"
-                          placeholder="Email tidak dapat diubah"
+                          id="nim"
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          // Accept only numeric chars
+                          {...profileForm.register("nim", {
+                            onChange: (e) => {
+                              const val = e.target.value.replace(/\D/g, "");
+                              profileForm.setValue("nim", val);
+                            },
+                          })}
+                          className="h-11 bg-input border-border rounded-xl pl-10 pr-4 text-sm text-foreground placeholder:text-mia-muted-2 focus-visible:border-ring focus-visible:ring-ring/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          placeholder="Masukkan NIM"
                         />
-                        <p className="text-xs text-gray-500">
-                          Email tidak dapat diubah untuk keamanan akun
-                        </p>
                       </div>
-
-                      <div className="flex justify-end pt-4">
-                        <Button
-                          type="submit"
-                          disabled={updateMutation.isPending}
-                          className="h-11 px-8 bg-gradient-to-r from-red-900 via-red-800 to-red-700 text-white rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl cursor-pointer"
-                        >
-                          {updateMutation.isPending ? (
-                            <>
-                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                              Menyimpan...
-                            </>
-                          ) : (
-                            "Update Profile"
-                          )}
-                        </Button>
-                      </div>
-                    </form>
-                  </div>
-                </TabsContent>
-
-                {/* Password Tab */}
-                <TabsContent value="password">
-                  <div className="max-w-2xl mx-auto">
-                    <div className="mb-6">
-                      <h3 className="text-xl font-semibold mb-2">
-                        Ubah Password
-                      </h3>
-                      <p className="text-gray-600 dark:text-gray-300">
-                        Pastikan password baru Anda kuat dan aman
-                      </p>
                     </div>
-
-                    <form onSubmit={handlePasswordSubmit} className="space-y-6">
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="current_password"
-                          className="text-sm font-medium"
-                        >
-                          Password Saat Ini
-                        </Label>
-                        <Input
-                          id="current_password"
-                          name="current_password"
-                          value={form.current_password}
-                          onChange={handleChange}
-                          type="password"
-                          required
-                          className="h-11 rounded-lg border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="Masukkan password saat ini"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="new_password"
-                          className="text-sm font-medium"
-                        >
-                          Password Baru
-                        </Label>
-                        <Input
-                          id="new_password"
-                          name="new_password"
-                          value={form.new_password}
-                          onChange={handleChange}
-                          type="password"
-                          required
-                          className="h-11 rounded-lg border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="Masukkan password baru"
-                        />
-                        <p className="text-xs text-gray-500">
-                          Minimal 8 karakter dengan kombinasi huruf dan angka
-                        </p>
-                      </div>
-
-                      <div className="flex justify-end pt-4">
-                        <Button
-                          type="submit"
-                          disabled={updateMutation.isPending}
-                          className="h-11 px-8 bg-gradient-to-r from-red-900 via-red-800 to-red-700 text-white rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl cursor-pointer"
-                        >
-                          {updateMutation.isPending ? (
-                            <>
-                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                              Menyimpan...
-                            </>
-                          ) : (
-                            "Update Password"
-                          )}
-                        </Button>
-                      </div>
-                    </form>
                   </div>
-                </TabsContent>
-              </Tabs>
-            </CardContent>
-          </Card>
+
+                  {/* Email Field (Disabled) */}
+                  <div className="space-y-1.5">
+                    <Label
+                      htmlFor="email"
+                      className="block text-sm font-semibold text-foreground"
+                    >
+                      Email
+                    </Label>
+                    <div className="relative">
+                      <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
+                        <EnvelopeClosedIcon className="w-4 h-4" />
+                      </div>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={profile?.email || ""}
+                        disabled
+                        className="h-11 bg-background/80 border-border/50 rounded-xl pl-10 pr-4 text-sm text-mia-muted-2 cursor-not-allowed"
+                        placeholder="Email tidak dapat diubah"
+                      />
+                    </div>
+                    <p className="text-xs text-mia-muted-2">
+                      Email terikat pada identitas akun dan tidak dapat diubah
+                    </p>
+                  </div>
+
+                  {/* Action Button */}
+                  <div className="flex justify-end pt-4">
+                    <Button
+                      type="submit"
+                      disabled={updateMutation.isPending}
+                      className="mia-btn-primary h-11 px-8 text-sm font-semibold shadow-lg shadow-red-900/30 cursor-pointer disabled:opacity-50 inline-flex items-center gap-2"
+                    >
+                      {updateMutation.isPending ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                          <span>Menyimpan...</span>
+                        </>
+                      ) : (
+                        <span>Update Profile</span>
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            </TabsContent>
+
+            {/* Password Tab Form */}
+            <TabsContent
+              value="password"
+              className="focus-visible:outline-none"
+            >
+              <div className="max-w-2xl mx-auto space-y-6">
+                <div className="space-y-1">
+                  <h3 className="text-lg font-bold text-foreground">
+                    Keamanan Password
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    Pastikan password baru Anda kuat dan belum pernah digunakan
+                  </p>
+                </div>
+
+                <form
+                  onSubmit={passwordForm.handleSubmit(onPasswordSubmit)}
+                  className="space-y-5"
+                >
+                  {/* Current Password */}
+                  <div className="space-y-1.5">
+                    <Label
+                      htmlFor="current_password"
+                      className="block text-sm font-semibold text-foreground"
+                    >
+                      Password Saat Ini
+                    </Label>
+                    <div className="relative">
+                      <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
+                        <LockClosedIcon className="w-4 h-4" />
+                      </div>
+                      <Input
+                        id="current_password"
+                        type={showCurrentPassword ? "text" : "password"}
+                        required
+                        {...passwordForm.register("current_password")}
+                        className="h-11 bg-input rounded-xl pl-10 pr-10 text-sm text-foreground placeholder:text-mia-muted-2 transition-all border-border focus-visible:border-ring focus-visible:ring-ring/50"
+                        placeholder="Masukkan password saat ini"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        tabIndex={-1}
+                        onClick={() => setShowCurrentPassword((v) => !v)}
+                        className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-transparent cursor-pointer z-10"
+                      >
+                        {showCurrentPassword ? (
+                          <EyeOpenIcon className="w-4 h-4" />
+                        ) : (
+                          <EyeClosedIcon className="w-4 h-4" />
+                        )}
+                      </Button>
+                    </div>
+                    {passwordErrors.current_password && (
+                      <p className="text-xs text-destructive mt-1 font-medium">
+                        {passwordErrors.current_password.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* New Password */}
+                  <div className="space-y-1.5">
+                    <Label
+                      htmlFor="new_password"
+                      className="block text-sm font-semibold text-foreground"
+                    >
+                      Password Baru
+                    </Label>
+                    <div className="relative">
+                      <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
+                        <LockClosedIcon className="w-4 h-4" />
+                      </div>
+                      <Input
+                        id="new_password"
+                        type={showNewPassword ? "text" : "password"}
+                        {...passwordForm.register("new_password")}
+                        className={cn(
+                          "h-11 bg-input rounded-xl pl-10 pr-10 text-sm text-foreground placeholder:text-mia-muted-2 transition-all",
+                          passwordErrors.new_password
+                            ? "border-destructive focus-visible:ring-destructive"
+                            : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
+                        )}
+                        placeholder="Masukkan password baru"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        tabIndex={-1}
+                        onClick={() => setShowNewPassword((v) => !v)}
+                        className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-transparent cursor-pointer z-10"
+                      >
+                        {showNewPassword ? (
+                          <EyeOpenIcon className="w-4 h-4" />
+                        ) : (
+                          <EyeClosedIcon className="w-4 h-4" />
+                        )}
+                      </Button>
+                    </div>
+                    {passwordErrors.new_password ? (
+                      <p className="text-xs text-destructive mt-1 font-medium">
+                        {passwordErrors.new_password.message}
+                      </p>
+                    ) : (
+                      <p className="text-xs text-mia-muted-2">
+                        Password baru minimal 6 karakter
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Action Button */}
+                  <div className="flex justify-end pt-4">
+                    <Button
+                      type="submit"
+                      disabled={updateMutation.isPending}
+                      className="mia-btn-primary h-11 px-8 text-sm font-semibold shadow-lg shadow-red-900/30 cursor-pointer disabled:opacity-50 inline-flex items-center gap-2"
+                    >
+                      {updateMutation.isPending ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                          <span>Menyimpan...</span>
+                        </>
+                      ) : (
+                        <span>Update Password</span>
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
-      </div>
-    </>
+      </main>
+
+      <Footer />
+    </div>
   );
 }

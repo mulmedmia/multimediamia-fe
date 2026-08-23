@@ -5,11 +5,9 @@ import {
   useLeaderboardByCategory,
   useCategories,
 } from "@/hooks/user-use-gamifikasi";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
+import Footer from "@/components/layout/Footer";
 import {
   Select,
   SelectContent,
@@ -27,7 +25,7 @@ import {
   AlertCircle,
   Crown,
   Target,
-  Timer,
+  Sparkles,
 } from "lucide-react";
 
 export default function LeaderboardPage() {
@@ -47,15 +45,15 @@ export default function LeaderboardPage() {
     switch (rank) {
       case 1:
         return (
-          <Crown className="h-6 w-6 md:h-7 md:w-7 text-yellow-500 drop-shadow-sm" />
+          <Crown className="h-6 w-6 md:h-7 md:w-7 text-[#FED700] drop-shadow-[0_0_8px_rgba(254,215,0,0.5)]" />
         );
       case 2:
-        return <Medal className="h-5 w-5 md:h-6 md:w-6 text-gray-400" />;
+        return <Medal className="h-5 w-5 md:h-6 md:w-6 text-[#D5D8DE]" />;
       case 3:
-        return <Award className="h-5 w-5 md:h-6 md:w-6 text-amber-800" />;
+        return <Award className="h-5 w-5 md:h-6 md:w-6 text-[#FF936B]" />;
       default:
         return (
-          <div className="h-6 w-6 md:h-8 md:w-8 flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 rounded-full text-xs md:text-sm font-bold text-gray-600 dark:text-gray-300 shadow-sm">
+          <div className="h-7 w-7 md:h-8 md:w-8 flex items-center justify-center bg-[#1E2939] border border-white/10 rounded-full text-xs md:text-sm font-bold text-[#AAB1BD]">
             {rank}
           </div>
         );
@@ -65,99 +63,85 @@ export default function LeaderboardPage() {
   const getRankBadgeColor = (rank) => {
     switch (rank) {
       case 1:
-        return "bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 text-white shadow-lg border-0";
+        return "bg-[#FED700] text-[#151C28] font-bold shadow-[0_0_12px_rgba(254,215,0,0.4)] border-0";
       case 2:
-        return "bg-gradient-to-r from-gray-300 via-gray-400 to-gray-500 text-white shadow-md border-0";
+        return "bg-[#D5D8DE] text-[#151C28] font-bold border-0";
       case 3:
-        return "bg-gradient-to-r from-amber-700 via-amber-800 to-amber-900 text-white shadow-md border-0";
+        return "bg-[#FF936B] text-[#151C28] font-bold border-0";
       default:
-        return "bg-gray-50 text-gray-700 dark:bg-gray-800 dark:text-gray-300 border border-gray-200 dark:border-gray-700";
+        return "bg-[#1E2939] text-[#AAB1BD] border border-white/10";
     }
-  };
-
-  const getPodiumCardStyle = (rank) => {
-    const heights = {
-      1: "h-48 md:h-64", // Responsive height for 1st place
-      2: "h-40 md:h-48", // Responsive height for 2nd place
-      3: "h-36 md:h-40", // Responsive height for 3rd place
-    };
-
-    const gradients = {
-      1: "bg-gradient-to-br from-yellow-100 via-amber-50 to-orange-100 dark:from-yellow-900/30 dark:via-amber-900/30 dark:to-orange-900/30",
-      2: "bg-gradient-to-br from-gray-100 via-slate-50 to-zinc-100 dark:from-gray-800/50 dark:via-slate-800/50 dark:to-zinc-800/50",
-      3: "bg-gradient-to-br from-amber-800/20 via-orange-900/20 to-amber-900/20 dark:from-amber-800/30 dark:via-orange-900/30 dark:to-amber-900/30",
-    };
-
-    const borders = {
-      1: "border-yellow-300 dark:border-yellow-600",
-      2: "border-gray-300 dark:border-gray-600",
-      3: "border-amber-800 dark:border-amber-700",
-    };
-
-    return `${heights[rank]} ${gradients[rank]} border-2 ${borders[rank]} shadow-xl`;
   };
 
   const topThree = leaderboardData?.slice(0, 3) || [];
   const remaining = leaderboardData?.slice(3) || [];
 
   return (
-    <>
-      <DashboardHeader />
-      <main className="min-h-screen pt-20 bg-gray-50 dark:bg-gradient-to-r dark:from-red-900 dark:via-black dark:to-black  text-gray-900 dark:text-white">
-        <div className="container mx-auto py-6 md:py-8 px-4 max-w-7xl">
-          <div className="space-y-6 md:space-y-8">
-            {/* Enhanced Header */}
-            <div className="text-center space-y-3 md:space-y-4 py-6 md:py-8">
-              <div className="flex items-center justify-center gap-2 md:gap-3 mb-4">
-                <div className="p-2 md:p-3 bg-gradient-to-br from-slate-600 to-red-700 rounded-xl md:rounded-2xl shadow-lg">
-                  <Trophy className="h-6 w-6 md:h-8 md:w-8 text-white" />
-                </div>
-                <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-slate-400 via-red-400 to-red-500 dark:from-slate-300 dark:via-red-300 dark:to-red-400 bg-clip-text text-transparent">
-                  Leaderboard Kompetisi
-                </h1>
+    <div className="min-h-screen bg-[#0A0D14] mia-connected-bg text-[#FFF9F5] flex flex-col justify-between selection:bg-[#E01C20] selection:text-white">
+      <div>
+        <DashboardHeader />
+
+        <main className="pt-24 sm:pt-28 pb-16 relative z-10">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl space-y-8 md:space-y-12">
+            
+            {/* Header Section */}
+            <div className="text-center space-y-3 md:space-y-4 max-w-3xl mx-auto">
+              <div className="mia-pill-badge mx-auto">
+                <Trophy className="h-3.5 w-3.5 text-[#FED700]" />
+                <span>Klasemen & Peringkat</span>
               </div>
-              <p className="text-base md:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto px-4">
-                Lihat peringkat terbaik dari setiap kategori kompetisi dan raih
-                posisi teratas!
+              
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-[#FFF9F5]">
+                Leaderboard <span className="text-[#E01C20]">Kompetisi</span>
+              </h1>
+              
+              <p className="text-sm sm:text-base md:text-lg text-[#AAB1BD] leading-relaxed">
+                Lihat peringkat karya terbaik dari setiap kategori kompetisi MIA 2025 dan raih posisi teratas!
               </p>
             </div>
 
-            {/* Enhanced Category Selection */}
-            <Card className="shadow-lg border-0 bg-gradient-to-br from-orange-50 to-pink-50 dark:from-gray-900 dark:to-gray-900/50 border-orange-200 dark:backdrop-blur-sm">
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-2 md:gap-3 text-lg md:text-xl text-gray-900 dark:text-white">
-                  <div className="p-1.5 md:p-2 bg-gradient-to-br from-slate-600 to-red-600 rounded-lg">
-                    <Target className="h-4 w-4 md:h-5 md:w-5 text-white" />
-                  </div>
-                  Pilih Kategori Kompetisi
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4 md:space-y-6">
+            {/* Category Selection Card */}
+            <div className="mia-card p-6 md:p-8 space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#E01C20]/15 border border-[#E01C20]/30 flex items-center justify-center text-[#E01C20] flex-shrink-0">
+                  <Target className="h-5 w-5" />
+                </div>
+                <div>
+                  <h2 className="text-lg md:text-xl font-bold text-[#FFF9F5]">
+                    Pilih Kategori Kompetisi
+                  </h2>
+                  <p className="text-xs md:text-sm text-[#AAB1BD]">
+                    Pilih salah satu kategori untuk memuat papan skor
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
                 <Select
                   value={selectedCategoryId}
                   onValueChange={setSelectedCategoryId}
                   disabled={categoriesLoading}
                 >
-                  <SelectTrigger className="w-full h-10 md:h-12 bg-white dark:bg-slate-700/80 border-2 dark:border-slate-600 hover:border-red-400 transition-colors text-gray-900 dark:text-white cursor-pointer">
+                  <SelectTrigger className="w-full h-12 bg-[#141824] border border-white/15 hover:border-[#E01C20]/60 rounded-xl text-[#FFF9F5] focus:ring-[#E01C20] transition-colors cursor-pointer">
                     <SelectValue
                       placeholder={
                         categoriesLoading
-                          ? "Memuat kategori..."
-                          : "🏆 Pilih kategori kompetisi"
+                          ? "Memuat daftar kategori..."
+                          : "🏆 Pilih kategori kompetisi..."
                       }
                     />
                   </SelectTrigger>
-                  <SelectContent className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-600">
+                  <SelectContent className="bg-[#141824] border border-white/15 text-[#FFF9F5] rounded-xl shadow-2xl">
                     {categories?.map((category) => (
                       <SelectItem
                         key={category.category_id}
                         value={category.category_id}
-                        className="flex flex-col items-start py-2 px-3 gap-0.5 text-left text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-red-800/50 cursor-pointer"
+                        className="flex flex-col items-start py-2.5 px-3.5 gap-1 text-left text-[#FFF9F5] hover:bg-[#E01C20]/20 focus:bg-[#E01C20]/20 rounded-lg cursor-pointer transition-colors"
                       >
-                        <span className="font-semibold text-sm md:text-base truncate">
+                        <span className="font-semibold text-sm md:text-base">
                           {category.name}
                         </span>
-                        <span className="text-xs md:text-sm text-gray-500 dark:text-gray-400 truncate">
+                        <span className="text-xs text-[#AAB1BD]">
                           {category.category_name}
                         </span>
                       </SelectItem>
@@ -165,383 +149,355 @@ export default function LeaderboardPage() {
                   </SelectContent>
                 </Select>
 
+                {/* Selected Category Details */}
                 {selectedCategory && (
-                  <Card className="bg-gradient-to-r from-slate-50 to-red-50 dark:from-slate-800/50 dark:to-red-900/30 border-red-200 dark:border-red-700/50 shadow-md">
-                    <CardContent className="p-4 md:p-6">
-                      <div className="space-y-3 md:space-y-4">
-                        <div className="flex items-start gap-2 md:gap-3">
-                          <div className="p-1.5 md:p-2 bg-slate-600 rounded-lg">
-                            <Star className="h-3 w-3 md:h-4 md:w-4 text-white" />
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="text-lg md:text-xl font-bold text-slate-800 dark:text-slate-100 mb-1 md:mb-2">
-                              {selectedCategory.name}
-                            </h3>
-                            <p className="text-sm md:text-base text-slate-700 dark:text-slate-200 leading-relaxed">
-                              {selectedCategory.description}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 md:gap-4 pt-2">
-                          <div className="flex items-center gap-2 px-2 md:px-3 py-1 bg-slate-200/70 dark:bg-slate-700/70 rounded-full">
-                            <Calendar className="h-3 w-3 md:h-4 md:w-4 text-slate-600 dark:text-slate-300" />
-                            <span className="text-xs md:text-sm font-medium text-slate-700 dark:text-slate-200">
-                              Berakhir:{" "}
-                              {new Date(
-                                selectedCategory.deadline
-                              ).toLocaleDateString("id-ID")}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2 px-2 md:px-3 py-1 bg-slate-200/70 dark:bg-slate-700/70 rounded-full">
-                            <Users className="h-3 w-3 md:h-4 md:w-4 text-slate-600 dark:text-slate-300" />
-                            <span className="text-xs md:text-sm font-medium text-slate-700 dark:text-slate-200">
-                              Tim: {selectedCategory.team_type}
-                            </span>
-                          </div>
-                        </div>
+                  <div className="bg-[#1E2939]/40 border border-white/10 rounded-xl p-5 md:p-6 space-y-4 backdrop-blur-sm">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2.5 py-0.5 rounded-full bg-[#E01C20]/20 border border-[#E01C20]/40 text-[#FFF9F5] text-xs font-semibold">
+                          {selectedCategory.category_name}
+                        </span>
                       </div>
-                    </CardContent>
-                  </Card>
+                      <h3 className="text-lg md:text-xl font-bold text-[#FFF9F5]">
+                        {selectedCategory.name}
+                      </h3>
+                      <p className="text-sm text-[#AAB1BD] leading-relaxed">
+                        {selectedCategory.description}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-white/10">
+                      <div className="flex items-center gap-2 px-3 py-1.5 bg-[#141824] border border-white/10 rounded-full text-xs md:text-sm text-[#AAB1BD]">
+                        <Calendar className="h-3.5 w-3.5 text-[#E01C20]" />
+                        <span>
+                          Batas Akhir:{" "}
+                          <strong className="text-[#FFF9F5]">
+                            {new Date(selectedCategory.deadline).toLocaleDateString("id-ID", {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                            })}
+                          </strong>
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-2 px-3 py-1.5 bg-[#141824] border border-white/10 rounded-full text-xs md:text-sm text-[#AAB1BD]">
+                        <Users className="h-3.5 w-3.5 text-[#FED700]" />
+                        <span>
+                          Tipe Tim:{" "}
+                          <strong className="text-[#FFF9F5]">
+                            {selectedCategory.team_type}
+                          </strong>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
             {/* Loading State */}
             {leaderboardLoading && selectedCategoryId && (
-              <div className="text-center py-6 md:py-8">
-                <div className="inline-flex items-center gap-3 text-gray-600 dark:text-gray-300">
-                  <div className="animate-spin rounded-full h-5 w-5 md:h-6 md:w-6 border-b-2 border-red-400"></div>
-                  <span className="text-base md:text-lg">
-                    Memuat data leaderboard...
-                  </span>
+              <div className="mia-card p-12 text-center space-y-4">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#E01C20]/15 border border-[#E01C20]/30 animate-spin">
+                  <div className="w-6 h-6 border-2 border-[#E01C20] border-t-transparent rounded-full"></div>
                 </div>
+                <p className="text-base text-[#AAB1BD]">
+                  Memuat data leaderboard kategori...
+                </p>
               </div>
             )}
 
             {/* Error State */}
             {isError && selectedCategoryId && (
-              <Card className="border-red-400 bg-red-50 dark:bg-red-900/20 shadow-lg">
-                <CardContent className="flex items-center gap-3 md:gap-4 p-6 md:p-8">
-                  <div className="p-2 md:p-3 bg-red-500 rounded-full flex-shrink-0">
-                    <AlertCircle className="h-5 w-5 md:h-6 md:w-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-red-800 dark:text-red-200 mb-1">
-                      Gagal Memuat Data
-                    </h3>
-                    <p className="text-sm md:text-base text-red-700 dark:text-red-300">
-                      Tidak dapat memuat data leaderboard. Silakan coba lagi
-                      dalam beberapa saat.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="mia-card border-[#E01C20]/40 bg-[#E01C20]/10 p-6 md:p-8 flex items-start gap-4">
+                <div className="p-2.5 bg-[#E01C20] rounded-xl text-white flex-shrink-0">
+                  <AlertCircle className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base md:text-lg text-[#FFF9F5] mb-1">
+                    Gagal Memuat Data Leaderboard
+                  </h3>
+                  <p className="text-sm text-[#AAB1BD]">
+                    Terjadi kendala saat mengambil data skor. Silakan periksa koneksi Anda dan coba lagi.
+                  </p>
+                </div>
+              </div>
             )}
 
-            {/* Empty State */}
+            {/* Empty State when Category Selected but no participants */}
             {leaderboardData &&
               leaderboardData.length === 0 &&
               selectedCategoryId && (
-                <Card className="border-2 border-dashed border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-800/20">
-                  <CardContent className="flex flex-col items-center justify-center py-12 md:py-16">
-                    <div className="p-3 md:p-4 bg-gray-200 dark:bg-slate-700/50 rounded-full mb-4 md:mb-6">
-                      <Trophy className="h-12 w-12 md:h-16 md:w-16 text-gray-400 dark:text-slate-400" />
-                    </div>
-                    <h3 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-2 md:mb-3">
-                      Belum Ada Peserta
-                    </h3>
-                    <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 text-center max-w-md px-4">
-                      Belum ada peserta yang terdaftar atau dinilai untuk
-                      kategori ini. Jadilah yang pertama!
-                    </p>
-                  </CardContent>
-                </Card>
+                <div className="mia-card border-dashed border-white/20 p-12 md:p-16 text-center space-y-4">
+                  <div className="w-16 h-16 rounded-2xl bg-[#1E2939] border border-white/10 flex items-center justify-center mx-auto text-[#AAB1BD]">
+                    <Trophy className="h-8 w-8 text-[#AAB1BD]" />
+                  </div>
+                  <h3 className="text-xl md:text-2xl font-bold text-[#FFF9F5]">
+                    Belum Ada Peserta Dinilai
+                  </h3>
+                  <p className="text-sm md:text-base text-[#AAB1BD] max-w-md mx-auto">
+                    Belum ada karya yang terdaftar atau selesai dinilai untuk kategori ini. Jadilah yang pertama meraih posisi teratas!
+                  </p>
+                </div>
               )}
 
-            {/* Podium Display for Top 3 */}
+            {/* Top 3 Podium (Hall of Fame) */}
             {topThree.length > 0 && (
               <div className="space-y-6 md:space-y-8">
-                <div className="text-center">
-                  <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                <div className="text-center space-y-2">
+                  <div className="mia-pill-badge mx-auto">
+                    <Sparkles className="h-3.5 w-3.5 text-[#FED700]" />
+                    <span>Top 3 Champions</span>
+                  </div>
+                  <h2 className="text-2xl md:text-3xl font-bold text-[#FFF9F5]">
                     🏆 Hall of Fame
                   </h2>
-                  <p className="text-sm md:text-base text-gray-600 dark:text-gray-300">
-                    Para juara terbaik dalam kategori ini
+                  <p className="text-sm md:text-base text-[#AAB1BD]">
+                    Para peserta terbaik dengan perolehan skor tertinggi
                   </p>
                 </div>
 
-                {/* Podium Layout - Stack on mobile, side-by-side on desktop */}
-                <div className="flex flex-col md:flex-row md:items-end md:justify-center gap-4 px-2 md:px-4">
-                  {/* 1st Place - Always first on mobile */}
-                  <div className="order-1 md:order-2">
-                    <Card className={getPodiumCardStyle(1)}>
-                      <CardContent className="p-4 md:p-6 h-full flex flex-col justify-center items-center text-center">
-                        <div className="space-y-2 md:space-y-4">
-                          <div className="flex flex-col items-center gap-2 md:gap-3">
-                            {getRankIcon(1)}
-                            <Badge
-                              className={`text-xs md:text-sm px-2 md:px-3 py-1 font-semibold ${getRankBadgeColor(
-                                1
-                              )}`}
-                            >
-                              #1
-                            </Badge>
+                {/* Podium Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end max-w-5xl mx-auto pt-4">
+                  
+                  {/* Rank 2 (Silver) - Positioned Left on Desktop */}
+                  {topThree[1] ? (
+                    <div className="order-2 md:order-1">
+                      <div className="bg-gradient-to-b from-[#D5D8DE]/15 via-[#1E2939]/80 to-[#141824] border border-[#D5D8DE]/40 rounded-2xl p-6 text-center shadow-[0_0_25px_rgba(213,216,222,0.08)] backdrop-blur-md space-y-4 hover:border-[#D5D8DE]/80 transition-all">
+                        <div className="flex flex-col items-center gap-2">
+                          <div className="p-3 rounded-full bg-[#1E2939] border border-[#D5D8DE]/30">
+                            {getRankIcon(2)}
                           </div>
-                          <div>
-                            <h3 className="text-lg md:text-2xl font-bold text-gray-900 dark:text-white mb-1 md:mb-2 break-words">
-                              {topThree[0].team_name}
-                            </h3>
-                            <div className="flex items-center justify-center gap-1 md:gap-2">
-                              <Star className="h-4 w-4 md:h-6 md:w-6 text-orange-500" />
-                              <span className="text-xl md:text-3xl font-bold text-gray-900 dark:text-white">
-                                {topThree[0].score}
+                          <Badge className={getRankBadgeColor(2)}>
+                            Rank #2
+                          </Badge>
+                        </div>
+
+                        <div className="space-y-1">
+                          <h3 className="text-lg md:text-xl font-bold text-[#FFF9F5] truncate">
+                            {topThree[1].team_name}
+                          </h3>
+                          <p className="text-xs text-[#AAB1BD] truncate">
+                            oleh {topThree[1].user?.name || "Peserta"}
+                          </p>
+                        </div>
+
+                        <div className="pt-2 border-t border-white/10 flex items-center justify-center gap-2">
+                          <Star className="h-5 w-5 text-[#FF4500]" />
+                          <span className="text-2xl font-bold text-[#FFF9F5]">
+                            {topThree[1].score}
+                          </span>
+                          <span className="text-xs text-[#AAB1BD]">pts</span>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="hidden md:block order-2 md:order-1" />
+                  )}
+
+                  {/* Rank 1 (Gold / Champion) - Center & Taller */}
+                  <div className="order-1 md:order-2">
+                    <div className="bg-gradient-to-b from-[#FED700]/20 via-[#1E2939]/90 to-[#141824] border-2 border-[#FED700] rounded-2xl p-6 md:p-8 text-center shadow-[0_0_35px_rgba(254,215,0,0.25)] backdrop-blur-md space-y-4 relative md:-translate-y-4 transition-all">
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#FED700] text-[#151C28] text-xs font-extrabold px-3 py-0.5 rounded-full uppercase tracking-wider shadow-md">
+                        👑 Champion
+                      </div>
+
+                      <div className="flex flex-col items-center gap-2 pt-2">
+                        <div className="p-3.5 rounded-full bg-[#1E2939] border border-[#FED700]/50 shadow-[0_0_15px_rgba(254,215,0,0.3)]">
+                          {getRankIcon(1)}
+                        </div>
+                        <Badge className={getRankBadgeColor(1)}>
+                          Rank #1
+                        </Badge>
+                      </div>
+
+                      <div className="space-y-1">
+                        <h3 className="text-xl md:text-2xl font-bold text-[#FFF9F5] truncate">
+                          {topThree[0].team_name}
+                        </h3>
+                        <p className="text-xs md:text-sm text-[#AAB1BD] truncate">
+                          oleh {topThree[0].user?.name || "Peserta"}
+                        </p>
+                      </div>
+
+                      <div className="pt-3 border-t border-white/10 flex items-center justify-center gap-2">
+                        <Star className="h-6 w-6 text-[#FED700]" />
+                        <span className="text-3xl font-extrabold text-[#FFF9F5]">
+                          {topThree[0].score}
+                        </span>
+                        <span className="text-sm text-[#AAB1BD]">pts</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Rank 3 (Bronze) - Positioned Right on Desktop */}
+                  {topThree[2] ? (
+                    <div className="order-3">
+                      <div className="bg-gradient-to-b from-[#FF936B]/15 via-[#1E2939]/80 to-[#141824] border border-[#FF936B]/40 rounded-2xl p-6 text-center shadow-[0_0_25px_rgba(255,147,107,0.08)] backdrop-blur-md space-y-4 hover:border-[#FF936B]/80 transition-all">
+                        <div className="flex flex-col items-center gap-2">
+                          <div className="p-3 rounded-full bg-[#1E2939] border border-[#FF936B]/30">
+                            {getRankIcon(3)}
+                          </div>
+                          <Badge className={getRankBadgeColor(3)}>
+                            Rank #3
+                          </Badge>
+                        </div>
+
+                        <div className="space-y-1">
+                          <h3 className="text-lg md:text-xl font-bold text-[#FFF9F5] truncate">
+                            {topThree[2].team_name}
+                          </h3>
+                          <p className="text-xs text-[#AAB1BD] truncate">
+                            oleh {topThree[2].user?.name || "Peserta"}
+                          </p>
+                        </div>
+
+                        <div className="pt-2 border-t border-white/10 flex items-center justify-center gap-2">
+                          <Star className="h-5 w-5 text-[#FF4500]" />
+                          <span className="text-2xl font-bold text-[#FFF9F5]">
+                            {topThree[2].score}
+                          </span>
+                          <span className="text-xs text-[#AAB1BD]">pts</span>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="hidden md:block order-3" />
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Remaining Participants (Rank 4+) */}
+            {remaining.length > 0 && (
+              <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <h3 className="text-xl md:text-2xl font-bold text-[#FFF9F5]">
+                      Peringkat Lainnya
+                    </h3>
+                    <p className="text-xs md:text-sm text-[#AAB1BD]">
+                      Daftar perolehan nilai peserta kompetisi
+                    </p>
+                  </div>
+                  <div className="mia-pill-badge w-fit">
+                    <span>{remaining.length} Peserta Lainnya</span>
+                  </div>
+                </div>
+
+                <div className="mia-card overflow-hidden">
+                  {/* Desktop Table Header */}
+                  <div className="hidden md:grid md:grid-cols-12 gap-4 px-6 py-4 bg-[#1E2939]/80 border-b border-white/10 text-xs font-semibold text-[#AAB1BD] uppercase tracking-wider">
+                    <div className="col-span-2 text-center">Peringkat</div>
+                    <div className="col-span-6">Tim & Peserta</div>
+                    <div className="col-span-2 text-center">Perolehan Poin</div>
+                    <div className="col-span-2 text-center">Status</div>
+                  </div>
+
+                  {/* Rows */}
+                  <div className="divide-y divide-white/5">
+                    {remaining.map((item, index) => {
+                      const rank = index + 4;
+                      return (
+                        <div
+                          key={item.submission_id || index}
+                          className="p-4 sm:p-5 hover:bg-white/[0.03] transition-colors duration-150"
+                        >
+                          {/* Mobile View */}
+                          <div className="md:hidden space-y-3">
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex items-center gap-3">
+                                {getRankIcon(rank)}
+                                <div>
+                                  <h4 className="font-semibold text-base text-[#FFF9F5]">
+                                    {item.team_name}
+                                  </h4>
+                                  <p className="text-xs text-[#AAB1BD]">
+                                    oleh {item.user?.name || "Peserta"}
+                                  </p>
+                                </div>
+                              </div>
+                              <Badge className={getRankBadgeColor(rank)}>
+                                #{rank}
+                              </Badge>
+                            </div>
+
+                            <div className="flex items-center justify-between pt-2 border-t border-white/5">
+                              <div className="flex items-center gap-1.5">
+                                <Star className="h-4 w-4 text-[#FF4500]" />
+                                <span className="text-lg font-bold text-[#FFF9F5]">
+                                  {item.score}
+                                </span>
+                                <span className="text-xs text-[#AAB1BD]">pts</span>
+                              </div>
+
+                              <span className="px-2.5 py-0.5 rounded-full bg-[#00B445]/20 border border-[#00B445]/40 text-[#6BD493] text-xs font-medium">
+                                {item.status === "APPROVED" ? "✓ Disetujui" : item.status}
                               </span>
                             </div>
-                            <Badge className="mt-1 md:mt-2 bg-yellow-500 text-yellow-900 px-2 md:px-3 py-1 text-xs md:text-sm">
-                              👑 CHAMPION
-                            </Badge>
+                          </div>
+
+                          {/* Desktop View */}
+                          <div className="hidden md:grid md:grid-cols-12 gap-4 items-center px-2">
+                            <div className="col-span-2 flex items-center justify-center gap-2">
+                              {getRankIcon(rank)}
+                              <Badge className={getRankBadgeColor(rank)}>
+                                #{rank}
+                              </Badge>
+                            </div>
+
+                            <div className="col-span-6">
+                              <h4 className="font-semibold text-base text-[#FFF9F5]">
+                                {item.team_name}
+                              </h4>
+                              <p className="text-xs text-[#AAB1BD]">
+                                oleh {item.user?.name || "Peserta"}
+                              </p>
+                            </div>
+
+                            <div className="col-span-2 flex items-center justify-center gap-1.5">
+                              <Star className="h-4 w-4 text-[#FF4500]" />
+                              <span className="text-xl font-bold text-[#FFF9F5]">
+                                {item.score}
+                              </span>
+                              <span className="text-xs text-[#AAB1BD]">pts</span>
+                            </div>
+
+                            <div className="col-span-2 flex items-center justify-center">
+                              <span className="px-3 py-1 rounded-full bg-[#00B445]/20 border border-[#00B445]/40 text-[#6BD493] text-xs font-medium">
+                                {item.status === "APPROVED" ? "✓ Disetujui" : item.status}
+                              </span>
+                            </div>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
+                      );
+                    })}
                   </div>
-
-                  {/* 2nd Place */}
-                  {topThree[1] && (
-                    <div className="order-2 md:order-1">
-                      <Card className={getPodiumCardStyle(2)}>
-                        <CardContent className="p-4 md:p-6 h-full flex flex-col justify-center items-center text-center">
-                          <div className="space-y-2 md:space-y-3">
-                            <div className="flex flex-col items-center gap-1 md:gap-2">
-                              {getRankIcon(2)}
-                              <Badge
-                                className={`text-xs md:text-sm px-2 md:px-3 py-1 font-semibold ${getRankBadgeColor(
-                                  2
-                                )}`}
-                              >
-                                #2
-                              </Badge>
-                            </div>
-                            <div>
-                              <h3 className="text-base md:text-xl font-bold text-gray-900 dark:text-white mb-1 break-words">
-                                {topThree[1].team_name}
-                              </h3>
-                              <div className="flex items-center justify-center gap-1">
-                                <Star className="h-4 w-4 md:h-5 md:w-5 text-orange-500" />
-                                <span className="text-lg md:text-2xl font-bold text-gray-900 dark:text-white">
-                                  {topThree[1].score}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  )}
-
-                  {/* 3rd Place */}
-                  {topThree[2] && (
-                    <div className="order-3">
-                      <Card className={getPodiumCardStyle(3)}>
-                        <CardContent className="p-4 md:p-6 h-full flex flex-col justify-center items-center text-center">
-                          <div className="space-y-2 md:space-y-3">
-                            <div className="flex flex-col items-center gap-1 md:gap-2">
-                              {getRankIcon(3)}
-                              <Badge
-                                className={`text-xs md:text-sm px-2 md:px-3 py-1 font-semibold ${getRankBadgeColor(
-                                  3
-                                )}`}
-                              >
-                                #3
-                              </Badge>
-                            </div>
-                            <div>
-                              <h3 className="text-base md:text-xl font-bold text-gray-900 dark:text-white mb-1 break-words">
-                                {topThree[2].team_name}
-                              </h3>
-                              <div className="flex items-center justify-center gap-1">
-                                <Star className="h-4 w-4 md:h-5 md:w-5 text-orange-500" />
-                                <span className="text-lg md:text-2xl font-bold text-gray-900 dark:text-white">
-                                  {topThree[2].score}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  )}
                 </div>
               </div>
             )}
 
-            {/* Remaining Participants Table */}
-            {remaining.length > 0 && (
-              <div className="space-y-4 md:space-y-6">
-                <div className="text-center">
-                  <h3 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                    Peringkat Lainnya
-                  </h3>
-                  <Badge
-                    variant="outline"
-                    className="text-sm md:text-base px-3 md:px-4 py-1 md:py-2 bg-gray-100 dark:bg-slate-700/50 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-slate-600"
-                  >
-                    {remaining.length} peserta lainnya
-                  </Badge>
-                </div>
-
-                <Card className="bg-white dark:bg-slate-800/60 border-gray-200 dark:border-slate-600 shadow-xl">
-                  <CardContent className="p-0">
-                    <div className="overflow-x-auto">
-                      {/* Desktop Table Header */}
-                      <div className="hidden md:grid md:grid-cols-12 gap-4 p-4 bg-gray-50 dark:bg-slate-700/50 border-b border-gray-200 dark:border-slate-600 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                        <div className="col-span-1 text-center">Peringkat</div>
-                        <div className="col-span-6">Tim</div>
-                        <div className="col-span-3 text-center">Poin</div>
-                        <div className="col-span-2 text-center">Status</div>
-                      </div>
-
-                      {/* Table Rows */}
-                      <div className="divide-y divide-gray-200 dark:divide-slate-600">
-                        {remaining.map((item, index) => {
-                          const rank = index + 4;
-                          return (
-                            <div
-                              key={item.submission_id}
-                              className="p-3 md:p-4 hover:bg-gray-50 dark:hover:bg-red-800/30 transition-colors duration-150"
-                            >
-                              {/* Mobile Layout */}
-                              <div className="md:hidden space-y-3">
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-3">
-                                    {getRankIcon(rank)}
-                                    <div>
-                                      <h4 className="font-semibold text-gray-900 dark:text-white text-base">
-                                        {item.team_name}
-                                      </h4>
-                                      <p className="text-gray-500 dark:text-gray-400 text-sm">
-                                        oleh {item.user.name}
-                                      </p>
-                                    </div>
-                                  </div>
-                                  <Badge
-                                    className={`text-xs px-2 py-1 ${getRankBadgeColor(
-                                      rank
-                                    )}`}
-                                  >
-                                    #{rank}
-                                  </Badge>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-2">
-                                    <Star className="h-4 w-4 text-orange-500" />
-                                    <span className="text-lg font-bold text-gray-900 dark:text-white">
-                                      {item.score}
-                                    </span>
-                                  </div>
-                                  <Badge
-                                    variant={
-                                      item.status === "APPROVED"
-                                        ? "default"
-                                        : "secondary"
-                                    }
-                                    className={`${
-                                      item.status === "APPROVED"
-                                        ? "bg-green-600 text-white border-green-500"
-                                        : "bg-gray-600 text-gray-200 border-gray-500"
-                                    } px-2 py-1 text-xs`}
-                                  >
-                                    {item.status === "APPROVED"
-                                      ? "✓ Disetujui"
-                                      : item.status}
-                                  </Badge>
-                                </div>
-                              </div>
-
-                              {/* Desktop Layout */}
-                              <div className="hidden md:grid md:grid-cols-12 gap-4 items-center">
-                                <div className="col-span-1 flex justify-center">
-                                  <div className="flex flex-col items-center gap-2">
-                                    {getRankIcon(rank)}
-                                    <Badge
-                                      className={`text-xs px-2 py-1 ${getRankBadgeColor(
-                                        rank
-                                      )}`}
-                                    >
-                                      #{rank}
-                                    </Badge>
-                                  </div>
-                                </div>
-
-                                <div className="col-span-6 flex items-center">
-                                  <div>
-                                    <h4 className="font-semibold text-gray-900 dark:text-white text-lg">
-                                      {item.team_name}
-                                    </h4>
-                                    <p className="text-gray-500 dark:text-gray-400 text-sm">
-                                      oleh {item.user.name}
-                                    </p>
-                                  </div>
-                                </div>
-
-                                <div className="col-span-3 flex items-center justify-center">
-                                  <div className="flex items-center gap-2">
-                                    <Star className="h-5 w-5 text-orange-500" />
-                                    <span className="text-2xl font-bold text-gray-900 dark:text-white">
-                                      {item.score}
-                                    </span>
-                                  </div>
-                                </div>
-
-                                <div className="col-span-2 flex items-center justify-center">
-                                  <Badge
-                                    variant={
-                                      item.status === "APPROVED"
-                                        ? "default"
-                                        : "secondary"
-                                    }
-                                    className={`${
-                                      item.status === "APPROVED"
-                                        ? "bg-green-600 text-white border-green-500"
-                                        : "bg-gray-600 text-gray-200 border-gray-500"
-                                    } px-3 py-1`}
-                                  >
-                                    {item.status === "APPROVED"
-                                      ? "✓ Disetujui"
-                                      : item.status}
-                                  </Badge>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
-
-            {/* Call to Action */}
+            {/* Empty Selection CTA */}
             {!selectedCategoryId && (
-              <Card className="bg-gradient-to-br from-orange-50 to-pink-50 dark:from-gray-900 dark:to-gray-900/50 border-orange-200 shadow-xl">
-                <CardContent className="text-center py-12 md:py-16 px-4">
-                  <div className="p-3 md:p-4 bg-gradient-to-br from-slate-600 to-red-700 rounded-xl md:rounded-2xl w-fit mx-auto mb-4 md:mb-6">
-                    <Trophy className="h-12 w-12 md:h-16 md:w-16 text-white" />
-                  </div>
-                  <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-3 md:mb-4">
-                    Pilih Kategori untuk Melihat Leaderboard
-                  </h3>
-                  <p className="text-base md:text-lg text-gray-600 dark:text-gray-300 max-w-md mx-auto">
-                    Lihat siapa yang memimpin di setiap kategori kompetisi dan
-                    raih kesempatan untuk menjadi yang terdepan!
-                  </p>
-                </CardContent>
-              </Card>
+              <div className="mia-card p-10 md:p-14 text-center space-y-4">
+                <div className="w-16 h-16 rounded-2xl bg-[#E01C20]/15 border border-[#E01C20]/30 flex items-center justify-center mx-auto text-[#E01C20]">
+                  <Trophy className="h-8 w-8 text-[#E01C20]" />
+                </div>
+                <h3 className="text-2xl md:text-3xl font-bold text-[#FFF9F5]">
+                  Pilih Kategori untuk Melihat Leaderboard
+                </h3>
+                <p className="text-sm md:text-base text-[#AAB1BD] max-w-md mx-auto">
+                  Pilih salah satu kategori kompetisi pada dropdown di atas untuk melihat klasemen dan perolehan poin tim terbaik.
+                </p>
+              </div>
             )}
+
           </div>
-        </div>
-      </main>
-    </>
+        </main>
+      </div>
+
+      <Footer />
+    </div>
   );
 }

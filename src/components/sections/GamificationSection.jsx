@@ -1,80 +1,93 @@
 import React from "react";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import {
   StarFilledIcon,
   BookmarkIcon,
   ArrowRightIcon,
+  RocketIcon,
 } from "@radix-ui/react-icons";
 import Link from "next/link";
 
 const GamificationSection = () => {
   const features = [
     {
-      icon: <StarFilledIcon className="h-8 w-8 text-amber-500" />,
+      icon: <StarFilledIcon className="h-6 w-6 text-[#FED700]" />,
+      iconBg: "bg-[#FED700]/15 border-[#FED700]/30",
       title: "Kumpulkan XP & Diamond",
       description:
-        "Dapatkan xp dan diamond dari setiap aktivitas, mulai dari pendaftaran hingga submit karya.",
+        "Dapatkan XP dan Diamond dari setiap aktivitas, mulai dari pendaftaran, pengerjaan kuis, hingga pengumpulan hasil karya.",
     },
     {
-      icon: <StarFilledIcon className="h-8 w-8 text-red-500" />,
+      icon: <RocketIcon className="h-6 w-6 text-[#E01C20]" />,
+      iconBg: "bg-[#E01C20]/15 border-[#E01C20]/30",
       title: "Leaderboard Kompetitif",
       description:
-        "Pantau posisi Anda secara real-time di leaderboard dan bersaing untuk menjadi yang terbaik.",
+        "Pantau peringkat posisi Anda secara real-time di leaderboard publik dan bersaing secara sportif untuk menjadi yang terbaik.",
     },
     {
-      icon: <BookmarkIcon className="h-8 w-8 text-green-500" />,
+      icon: <BookmarkIcon className="h-6 w-6 text-[#00B445]" />,
+      iconBg: "bg-[#00B445]/15 border-[#00B445]/30",
       title: "Tukar dengan Hadiah",
       description:
-        "Tukarkan diamonds yang terkumpul dengan merchandise atau tiket konsultasi eksklusif.",
+        "Tukarkan Diamonds yang terkumpul dengan merchandise eksklusif, voucher menarik, atau tiket konsultasi 1-on-1 bersama mentor.",
     },
   ];
 
   return (
-    <section id="leaderboard" className="py-20 bg-background dark:bg-black/95">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <Badge className="mb-6 bg-gradient-to-r from-red-600 to-red-700 text-white border-0 shadow-lg">
-            <StarFilledIcon className="h-4 w-4 mr-2" />
-            Fitur Gamifikasi & Leaderboard
-          </Badge>
-          <h2 className="text-3xl md:text-5xl font-bold text-foreground dark:text-white mb-4">
-            Lebih dari Sekadar Kompetisi
+    <section id="leaderboard" className="py-20 relative">
+      <div className="container mx-auto px-4 max-w-7xl">
+        {/* Section Header */}
+        <div className="text-center mb-14 space-y-4">
+          <div className="inline-block">
+            <span className="mia-pill-badge">
+              <StarFilledIcon className="h-3.5 w-3.5 text-[#FED700]" />
+              <span>Fitur Gamifikasi & Leaderboard</span>
+            </span>
+          </div>
+
+          <h2 className="text-3xl sm:text-4xl md:text-[30.56px] font-bold text-[#FFF9F5] tracking-tight">
+            Lebih dari <span className="text-[#E01C20]">Sekadar Kompetisi</span>
           </h2>
-          <p className="text-lg text-muted-foreground dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
+
+          <p className="text-base md:text-[18.89px] text-[#AAB1BD] max-w-2xl mx-auto leading-relaxed">
             Kami menghadirkan pengalaman kompetisi yang lebih seru dengan sistem
             gamifikasi dan leaderboard yang kompetitif.
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+        {/* 3-Column Desktop Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
           {features.map((feature, i) => (
-            <Card
+            <div
               key={i}
-              className="text-center p-6 bg-card dark:bg-gray-900/50 border dark:border-gray-800 shadow-lg hover:shadow-xl transition-shadow duration-300"
+              className="mia-card p-8 hover:-translate-y-1 hover:border-[#E01C20]/40 transition-all duration-300 flex flex-col justify-between"
             >
-              <div className="flex gap-6">
-                {feature.icon}
-                <h3 className="text-2xl font-bold mb-2 text-foreground dark:text-white">
+              <div className="space-y-4">
+                {/* Icon Container */}
+                <div
+                  className={`w-12 h-12 rounded-xl border ${feature.iconBg} flex items-center justify-center`}
+                >
+                  {feature.icon}
+                </div>
+
+                <h3 className="text-xl font-bold text-[#FFF9F5]">
                   {feature.title}
                 </h3>
+
+                <p className="text-sm text-[#AAB1BD] leading-relaxed">
+                  {feature.description}
+                </p>
               </div>
-              <p className="text-muted-foreground text-left mb-12 dark:text-gray-400">
-                {feature.description}
-              </p>
-            </Card>
+            </div>
           ))}
         </div>
-        <div className="text-center mt-12">
+
+        {/* Bottom CTA */}
+        <div className="text-center">
           <Link href="/leaderboard" className="inline-block">
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-2 border-red-600 text-red-600 hover:bg-red-50 dark:text-red-400 dark:border-red-500 dark:hover:bg-red-900/40 dark:hover:text-white cursor-pointer"
-            >
+            <span className="mia-btn-secondary px-8 py-3 text-base inline-flex items-center gap-2 cursor-pointer">
               Lihat Leaderboard
-              <ArrowRightIcon className="h-4 w-4 ml-2" />
-            </Button>
+              <ArrowRightIcon className="h-4 w-4" />
+            </span>
           </Link>
         </div>
       </div>
@@ -83,3 +96,4 @@ const GamificationSection = () => {
 };
 
 export default GamificationSection;
+

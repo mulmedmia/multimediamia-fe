@@ -30,7 +30,11 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    if (error.response?.status === 401) {
+    const isAuthEndpoint = error.config?.url?.includes("/auth/");
+    const isLoginPage =
+      typeof window !== "undefined" && window.location.pathname === "/login";
+
+    if (error.response?.status === 401 && !isAuthEndpoint && !isLoginPage) {
       if (typeof window !== "undefined") {
         Cookies.remove("authToken");
         window.location.href = "/login";

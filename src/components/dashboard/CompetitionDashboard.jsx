@@ -12,31 +12,21 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import {
   Upload,
-  Calendar,
   Award,
   Star,
-  BookOpen,
   Edit,
   Users,
-  Gift,
   CheckCircle,
   ExternalLink,
   FileText,
 } from "lucide-react";
 import { SubmissionForm } from "@/components/forms/SubmissionForm";
-import { toast } from "sonner"; // Import toast
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 import { getMySubmissions } from "@/services/submission.service";
 import {
@@ -49,6 +39,7 @@ import {
   redeemPoints,
 } from "@/services/gamification.service";
 import { EditTeamModal } from "./EditTeamModal";
+import { EditSubmissionModal } from "./EditSubmissionModal";
 
 export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -75,7 +66,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
   // Filter submissions berdasarkan kategori registration
   const submissions =
     submissionsData?.submissions?.filter(
-      (sub) => sub.category_id === activeRegistration.category_id
+      (sub) => sub.category_id === activeRegistration.category_id,
     ) || [];
 
   // Check apakah user sudah punya submission
@@ -144,7 +135,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
       queryKey: ["gamification", activeRegistration.registration_id],
       queryFn: () => getGamificationData(activeRegistration.registration_id),
       enabled: !!activeRegistration.registration_id,
-    }
+    },
   );
 
   const { data: schedule, isLoading: isLoadingSchedule } = useQuery({
@@ -180,7 +171,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
     },
     onError: (error) => {
       toast.error(
-        "Gagal menukar poin: " + (error.message || "Terjadi kesalahan")
+        "Gagal menukar poin: " + (error.message || "Terjadi kesalahan"),
       );
     },
   });
@@ -195,287 +186,375 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
       : 0;
 
   return (
-    <div className="flex-1 space-y-4">
-      <div className="flex items-center justify-between space-y-2">
+    <div className="flex-1 space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
             {activeRegistration.category.name}
           </h2>
-          <p className="text-muted-foreground">
-            Selamat berkompetisi, {activeRegistration.team_name}!
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Selamat berkompetisi,{" "}
+            <span className="text-foreground font-medium">
+              {activeRegistration.team_name || "Nama Tim"}
+            </span>
+            !
           </p>
         </div>
       </div>
+
       <Tabs
         value={activeTab}
         onValueChange={handleTabChange}
-        className="space-y-4"
+        className="space-y-6"
       >
-        {/* Tab List - Selalu tampilkan 3 tab */}
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="beranda" className="cursor-pointer">
-            <Star className="mr-1 h-4 w-4" />
+        {/* Tab List */}
+        <TabsList className="grid w-full grid-cols-3 bg-[#0F121A]/80 border border-border/50 p-1.5 rounded-2xl shadow-lg h-auto">
+          <TabsTrigger
+            value="beranda"
+            className="cursor-pointer py-2.5 rounded-xl data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-md font-semibold text-xs sm:text-sm transition-all"
+          >
+            <Star className="mr-1.5 h-4 w-4" />
             Beranda
           </TabsTrigger>
 
-          {/* Tab Upload - Selalu tampil, tapi conditional disabled */}
           <TabsTrigger
             value="upload"
             disabled={!activeRegistration.is_verified || hasSubmissions}
             data-disabled={!activeRegistration.is_verified || hasSubmissions}
             className={
               !activeRegistration.is_verified || hasSubmissions
-                ? "opacity-50 data-[disabled=true]:cursor-not-allowed data-[disabled=true]:pointer-events-auto"
-                : "cursor-pointer"
+                ? "py-2.5 rounded-xl opacity-50 data-[disabled=true]:cursor-not-allowed data-[disabled=true]:pointer-events-auto font-semibold text-xs sm:text-sm"
+                : "cursor-pointer py-2.5 rounded-xl data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-md font-semibold text-xs sm:text-sm transition-all"
             }
           >
-            <Upload className="mr-1 h-4 w-4" />
+            <Upload className="mr-1.5 h-4 w-4" />
             Upload
           </TabsTrigger>
 
-          {/* Tab Status - Selalu tampil */}
-          <TabsTrigger value="status" className="cursor-pointer">
-            <Award className="mr-1 h-4 w-4" />
+          <TabsTrigger
+            value="status"
+            className="cursor-pointer py-2.5 rounded-xl data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-md font-semibold text-xs sm:text-sm transition-all"
+          >
+            <Award className="mr-1.5 h-4 w-4" />
             Status
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="beranda">
-          <div className="space-y-4">
-            {/* Team Information Card - BARU */}
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2">
+          <div className="space-y-6">
+            {/* Team Information Card */}
+            <div className="mia-card p-6 sm:p-7 shadow-xl space-y-6">
+              <div className="flex items-center justify-between gap-4 pb-4 border-b border-border/40">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 bg-primary/10 border border-primary/20 rounded-2xl text-primary flex items-center justify-center flex-shrink-0">
                     <Users className="h-5 w-5" />
-                    Informasi Tim
-                  </CardTitle>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      if (hasSubmissions) {
-                        toast.warning("Tidak dapat mengedit tim!", {
-                          description:
-                            "Informasi tim tidak dapat diubah setelah mengupload karya.",
-                          duration: 3000,
-                        });
-                        return;
-                      }
-                      setEditTeamModalOpen(true);
-                    }}
-                    disabled={hasSubmissions}
-                    className={`flex items-center gap-2 ${
-                      hasSubmissions
-                        ? "opacity-50 cursor-not-allowed"
-                        : "cursor-pointer"
-                    }`}
-                    title={
-                      hasSubmissions
-                        ? "Tidak dapat mengedit tim setelah mengupload karya"
-                        : "Edit informasi tim"
-                    }
-                  >
-                    <Edit className="h-4 w-4" />
-                    Edit Tim
-                  </Button>
+                  </div>
+                  <div>
+                    <h3 className="text-lg sm:text-xl font-bold text-foreground tracking-tight">
+                      Informasi Tim
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      Detail nama dan anggota tim yang terdaftar
+                    </p>
+                  </div>
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    if (hasSubmissions) {
+                      toast.warning("Tidak dapat mengedit tim!", {
+                        description:
+                          "Informasi tim tidak dapat diubah setelah mengupload karya.",
+                        duration: 3000,
+                      });
+                      return;
+                    }
+                    setEditTeamModalOpen(true);
+                  }}
+                  disabled={hasSubmissions}
+                  className={cn(
+                    "rounded-full border border-white/20 hover:border-white/40 bg-input/40 hover:bg-input text-foreground text-xs font-semibold h-9 px-4 transition-all shadow-xs inline-flex items-center gap-1.5",
+                    hasSubmissions
+                      ? "opacity-50 cursor-not-allowed hover:bg-input/40 hover:border-white/20"
+                      : "cursor-pointer",
+                  )}
+                  title={
+                    hasSubmissions
+                      ? "Tidak dapat mengedit tim setelah mengupload karya"
+                      : "Edit informasi tim"
+                  }
+                >
+                  <Edit className="h-3.5 w-3.5" />
+                  <span>Edit Tim</span>
+                </Button>
+              </div>
+
+              <div className="space-y-5">
                 {/* Nama Tim */}
-                <div>
-                  <Label className="text-sm font-medium text-muted-foreground">
+                <div className="space-y-1">
+                  <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                     Nama Tim
                   </Label>
-                  <p className="text-lg font-semibold mt-1">
+                  <p className="text-lg font-bold text-foreground">
                     {activeRegistration.team_name || "Tidak ada nama tim"}
                   </p>
                 </div>
 
                 {/* Anggota Tim */}
-                <div>
-                  <Label className="text-sm font-medium text-muted-foreground">
+                <div className="space-y-2">
+                  <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                     Anggota Tim ({teamMembers.length} orang)
                   </Label>
-                  <div className="mt-2 space-y-2">
+                  <div className="grid gap-2.5 lg:grid-cols-3 pt-1">
                     {teamMembers.length > 0 ? (
                       teamMembers.map((member, index) => (
                         <div
                           key={index}
-                          className="flex items-center gap-2 p-2 bg-muted rounded-lg"
+                          className="relative flex items-center gap-3 p-3 bg-input/40 border border-border/40 rounded-xl truncate"
                         >
-                          <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground text-sm font-medium">
+                          <div className="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 select-none">
                             {member.charAt(0).toUpperCase()}
                           </div>
-                          <span className="font-medium">{member}</span>
+                          <span
+                            className={cn(
+                              "font-semibold text-sm text-foreground truncate grow mr-1",
+                              index === 0 && "mr-14",
+                            )}
+                          >
+                            {member}
+                          </span>
+                          {index === 0 && (
+                            <span className="absolute -right-0 text-xs text-muted-foreground pointer-events-none -z-10 select-none pr-4">
+                              (Ketua)
+                            </span>
+                          )}
                         </div>
                       ))
                     ) : (
-                      <p className="text-muted-foreground text-sm">
+                      <p className="text-muted-foreground text-sm italic">
                         Belum ada anggota tim yang terdaftar
                       </p>
                     )}
                   </div>
                 </div>
 
+                {/* Dokumen Persyaratan (Google Drive Link) */}
+                {activeRegistration.file_url && (
+                  <div className="space-y-2">
+                    <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Dokumen Persyaratan
+                    </Label>
+                    <div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        asChild
+                        className="h-8 rounded-full border border-border/30 dark:border-border/30 hover:border-white/40 bg-input/60 hover:bg-input text-foreground text-xs px-3.5 shadow-xs transition-all inline-flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <a
+                          href={activeRegistration.file_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                          <span>Google Drive Dokumen</span>
+                        </a>
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
                 {/* Status Verifikasi */}
-                <div>
-                  <Label className="text-sm font-medium text-muted-foreground">
+                <div className="pt-3 border-t border-border/40 space-y-2">
+                  <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                     Status Verifikasi
                   </Label>
-                  <div className="mt-1">
-                    <Badge
-                      variant={
-                        activeRegistration.is_verified ? "default" : "secondary"
-                      }
-                      className={
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={cn(
+                        "text-xs sm:text-sm px-3 py-1 rounded-full font-semibold border inline-flex items-center gap-1.5",
                         activeRegistration.is_verified
-                          ? "bg-green-600 text-white"
-                          : "bg-orange-600 text-white"
-                      }
+                          ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-400"
+                          : "bg-amber-500/15 border-amber-500/30 text-amber-400",
+                      )}
                     >
+                      <CheckCircle className="w-3.5 h-3.5" />
                       {activeRegistration.is_verified
                         ? "Terverifikasi"
                         : "Menunggu Verifikasi"}
-                    </Badge>
+                    </span>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-xs text-muted-foreground">
                     {activeRegistration.is_verified
                       ? "Tim Anda sudah diverifikasi dan dapat mengupload karya"
                       : "Tim Anda sedang dalam proses verifikasi admin"}
                   </p>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            {/* Existing Progress & Points Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Ringkasan Kompetisi</CardTitle>
-              </CardHeader>
-              <CardContent className="grid gap-4 md:grid-cols-2">
-                <div>
-                  <p className="font-medium">Progress Kompetisi</p>
-                  <Progress value={progressValue} className="w-full mt-2" />
+            {/* Progress & Points Card */}
+            <div className="mia-card p-6 sm:p-7 shadow-xl space-y-6">
+              <div className="flex items-center gap-3 pb-4 border-b border-border/40">
+                <div className="p-2.5 bg-primary/10 border border-primary/20 rounded-2xl text-primary flex items-center justify-center flex-shrink-0">
+                  <Award className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="font-medium">Total Poin Anda</p>
-                  <p className="text-2xl font-bold">
-                    {isLoadingGamification
-                      ? "Memuat..."
-                      : `${gamificationData?.points || 0} Poin`}
+                  <h3 className="text-lg sm:text-xl font-bold text-foreground tracking-tight">
+                    Ringkasan & Progress Kompetisi
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    Pantau kemajuan pengerjaan dan poin yang terkumpul
                   </p>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="space-y-2.5 p-4 bg-input/30 border border-border/40 rounded-2xl">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    Progress Kompetisi
+                  </p>
+                  <Progress
+                    value={progressValue}
+                    className="w-full h-3 bg-input/60"
+                  />
+                  <p className="text-xs text-muted-foreground text-right pt-1 font-medium">
+                    {Math.round(progressValue)}% Selesai
+                  </p>
+                </div>
+
+                <div className="space-y-1 p-4 bg-input/30 border border-border/40 rounded-2xl">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    Total Skor Anda
+                  </p>
+                  <p className="text-3xl font-extrabold text-foreground tracking-tight">
+                    {isLoadingGamification
+                      ? "Memuat..."
+                      : gamificationData?.points || 0}{" "}
+                    <span className="text-lg font-bold text-primary">Poin</span>
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </TabsContent>
 
         {/* Tab Upload - Conditional content */}
         <TabsContent value="upload">
-          <Card>
-            <CardHeader>
-              <CardTitle>Upload Karya</CardTitle>
-              <CardDescription>
-                {!activeRegistration.is_verified
-                  ? "Verifikasi akun diperlukan sebelum dapat mengunggah karya."
-                  : hasSubmissions
-                  ? "Anda sudah mengupload karya. Gunakan fitur edit untuk mengubah submission."
-                  : "Unggah atau perbarui karya Anda sesuai fase kompetisi."}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+          <div className="mia-card p-6 sm:p-7 shadow-xl space-y-6">
+            <div className="flex items-center gap-3 pb-4 border-b border-border/40">
+              <div className="p-2.5 bg-primary/10 border border-primary/20 rounded-2xl text-primary flex items-center justify-center flex-shrink-0">
+                <Upload className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="text-lg sm:text-xl font-bold text-foreground tracking-tight">
+                  Upload Karya
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  {!activeRegistration.is_verified
+                    ? "Verifikasi akun diperlukan sebelum dapat mengunggah karya."
+                    : hasSubmissions
+                      ? "Karya telah berhasil diunggah. Gunakan tab Status untuk melihat atau mengedit submission"
+                      : "Unggah karya terbaikmu untuk mengikuti kompetisi ini"}
+                </p>
+              </div>
+            </div>
+
+            <div>
               {!activeRegistration.is_verified ? (
                 // Jika belum diverifikasi, tampilkan pesan verifikasi
-                <div className="text-center py-12">
-                  <div className="mx-auto w-24 h-24 bg-orange-100 dark:bg-orange-900/20 rounded-full flex items-center justify-center mb-6">
-                    <CheckCircle className="h-12 w-12 text-orange-600 dark:text-orange-400" />
+                <div className="text-center py-8 sm:py-12 space-y-6">
+                  <div className="mx-auto w-20 h-20 sm:w-24 sm:h-24 bg-amber-500/10 border border-amber-500/20 rounded-full flex items-center justify-center">
+                    <CheckCircle className="h-10 w-10 sm:h-12 sm:w-12 text-amber-400" />
                   </div>
 
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                    Akun Belum Diverifikasi
-                  </h3>
+                  <div className="space-y-2">
+                    <h3 className="text-lg sm:text-xl font-bold text-foreground">
+                      Akun Belum Diverifikasi
+                    </h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
+                      Untuk dapat mengunggah karya, akun Anda perlu diverifikasi
+                      terlebih dahulu oleh admin. Proses verifikasi biasanya
+                      memakan waktu 1-3 hari kerja.
+                    </p>
+                  </div>
 
-                  <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
-                    Untuk dapat mengunggah karya, akun Anda perlu diverifikasi
-                    terlebih dahulu oleh admin. Proses verifikasi biasanya
-                    memakan waktu 1-3 hari kerja.
-                  </p>
-
-                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6 max-w-md mx-auto">
+                  <div className="bg-sky-500/10 border border-sky-500/25 rounded-2xl p-4 max-w-md mx-auto text-left">
                     <div className="flex items-start gap-3">
-                      <div className="p-1 bg-blue-500 rounded-full mt-0.5">
-                        <CheckCircle className="h-4 w-4 text-white" />
+                      <div className="p-1 bg-sky-500/20 rounded-full mt-0.5 flex-shrink-0">
+                        <CheckCircle className="h-4 w-4 text-sky-400" />
                       </div>
-                      <div className="text-left">
-                        <h4 className="font-medium text-blue-800 dark:text-blue-300 mb-1">
+                      <div>
+                        <h4 className="font-bold text-sky-300 text-sm mb-1">
                           Status Verifikasi
                         </h4>
-                        <p className="text-sm text-blue-700 dark:text-blue-200">
+                        <p className="text-xs sm:text-sm text-sky-100/90 leading-relaxed">
                           Tim{" "}
-                          <span className="font-semibold">
+                          <span className="font-semibold text-foreground">
                             {activeRegistration.team_name}
                           </span>{" "}
-                          sedang dalam proses verifikasi.
+                          sedang dalam proses verifikasi admin.
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="space-y-3 text-sm text-gray-600 dark:text-gray-400 max-w-md mx-auto">
+                  <div className="space-y-2.5 text-xs sm:text-sm text-muted-foreground max-w-md mx-auto">
                     <div className="flex items-center gap-2 justify-center">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
                       <span>Data registrasi telah diterima</span>
                     </div>
                     <div className="flex items-center gap-2 justify-center">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+                      <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></div>
                       <span>Sedang dalam proses verifikasi admin</span>
                     </div>
                     <div className="flex items-center gap-2 justify-center">
-                      <div className="w-2 h-2 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+                      <div className="w-2 h-2 bg-muted-foreground/40 rounded-full"></div>
                       <span>Akses upload karya akan tersedia</span>
                     </div>
                   </div>
 
-                  <div className="mt-8 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg max-w-md mx-auto">
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                      <strong>Butuh bantuan?</strong>
+                  <div className="mt-6 p-4 bg-input/20 border border-border/30 rounded-2xl max-w-md mx-auto text-center space-y-1">
+                    <p className="text-xs sm:text-sm font-semibold text-foreground">
+                      Butuh bantuan?
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-500">
-                      Jika proses verifikasi memakan waktu lebih dari 3 hari
-                      kerja, silakan hubungi admin melalui kontak yang tersedia.
+                    <p className="text-xs text-muted-foreground">
+                      Jika verifikasi belum selesai dalam 3 hari kerja, silakan
+                      hubungi kontak panitia.
                     </p>
                   </div>
                 </div>
               ) : hasSubmissions ? (
                 // Jika sudah ada submission, tampilkan pesan bahwa sudah upload
-                <div className="text-center py-12">
-                  <div className="mx-auto w-24 h-24 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mb-6">
-                    <CheckCircle className="h-12 w-12 text-green-600 dark:text-green-400" />
+                <div className="text-center py-8 sm:py-12 space-y-6">
+                  <div className="mx-auto w-20 h-20 sm:w-24 sm:h-24 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center">
+                    <CheckCircle className="h-10 w-10 sm:h-12 sm:w-12 text-emerald-400" />
                   </div>
 
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                    Karya Sudah Diunggah
-                  </h3>
+                  <div className="space-y-2">
+                    <h3 className="text-lg sm:text-xl font-bold text-foreground">
+                      Karya Sudah Diunggah
+                    </h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
+                      Anda sudah berhasil mengunggah karya untuk kompetisi ini.
+                      Untuk mengubah submission, gunakan fitur edit.
+                    </p>
+                  </div>
 
-                  <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
-                    Anda sudah berhasil mengupload karya untuk kompetisi ini.
-                    Untuk mengubah atau memperbarui submission, gunakan fitur
-                    edit.
-                  </p>
-
-                  <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-6 max-w-md mx-auto">
+                  <div className="bg-emerald-500/10 border border-emerald-500/25 rounded-2xl p-4 max-w-md mx-auto text-left">
                     <div className="flex items-start gap-3">
-                      <div className="p-1 bg-green-500 rounded-full mt-0.5">
-                        <CheckCircle className="h-4 w-4 text-white" />
+                      <div className="p-1 bg-emerald-500/20 rounded-full mt-0.5 flex-shrink-0">
+                        <CheckCircle className="h-4 w-4 text-emerald-400" />
                       </div>
-                      <div className="text-left">
-                        <h4 className="font-medium text-green-800 dark:text-green-300 mb-1">
+                      <div>
+                        <h4 className="font-bold text-emerald-300 text-sm mb-1">
                           Status Submission
                         </h4>
-                        <p className="text-sm text-green-700 dark:text-green-200">
-                          Karya Anda telah berhasil diunggah dan sedang dalam
-                          proses review.
+                        <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed">
+                          Karya Anda telah berhasil tersimpan dan siap untuk
+                          direview juri.
                         </p>
                       </div>
                     </div>
@@ -483,10 +562,10 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
 
                   <Button
                     onClick={() => setActiveTab("status")}
-                    className="bg-green-600 hover:bg-green-700"
+                    className="mia-btn-primary h-11 px-6 text-sm font-semibold rounded-full shadow-lg shadow-red-900/30 cursor-pointer inline-flex items-center gap-2"
                   >
-                    <FileText className="mr-2 h-4 w-4" />
-                    Lihat Status Submission
+                    <FileText className="h-4 w-4" />
+                    <span>Lihat Status Submission</span>
                   </Button>
                 </div>
               ) : (
@@ -499,207 +578,212 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                   }}
                 />
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </TabsContent>
 
         {/* Tab Status - Selalu bisa diakses */}
         <TabsContent value="status">
-          <Card>
-            <CardHeader>
-              <CardTitle>Status Submission & Feedback</CardTitle>
-              {hasSubmissions && (
-                <CardDescription>
-                  Karya Anda telah berhasil diunggah. Anda dapat mengedit
-                  submission dengan mengklik pada kartu submission.
-                </CardDescription>
-              )}
-            </CardHeader>
-            <CardContent>
-              {isLoadingSubmissions ? (
-                <p>Memuat data submission...</p>
-              ) : (
-                <div className="space-y-4">
-                  {submissions?.length > 0 ? (
-                    <>
-                      {/* Success notification */}
-                      <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-6">
-                        <div className="flex items-start gap-3">
-                          <div className="p-1 bg-green-500 rounded-full mt-0.5">
-                            <CheckCircle className="h-4 w-4 text-white" />
-                          </div>
-                          <div>
-                            <h4 className="font-medium text-green-800 dark:text-green-300 mb-1">
-                              Karya Berhasil Diunggah!
-                            </h4>
-                            <p className="text-sm text-green-700 dark:text-green-200">
-                              Karya Anda telah berhasil diunggah dan sedang
-                              menunggu review dari juri. Anda masih dapat
-                              mengedit submission dengan mengklik pada kartu di
-                              bawah.
-                            </p>
-                          </div>
-                        </div>
+          <div className="mia-card p-6 sm:p-7 shadow-xl space-y-6">
+            <div className="flex items-center gap-3 pb-4 border-b border-border/40">
+              <div className="p-2.5 bg-primary/10 border border-primary/20 rounded-2xl text-primary flex items-center justify-center flex-shrink-0">
+                <Award className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="text-lg sm:text-xl font-bold text-foreground tracking-tight">
+                  Status Submission & Feedback
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  Detail karya yang telah diunggah dan masukan dari juri
+                </p>
+              </div>
+            </div>
+
+            {isLoadingSubmissions ? (
+              <p className="text-sm text-muted-foreground animate-pulse py-4">
+                Memuat data submission...
+              </p>
+            ) : (
+              <div className="space-y-5">
+                {submissions?.length > 0 ? (
+                  <>
+                    {/* Success notification */}
+                    <div className="bg-emerald-500/10 border border-emerald-500/25 rounded-2xl p-4 sm:p-5 flex items-start gap-3.5 shadow-sm">
+                      <div className="p-1.5 bg-emerald-500/20 border border-emerald-500/30 rounded-full mt-0.5 flex-shrink-0">
+                        <CheckCircle className="h-4 w-4 text-emerald-400" />
                       </div>
-
-                      {/* Submissions */}
-                      {submissions.map((sub) => (
-                        <Card
-                          key={sub.submission_id}
-                          className="p-4 cursor-pointer hover:shadow-md transition-shadow duration-200 border-2 hover:border-primary/20"
-                          onClick={() => handleEditSubmission(sub)}
-                        >
-                          <div className="space-y-3">
-                            {/* Header Info */}
-                            <div className="flex items-start justify-between">
-                              <div>
-                                <h3 className="font-semibold text-lg flex items-center gap-2">
-                                  {sub.project_name}
-                                  <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
-                                    Klik untuk edit
-                                  </span>
-                                </h3>
-                                <p className="text-sm text-muted-foreground">
-                                  Tim: {sub.team_name}
-                                </p>
-                                <p className="text-xs text-muted-foreground">
-                                  Diupload:{" "}
-                                  {new Date(sub.created_at).toLocaleString(
-                                    "id-ID"
-                                  )}
-                                </p>
-                              </div>
-                              <div className="text-right space-y-1">
-                                <Badge
-                                  variant={
-                                    sub.status === "PENDING"
-                                      ? "secondary"
-                                      : sub.status === "VERIFIED" ||
-                                        sub.status === "APPROVED"
-                                      ? "default"
-                                      : "destructive"
-                                  }
-                                >
-                                  {sub.status}
-                                </Badge>
-                                {sub.score && (
-                                  <p className="text-sm font-medium">
-                                    Skor: {sub.score}
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-
-                            {/* Description */}
-                            <div>
-                              <p className="text-sm">
-                                <span className="font-medium">Deskripsi: </span>
-                                {sub.description}
-                              </p>
-                              <p className="text-sm mt-1">
-                                <span className="font-medium">
-                                  Flow Aplikasi:{" "}
-                                </span>
-                                {sub.flow_application}
-                              </p>
-                            </div>
-
-                            {/* Links */}
-                            {sub.links && sub.links.length > 0 && (
-                              <div>
-                                <p className="text-sm font-medium mb-2">
-                                  Links:
-                                </p>
-                                <div className="flex flex-wrap gap-2">
-                                  {sub.links.map((link) => (
-                                    <Button
-                                      key={link.link_id}
-                                      variant="outline"
-                                      size="sm"
-                                      asChild
-                                      onClick={(e) => e.stopPropagation()}
-                                    >
-                                      <a
-                                        href={link.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex items-center gap-1"
-                                      >
-                                        <ExternalLink className="h-3 w-3" />
-                                        {link.link_type}
-                                      </a>
-                                    </Button>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Feedback */}
-                            {sub.feedback && (
-                              <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                                <p className="text-sm font-medium text-blue-800 dark:text-blue-300 mb-1">
-                                  Feedback Juri:
-                                </p>
-                                <p className="text-sm text-blue-700 dark:text-blue-200">
-                                  {sub.feedback}
-                                </p>
-                              </div>
-                            )}
-                          </div>
-                        </Card>
-                      ))}
-                    </>
-                  ) : (
-                    <Card className="p-8">
-                      <div className="text-center text-muted-foreground">
-                        <Award className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                        <p>Belum ada karya yang diunggah.</p>
-                        <p className="text-sm">
-                          {activeRegistration.is_verified
-                            ? "Upload karya pertama Anda di tab Upload!"
-                            : "Tunggu verifikasi akun untuk dapat mengupload karya."}
+                      <div className="space-y-1">
+                        <h4 className="font-bold text-emerald-300 text-sm sm:text-base">
+                          Karya Berhasil Diunggah!
+                        </h4>
+                        <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed">
+                          Karya Anda telah berhasil diunggah dan sedang menunggu
+                          review dari juri.{" "}
+                          <br className="hidden md:inline-block" />
+                          Anda masih dapat mengedit submission dengan mengklik
+                          pada kartu karya di bawah.
                         </p>
                       </div>
-                    </Card>
-                  )}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                    </div>
+
+                    {/* Submissions */}
+                    {submissions.map((sub) => (
+                      <div
+                        key={sub.submission_id}
+                        onClick={() => handleEditSubmission(sub)}
+                        className="mia-card !bg-input/30 !border-border/50 hover:!border-primary/25 !rounded-2xl p-5 sm:p-6 transition-all space-y-4 cursor-pointer shadow-md"
+                      >
+                        <div className="space-y-4">
+                          {/* Header Info */}
+                          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                            <div className="space-y-1">
+                              <div className="flex space-x-2">
+                                <h4 className="font-bold text-base sm:text-lg text-foreground transition-colors flex items-center gap-2.5 flex-wrap pt-1 sm:pt-0">
+                                  {sub.project_name}
+                                  <span className="text-[11px] font-medium text-muted-foreground bg-input/60 border border-border/40 px-2.5 py-0.5 rounded-full hidden sm:inline-block">
+                                    Klik untuk edit
+                                  </span>
+                                </h4>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="rounded-full border border-white/20 hover:border-white/40 bg-input/40 hover:bg-input text-foreground text-xs font-semibold h-9 px-4 transition-all shadow-xs inline-flex sm:hidden items-center gap-1.5 cursor-pointer dark:border-border/30"
+                                >
+                                  <Edit className="h-3.5 w-3.5" />
+                                  <span>Edit</span>
+                                </Button>
+                              </div>
+                              <p className="text-xs sm:text-sm text-muted-foreground font-medium">
+                                Tim: {sub.team_name}
+                              </p>
+                              <p className="text-xs text-muted-foreground/80">
+                                Diupload:{" "}
+                                {new Date(sub.created_at).toLocaleString(
+                                  "id-ID",
+                                )}
+                              </p>
+                            </div>
+                            <div className="flex sm:flex-col items-center sm:items-end justify-between gap-2">
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className={cn(
+                                    "text-xs px-3 py-1 rounded-full font-semibold border inline-flex items-center gap-1.5",
+                                    sub.status === "PENDING"
+                                      ? "bg-input/60 border-border/50 text-muted-foreground"
+                                      : sub.status === "VERIFIED" ||
+                                          sub.status === "APPROVED"
+                                        ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-400"
+                                        : "bg-rose-500/15 border-rose-500/30 text-rose-400",
+                                  )}
+                                >
+                                  {sub.status}
+                                </span>
+                              </div>
+                              {sub.score && (
+                                <p className="text-xs sm:text-sm font-medium text-muted-foreground pr-2">
+                                  Skor:{" "}
+                                  <span className="font-bold text-foreground">
+                                    {sub.score}
+                                  </span>
+                                </p>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Description & Flow Application */}
+                          <div className="p-4 bg-input/20 border border-border/30 rounded-xl space-y-3 text-xs sm:text-sm min-w-0">
+                            <div className="flex flex-col sm:grid sm:grid-cols-[120px_1fr] gap-1 sm:gap-4 items-start min-w-0">
+                              <span className="font-semibold text-muted-foreground">
+                                Deskripsi:
+                              </span>
+                              <span className="text-foreground/90 leading-relaxed break-words min-w-0">
+                                {sub.description || "-"}
+                              </span>
+                            </div>
+                            {sub.flow_application && (
+                              <div className="flex flex-col sm:grid sm:grid-cols-[120px_1fr] gap-1 sm:gap-4 items-start pt-2.5 border-t border-border/20 min-w-0">
+                                <span className="font-semibold text-muted-foreground">
+                                  Flow Aplikasi:
+                                </span>
+                                <span className="text-foreground/90 leading-relaxed whitespace-pre-wrap break-words min-w-0">
+                                  {sub.flow_application}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Links */}
+                          {sub.links && sub.links.length > 0 && (
+                            <div className="space-y-2 pt-1">
+                              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                                Berkas & Links:
+                              </p>
+                              <div className="flex flex-wrap gap-2">
+                                {sub.links.map((link) => (
+                                  <Button
+                                    key={link.link_id}
+                                    variant="outline"
+                                    size="sm"
+                                    asChild
+                                    onClick={(e) => e.stopPropagation()}
+                                    title={link.description}
+                                    className="h-8 rounded-full border border-border/30 dark:border-border/30 hover:border-white/40 bg-input/60 hover:bg-input text-foreground text-xs px-3.5 shadow-xs transition-all inline-flex items-center gap-1.5"
+                                  >
+                                    <a
+                                      href={link.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                    >
+                                      <ExternalLink className="h-3 w-3" />
+                                      <span>{link.link_type}</span>
+                                    </a>
+                                  </Button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Feedback */}
+                          {sub.feedback && (
+                            <div className="p-4 bg-primary/10 border border-primary/25 rounded-2xl space-y-1">
+                              <p className="text-xs font-bold text-primary flex items-center gap-1.5 uppercase tracking-wider">
+                                Feedback Juri:
+                              </p>
+                              <p className="text-xs sm:text-sm text-foreground/90 leading-relaxed">
+                                {sub.feedback}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </>
+                ) : (
+                  <div className="mia-card p-10 sm:p-12 text-center border !border-dashed border-border/60 rounded-2xl !bg-input/20 space-y-3 flex flex-col items-center justify-center">
+                    <Award className="h-12 w-12 text-primary/60 animate-pulse mx-auto" />
+                    <p className="text-base font-semibold text-foreground">
+                      Belum ada karya yang diunggah.
+                    </p>
+                    <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto">
+                      {activeRegistration.is_verified
+                        ? "Upload karya pertama Anda di tab Upload!"
+                        : "Tunggu verifikasi akun untuk dapat mengupload karya."}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </TabsContent>
       </Tabs>
 
       {/* Modal Edit Submission */}
-      {editingSubmission && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold">Edit Submission</h2>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleCloseEditModal}
-                  className="h-8 w-8 p-0"
-                >
-                  ✕
-                </Button>
-              </div>
-
-              <SubmissionForm
-                registrationId={activeRegistration.registration_id}
-                editingSubmission={editingSubmission}
-                onSuccess={() => {
-                  handleCloseEditModal();
-                  queryClient.invalidateQueries(["mySubmissions"]);
-                  toast.success("Submission berhasil diperbarui!");
-                }}
-                onCancel={handleCloseEditModal}
-              />
-            </div>
-          </div>
-        </div>
-      )}
+      <EditSubmissionModal
+        open={!!editingSubmission}
+        onClose={handleCloseEditModal}
+        registrationId={activeRegistration.registration_id}
+        editingSubmission={editingSubmission}
+      />
       {/* Modal Edit Team */}
       <EditTeamModal
         open={editTeamModalOpen}
