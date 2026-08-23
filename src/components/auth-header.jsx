@@ -3,7 +3,6 @@
 import React from "react";
 import Link from "next/link";
 import { ChevronLeftIcon } from "lucide-react";
-import { ThemeToggle } from "@/components/theme-toggle";
 
 export const AuthHeader = () => {
   return (
@@ -28,11 +27,9 @@ export const AuthHeader = () => {
                 <span>Kembali ke Beranda</span>
               </span>
             </Link>
-            <ThemeToggle />
           </div>
         </div>
       </div>
     </header>
   );
 };
-

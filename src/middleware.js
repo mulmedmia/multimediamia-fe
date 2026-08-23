@@ -46,7 +46,8 @@ export async function middleware(req) {
   if (
     nextUrl.pathname.startsWith("/dashboard") ||
     nextUrl.pathname.startsWith("/admin") ||
-    nextUrl.pathname.startsWith("/juri")
+    nextUrl.pathname.startsWith("/juri") ||
+    nextUrl.pathname.startsWith("/history-pesanan")
   ) {
     if (!token || !valid) {
       return NextResponse.redirect(new URL("/login", req.url));
@@ -100,6 +101,7 @@ export const config = {
     "/dashboard/:path*",
     "/admin/:path*",
     "/juri/:path*",
+    "/history-pesanan/:path*",
     "/register/otp",
     "/login",
     "/competition-info/:path*/daftar-lomba",

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { useTheme } from "next-themes";
 import {
   Sheet,
   SheetContent,
@@ -28,7 +27,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuthContext } from "@/providers/AuthProvider";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Toaster } from "sonner";
 
 // Data for sidebar navigation items
@@ -136,7 +134,6 @@ export default function AdminLayout({ children }) {
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const { user, loading, logout } = useAuthContext();
-  const { resolvedTheme } = useTheme();
 
   useEffect(() => {
     setMounted(true);
@@ -176,10 +173,7 @@ export default function AdminLayout({ children }) {
 
   return (
     <>
-      <Toaster
-        theme={resolvedTheme === "dark" ? "dark" : "light"}
-        position="top-right"
-      />
+      <Toaster theme="dark" position="top-right" />
       <div className="flex h-screen w-full bg-background mia-connected-bg text-foreground overflow-hidden">
         {/* Desktop-only sidebar */}
         <div className="hidden lg:block lg:w-64 xl:w-72 flex-shrink-0">
@@ -251,9 +245,6 @@ export default function AdminLayout({ children }) {
                   {user?.name || "Admin"}
                 </span>
               </div>
-
-              {/* Theme toggle */}
-              <ThemeToggle />
             </div>
           </header>
 

@@ -11,21 +11,46 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User, LayoutDashboard, Clock, Trophy } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  LogOut,
+  User,
+  LayoutDashboard,
+  Clock,
+  Trophy,
+  Sparkles,
+  Menu,
+} from "lucide-react";
 
 export function DashboardHeader() {
-  const { user, logout } = useAuthContext();
+  const pathname = usePathname();
+  const { user, loading, logout } = useAuthContext();
+
   const dashboardLink =
-    user?.role === "ADMIN" ? "/admin/dashboard" : "/dashboard";
+    user?.role === "ADMIN"
+      ? "/admin/dashboard"
+      : user?.role === "JURI"
+      ? "/juri/manage-submission"
+      : "/dashboard";
   const profileLink = "/profile";
   const historyPesananLink = "/history-pesanan";
   const leaderboardLink = "/leaderboard";
+  const showItLink = "/show-it";
+
+  const getNavLinkClass = (path) => {
+    const isActive = pathname === path;
+    return `hidden md:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all ${
+      isActive
+        ? "bg-[#E01C20] text-white shadow-md shadow-red-900/30"
+        : "bg-input/40 border border-border/50 text-foreground hover:bg-input"
+    }`;
+  };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-[#0F121A]/60 backdrop-blur-md text-foreground w-full">
+    <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-[#0F121A]/80 backdrop-blur-md text-foreground w-full">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 sm:h-20 items-center justify-between">
-          {/* Logo & Brand Title matching Admin Layout */}
+          {/* Logo & Brand Title */}
           <Link
             href="/"
             className="flex items-center space-x-2.5 flex-shrink-0"
@@ -37,49 +62,49 @@ export function DashboardHeader() {
             />
             <span className="text-base sm:text-lg font-bold text-foreground tracking-tight">
               Multimedia{" "}
-              <span className="bg-gradient-to-b from-mia-orange to-mia-yellow bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#E01C20] via-[#FF4500] to-[#FED700] bg-clip-text text-transparent">
                 In Action
               </span>
             </span>
           </Link>
 
-          {/* Right Side Controls matching Admin Layout */}
+          {/* Right Side Controls */}
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             {/* Desktop Navigation Links */}
-            <Link
-              href={historyPesananLink}
-              className="hidden md:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-input/40 border border-border/50 hover:bg-input text-xs sm:text-sm text-foreground transition-all"
-            >
-              <Clock className="h-4 w-4 text-muted-foreground" />
-              <span>History Pesanan</span>
-            </Link>
-
-            <Link
-              href={leaderboardLink}
-              className="hidden md:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-input/40 border border-border/50 hover:bg-input text-xs sm:text-sm text-foreground transition-all"
-            >
-              <Trophy className="h-4 w-4 text-amber-400" />
-              <span>Leaderboard</span>
-            </Link>
-
-            {/* User Profile Dropdown matching Admin Layout */}
-            {user && (
-              <Link href={historyPesananLink} className={getNavLinkClass(historyPesananLink)}>
-                <Clock className="h-4 w-4 text-[#E01C20]" />
-                <span>History Pesanan</span>
+            <nav className="hidden md:flex items-center space-x-2">
+              {user && (
+                <Link
+                  href={historyPesananLink}
+                  className={getNavLinkClass(historyPesananLink)}
+                >
+                  <Clock className="h-4 w-4 text-[#E01C20]" />
+                  <span>History Pesanan</span>
+                </Link>
+              )}
+              <Link
+                href={showItLink}
+                className={getNavLinkClass(showItLink)}
+              >
+                <Sparkles className="h-4 w-4 text-[#E01C20]" />
+                <span>Show It</span>
               </Link>
-            )}
-          </nav>
+              <Link
+                href={leaderboardLink}
+                className={getNavLinkClass(leaderboardLink)}
+              >
+                <Trophy className="h-4 w-4 text-amber-400" />
+                <span>Leaderboard</span>
+              </Link>
+            </nav>
 
-          {/* Right Action Section */}
-          <div className="flex items-center space-x-3">
+            {/* User Profile / Auth State */}
             {loading ? (
-              <div className="h-9 w-20 animate-pulse rounded-full bg-[#1E2939]"></div>
+              <div className="h-9 w-20 animate-pulse rounded-full bg-[#141824]"></div>
             ) : user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-input/40 border border-border/50 hover:bg-input text-xs sm:text-sm text-foreground transition-all cursor-pointer">
-                    <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[#E01C20] text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
                       {user.name ? user.name[0].toUpperCase() : "U"}
                     </div>
                     <span className="hidden sm:inline font-medium max-w-32 truncate">
@@ -88,7 +113,7 @@ export function DashboardHeader() {
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
-                  className="w-56 bg-[#0F121A] border border-border/50 text-foreground rounded-2xl p-2 shadow-2xl z-50"
+                  className="w-56 bg-[#0A0D14] border border-border/50 text-foreground rounded-2xl p-2 shadow-2xl z-50"
                   align="end"
                   forceMount
                 >
@@ -112,7 +137,6 @@ export function DashboardHeader() {
                       <span>Dashboard</span>
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator className="bg-border/40" />
                   <DropdownMenuItem asChild>
                     <Link
                       href={profileLink}
@@ -123,7 +147,7 @@ export function DashboardHeader() {
                     </Link>
                   </DropdownMenuItem>
 
-                  {/* Mobile Navigation inside Dropdown */}
+                  {/* Mobile Navigation in Dropdown */}
                   <div className="md:hidden">
                     <DropdownMenuSeparator className="bg-border/40" />
                     <DropdownMenuItem asChild>
@@ -131,11 +155,19 @@ export function DashboardHeader() {
                         href={historyPesananLink}
                         className="flex items-center px-3 py-2 rounded-xl text-sm text-foreground hover:bg-white/5 cursor-pointer"
                       >
-                        <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
+                        <Clock className="mr-2 h-4 w-4 text-[#E01C20]" />
                         <span>History Pesanan</span>
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator className="bg-border/40" />
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href={showItLink}
+                        className="flex items-center px-3 py-2 rounded-xl text-sm text-foreground hover:bg-white/5 cursor-pointer"
+                      >
+                        <Sparkles className="mr-2 h-4 w-4 text-[#E01C20]" />
+                        <span>Show It</span>
+                      </Link>
+                    </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link
                         href={leaderboardLink}
@@ -143,15 +175,6 @@ export function DashboardHeader() {
                       >
                         <Trophy className="mr-2 h-4 w-4 text-amber-400" />
                         <span>Leaderboard</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link
-                        href={historyPesananLink}
-                        className="flex items-center text-sm text-[#FFF9F5] hover:bg-[#0A0D14] cursor-pointer"
-                      >
-                        <Clock className="mr-2 h-4 w-4 text-[#E01C20]" />
-                        <span>History Pesanan</span>
                       </Link>
                     </DropdownMenuItem>
                   </div>
@@ -177,7 +200,7 @@ export function DashboardHeader() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
-                      className="w-48 bg-[#1E2939] border border-white/10 text-[#FFF9F5]"
+                      className="w-48 bg-[#141824] border border-white/10 text-[#FFF9F5]"
                       align="end"
                     >
                       <DropdownMenuItem asChild>
@@ -221,12 +244,12 @@ export function DashboardHeader() {
 
                 {/* Desktop Buttons */}
                 <div className="hidden sm:flex items-center space-x-2">
-                  <Link href="/login" passHref>
+                  <Link href="/login">
                     <span className="px-4 py-2 text-sm font-medium text-[#FFF9F5] hover:text-[#E01C20] transition-colors cursor-pointer">
                       Login
                     </span>
                   </Link>
-                  <Link href="/register" passHref>
+                  <Link href="/register">
                     <span className="px-5 py-2 text-sm font-semibold rounded-full bg-[#E01C20] text-[#FFF9F5] hover:bg-[#c4181c] shadow-lg shadow-red-900/30 transition-all cursor-pointer inline-block">
                       Daftar
                     </span>

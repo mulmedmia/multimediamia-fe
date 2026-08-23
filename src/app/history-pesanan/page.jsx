@@ -1,6 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuthContext } from "@/providers/AuthProvider";
 import { useMyRedemptions } from "@/hooks/user-use-gamifikasi";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import Footer from "@/components/layout/Footer";
@@ -17,7 +20,15 @@ import {
 } from "lucide-react";
 
 export default function HistoryPesananPage() {
+  const { user, loading: authLoading } = useAuthContext();
+  const router = useRouter();
   const { data, isLoading, isError, refetch } = useMyRedemptions();
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push("/login");
+    }
+  }, [user, authLoading, router]);
 
   return (
     <div className="min-h-screen bg-[#0A0D14] mia-connected-bg text-[#FFF9F5] flex flex-col justify-between selection:bg-[#E01C20] selection:text-white">
