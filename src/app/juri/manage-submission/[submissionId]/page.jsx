@@ -428,7 +428,7 @@ export default function JuriSubmissionDetailPage(props) {
                   value={score}
                   onChange={(e) => setScore(e.target.value)}
                   className="w-max px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Masukkan skor..."
+                  placeholder="0"
                 />
               </div>
 
