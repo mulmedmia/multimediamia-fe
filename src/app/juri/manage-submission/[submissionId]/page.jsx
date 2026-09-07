@@ -4,14 +4,12 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   ArrowLeft,
   User,
   Trophy,
   FileText,
   Link2,
-  Clock,
   CheckCircle2,
   XCircle,
   Star,
@@ -26,9 +24,9 @@ import {
   Target,
   Play,
   Save,
-  Send,
   Loader2,
 } from "lucide-react";
+import { usePatchSubmissionScore } from "@/hooks/admin-use-submission";
 
 export default function JuriSubmissionDetailPage(props) {
   const router = useRouter();
@@ -44,6 +42,8 @@ export default function JuriSubmissionDetailPage(props) {
   const [score, setScore] = useState("");
   const [feedback, setFeedback] = useState("");
   const [saving, setSaving] = useState(false);
+
+  const patchScore = usePatchSubmissionScore();
 
   useEffect(() => {
     if (!submissionId) {
@@ -64,11 +64,11 @@ export default function JuriSubmissionDetailPage(props) {
             throw new Error("Submission tidak ditemukan");
           } else if (response.status === 403) {
             throw new Error(
-              "Tidak memiliki akses untuk melihat submission ini"
+              "Tidak memiliki akses untuk melihat submission ini",
             );
           } else {
             throw new Error(
-              `Gagal mengambil data submission (${response.status})`
+              `Gagal mengambil data submission (${response.status})`,
             );
           }
         }
@@ -149,7 +149,7 @@ export default function JuriSubmissionDetailPage(props) {
     if (!submission?.links) return null;
 
     const youtubeLink = submission.links.find(
-      (link) => link.link_type?.toLowerCase() === "youtube"
+      (link) => link.link_type?.toLowerCase() === "youtube",
     );
 
     if (youtubeLink?.url) {
@@ -163,7 +163,7 @@ export default function JuriSubmissionDetailPage(props) {
     if (!submission?.links) return null;
 
     const youtubeLink = submission.links.find(
-      (link) => link.link_type?.toLowerCase() === "youtube"
+      (link) => link.link_type?.toLowerCase() === "youtube",
     );
 
     return youtubeLink?.url || null;
@@ -173,7 +173,7 @@ export default function JuriSubmissionDetailPage(props) {
     if (!submission?.links) return [];
 
     return submission.links.filter(
-      (link) => link.link_type?.toLowerCase() !== "youtube"
+      (link) => link.link_type?.toLowerCase() !== "youtube",
     );
   };
 
@@ -184,40 +184,29 @@ export default function JuriSubmissionDetailPage(props) {
     }
 
     setSaving(true);
-    try {
-      const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-      const response = await fetch(
-        `${BASE_URL}/submissions/${submissionId}/score`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            score: parseInt(score),
-            feedback: feedback,
-          }),
-        }
-      );
-
-      if (response.ok) {
-        const result = await response.json();
-        setSubmission((prev) => ({
-          ...prev,
-          score: parseInt(score),
-          feedback: feedback,
-        }));
-        alert("Penilaian berhasil disimpan!");
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Gagal menyimpan penilaian");
-      }
-    } catch (err) {
-      console.error("Error saving score:", err);
-      alert("Terjadi kesalahan: " + err.message);
-    } finally {
-      setSaving(false);
-    }
+    patchScore.mutate(
+      { id: submissionId, score: parseInt(score), feedback },
+      {
+        onSuccess: (response) => {
+          if (response.status) {
+            setSubmission((prev) => ({
+              ...prev,
+              score: parseInt(score),
+              feedback: feedback,
+            }));
+          } else {
+            throw new Error(response.message || "Gagal menyimpan penilaian");
+          }
+        },
+        onError: (err) => {
+          console.error("Error saving score:", err);
+          alert("Terjadi kesalahan: " + err.message);
+        },
+        onSettled: () => {
+          setSaving(false);
+        },
+      },
+    );
   };
 
   if (loading) {
@@ -343,18 +332,18 @@ export default function JuriSubmissionDetailPage(props) {
               <div className="flex flex-wrap items-center gap-3 mb-4">
                 <div
                   className={`px-3 py-1.5 rounded-full text-sm font-medium border ${getStatusColor(
-                    submission.status
+                    submission.status,
                   )}`}
                 >
                   {submission.status === "APPROVED"
                     ? "✓ Disetujui"
                     : submission.status === "PENDING"
-                    ? "⏳ Pending"
-                    : submission.status === "REJECTED"
-                    ? "✗ Ditolak"
-                    : submission.status === "REVISION"
-                    ? "📝 Revisi"
-                    : submission.status}
+                      ? "⏳ Pending"
+                      : submission.status === "REJECTED"
+                        ? "✗ Ditolak"
+                        : submission.status === "REVISION"
+                          ? "📝 Revisi"
+                          : submission.status}
                 </div>
 
                 {submission.score && (
@@ -378,7 +367,7 @@ export default function JuriSubmissionDetailPage(props) {
                   <Calendar className="h-4 w-4 text-gray-600 dark:text-gray-300" />
                   <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
                     {new Date(submission.created_at).toLocaleDateString(
-                      "id-ID"
+                      "id-ID",
                     )}
                   </span>
                 </div>
