@@ -13,7 +13,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuthContext } from "@/providers/AuthProvider";
-import { Toaster } from "sonner";
 
 const sidebarItems = [
   {
@@ -47,7 +46,7 @@ function SidebarContent({ onLogout, onLinkClick }) {
                 "flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors cursor-pointer",
                 isActive
                   ? "bg-[#E01C20] text-white font-semibold"
-                  : "text-[#AAB1BD] hover:bg-white/5 hover:text-[#FFF9F5]"
+                  : "text-[#AAB1BD] hover:bg-white/5 hover:text-[#FFF9F5]",
               )}
             >
               <Icon className="h-5 w-5 flex-shrink-0" />
@@ -112,7 +111,6 @@ export default function JuriLayout({ children }) {
 
   return (
     <>
-      <Toaster theme="dark" position="top-right" />
       <div className="flex h-screen w-full bg-[#0A0D14] mia-connected-bg text-[#FFF9F5] overflow-hidden">
         <div className="hidden lg:block lg:w-64 xl:w-72 flex-shrink-0 border-r border-white/10">
           <SidebarContent onLogout={logout} />

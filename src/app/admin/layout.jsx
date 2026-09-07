@@ -27,7 +27,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuthContext } from "@/providers/AuthProvider";
-import { Toaster } from "sonner";
 
 // Data for sidebar navigation items
 const sidebarItems = [
@@ -173,7 +172,6 @@ export default function AdminLayout({ children }) {
 
   return (
     <>
-      <Toaster theme="dark" position="top-right" />
       <div className="flex h-screen w-full bg-background mia-connected-bg text-foreground overflow-hidden">
         {/* Desktop-only sidebar */}
         <div className="hidden lg:block lg:w-64 xl:w-72 flex-shrink-0">
