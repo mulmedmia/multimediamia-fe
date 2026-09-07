@@ -2,18 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
 import {
   Upload,
   Award,
@@ -696,7 +688,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                               <span className="font-semibold text-muted-foreground">
                                 Deskripsi:
                               </span>
-                              <span className="text-foreground/90 leading-relaxed break-words min-w-0">
+                              <span className="text-foreground/90 leading-relaxed break-words min-w-0 max-w-full">
                                 {sub.description || "-"}
                               </span>
                             </div>
