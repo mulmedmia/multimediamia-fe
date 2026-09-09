@@ -116,17 +116,26 @@ const Footer = () => {
             </h4>
             <ul className="space-y-2.5 text-sm text-[#AAB1BD]">
               <li>
-                <Link href="/#timeline" className="hover:text-[#E01C20] transition-colors">
+                <Link
+                  href="/#timeline"
+                  className="hover:text-[#E01C20] transition-colors"
+                >
                   Timeline Proyek
                 </Link>
               </li>
               <li>
-                <Link href="/#faq" className="hover:text-[#E01C20] transition-colors">
+                <Link
+                  href="/#faq"
+                  className="hover:text-[#E01C20] transition-colors"
+                >
                   FAQ
                 </Link>
               </li>
               <li>
-                <Link href="/leaderboard" className="hover:text-[#E01C20] transition-colors">
+                <Link
+                  href="/leaderboard"
+                  className="hover:text-[#E01C20] transition-colors"
+                >
                   Leaderboard
                 </Link>
               </li>
@@ -151,11 +160,23 @@ const Footer = () => {
             <ul className="space-y-3 text-sm text-[#AAB1BD]">
               <li className="flex items-center gap-2">
                 <EnvelopeClosedIcon className="h-4 w-4 text-[#E01C20]" />
-                <span>mia.upnvj@gmail.com</span>
+                <a
+                  href="mailto:mia.upnvj@gmail.com"
+                  className="hover:text-[#E01C20] transition-colors"
+                >
+                  mia.upnvj@gmail.com
+                </a>
               </li>
               <li className="flex items-center gap-2">
                 <MobileIcon className="h-4 w-4 text-[#E01C20]" />
-                <span>+62 896-0110-1197</span>
+                <a
+                  href="https://wa.me/6289601101197"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-[#E01C20] transition-colors"
+                >
+                  +62 896-0110-1197
+                </a>
               </li>
               <li className="pt-1">
                 <a
@@ -184,4 +205,3 @@ const Footer = () => {
 };
 
 export default Footer;
-
