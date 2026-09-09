@@ -1,4 +1,6 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
   Dialog,
@@ -12,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
-const scoreSchema = z.object({
+export const scoreFeedbackSchema = z.object({
   score: z.preprocess(
     (val) =>
       val === "" || val === null || val === undefined ? undefined : Number(val),
@@ -24,7 +26,10 @@ const scoreSchema = z.object({
       .min(0, "Skor minimal 0")
       .max(100, "Skor maksimal 100"),
   ),
-  feedback: z.string().optional(),
+  feedback: z
+    .string()
+    .max(400, "Feedback maksimal 400 karakter")
+    .optional(),
 });
 
 export default function SubmissionScoreModal({
@@ -38,25 +43,33 @@ export default function SubmissionScoreModal({
   onSubmit,
   isLoading,
 }) {
-  const [error, setError] = useState("");
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(scoreFeedbackSchema),
+    defaultValues: {
+      score: score ?? "",
+      feedback: feedback ?? "",
+    },
+  });
 
   useEffect(() => {
-    setError("");
-  }, [open, score]);
+    if (open) {
+      reset({
+        score: score ?? "",
+        feedback: feedback ?? "",
+      });
+    }
+  }, [open, score, feedback, reset]);
 
   if (!data) return null;
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const result = scoreSchema.safeParse({ score, feedback });
-    if (!result.success) {
-      const issue = result.error.issues.find((i) => i.path.includes("score"));
-      if (issue) {
-        setError(issue.message);
-        return;
-      }
-    }
-    setError("");
+  const onFormSubmit = (formData) => {
+    setScore(formData.score);
+    setFeedback(formData.feedback);
     onSubmit();
   };
 
@@ -67,7 +80,7 @@ export default function SubmissionScoreModal({
           <DialogTitle>Update Skor & Feedback</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="score">Skor</Label>
             <Input
@@ -76,29 +89,38 @@ export default function SubmissionScoreModal({
               min="0"
               max="100"
               placeholder="Masukkan skor (0-100)"
-              value={score}
-              onChange={(e) => {
-                setError("");
-                setScore(e.target.value);
-              }}
+              {...register("score")}
               className={
-                error ? "border-destructive focus-visible:ring-destructive" : ""
+                errors.score
+                  ? "border-destructive focus-visible:ring-destructive"
+                  : ""
               }
             />
-            {error && (
-              <p className="text-xs text-destructive font-medium">{error}</p>
+            {errors.score && (
+              <p className="text-xs text-destructive font-medium mt-1">
+                {errors.score.message}
+              </p>
             )}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="feedback">Feedback</Label>
+            <Label htmlFor="feedback">Feedback (Opsional)</Label>
             <Textarea
               id="feedback"
-              placeholder="Masukkan feedback"
-              value={feedback}
-              onChange={(e) => setFeedback(e.target.value)}
+              placeholder="Masukkan feedback (maksimal 400 karakter)"
               rows={4}
+              {...register("feedback")}
+              className={
+                errors.feedback
+                  ? "border-destructive focus-visible:ring-destructive"
+                  : ""
+              }
             />
+            {errors.feedback && (
+              <p className="text-xs text-destructive font-medium mt-1">
+                {errors.feedback.message}
+              </p>
+            )}
           </div>
 
           <DialogFooter className="flex-col sm:flex-row gap-2 pt-2">

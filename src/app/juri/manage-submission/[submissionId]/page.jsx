@@ -2,6 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,6 +31,21 @@ import {
 } from "lucide-react";
 import { usePatchSubmissionScore } from "@/hooks/admin-use-submission";
 
+const scoreFeedbackSchema = z.object({
+  score: z.preprocess(
+    (val) =>
+      val === "" || val === null || val === undefined ? undefined : Number(val),
+    z
+      .number({
+        required_error: "Skor wajib diisi",
+        invalid_type_error: "Skor harus berupa angka",
+      })
+      .min(0, "Skor minimal 0")
+      .max(100, "Skor maksimal 100"),
+  ),
+  feedback: z.string().max(400, "Feedback maksimal 400 karakter").optional(),
+});
+
 export default function JuriSubmissionDetailPage(props) {
   const router = useRouter();
   const params =
@@ -39,11 +57,22 @@ export default function JuriSubmissionDetailPage(props) {
   const [submission, setSubmission] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [score, setScore] = useState("");
-  const [feedback, setFeedback] = useState("");
   const [saving, setSaving] = useState(false);
 
   const patchScore = usePatchSubmissionScore();
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(scoreFeedbackSchema),
+    defaultValues: {
+      score: "",
+      feedback: "",
+    },
+  });
 
   useEffect(() => {
     if (!submissionId) {
@@ -77,8 +106,10 @@ export default function JuriSubmissionDetailPage(props) {
 
         if (result.status && result.data) {
           setSubmission(result.data);
-          setScore(result.data.score || "");
-          setFeedback(result.data.feedback || "");
+          reset({
+            score: result.data.score ?? "",
+            feedback: result.data.feedback ?? "",
+          });
         } else {
           throw new Error(result.message || "Data submission tidak valid");
         }
@@ -91,7 +122,7 @@ export default function JuriSubmissionDetailPage(props) {
     };
 
     fetchSubmissionById();
-  }, [submissionId]);
+  }, [submissionId, reset]);
 
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
@@ -159,16 +190,6 @@ export default function JuriSubmissionDetailPage(props) {
     return null;
   };
 
-  const getOriginalYouTubeUrl = () => {
-    if (!submission?.links) return null;
-
-    const youtubeLink = submission.links.find(
-      (link) => link.link_type?.toLowerCase() === "youtube",
-    );
-
-    return youtubeLink?.url || null;
-  };
-
   const getNonYouTubeLinks = () => {
     if (!submission?.links) return [];
 
@@ -177,22 +198,20 @@ export default function JuriSubmissionDetailPage(props) {
     );
   };
 
-  const handleSaveScore = async () => {
-    if (!score || score < 0 || score > 100) {
-      alert("Skor harus antara 0-100");
-      return;
-    }
-
+  const onFormSubmit = async (formData) => {
     setSaving(true);
+    const parsedScore = Number(formData.score);
+    const trimmedFeedback = formData.feedback ? formData.feedback.trim() : "";
+
     patchScore.mutate(
-      { id: submissionId, score: parseInt(score), feedback },
+      { id: submissionId, score: parsedScore, feedback: trimmedFeedback },
       {
         onSuccess: (response) => {
           if (response.status) {
             setSubmission((prev) => ({
               ...prev,
-              score: parseInt(score),
-              feedback: feedback,
+              score: parsedScore,
+              feedback: trimmedFeedback,
             }));
           } else {
             throw new Error(response.message || "Gagal menyimpan penilaian");
@@ -414,59 +433,84 @@ export default function JuriSubmissionDetailPage(props) {
                 Penilaian Juri
               </h3>
             </div>
+            <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
+              <div className="grid grid-cols-1 gap-6">
+                {/* Score Input */}
+                <div>
+                  <label
+                    htmlFor="juri-score-input"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                  >
+                    Skor (0-100)
+                  </label>
+                  <input
+                    id="juri-score-input"
+                    type="number"
+                    min="0"
+                    max="100"
+                    placeholder="0"
+                    {...register("score")}
+                    className={`w-max px-4 py-3 border rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:border-transparent ${
+                      errors.score
+                        ? "border-red-500 focus:ring-red-500"
+                        : "border-gray-300 dark:border-gray-700 focus:ring-blue-500"
+                    }`}
+                  />
+                  {errors.score && (
+                    <p className="text-xs text-red-500 font-medium mt-1">
+                      {errors.score.message}
+                    </p>
+                  )}
+                </div>
 
-            <div className="grid grid-cols-1 gap-6">
-              {/* Score Input */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Skor (0-100)
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={score}
-                  onChange={(e) => setScore(e.target.value)}
-                  className="w-max px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="0"
-                />
+                {/* Feedback Input */}
+                <div>
+                  <label
+                    htmlFor="juri-feedback-input"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                  >
+                    Feedback
+                  </label>
+                  <textarea
+                    id="juri-feedback-input"
+                    rows={4}
+                    placeholder="Berikan feedback untuk peserta..."
+                    {...register("feedback")}
+                    className={`w-full px-4 py-3 border rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:border-transparent resize-y ${
+                      errors.feedback
+                        ? "border-red-500 focus:ring-red-500"
+                        : "border-gray-300 dark:border-gray-700 focus:ring-blue-500"
+                    }`}
+                  />
+                  {errors.feedback && (
+                    <p className="text-xs text-red-500 font-medium mt-1">
+                      {errors.feedback.message}
+                    </p>
+                  )}
+                </div>
               </div>
 
-              {/* Feedback Input */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Feedback
-                </label>
-                <textarea
-                  value={feedback}
-                  onChange={(e) => setFeedback(e.target.value)}
-                  rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y"
-                  placeholder="Berikan feedback untuk peserta..."
-                />
+              {/* Save Button */}
+              <div className="flex justify-end pt-2">
+                <Button
+                  type="submit"
+                  disabled={saving}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  {saving ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Menyimpan...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="mr-2 h-4 w-4" />
+                      Simpan Penilaian
+                    </>
+                  )}
+                </Button>
               </div>
-            </div>
-
-            {/* Save Button */}
-            <div className="flex justify-end mt-6">
-              <Button
-                onClick={handleSaveScore}
-                disabled={saving || !score}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-              >
-                {saving ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Menyimpan...
-                  </>
-                ) : (
-                  <>
-                    <Save className="mr-2 h-4 w-4" />
-                    Simpan Penilaian
-                  </>
-                )}
-              </Button>
-            </div>
+            </form>
           </CardContent>
         </Card>
 
