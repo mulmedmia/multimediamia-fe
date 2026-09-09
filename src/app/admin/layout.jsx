@@ -120,7 +120,7 @@ function SidebarContent({ onLogout, onLinkClick }) {
           onClick={onLogout}
           className="flex w-full items-center space-x-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-destructive hover:bg-destructive/10 transition-all cursor-pointer"
         >
-          <LogOut className="h-4 w-4 flex-shrink-0" />
+          <LogOut className="h-4 w-4 flex-shrink-0 text-destructive" />
           <span>Logout</span>
         </button>
       </div>
@@ -178,10 +178,10 @@ export default function AdminLayout({ children }) {
           <SidebarContent onLogout={logout} />
         </div>
 
-        {/* Main content area */}
-        <div className="flex flex-1 flex-col overflow-hidden">
-          {/* Header for main content */}
-          <header className="flex h-16 sm:h-20 items-center justify-between border-b border-border/40 px-4 sm:px-6 flex-shrink-0 bg-[#0F121A]/60 backdrop-blur-md z-30">
+        {/* Scrollable Main area */}
+        <div className="flex-1 overflow-y-auto relative">
+          {/* Header with Glassmorphism Backdrop Blur */}
+          <header className="sticky top-0 z-30 flex h-16 sm:h-20 items-center justify-between border-b border-border/40 px-4 sm:px-6 bg-[#0F121A]/80 backdrop-blur-md shadow-sm">
             {/* Left side of header */}
             <div className="flex items-center gap-3">
               {/* Mobile-only sidebar trigger */}
@@ -237,6 +237,7 @@ export default function AdminLayout({ children }) {
                 </Button>
               </Link>
 
+              {/* User Badge */}
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-input/40 border border-border/50 text-xs sm:text-sm text-foreground">
                 <User className="h-4 w-4 text-muted-foreground" />
                 <span className="hidden sm:inline truncate max-w-32 font-medium">
@@ -246,8 +247,8 @@ export default function AdminLayout({ children }) {
             </div>
           </header>
 
-          {/* Scrollable main content */}
-          <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+          {/* Main content container */}
+          <main className="p-4 sm:p-6 lg:p-8">
             <div className="max-w-7xl mx-auto space-y-6">{children}</div>
           </main>
         </div>
