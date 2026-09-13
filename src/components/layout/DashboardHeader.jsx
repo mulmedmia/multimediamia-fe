@@ -21,6 +21,7 @@ import {
   Sparkles,
   Menu,
 } from "lucide-react";
+import Image from "next/image";
 
 export function DashboardHeader() {
   const pathname = usePathname();
@@ -30,8 +31,8 @@ export function DashboardHeader() {
     user?.role === "ADMIN"
       ? "/admin/dashboard"
       : user?.role === "JURI"
-      ? "/juri/manage-submission"
-      : "/dashboard";
+        ? "/juri/manage-submission"
+        : "/dashboard";
   const profileLink = "/profile";
   const historyPesananLink = "/history-pesanan";
   const leaderboardLink = "/leaderboard";
@@ -55,11 +56,14 @@ export function DashboardHeader() {
             href="/"
             className="flex items-center space-x-2.5 flex-shrink-0"
           >
-            <img
-              src="/mia2026_logo.png"
-              alt="Multimedia in Action Logo"
-              className="h-7 w-7 sm:h-8 sm:w-8 object-contain"
-            />
+            <div className="relative h-7 w-7 sm:h-8 sm:w-8 aspect-square">
+              <Image
+                src="/mia2026_logo.png"
+                alt="Multimedia in Action Logo"
+                fill={true}
+                className="object-contain"
+              />
+            </div>
             <span className="text-base sm:text-lg font-bold text-foreground tracking-tight">
               Multimedia{" "}
               <span className="bg-gradient-to-r from-[#E01C20] via-[#FF4500] to-[#FED700] bg-clip-text text-transparent">
@@ -81,10 +85,7 @@ export function DashboardHeader() {
                   <span>History Pesanan</span>
                 </Link>
               )}
-              <Link
-                href={showItLink}
-                className={getNavLinkClass(showItLink)}
-              >
+              <Link href={showItLink} className={getNavLinkClass(showItLink)}>
                 <Sparkles className="h-4 w-4 text-[#E01C20]" />
                 <span>Show It</span>
               </Link>
@@ -195,7 +196,11 @@ export function DashboardHeader() {
                 <div className="md:hidden">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="text-[#FFF9F5]">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-[#FFF9F5]"
+                      >
                         <Menu className="h-5 w-5" />
                       </Button>
                     </DropdownMenuTrigger>

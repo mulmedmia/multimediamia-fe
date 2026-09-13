@@ -34,6 +34,7 @@ import { id } from "date-fns/locale";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Link from "next/link";
+import Image from "next/image";
 
 const PAGE_SIZE = 6;
 
@@ -93,14 +94,17 @@ function CategoryCard({ category }) {
       <div className="relative h-48 overflow-hidden bg-gradient-to-br from-red-950/20 via-black to-red-900/10">
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10"></div>
 
-        <img
-          src={category.image || "/placeholder-image.jpg"}
-          alt={category.category_name}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-          onError={(e) => {
-            e.target.src = "/placeholder-image.jpg";
-          }}
-        />
+        <div class="w-full h-full transition-transform duration-500 group-hover:scale-105">
+          <Image
+            src={category.image || "/placeholder-image.png"}
+            alt={category.category_name}
+            fill={true}
+            className="object-cover"
+            onError={(e) => {
+              e.target.src = "/placeholder-image.png";
+            }}
+          />
+        </div>
 
         {/* Verification Status Badge */}
         <div className="absolute top-3 left-3 z-20">
@@ -141,7 +145,8 @@ function CategoryCard({ category }) {
             {category.title || category.category_name}
           </CardTitle>
           <p className="text-xs text-gray-600 dark:text-[#AAB1BD] line-clamp-2 leading-relaxed">
-            {category.description || "Tidak ada deskripsi tersedia untuk kategori lomba ini."}
+            {category.description ||
+              "Tidak ada deskripsi tersedia untuk kategori lomba ini."}
           </p>
         </div>
 

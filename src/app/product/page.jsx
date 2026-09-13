@@ -8,7 +8,14 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { GiftIcon, CheckCircle, Loader2, Sparkles, AlertCircle, ShoppingBag } from "lucide-react";
+import {
+  GiftIcon,
+  CheckCircle,
+  Loader2,
+  Sparkles,
+  AlertCircle,
+  ShoppingBag,
+} from "lucide-react";
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -23,46 +30,58 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import Image from "next/image";
 
 // Fallback sample data for previewing UI when backend is offline
 const SAMPLE_PRODUCTS_FALLBACK = [
   {
     product_id: "1",
     name: "T-Shirt Eksklusif MIA 2026",
-    description: "Kaos official edisi terbatas Multimedia in Action 2026 berbahan katun combed premium berkualitas tinggi.",
+    description:
+      "Kaos official edisi terbatas Multimedia in Action 2026 berbahan katun combed premium berkualitas tinggi.",
     price: 150,
     stock: 24,
     is_active: true,
-    image_url: null
+    image_url: null,
   },
   {
     product_id: "2",
     name: "Notebook & Pen Set MIA",
-    description: "Set buku catatan hardcover dan pena gel dengan logo laser-cut MIA 2026 untuk mencatat ide kreatifmu.",
+    description:
+      "Set buku catatan hardcover dan pena gel dengan logo laser-cut MIA 2026 untuk mencatat ide kreatifmu.",
     price: 100,
     stock: 12,
     is_active: true,
-    image_url: null
+    image_url: null,
   },
   {
     product_id: "3",
     name: "Gantungan Kunci Akrilik MIA",
-    description: "Gantungan kunci bahan akrilik premium cetak dua sisi dengan desain maskot official MIA 2026.",
+    description:
+      "Gantungan kunci bahan akrilik premium cetak dua sisi dengan desain maskot official MIA 2026.",
     price: 50,
     stock: 45,
     is_active: true,
-    image_url: null
-  }
+    image_url: null,
+  },
 ];
 
 export default function ProductPage() {
   const [page, setPage] = useState(1);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const { data: apiData, isLoading, isError } = useProducts({ page, limit: 10 });
+  const {
+    data: apiData,
+    isLoading,
+    isError,
+  } = useProducts({ page, limit: 10 });
   const redeemMutation = useRedeemProduct();
 
   // Switch to fallback products if API fails so user can preview the UI redesign
-  const data = apiData || (isError ? { products: SAMPLE_PRODUCTS_FALLBACK, meta: { page: 1, totalPages: 1 } } : null);
+  const data =
+    apiData ||
+    (isError
+      ? { products: SAMPLE_PRODUCTS_FALLBACK, meta: { page: 1, totalPages: 1 } }
+      : null);
   const products = data?.products || [];
   const meta = data?.meta || { page: 1, totalPages: 1 };
 
@@ -77,7 +96,7 @@ export default function ProductPage() {
       toast.error(
         redeemMutation.error?.response?.data?.message ||
           "Gagal menukar produk!",
-        { style: { background: "#ffeaea", color: "#c00" } }
+        { style: { background: "#ffeaea", color: "#c00" } },
       );
       setSelectedProduct(null);
     }
@@ -98,7 +117,6 @@ export default function ProductPage() {
       <Header />
 
       <main className="flex-grow container mx-auto pt-28 pb-16 px-4 md:px-6 lg:px-8 relative z-10">
-        
         {/* Hero Title Section */}
         <div className="text-center max-w-3xl mx-auto mb-12">
           <Badge className="mb-4 bg-gradient-to-r from-[#E01C20] to-[#FF4500] text-[#FFF9F5] border-0 px-4 py-1.5 text-xs font-semibold shadow-lg inline-flex items-center gap-1.5 rounded-full">
@@ -114,8 +132,9 @@ export default function ProductPage() {
           </h1>
 
           <p className="text-sm md:text-base text-gray-600 dark:text-[#AAB1BD] leading-relaxed max-w-2xl mx-auto">
-            Tukarkan Diamonds yang telah Anda kumpulkan melalui berbagai aktivitas 
-            dan pencapaian dengan merchandise official eksklusif dari Multimedia in Action 2026.
+            Tukarkan Diamonds yang telah Anda kumpulkan melalui berbagai
+            aktivitas dan pencapaian dengan merchandise official eksklusif dari
+            Multimedia in Action 2026.
           </p>
 
           <div className="w-24 h-1 bg-gradient-to-r from-[#E01C20] to-[#FF4500] mx-auto mt-6 rounded-full"></div>
@@ -165,7 +184,8 @@ export default function ProductPage() {
               Belum Ada Produk
             </h3>
             <p className="text-sm text-gray-500 dark:text-[#AAB1BD] max-w-md mx-auto">
-              Saat ini belum ada merchandise atau hadiah penukaran poin yang tersedia. Silakan hubungi panitia.
+              Saat ini belum ada merchandise atau hadiah penukaran poin yang
+              tersedia. Silakan hubungi panitia.
             </p>
           </div>
         ) : (
@@ -178,13 +198,11 @@ export default function ProductPage() {
                 {/* Image Section */}
                 <div className="relative h-44 overflow-hidden bg-gradient-to-br from-red-950/20 via-black to-red-900/10">
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent z-10"></div>
-                  <img
-                    src={product.image_url || "/placeholder-image.jpg"}
+                  <Image
+                    src={product.image_url || "/placeholder-image.png"}
                     alt={product.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    onError={(e) => {
-                      e.target.src = "/placeholder-image.jpg";
-                    }}
+                    fill={true}
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                   <div className="absolute top-3 left-3 z-20">
                     <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-black/75 text-[#FFF9F5] border border-white/10 backdrop-blur-md">
@@ -201,7 +219,8 @@ export default function ProductPage() {
                       {product.name}
                     </CardTitle>
                     <p className="text-xs text-gray-600 dark:text-[#AAB1BD] line-clamp-2 leading-relaxed h-8">
-                      {product.description || "Tidak ada deskripsi tersedia untuk produk hadiah ini."}
+                      {product.description ||
+                        "Tidak ada deskripsi tersedia untuk produk hadiah ini."}
                     </p>
                   </div>
 
@@ -212,14 +231,18 @@ export default function ProductPage() {
                         <span className="mr-1 text-sm">💎</span>
                         {product.price.toLocaleString()}
                       </span>
-                      <span className="text-xs text-gray-400 dark:text-[#99A1AF]">Diamonds</span>
+                      <span className="text-xs text-gray-400 dark:text-[#99A1AF]">
+                        Diamonds
+                      </span>
                     </div>
 
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      product.stock > 5 
-                        ? "bg-green-100 text-green-700 dark:bg-green-950/60 dark:text-green-300"
-                        : "bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-300"
-                    }`}>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        product.stock > 5
+                          ? "bg-green-100 text-green-700 dark:bg-green-950/60 dark:text-green-300"
+                          : "bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-300"
+                      }`}
+                    >
                       Stok: {product.stock}
                     </span>
                   </div>
@@ -255,7 +278,15 @@ export default function ProductPage() {
                           Konfirmasi Penukaran Hadiah
                         </AlertDialogTitle>
                         <p className="text-sm text-gray-600 dark:text-[#AAB1BD] mt-2">
-                          Apakah Anda yakin ingin menukar <span className="font-bold text-[#E01C20]">{product.name}</span> seharga <span className="font-bold text-gray-900 dark:text-white">💎 {product.price.toLocaleString()} Diamonds</span>?
+                          Apakah Anda yakin ingin menukar{" "}
+                          <span className="font-bold text-[#E01C20]">
+                            {product.name}
+                          </span>{" "}
+                          seharga{" "}
+                          <span className="font-bold text-gray-900 dark:text-white">
+                            💎 {product.price.toLocaleString()} Diamonds
+                          </span>
+                          ?
                         </p>
                       </AlertDialogHeader>
                       <AlertDialogFooter className="mt-4 gap-2">

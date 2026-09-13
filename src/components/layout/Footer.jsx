@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useUserCategories } from "@/hooks/user-use-category";
 import { FaInstagram, FaTiktok } from "react-icons/fa";
 import { EnvelopeClosedIcon, MobileIcon } from "@radix-ui/react-icons";
+import Image from "next/image";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -24,11 +25,14 @@ const Footer = () => {
           {/* Brand Section */}
           <div className="space-y-4">
             <Link href="/" className="flex items-center gap-2">
-              <img
-                src="/mia2026_logo.png"
-                alt="Logo"
-                className="h-8 w-8 object-contain"
-              />
+              <div className="relative h-8 w-8 aspect-square">
+                <Image
+                  src="/mia2026_logo.png"
+                  alt="Logo"
+                  fill={true}
+                  className="object-contain"
+                />
+              </div>
               <span className="text-xl font-bold text-[#FFF9F5]">
                 Multimedia <span className="text-[#E01C20]">in Action</span>
               </span>

@@ -1,8 +1,6 @@
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import Image from "next/image";
 
 // Helper untuk deteksi tablet
 function isTabletScreen() {
@@ -25,17 +23,24 @@ export function getCategoryColumns({
         header: "Kategori",
         accessorKey: "category_name",
         cell: ({ row }) => (
-          <div className="flex gap-3 items-start bg-white rounded-lg shadow border p-3 px-4 max-w-full md:max-w-2xl mx-auto">
+          <div className="flex gap-3 items-start bg-background rounded-lg shadow border p-3 px-4 max-w-full md:max-w-2xl mx-auto">
             {row.original.image && (
-              <img
-                src={row.original.image}
-                alt={row.original.category_name}
-                className="w-16 h-16 object-cover rounded-md border flex-shrink-0"
-              />
+              <div className="relative w-16 h-16 rounded-md border flex-shrink-0">
+                <Image
+                  src={row.original.image}
+                  alt={row.original.category_name}
+                  fill={true}
+                  className="object-cover"
+                />
+              </div>
             )}
             <div className="flex-1">
-              <div className="font-bold text-base mb-1">{row.original.category_name}</div>
-              <div className="text-xs text-muted-foreground mb-1">{row.original.title}</div>
+              <div className="font-bold text-base mb-1">
+                {row.original.category_name}
+              </div>
+              <div className="text-xs text-muted-foreground mb-1">
+                {row.original.title}
+              </div>
               <div className="text-xs mb-1">{row.original.organizer}</div>
               <div className="text-xs mb-1">
                 <span className="font-medium">Deadline:</span>{" "}
@@ -57,7 +62,9 @@ export function getCategoryColumns({
               <div className="flex flex-col gap-2 mt-2 w-full">
                 <Dialog
                   open={row.original.isEditing}
-                  onOpenChange={(open) => setEditData(open ? row.original : null)}
+                  onOpenChange={(open) =>
+                    setEditData(open ? row.original : null)
+                  }
                 >
                   <DialogTrigger asChild>
                     <Button size="sm" variant="outline" className="w-full">
@@ -125,11 +132,14 @@ export function getCategoryColumns({
       accessorKey: "image",
       cell: ({ row }) =>
         row.original.image && (
-          <img
-            src={row.original.image}
-            alt={row.original.category_name}
-            className="w-12 h-12 object-cover rounded shadow"
-          />
+          <div className="relative w-12 h-12 rounded shadow">
+            <Image
+              src={row.original.image}
+              alt={row.original.category_name}
+              fill={true}
+              className="object-cover"
+            />
+          </div>
         ),
     },
     {
