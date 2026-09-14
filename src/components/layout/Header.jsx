@@ -96,7 +96,7 @@ export default function Header() {
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300 w-full",
         scrolled
           ? "bg-[#0A0D14]/90 backdrop-blur-md border-b border-white/10 shadow-lg"
-          : "bg-transparent py-2"
+          : "bg-transparent",
       )}
     >
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -117,20 +117,18 @@ export default function Header() {
               </span>
             )}
             {shouldShowMIA && (
-              <span className="text-xl font-bold text-[#E01C20]">
-                MIA
-              </span>
+              <span className="text-xl font-bold text-[#E01C20]">MIA</span>
             )}
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden xl:flex items-center space-x-1.5 flex-1 justify-center max-w-2xl">
             {navItems.map((item, index) => {
-              const isActive = (pathname === "/" && index === 0);
+              const isActive = pathname === "/" && index === 0;
               const linkClass = isActive
                 ? "px-4 py-1.5 rounded-full bg-[#1E2939] text-[#FFF9F5] text-sm font-medium border border-white/10 shadow-sm"
                 : "px-3 py-1.5 text-sm font-medium text-[#AAB1BD] hover:text-[#FFF9F5] hover:bg-[#1E2939]/50 rounded-full transition-all";
-              
+
               return item.href.startsWith("/#") ? (
                 <a key={item.href} href={item.href} className={linkClass}>
                   {item.label}
@@ -141,11 +139,9 @@ export default function Header() {
                 </Link>
               );
             })}
-            <DropdownMenu>
+            <DropdownMenu modal={false}>
               <DropdownMenuTrigger asChild>
-                <button
-                  className="px-3 py-1.5 text-sm font-medium text-[#AAB1BD] hover:text-[#FFF9F5] hover:bg-[#1E2939]/50 rounded-full transition-all flex items-center gap-1 cursor-pointer"
-                >
+                <button className="px-3 py-1.5 text-sm font-medium text-[#AAB1BD] hover:text-[#FFF9F5] hover:bg-[#1E2939]/50 rounded-full transition-all flex items-center gap-1 cursor-pointer">
                   Hadiah
                 </button>
               </DropdownMenuTrigger>
@@ -173,13 +169,15 @@ export default function Header() {
               {loading ? (
                 <div className="h-9 w-20 animate-pulse rounded-full bg-[#1E2939]"></div>
               ) : user ? (
-                <DropdownMenu>
+                <DropdownMenu modal={false}>
                   <DropdownMenuTrigger asChild>
                     <button className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#1E2939] border border-white/10 text-[#FFF9F5] text-sm font-medium hover:border-white/20 transition-all cursor-pointer">
                       <div className="w-6 h-6 rounded-full bg-[#E01C20] text-white flex items-center justify-center text-xs font-bold">
                         {user.name ? user.name[0].toUpperCase() : "U"}
                       </div>
-                      <span className="truncate max-w-[100px]">{user.name || "User"}</span>
+                      <span className="truncate max-w-[100px]">
+                        {user.name || "User"}
+                      </span>
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
@@ -288,7 +286,7 @@ export default function Header() {
                     >
                       {item.label}
                     </Link>
-                  )
+                  ),
                 )}
 
                 {/* Mobile Hadiah Link */}
