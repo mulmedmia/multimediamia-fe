@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
 export const scoreFeedbackSchema = z.object({
   score: z.preprocess(
@@ -90,11 +91,12 @@ export default function SubmissionScoreModal({
               max="100"
               placeholder="Masukkan skor (0-100)"
               {...register("score")}
-              className={
+              className={cn(
+                "h-11 bg-input rounded-xl px-4 text-sm text-foreground placeholder:text-mia-muted-2 transition-all",
                 errors.score
                   ? "border-destructive focus-visible:ring-destructive"
-                  : ""
-              }
+                  : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
+              )}
             />
             {errors.score && (
               <p className="text-xs text-destructive font-medium mt-1">
@@ -110,11 +112,12 @@ export default function SubmissionScoreModal({
               placeholder="Masukkan feedback (maksimal 400 karakter)"
               rows={4}
               {...register("feedback")}
-              className={
+              className={cn(
+                "bg-input dark:bg-input/30 rounded-xl p-3.5 text-sm text-foreground placeholder:text-mia-muted-2 transition-colors focus-visible:ring-offset-0 focus-visible:outline-none",
                 errors.feedback
                   ? "border-destructive focus-visible:ring-destructive"
-                  : ""
-              }
+                  : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
+              )}
             />
             {errors.feedback && (
               <p className="text-xs text-destructive font-medium mt-1">

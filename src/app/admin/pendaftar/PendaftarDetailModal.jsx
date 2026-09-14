@@ -221,9 +221,10 @@ export default function PendaftarDetailModal({ open, onClose, data }) {
                     rows={4}
                     {...register("feedback")}
                     className={cn(
-                      "mt-1",
-                      errors.feedback &&
-                        "border-destructive focus-visible:ring-destructive",
+                      "mt-1 bg-input dark:bg-input/30 rounded-xl p-3.5 text-sm text-foreground placeholder:text-mia-muted-2 transition-colors focus-visible:ring-offset-0 focus-visible:outline-none",
+                      errors.feedback
+                        ? "border-destructive focus-visible:ring-destructive"
+                        : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
                     )}
                   />
                   {errors.feedback && (
