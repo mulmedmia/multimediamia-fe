@@ -26,6 +26,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import Image from "next/image";
 
 // Loading Skeleton Component matching design.md specification
 function CategoryDetailSkeleton() {
@@ -212,7 +213,9 @@ export default function CategoryDetailPage(props) {
         <Header />
         <main className="flex-grow container mx-auto pt-28 pb-16 px-4">
           <Alert variant="destructive" className="max-w-lg mx-auto rounded-2xl">
-            <AlertTitle className="font-semibold">Gagal Memuat Detail Kategori</AlertTitle>
+            <AlertTitle className="font-semibold">
+              Gagal Memuat Detail Kategori
+            </AlertTitle>
             <AlertDescription>
               {error?.message ||
                 "Terjadi kesalahan saat memuat detail kategori. Silakan coba lagi."}
@@ -240,9 +243,12 @@ export default function CategoryDetailPage(props) {
         <Header />
         <main className="flex-grow container mx-auto pt-28 pb-16 px-4">
           <Alert variant="destructive" className="max-w-lg mx-auto rounded-2xl">
-            <AlertTitle className="font-semibold">Kategori Tidak Ditemukan</AlertTitle>
+            <AlertTitle className="font-semibold">
+              Kategori Tidak Ditemukan
+            </AlertTitle>
             <AlertDescription>
-              Kategori yang Anda cari tidak ditemukan atau mungkin telah dihapus.
+              Kategori yang Anda cari tidak ditemukan atau mungkin telah
+              dihapus.
             </AlertDescription>
           </Alert>
           <div className="text-center mt-6">
@@ -411,13 +417,11 @@ export default function CategoryDetailPage(props) {
             {/* Image Preview Card */}
             <Card className="overflow-hidden border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#151C28]/80 rounded-3xl shadow-sm">
               <div className="relative h-64 overflow-hidden bg-gradient-to-br from-red-950/20 via-black to-red-900/10">
-                <img
-                  src={category.image || "/placeholder-image.jpg"}
+                <Image
+                  src={category.image || "/placeholder-image.png"}
                   alt={category.category_name}
-                  className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                  onError={(e) => {
-                    e.target.src = "/placeholder-image.jpg";
-                  }}
+                  fill={true}
+                  className="object-cover transition-transform duration-500 hover:scale-105"
                 />
               </div>
             </Card>
@@ -485,7 +489,8 @@ export default function CategoryDetailPage(props) {
                     Kategori Belum Terverifikasi
                   </p>
                   <p className="text-xs text-yellow-600/80 dark:text-yellow-400/80 mt-1">
-                    Pendaftaran akan dibuka setelah kategori ini diverifikasi oleh admin.
+                    Pendaftaran akan dibuka setelah kategori ini diverifikasi
+                    oleh admin.
                   </p>
                 </div>
               )}

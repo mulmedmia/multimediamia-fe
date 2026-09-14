@@ -23,6 +23,7 @@ import {
   DashboardIcon,
 } from "@radix-ui/react-icons";
 import { GiftIcon } from "lucide-react";
+import Image from "next/image";
 
 export default function Header() {
   const { user, loading, logout } = useAuthContext();
@@ -106,10 +107,12 @@ export default function Header() {
             href="/"
             className="flex items-center space-x-2.5 flex-shrink-0 min-w-0"
           >
-            <img
+            <Image
               src="/mia2026_logo.png"
               alt="Multimedia in Action Logo"
-              className="h-8 w-8 object-contain"
+              width={32}
+              height={32}
+              className="object-contain"
             />
             {shouldShowFullText && (
               <span className="text-lg sm:text-xl font-bold text-[#FFF9F5] tracking-tight">

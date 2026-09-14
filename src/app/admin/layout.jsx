@@ -27,6 +27,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuthContext } from "@/providers/AuthProvider";
+import Image from "next/image";
 
 // Data for sidebar navigation items
 const sidebarItems = [
@@ -209,11 +210,14 @@ export default function AdminLayout({ children }) {
 
               {/* Logo & Brand Title */}
               <Link href="/" className="flex items-center space-x-2.5">
-                <img
-                  src="/mia2026_logo.png"
-                  alt="Multimedia in Action Logo"
-                  className="h-7 w-7 sm:h-8 sm:w-8 object-contain"
-                />
+                <div className="relative h-7 w-7 sm:h-8 sm:w-8 aspect-square">
+                  <Image
+                    src="/mia2026_logo.png"
+                    alt="Multimedia in Action Logo"
+                    fill={true}
+                    className="object-contain"
+                  />
+                </div>
                 <span className="text-base sm:text-lg font-bold text-foreground tracking-tight">
                   Multimedia{" "}
                   <span className="bg-gradient-to-b from-mia-orange to-mia-yellow bg-clip-text text-transparent">
