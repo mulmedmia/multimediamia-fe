@@ -142,7 +142,7 @@ const TimelineSection = () => {
 
         {/* Horizontal Scrollable Timeline for Desktop */}
         <div className="relative hidden md:block">
-          <div className="overflow-x-auto pb-6 scrollbar-thin">
+          <div className="overflow-x-auto pb-6 scrollbar-thin py-2">
             <div className="relative min-w-max px-4">
               {/* Connecting Horizontal Line */}
               <div className="absolute top-6 left-12 right-12 h-0.5 bg-gradient-to-r from-[#00B445]/50 via-[#E01C20]/50 to-white/10" />
@@ -165,8 +165,8 @@ const TimelineSection = () => {
                           isCompleted
                             ? "bg-[#00B445] border-[#00B445] text-white shadow-green-900/40"
                             : isActive
-                            ? "bg-[#E01C20] border-[#FF4500] text-white animate-pulse ring-4 ring-[#E01C20]/30 shadow-red-900/50"
-                            : "bg-[#1E2939] border-white/10 text-[#AAB1BD]"
+                              ? "bg-[#E01C20] border-[#FF4500] text-white animate-pulse ring-4 ring-[#E01C20]/30 shadow-red-900/50"
+                              : "bg-[#1E2939] border-white/10 text-[#AAB1BD]",
                         )}
                       >
                         <event.icon className="h-5 w-5" />
@@ -194,15 +194,15 @@ const TimelineSection = () => {
                               isCompleted
                                 ? "bg-[#00B445]/20 text-[#00B445] border border-[#00B445]/30"
                                 : isActive
-                                ? "bg-[#E01C20]/20 text-[#E01C20] border border-[#E01C20]/30"
-                                : "bg-[#1E2939] text-[#99A1AF] border border-white/10"
+                                  ? "bg-[#E01C20]/20 text-[#E01C20] border border-[#E01C20]/30"
+                                  : "bg-[#1E2939] text-[#99A1AF] border border-white/10",
                             )}
                           >
                             {isCompleted
                               ? "Selesai"
                               : isActive
-                              ? "Berlangsung"
-                              : "Akan Datang"}
+                                ? "Berlangsung"
+                                : "Akan Datang"}
                           </span>
                         </div>
                       </div>
@@ -241,8 +241,8 @@ const TimelineSection = () => {
                       isCompleted
                         ? "bg-[#00B445] border-[#00B445] text-white"
                         : isActive
-                        ? "bg-[#E01C20] border-[#FF4500] text-white animate-pulse"
-                        : "bg-[#1E2939] border-white/10 text-[#AAB1BD]"
+                          ? "bg-[#E01C20] border-[#FF4500] text-white animate-pulse"
+                          : "bg-[#1E2939] border-white/10 text-[#AAB1BD]",
                     )}
                   >
                     <event.icon className="h-4 w-4" />
@@ -264,15 +264,15 @@ const TimelineSection = () => {
                         isCompleted
                           ? "bg-[#00B445]/20 text-[#00B445]"
                           : isActive
-                          ? "bg-[#E01C20]/20 text-[#E01C20]"
-                          : "bg-[#1E2939] text-[#99A1AF]"
+                            ? "bg-[#E01C20]/20 text-[#E01C20]"
+                            : "bg-[#1E2939] text-[#99A1AF]",
                       )}
                     >
                       {isCompleted
                         ? "Selesai"
                         : isActive
-                        ? "Berlangsung"
-                        : "Akan Datang"}
+                          ? "Berlangsung"
+                          : "Akan Datang"}
                     </span>
                   </div>
                 </div>
@@ -286,4 +286,3 @@ const TimelineSection = () => {
 };
 
 export default TimelineSection;
-
