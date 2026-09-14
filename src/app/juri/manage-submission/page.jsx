@@ -13,7 +13,7 @@ import {
 // Komponen untuk menampilkan setiap kartu submission
 const SubmissionCard = ({ submission }) => {
   const githubLink = submission.links?.find(
-    (link) => link.link_type === "GITHUB"
+    (link) => link.link_type === "GITHUB",
   )?.url;
   const otherLink = submission.links?.[0]?.url;
 
@@ -41,12 +41,12 @@ const SubmissionCard = ({ submission }) => {
     >
       <div className="flex-grow">
         <div className="flex justify-between items-start mb-2">
-          <h3 className="text-lg font-bold text-black dark:text-white pr-2">
+          <h3 className="text-lg font-bold text-black dark:text-white pr-2 min-w-0 break-words line-clamp-2">
             {submission.project_name}
           </h3>
           <span
             className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${getStatusClass(
-              submission.status
+              submission.status,
             )}`}
           >
             {submission.status}
@@ -111,7 +111,7 @@ export default function ManageSubmissionPage() {
       try {
         const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
         const response = await fetch(
-          `${BASE_URL}/submissions?limit=${meta.limit}&page=${meta.page}`
+          `${BASE_URL}/submissions?limit=${meta.limit}&page=${meta.page}`,
         );
 
         if (!response.ok) {
@@ -143,7 +143,7 @@ export default function ManageSubmissionPage() {
 
     if (categoryId) {
       const filtered = submissions.filter(
-        (submission) => submission.category_id === categoryId
+        (submission) => submission.category_id === categoryId,
       );
       setFilteredSubmissions(filtered);
     } else {

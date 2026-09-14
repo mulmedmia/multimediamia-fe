@@ -627,12 +627,14 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                       >
                         <div className="space-y-4">
                           {/* Header Info */}
-                          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                            <div className="space-y-1">
-                              <div className="flex space-x-2">
-                                <h4 className="font-bold text-base sm:text-lg text-foreground transition-colors flex items-center gap-2.5 flex-wrap pt-1 sm:pt-0">
-                                  {sub.project_name}
-                                  <span className="text-[11px] font-medium text-muted-foreground bg-input/60 border border-border/40 px-2.5 py-0.5 rounded-full hidden sm:inline-block">
+                          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 min-w-0">
+                            <div className="space-y-1 min-w-0 flex-1">
+                              <div className="flex space-x-2 min-w-0">
+                                <h4 className="font-bold text-base sm:text-lg text-foreground transition-colors flex items-center gap-2.5 flex-wrap pt-1 sm:pt-0 break-words min-w-0 max-w-full">
+                                  <span className="break-words min-w-0 line-clamp-2">
+                                    {sub.project_name}
+                                  </span>
+                                  <span className="text-[11px] font-medium text-muted-foreground bg-input/60 border border-border/40 px-2.5 py-0.5 rounded-full hidden sm:inline-block flex-shrink-0">
                                     Klik untuk edit
                                   </span>
                                 </h4>
@@ -645,7 +647,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                                   <span>Edit</span>
                                 </Button>
                               </div>
-                              <p className="text-xs sm:text-sm text-muted-foreground font-medium">
+                              <p className="text-xs sm:text-sm text-muted-foreground font-medium break-words">
                                 Tim: {sub.team_name}
                               </p>
                               <p className="text-xs text-muted-foreground/80">
@@ -741,7 +743,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                               <p className="text-xs font-bold text-primary flex items-center gap-1.5 uppercase tracking-wider">
                                 Feedback Juri:
                               </p>
-                              <p className="text-xs sm:text-sm text-foreground/90 leading-relaxed">
+                              <p className="text-xs sm:text-sm text-foreground/90 leading-relaxed break-words">
                                 {sub.feedback}
                               </p>
                             </div>

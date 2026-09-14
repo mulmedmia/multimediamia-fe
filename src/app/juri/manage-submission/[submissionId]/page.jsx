@@ -331,17 +331,17 @@ export default function JuriSubmissionDetailPage(props) {
         {/* Header Section - Split into 2 cards */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Left Card - Main Info */}
-          <Card className="shadow-xl border-0 bg-gradient-to-br from-orange-50 to-pink-50 dark:from-gray-900 dark:to-gray-900/50 border-orange-200">
-            <CardContent className="p-6 md:p-8 h-full flex flex-col justify-center">
-              <div className="flex items-start gap-4 mb-6">
-                <div className="p-3 bg-red-600 rounded-xl">
+          <Card className="shadow-xl border-0 bg-gradient-to-br from-orange-50 to-pink-50 dark:from-gray-900 dark:to-gray-900/50 border-orange-200 min-w-0">
+            <CardContent className="p-6 md:p-8 h-full flex flex-col justify-center min-w-0">
+              <div className="flex items-start gap-4 mb-6 min-w-0">
+                <div className="p-3 bg-red-600 rounded-xl flex-shrink-0">
                   <Sparkles className="h-8 w-8 text-white" />
                 </div>
-                <div className="flex-1">
-                  <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 break-words">
                     {submission.project_name}
                   </h1>
-                  <p className="text-gray-600 dark:text-gray-400 mb-4">
+                  <p className="text-gray-600 dark:text-gray-400 mb-4 break-words">
                     oleh Tim {submission.team_name} • {submission.user?.name}
                   </p>
                 </div>
@@ -518,8 +518,8 @@ export default function JuriSubmissionDetailPage(props) {
         <div className="space-y-8">
           {/* User Info & Category */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <CardContent className="p-6">
+            <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 min-w-0">
+              <CardContent className="p-6 min-w-0">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                     <User className="h-5 w-5 text-blue-600" />
@@ -533,7 +533,7 @@ export default function JuriSubmissionDetailPage(props) {
                     <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
                       Nama
                     </span>
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">
+                    <span className="text-sm font-medium text-gray-900 dark:text-white break-words">
                       {submission.user?.name || "-"}
                     </span>
                   </div>
@@ -541,7 +541,7 @@ export default function JuriSubmissionDetailPage(props) {
                     <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
                       Email
                     </span>
-                    <span className="text-sm text-gray-700 dark:text-gray-300">
+                    <span className="text-sm text-gray-700 dark:text-gray-300 break-words">
                       {submission.user?.email || "-"}
                     </span>
                   </div>
@@ -549,7 +549,7 @@ export default function JuriSubmissionDetailPage(props) {
                     <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
                       Nama Tim
                     </span>
-                    <span className="text-sm text-gray-700 dark:text-gray-300">
+                    <span className="text-sm text-gray-700 dark:text-gray-300 break-words">
                       {submission.team_name || "-"}
                     </span>
                   </div>
@@ -557,8 +557,8 @@ export default function JuriSubmissionDetailPage(props) {
               </CardContent>
             </Card>
 
-            <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <CardContent className="p-6">
+            <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 min-w-0">
+              <CardContent className="p-6 min-w-0">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
                     <Trophy className="h-5 w-5 text-purple-600" />
@@ -572,7 +572,7 @@ export default function JuriSubmissionDetailPage(props) {
                     <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
                       Kategori
                     </span>
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">
+                    <span className="text-sm font-medium text-gray-900 dark:text-white break-words">
                       {submission.category?.category_name ||
                         submission.category?.name ||
                         "-"}
@@ -582,7 +582,7 @@ export default function JuriSubmissionDetailPage(props) {
                     <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
                       Judul Proyek
                     </span>
-                    <span className="text-sm text-gray-700 dark:text-gray-300">
+                    <span className="text-sm text-gray-700 dark:text-gray-300 break-words">
                       {submission.project_name || "-"}
                     </span>
                   </div>
@@ -614,13 +614,13 @@ export default function JuriSubmissionDetailPage(props) {
           </div>
 
           {/* Description */}
-          <Card className="shadow-lg">
-            <CardContent className="p-6">
+          <Card className="shadow-lg min-w-0">
+            <CardContent className="p-6 min-w-0">
               <h3 className="font-semibold text-lg mb-4 text-gray-900 dark:text-white">
                 Deskripsi Proyek
               </h3>
               <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 min-h-[120px]">
-                <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+                <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap break-words">
                   {submission.description || (
                     <span className="text-gray-400 italic">
                       Tidak ada deskripsi
@@ -632,13 +632,13 @@ export default function JuriSubmissionDetailPage(props) {
           </Card>
 
           {/* Flow Application */}
-          <Card className="shadow-lg">
-            <CardContent className="p-6">
+          <Card className="shadow-lg min-w-0">
+            <CardContent className="p-6 min-w-0">
               <h3 className="font-semibold text-lg mb-4 text-gray-900 dark:text-white">
                 Flow Aplikasi
               </h3>
               <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 min-h-[120px]">
-                <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+                <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap break-words">
                   {submission.flow_application || (
                     <span className="text-gray-400 italic">
                       Flow tidak tersedia
@@ -650,24 +650,24 @@ export default function JuriSubmissionDetailPage(props) {
           </Card>
 
           {/* Links */}
-          <Card className="shadow-lg">
-            <CardContent className="p-6">
+          <Card className="shadow-lg min-w-0">
+            <CardContent className="p-6 min-w-0">
               <div className="flex items-center gap-2 mb-4">
                 <Link2 className="h-5 w-5 text-blue-600" />
                 <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
                   Link Project
                 </h3>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-3 min-w-0">
                 {getNonYouTubeLinks().length > 0 ? (
                   getNonYouTubeLinks().map((link) => (
                     <div
                       key={link.link_id}
-                      className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-700"
+                      className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-700 min-w-0"
                     >
                       <div className="flex items-center gap-2 mb-2">
                         {getLinkIcon(link.link_type)}
-                        <span className="font-medium text-blue-900 dark:text-blue-300">
+                        <span className="font-medium text-blue-900 dark:text-blue-300 break-words">
                           {link.link_type}
                         </span>
                       </div>
@@ -683,12 +683,12 @@ export default function JuriSubmissionDetailPage(props) {
                           rel="noopener noreferrer"
                           className="flex items-center gap-2"
                         >
-                          <ExternalLink className="h-3 w-3" />
+                          <ExternalLink className="h-3 w-3 flex-shrink-0" />
                           <span className="truncate">{link.url}</span>
                         </a>
                       </Button>
                       {link.description && (
-                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-2 break-words">
                           {link.description}
                         </p>
                       )}

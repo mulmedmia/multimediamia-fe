@@ -59,7 +59,7 @@ export default function SubmissionStatusModal({
               onCheckedChange={setIsVerified}
             />
             <Label htmlFor="verified">
-              Verifikasi Untuk Ditampilkan Di Leaderboard
+              Verifikasi untuk Ditampilkan pada Leaderboard
             </Label>
           </div>
         </div>
