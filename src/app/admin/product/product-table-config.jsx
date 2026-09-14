@@ -23,7 +23,7 @@ export function getProductColumns({ isMobile, setEditData, setDeleteId }) {
                 <Image
                   src={row.original.image_url}
                   alt={row.original.name}
-                  fit={true}
+                  fill={true}
                   className="object-cover"
                 />
               </div>
@@ -132,7 +132,7 @@ export function getProductColumns({ isMobile, setEditData, setDeleteId }) {
             <Image
               src={row.original.image_url}
               alt={row.original.name}
-              fit={true}
+              fill={true}
               className="object-cover"
             />
           </div>
