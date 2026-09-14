@@ -11,13 +11,14 @@ export function useAdminJuri() {
 }
 
 // Mutation: tambah juri
-export function useCreateJuri() {
+export function useCreateJuri(onSuccessCb) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: createJuri,
-    onSuccess: (data) => {
+    onSuccess: (data, variables, context) => {
       qc.invalidateQueries({ queryKey: ["admin-juri"] });
       toast.success(data.message || "Juri berhasil ditambahkan!");
+      if (onSuccessCb) onSuccessCb(data, variables, context);
     },
     onError: (err) => {
       toast.error(err?.response?.data?.message || "Gagal menambah juri!");
