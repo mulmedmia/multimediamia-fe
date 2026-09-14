@@ -1,6 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import {
   Dialog,
   DialogContent,
@@ -13,6 +16,18 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useFeedbackRegistration } from "@/hooks/admin-use-pendaftar";
 import { ExternalLink, Send } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
+
+export const pendaftarFeedbackSchema = z.object({
+  feedback: z
+    .string({
+      required_error: "Feedback wajib diisi",
+    })
+    .trim()
+    .min(3, "Feedback minimal 3 karakter")
+    .max(400, "Feedback maksimal 400 karakter"),
+});
 
 // Helper function untuk parse team members
 const parseTeamMembers = (teamMembersString) => {
@@ -32,20 +47,26 @@ const parseTeamMembers = (teamMembersString) => {
 };
 
 export default function PendaftarDetailModal({ open, onClose, data }) {
-  const [feedback, setFeedback] = useState(data?.feedback || "");
   const feedbackMutation = useFeedbackRegistration();
 
-  const handleSendFeedback = () => {
-    if (!feedback.trim()) return;
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(pendaftarFeedbackSchema),
+  });
 
+  const handleSendFeedback = (formData) => {
     feedbackMutation.mutate(
-      { id: data.registration_id, feedback },
+      { id: data.registration_id, feedback: formData.feedback },
       {
         onSuccess: () => {
           onClose();
-          setFeedback("");
+          reset();
         },
-      }
+      },
     );
   };
 
@@ -53,7 +74,10 @@ export default function PendaftarDetailModal({ open, onClose, data }) {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent
+        onOpenAutoFocus={(e) => e.preventDefault()}
+        className="w-[95vw] max-w-4xl max-h-[90vh] overflow-y-auto"
+      >
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">
             Detail Pendaftar
@@ -69,21 +93,21 @@ export default function PendaftarDetailModal({ open, onClose, data }) {
             <CardContent className="space-y-3">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">
+                  <Label className="text-sm font-medium text-muted-foreground">
                     Nama Lengkap
-                  </label>
+                  </Label>
                   <p className="font-medium">{data.user?.name}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">
+                  <Label className="text-sm font-medium text-muted-foreground">
                     Email
-                  </label>
+                  </Label>
                   <p className="font-medium">{data.user?.email}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">
+                  <Label className="text-sm font-medium text-muted-foreground">
                     Kategori
-                  </label>
+                  </Label>
                   <div>
                     <Badge variant="outline">
                       {data.category?.category_name}
@@ -91,15 +115,15 @@ export default function PendaftarDetailModal({ open, onClose, data }) {
                   </div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">
+                  <Label className="text-sm font-medium text-muted-foreground">
                     Nama Tim
-                  </label>
+                  </Label>
                   <p className="font-medium">{data.team_name || "-"}</p>
                 </div>
                 <div className="md:col-span-2">
-                  <label className="text-sm font-medium text-muted-foreground">
+                  <Label className="text-sm font-medium text-muted-foreground">
                     Anggota Tim
-                  </label>
+                  </Label>
                   <div className="mt-1">
                     {(() => {
                       const members = parseTeamMembers(data.team_members);
@@ -125,9 +149,9 @@ export default function PendaftarDetailModal({ open, onClose, data }) {
                   </div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">
+                  <Label className="text-sm font-medium text-muted-foreground">
                     Status Verifikasi
-                  </label>
+                  </Label>
                   <div>
                     <Badge variant={data.is_verified ? "default" : "secondary"}>
                       {data.is_verified
@@ -140,9 +164,9 @@ export default function PendaftarDetailModal({ open, onClose, data }) {
 
               {data.file_url && (
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">
+                  <Label className="text-sm font-medium text-muted-foreground">
                     File Dokumen
-                  </label>
+                  </Label>
                   <div className="mt-1">
                     <Button variant="outline" size="sm" asChild>
                       <a
@@ -171,46 +195,61 @@ export default function PendaftarDetailModal({ open, onClose, data }) {
             <CardContent className="space-y-4">
               {data.feedback && (
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">
+                  <Label className="text-sm font-medium text-muted-foreground">
                     Feedback Sebelumnya
-                  </label>
+                  </Label>
                   <div className="mt-1 p-3 bg-muted rounded-md">
                     <p className="text-sm">{data.feedback}</p>
                   </div>
                 </div>
               )}
 
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">
-                  Kirim Feedback Baru
-                </label>
-                <Textarea
-                  placeholder="Tulis feedback untuk pendaftar..."
-                  value={feedback}
-                  onChange={(e) => setFeedback(e.target.value)}
-                  rows={4}
-                  className="mt-1"
-                />
-              </div>
+              <form
+                onSubmit={handleSubmit(handleSendFeedback)}
+                className="space-y-4"
+              >
+                <div>
+                  <Label
+                    htmlFor="feedback"
+                    className="text-sm font-medium text-muted-foreground"
+                  >
+                    Kirim Feedback Baru
+                  </Label>
+                  <Textarea
+                    id="feedback"
+                    placeholder="Tulis feedback untuk pendaftar..."
+                    rows={4}
+                    {...register("feedback")}
+                    className={cn(
+                      "mt-1",
+                      errors.feedback &&
+                        "border-destructive focus-visible:ring-destructive",
+                    )}
+                  />
+                  {errors.feedback && (
+                    <p className="text-xs text-destructive font-medium mt-1">
+                      {errors.feedback.message}
+                    </p>
+                  )}
+                </div>
 
-              <div className="flex justify-end gap-2">
-                <Button
-                  variant="outline"
-                  onClick={onClose}
-                  disabled={feedbackMutation.isPending}
-                >
-                  Tutup
-                </Button>
-                <Button
-                  onClick={handleSendFeedback}
-                  disabled={!feedback.trim() || feedbackMutation.isPending}
-                >
-                  <Send className="h-4 w-4 mr-2" />
-                  {feedbackMutation.isPending
-                    ? "Mengirim..."
-                    : "Kirim Feedback"}
-                </Button>
-              </div>
+                <div className="flex justify-end gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={onClose}
+                    disabled={feedbackMutation.isPending}
+                  >
+                    Tutup
+                  </Button>
+                  <Button type="submit" disabled={feedbackMutation.isPending}>
+                    <Send className="h-4 w-4 mr-2" />
+                    {feedbackMutation.isPending
+                      ? "Mengirim..."
+                      : "Kirim Feedback"}
+                  </Button>
+                </div>
+              </form>
             </CardContent>
           </Card>
         </div>
