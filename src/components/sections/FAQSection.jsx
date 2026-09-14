@@ -3,6 +3,12 @@
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { ChatBubbleIcon, ChevronDownIcon } from "@radix-ui/react-icons";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "../ui/accordion";
 
 const FAQSection = () => {
   const [openIndex, setOpenIndex] = useState(0);
@@ -43,66 +49,44 @@ const FAQSection = () => {
   return (
     <section id="faq" className="py-20 relative">
       <div className="container mx-auto px-4 max-w-4xl">
-        {/* Section Header */}
-        <div className="text-center mb-14 space-y-4">
-          <div className="inline-block">
-            <span className="mia-pill-badge">
-              <ChatBubbleIcon className="h-3.5 w-3.5 text-[#E01C20]" />
-              <span>FAQ</span>
-            </span>
-          </div>
-
-          <h2 className="text-3xl sm:text-4xl md:text-[30.56px] font-bold text-[#FFF9F5] tracking-tight">
-            Pertanyaan yang <span className="text-[#E01C20]">Sering Diajukan</span>
-          </h2>
-
-          <p className="text-base md:text-[18.89px] text-[#AAB1BD] max-w-2xl mx-auto leading-relaxed">
-            Temukan jawaban untuk pertanyaan umum seputar kompetisi MIA 2025.
-          </p>
-        </div>
-
-        {/* Accordion Stack */}
-        <div className="space-y-4">
+        <Accordion
+          type="single"
+          collapsible
+          defaultValue="0"
+          className="space-y-4"
+        >
           {faqs.map((faq, index) => {
             const isOpen = openIndex === index;
 
             return (
-              <div
+              <AccordionItem
                 key={index}
-                className={cn(
-                  "mia-card transition-all duration-300 overflow-hidden",
-                  isOpen ? "border-[#E01C20]/40 bg-[#0A0D14]/80" : "hover:border-white/20"
-                )}
+                value={index.toString()}
+                className="mia-card py-2 px-6"
               >
-                <button
-                  className="w-full p-6 text-left flex items-center justify-between gap-4 cursor-pointer"
-                  onClick={() => setOpenIndex(isOpen ? null : index)}
-                >
-                  <span className="text-base sm:text-lg font-bold text-[#FFF9F5]">
-                    {faq.question}
-                  </span>
+                <AccordionTrigger className="relative text-base sm:text-lg font-bold text-[#FFF9F5] hover:no-underline [&>svg]:hidden cursor-pointer group">
+                  {faq.question}
                   <div
                     className={cn(
+                      "absolute top-1/2 right-0 -translate-y-1/2 z-10",
                       "w-8 h-8 rounded-full bg-[#1E2939] flex items-center justify-center transition-transform duration-300 flex-shrink-0 border border-white/10",
-                      isOpen ? "rotate-180 bg-[#E01C20]/20 text-[#E01C20]" : "text-[#AAB1BD]"
+                      "group-data-[state=open]:rotate-180 group-data-[state=open]:bg-[#E01C20]/20 group-data-[state=open]:text-[#E01C20]",
+                      "group-data-[state=closed]text-[#AAB1BD]",
                     )}
                   >
                     <ChevronDownIcon className="h-5 w-5" />
                   </div>
-                </button>
-
-                {isOpen && (
-                  <div className="px-6 pb-6 pt-1 text-sm sm:text-base text-[#AAB1BD] leading-relaxed border-t border-white/5 mt-1">
-                    {faq.answer}
-                  </div>
-                )}
-              </div>
+                </AccordionTrigger>
+                <AccordionContent className="pt-1 text-sm sm:text-base text-[#AAB1BD] leading-relaxed border-t border-white/5 mt-1 cursor-pointer">
+                  {faq.answer}
+                </AccordionContent>
+              </AccordionItem>
             );
           })}
-        </div>
+        </Accordion>
       </div>
     </section>
   );
 };
 
-export default FAQSection;
+export default FAQSection;
