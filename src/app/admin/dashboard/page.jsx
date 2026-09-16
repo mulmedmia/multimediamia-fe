@@ -90,8 +90,11 @@ export default function AdminDashboardPage() {
               key={index}
               className="mia-card p-5 sm:p-6 shadow-xl flex items-center justify-between transition-all"
             >
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">
+              <div className="space-y-1 min-w-0">
+                <p
+                  className="text-sm font-medium text-muted-foreground truncate"
+                  title={stat.title}
+                >
                   {stat.title}
                 </p>
                 {stat.loading ? (
