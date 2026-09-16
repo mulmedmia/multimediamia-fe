@@ -23,8 +23,6 @@ export function useAuth() {
       Cookies.set("authToken", data.data.token);
       return data;
     } catch (err) {
-      setMessageType("error");
-
       const errorMessage = err.message || "Email atau password salah.";
 
       if (
@@ -33,14 +31,28 @@ export function useAuth() {
         errorMessage.toLowerCase().includes("not verified") ||
         errorMessage.toLowerCase().includes("belum terverifikasi")
       ) {
-        setMessage(
-          "Please re-register with the same email to get verified by clicking Daftar di Sini",
-        );
-        setMessageType("warning");
+        try {
+          await requestOtp(email);
+          Cookies.set("pendingEmail", email);
+          setMessage(
+            "Akun belum terverifikasi. Kode OTP baru telah dikirim ke email Anda.",
+          );
+          setMessageType("success");
+          setTimeout(() => {
+            router.push("/register/otp");
+          }, 1500);
+        } catch (otpError) {
+          setMessage(
+            otpError.message || "Gagal mengirim ulang OTP verifikasi.",
+          );
+          setMessageType("error");
+          setLoading(false);
+        }
       } else {
+        setMessageType("error");
         setMessage(errorMessage);
+        setLoading(false);
       }
-      setLoading(false);
       return null;
     }
   };
@@ -73,32 +85,16 @@ export function useRegister() {
     } catch (err) {
       setMessageType("error");
 
-      // Check jika error adalah email sudah terdaftar
       const errorMessage = err.message || "Registrasi gagal.";
       const isEmailAlreadyRegistered =
         errorMessage.toLowerCase().includes("email") &&
         (errorMessage.toLowerCase().includes("already") ||
           errorMessage.toLowerCase().includes("sudah") ||
-          errorMessage.toLowerCase().includes("terdaftar"));
+          errorMessage.toLowerCase().includes("terdaftar") ||
+          errorMessage.toLowerCase().includes("digunakan"));
 
       if (isEmailAlreadyRegistered) {
-        try {
-          // Kirim OTP ke email yang sudah terdaftar
-          await requestOtp(email);
-          setMessage(
-            "Email sudah terdaftar. OTP baru telah dikirim untuk verifikasi.",
-          );
-          setMessageType("success");
-          Cookies.set("pendingEmail", email);
-          // Redirect ke halaman OTP
-          setTimeout(() => {
-            router.push("/register/otp");
-          }, 1500);
-        } catch (otpError) {
-          setMessage(
-            "Email sudah terdaftar. Silakan coba login atau hubungi admin.",
-          );
-        }
+        setMessage("Email sudah digunakan. Silakan gunakan email lain atau login.");
       } else {
         setMessage(errorMessage);
       }
