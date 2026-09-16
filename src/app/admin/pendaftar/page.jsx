@@ -5,6 +5,7 @@ import { useAdminRegistrations } from "@/hooks/admin-use-pendaftar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import {
   flexRender,
   getCoreRowModel,
@@ -35,15 +36,16 @@ export default function AdminPendaftarPage() {
   // Debounce search term untuk mengurangi API calls
   useEffect(() => {
     const timer = setTimeout(() => {
-      setSearchTerm(searchInput);
-      // Reset ke halaman 1 saat search berubah
-      if (searchInput !== searchTerm) {
+      const trimmedInput = searchInput.trim();
+      // Hanya ganti search term & reset halaman jika hasil trim berbeda
+      if (trimmedInput !== searchTerm) {
+        setSearchTerm(trimmedInput);
         setPage(1);
       }
     }, 500); // Delay 500ms
 
     return () => clearTimeout(timer);
-  }, [searchInput]);
+  }, [searchInput, searchTerm]);
 
   // Ambil data kategori untuk filter dropdown
   const {
@@ -61,6 +63,7 @@ export default function AdminPendaftarPage() {
   const {
     data,
     isLoading: loadingRegistrations,
+    isFetching: fetchingRegistrations,
     isError: errorRegistrations,
     refetch: refetchRegistrations,
   } = useAdminRegistrations({
@@ -70,27 +73,17 @@ export default function AdminPendaftarPage() {
     search: searchTerm || undefined,
   });
 
-  // Registrations dari API
-  const registrations = Array.isArray(data?.registrations)
-    ? data.registrations
-    : [];
-  const meta = data?.meta || { page: 1, limit, totalPages: 1, total: 0 };
-
-  // Gunakan data langsung dari server (server-side filtering & pagination)
-  // TEMPORARY FIX: Client-side filtering sebagai backup jika backend belum fix
+  // Registrations dari API dengan referensi memori yang stabil untuk TanStack Table
   const tableData = useMemo(() => {
-    if (!categoryId) return registrations;
+    return Array.isArray(data?.registrations) ? data.registrations : [];
+  }, [data?.registrations]);
 
-    // Filter by category di client-side sebagai backup
-    const filtered = registrations.filter((reg) => {
-      const regCategoryId = String(
-        reg.category_id || reg.category?.category_id,
-      );
-      return regCategoryId === String(categoryId);
-    });
-
-    return filtered;
-  }, [registrations, categoryId]);
+  const meta = data?.meta || {
+    page: 1,
+    limit,
+    totalPages: 1,
+    total: 0,
+  };
 
   const totalItems = meta.total;
   const maxPages = meta.totalPages || 1;
@@ -112,8 +105,8 @@ export default function AdminPendaftarPage() {
 
   // Handler untuk kategori
   const handleCategoryChange = (e) => {
-    const newCategory = e.target.value;
-    setCategoryId(newCategory);
+    const newCategoryId = e.target.value;
+    setCategoryId(newCategoryId);
     setPage(1); // Reset ke halaman 1 saat kategori berubah
   };
 
@@ -146,10 +139,10 @@ export default function AdminPendaftarPage() {
   const isPreviousDisabled = page <= 1;
   const isNextDisabled = page >= maxPages;
 
-  // UI Loading
-  if (loadingRegistrations || loadingCategories) {
+  // UI Loading (hanya saat awal muat data belum ada)
+  if ((loadingRegistrations && !data) || loadingCategories) {
     return (
-      <div className="container mx-auto py-10 px-4 h-full flex flex-col align-middle justify-center">
+      <div className="container mx-auto py-10 px-4 h-full flex flex-col align-middle justify-center min-h-[60vh]">
         <div className="flex items-center space-x-3 self-center">
           <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
           <p className="text-muted-foreground">Memuat data...</p>
@@ -202,7 +195,7 @@ export default function AdminPendaftarPage() {
               <select
                 value={categoryId}
                 onChange={handleCategoryChange}
-                className="block w-full sm:w-48 px-3 py-2 bg-white border border-neutral-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm dark:bg-neutral-800 dark:border-neutral-700 dark:text-white"
+                className="block w-full sm:w-48 h-11 px-3.5 bg-input border border-border rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/50 focus:border-ring disabled:opacity-50 transition-all cursor-pointer"
                 disabled={loadingCategories}
               >
                 <option value="">Semua Kategori</option>
@@ -213,25 +206,29 @@ export default function AdminPendaftarPage() {
                 ))}
               </select>
 
-              {/* Search dengan Clear Button */}
+              {/* Search dengan Clear Button & Inline Spinner (Model SubmissionForm) */}
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
+                  <Search className="w-4 h-4" />
+                </div>
                 <Input
-                  placeholder="Cari pendaftar di semua halaman..."
+                  placeholder="Cari nama / email / tim"
                   value={searchInput}
                   onChange={handleSearchInputChange}
-                  className="pl-10 pr-10"
+                  className="h-11 bg-input rounded-xl pl-10 pr-10 text-sm text-foreground placeholder:text-mia-muted-2 border-border focus-visible:border-ring focus-visible:ring-ring/50 transition-all"
                 />
-                {searchInput && (
+                {fetchingRegistrations ? (
+                  <div className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                ) : searchInput ? (
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={handleClearSearch}
-                    className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 p-0 hover:bg-gray-200"
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 h-7 w-7 p-0 rounded-lg hover:bg-muted text-muted-foreground flex items-center justify-center"
                   >
                     ×
                   </Button>
-                )}
+                ) : null}
               </div>
             </div>
           </div>
