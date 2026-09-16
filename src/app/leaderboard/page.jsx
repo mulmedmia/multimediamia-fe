@@ -96,7 +96,7 @@ export default function LeaderboardPage() {
               </h1>
               
               <p className="text-sm sm:text-base md:text-lg text-[#AAB1BD] leading-relaxed">
-                Lihat peringkat karya terbaik dari setiap kategori kompetisi MIA 2025 dan raih posisi teratas!
+                Lihat peringkat karya terbaik dari setiap kategori kompetisi MIA 2026 dan raih posisi teratas!
               </p>
             </div>
 

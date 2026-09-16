@@ -42,7 +42,7 @@ const FAQSection = () => {
     {
       question: "Kapan pengumuman pemenang dilakukan?",
       answer:
-        "Pengumuman pemenang akan dilakukan pada Acara Puncak tanggal 28 November 2025 secara hybrid, serta dipublikasikan di website resmi dan Instagram @multimedia.in.action.",
+        "Pengumuman pemenang akan dilakukan pada Acara Puncak tanggal 28 November 2026 secara hybrid, serta dipublikasikan di website resmi dan Instagram @multimedia.in.action.",
     },
   ];
 

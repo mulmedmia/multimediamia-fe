@@ -214,7 +214,7 @@ export default function SubmissionDetailPage(props) {
                     {/* Info Judul & Peserta */}
                     <div className="space-y-1.5">
                       <span className="text-[11px] uppercase tracking-wider text-mia-muted font-semibold block">
-                        Karya Peserta MIA 2025
+                        Karya Peserta MIA 2026
                       </span>
                       <h1 className="text-2xl sm:text-3xl font-bold text-mia-text leading-tight">
                         {submission.project_name}

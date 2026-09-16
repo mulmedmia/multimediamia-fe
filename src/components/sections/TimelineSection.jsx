@@ -16,7 +16,7 @@ import {
 const TimelineSection = () => {
   const timelineEvents = [
     {
-      date: "19 Oktober 2025",
+      date: "19 Oktober 2026",
       title: "Learn It (Best Practice UI/UX & Web Dev)",
       description:
         "Sesi bimbingan mentoring kedua yang dibimbing oleh para ahli di bidang UI/UX dan Web Development.",
@@ -24,7 +24,7 @@ const TimelineSection = () => {
       icon: LightningBoltIcon,
     },
     {
-      date: "20 Okt - 02 Nov 2025",
+      date: "20 Okt - 02 Nov 2026",
       title: "Build It",
       description:
         "Peserta mengerjakan dan melampirkan hasil karya sesuai tema dari sesi mentoring.",
@@ -32,7 +32,7 @@ const TimelineSection = () => {
       icon: GearIcon,
     },
     {
-      date: "03 November 2025",
+      date: "03 November 2026",
       title: "Submit Karya Sementara",
       description:
         "Peserta wajib mengirimkan hasil karya sementara untuk mendapatkan feedback dari mentor.",
@@ -40,7 +40,7 @@ const TimelineSection = () => {
       icon: FileTextIcon,
     },
     {
-      date: "04 November 2025",
+      date: "04 November 2026",
       title: "Learn It (Best Practice Public Speaking)",
       description:
         "Sesi mentoring pertama yang dibimbing oleh para ahli di bidang Public Speaking.",
@@ -48,7 +48,7 @@ const TimelineSection = () => {
       icon: LightningBoltIcon,
     },
     {
-      date: "04 Nov - 06 Nov 2025",
+      date: "04 Nov - 06 Nov 2026",
       title: "Review It",
       description:
         "Mentor memberikan feedback kepada hasil karya sementara peserta secara asynchronous.",
@@ -56,14 +56,14 @@ const TimelineSection = () => {
       icon: EyeOpenIcon,
     },
     {
-      date: "07 November 2025",
+      date: "07 November 2026",
       title: "Share Evaluation Report",
       description: "Laporan feedback dibagikan kepada semua peserta.",
       status: "upcoming",
       icon: FileTextIcon,
     },
     {
-      date: "08 November 2025",
+      date: "08 November 2026",
       title: "Consultation Session",
       description:
         "Sesi konsultasi 1-on-1 bersama mentor secara synchronous yang didapatkan dari tiket konsultasi.",
@@ -71,7 +71,7 @@ const TimelineSection = () => {
       icon: ChatBubbleIcon,
     },
     {
-      date: "09 Nov - 15 Nov 2025",
+      date: "09 Nov - 15 Nov 2026",
       title: "Fix It",
       description:
         "Peserta memperbaiki hasil karya berdasarkan feedback dari mentor.",
@@ -79,7 +79,7 @@ const TimelineSection = () => {
       icon: GearIcon,
     },
     {
-      date: "16 November 2025",
+      date: "16 November 2026",
       title: "Submit Karya Akhir",
       description:
         "Peserta mengumpulkan hasil karya akhir untuk dinilai oleh para juri & stakeholder.",
@@ -87,14 +87,14 @@ const TimelineSection = () => {
       icon: CheckIcon,
     },
     {
-      date: "17 Nov - 21 Nov 2025",
+      date: "17 Nov - 21 Nov 2026",
       title: "Show It",
       description: "Proses seleksi transparan untuk memilih tim terbaik.",
       status: "upcoming",
       icon: EyeOpenIcon,
     },
     {
-      date: "22 Nov 2025",
+      date: "22 Nov 2026",
       title: "Pengumuman 10 Finalis",
       description:
         "Pengumuman resmi 10 tim yang berhasil lolos ke tahap selanjutnya.",
@@ -102,7 +102,7 @@ const TimelineSection = () => {
       icon: StarIcon,
     },
     {
-      date: "23 Nov - 27 Nov 2025",
+      date: "23 Nov - 27 Nov 2026",
       title: "2nd Fix It",
       description:
         "Para finalis diberi kesempatan terakhir untuk memperbaiki karya berdasarkan komentar juri.",
@@ -110,7 +110,7 @@ const TimelineSection = () => {
       icon: GearIcon,
     },
     {
-      date: "28 November 2025",
+      date: "28 November 2026",
       title: "Acara Puncak",
       description:
         "Seminar seputar teknologi dan seleksi akhir untuk menentukan 3 tim terbaik.",
@@ -132,7 +132,7 @@ const TimelineSection = () => {
           </div>
 
           <h2 className="text-3xl sm:text-4xl md:text-[30.56px] font-bold text-[#FFF9F5] tracking-tight">
-            Timeline Proyek <span className="text-[#E01C20]">MIA 2025</span>
+            Timeline Proyek <span className="text-[#E01C20]">MIA 2026</span>
           </h2>
 
           <p className="text-base md:text-[18.89px] text-[#AAB1BD] max-w-2xl mx-auto leading-relaxed">

@@ -79,7 +79,7 @@ function PreviewCard({ category }) {
                       month: "long",
                       year: "numeric",
                     })
-                  : "20 November 2025"}
+                  : "20 November 2026"}
               </p>
             </div>
           </div>
@@ -128,7 +128,7 @@ export default function HomeCategoryPreview() {
       description:
         "Tantangan membangun aplikasi web modern, responsif, dan performan menggunakan teknologi terkini.",
       organizer: "MIA UPNVJ",
-      deadline: "2025-11-16",
+      deadline: "2026-11-16",
       team_type: "GROUP",
       image:
         "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop&q=80",
@@ -140,7 +140,7 @@ export default function HomeCategoryPreview() {
       description:
         "Rancang pengalaman pengguna (UX) dan antarmuka (UI) yang solutif, intuitif, dan estetis untuk masalah nyata.",
       organizer: "MIA UPNVJ",
-      deadline: "2025-11-16",
+      deadline: "2026-11-16",
       team_type: "GROUP",
       image:
         "https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?w=800&auto=format&fit=crop&q=80",

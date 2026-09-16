@@ -17,7 +17,7 @@ const HeroSection = () => {
           <div className="inline-block">
             <span className="mia-pill-badge shadow-md">
               <span className="text-amber-400">🔥</span>
-              <span>Kompetisi Digital Indonesia 2025</span>
+              <span>Kompetisi Digital Indonesia 2026</span>
             </span>
           </div>
 
