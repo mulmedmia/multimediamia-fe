@@ -58,7 +58,12 @@ export default function AdminPendaftarPage() {
   });
 
   // Ambil data pendaftar dengan server-side filtering dan pagination
-  const { data, isLoading, isError, refetch } = useAdminRegistrations({
+  const {
+    data,
+    isLoading: loadingRegistrations,
+    isError: errorRegistrations,
+    refetch: refetchRegistrations,
+  } = useAdminRegistrations({
     page,
     limit,
     category: category || undefined,
@@ -75,16 +80,18 @@ export default function AdminPendaftarPage() {
   // TEMPORARY FIX: Client-side filtering sebagai backup jika backend belum fix
   const tableData = useMemo(() => {
     if (!category) return registrations;
-    
+
     // Filter by category di client-side sebagai backup
-    const filtered = registrations.filter(reg => {
-      const regCategoryId = String(reg.category_id || reg.category?.category_id);
+    const filtered = registrations.filter((reg) => {
+      const regCategoryId = String(
+        reg.category_id || reg.category?.category_id,
+      );
       return regCategoryId === String(category);
     });
-    
+
     return filtered;
   }, [registrations, category]);
-  
+
   const totalItems = meta.total;
   const maxPages = meta.totalPages || 1;
 
@@ -94,7 +101,7 @@ export default function AdminPendaftarPage() {
 
   const columns = useMemo(
     () => getPendaftarColumns({ setDetailData, setVerifyData }),
-    [setDetailData, setVerifyData]
+    [setDetailData, setVerifyData],
   );
 
   const table = useReactTable({
@@ -140,41 +147,32 @@ export default function AdminPendaftarPage() {
   const isNextDisabled = page >= maxPages;
 
   // UI Loading
-  if (isLoading || loadingCategories) {
+  if (loadingRegistrations || loadingCategories) {
     return (
-      <div className="container mx-auto py-10 px-4">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-2 text-muted-foreground">Memuat data...</p>
+      <div className="container mx-auto py-10 px-4 h-full flex flex-col align-middle justify-center">
+        <div className="flex items-center space-x-3 self-center">
+          <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-muted-foreground">Memuat data...</p>
         </div>
       </div>
     );
   }
 
   // UI Error
-  if (isError) {
-    return (
-      <div className="container mx-auto py-10 px-4">
-        <div className="text-center text-red-600 dark:text-red-400">
-          <p>Gagal memuat data pendaftar.</p>
-          <Button variant="outline" onClick={() => refetch()} className="mt-4">
-            Coba Lagi
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  if (errorRegistrations || errorCategories) {
+    const errorMessage = errorRegistrations
+      ? "Gagal memuat data pendaftar."
+      : "Gagal memuat data kategori.";
 
-  if (errorCategories) {
+    const refetch = errorRegistrations
+      ? refetchRegistrations
+      : refetchCategories;
+
     return (
-      <div className="container mx-auto py-10 px-4">
+      <div className="container mx-auto py-10 px-4 h-full flex flex-col align-middle justify-center">
         <div className="text-center text-red-600 dark:text-red-400">
-          <p>Gagal memuat data kategori.</p>
-          <Button
-            variant="outline"
-            onClick={() => refetchCategories()}
-            className="mt-4"
-          >
+          <p>{errorMessage}</p>
+          <Button variant="outline" onClick={() => refetch()} className="mt-4">
             Coba Lagi
           </Button>
         </div>
@@ -329,7 +327,7 @@ export default function AdminPendaftarPage() {
                           >
                             {flexRender(
                               header.column.columnDef.header,
-                              header.getContext()
+                              header.getContext(),
                             )}
                           </th>
                         ))}
@@ -349,7 +347,7 @@ export default function AdminPendaftarPage() {
                           >
                             {flexRender(
                               cell.column.columnDef.cell,
-                              cell.getContext()
+                              cell.getContext(),
                             )}
                           </td>
                         ))}

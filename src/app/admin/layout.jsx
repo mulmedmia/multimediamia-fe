@@ -180,9 +180,9 @@ export default function AdminLayout({ children }) {
         </div>
 
         {/* Scrollable Main area */}
-        <div className="flex-1 overflow-y-auto relative">
+        <div className="flex flex-1 flex-col overflow-y-auto relative">
           {/* Header with Glassmorphism Backdrop Blur */}
-          <header className="sticky top-0 z-30 flex h-16 sm:h-20 items-center justify-between border-b border-border/40 px-4 sm:px-6 bg-[#0F121A]/80 backdrop-blur-md shadow-sm">
+          <header className="sticky top-0 z-30 flex h-16 sm:h-20 items-center justify-between border-b border-border/40 px-4 sm:px-6 bg-[#0F121A]/80 backdrop-blur-md shadow-sm shrink-0">
             {/* Left side of header */}
             <div className="flex items-center gap-3">
               {/* Mobile-only sidebar trigger */}
@@ -252,8 +252,8 @@ export default function AdminLayout({ children }) {
           </header>
 
           {/* Main content container */}
-          <main className="p-4 sm:p-6 lg:p-8">
-            <div className="max-w-7xl mx-auto space-y-6">{children}</div>
+          <main className="flex-1 p-4 sm:p-6 lg:p-8">
+            <div className="max-w-7xl mx-auto space-y-6 h-full">{children}</div>
           </main>
         </div>
       </div>
