@@ -28,7 +28,7 @@ export default function AdminPendaftarPage() {
   // State untuk filter & pagination
   const [searchTerm, setSearchTerm] = useState("");
   const [searchInput, setSearchInput] = useState(""); // Untuk input search
-  const [category, setCategory] = useState("");
+  const [categoryId, setCategoryId] = useState("");
   const [page, setPage] = useState(1);
   const limit = 10;
 
@@ -66,7 +66,7 @@ export default function AdminPendaftarPage() {
   } = useAdminRegistrations({
     page,
     limit,
-    category: category || undefined,
+    category_id: categoryId || undefined,
     search: searchTerm || undefined,
   });
 
@@ -79,18 +79,18 @@ export default function AdminPendaftarPage() {
   // Gunakan data langsung dari server (server-side filtering & pagination)
   // TEMPORARY FIX: Client-side filtering sebagai backup jika backend belum fix
   const tableData = useMemo(() => {
-    if (!category) return registrations;
+    if (!categoryId) return registrations;
 
     // Filter by category di client-side sebagai backup
     const filtered = registrations.filter((reg) => {
       const regCategoryId = String(
         reg.category_id || reg.category?.category_id,
       );
-      return regCategoryId === String(category);
+      return regCategoryId === String(categoryId);
     });
 
     return filtered;
-  }, [registrations, category]);
+  }, [registrations, categoryId]);
 
   const totalItems = meta.total;
   const maxPages = meta.totalPages || 1;
@@ -113,7 +113,7 @@ export default function AdminPendaftarPage() {
   // Handler untuk kategori
   const handleCategoryChange = (e) => {
     const newCategory = e.target.value;
-    setCategory(newCategory);
+    setCategoryId(newCategory);
     setPage(1); // Reset ke halaman 1 saat kategori berubah
   };
 
@@ -200,7 +200,7 @@ export default function AdminPendaftarPage() {
             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
               {/* Filter Kategori */}
               <select
-                value={category}
+                value={categoryId}
                 onChange={handleCategoryChange}
                 className="block w-full sm:w-48 px-3 py-2 bg-white border border-neutral-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm dark:bg-neutral-800 dark:border-neutral-700 dark:text-white"
                 disabled={loadingCategories}
@@ -237,23 +237,24 @@ export default function AdminPendaftarPage() {
           </div>
 
           {/* Filter Status Info */}
-          {(category || searchTerm) && (
+          {(categoryId || searchTerm) && (
             <div className="flex flex-wrap items-center gap-2 mt-2">
               <span className="text-sm text-muted-foreground">
                 Filter aktif:
               </span>
-              {category && (
+              {categoryId && (
                 <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                   Kategori:{" "}
                   {
-                    categories.find((c) => c.category_id === category)
-                      ?.category_name
+                    categories.find(
+                      (c) => String(c.category_id) === String(categoryId),
+                    )?.category_name
                   }
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => {
-                      setCategory("");
+                      setCategoryId("");
                       setPage(1);
                     }}
                     className="ml-1 h-4 w-4 p-0 hover:bg-blue-200"
@@ -279,12 +280,12 @@ export default function AdminPendaftarPage() {
                   </Button>
                 </span>
               )}
-              {(category || searchTerm) && (
+              {(categoryId || searchTerm) && (
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    setCategory("");
+                    setCategoryId("");
                     setSearchInput("");
                     setSearchTerm("");
                     setPage(1);
@@ -303,12 +304,12 @@ export default function AdminPendaftarPage() {
             <div className="text-center py-12">
               <div className="text-6xl mb-4">🔍</div>
               <p className="text-muted-foreground text-lg font-medium mb-2">
-                {searchTerm || category
+                {searchTerm || categoryId
                   ? "Tidak ada pendaftar yang sesuai dengan filter"
                   : "Tidak ada data pendaftar"}
               </p>
               <p className="text-muted-foreground text-sm">
-                {searchTerm || category
+                {searchTerm || categoryId
                   ? "Coba ubah kriteria pencarian atau hapus filter untuk melihat data lain"
                   : "Belum ada pendaftar yang terdaftar dalam sistem"}
               </p>
@@ -365,7 +366,7 @@ export default function AdminPendaftarPage() {
                     Menampilkan {(page - 1) * limit + 1} -{" "}
                     {Math.min(page * limit, totalItems)} dari {totalItems} total
                     pendaftar
-                    {(category || searchTerm) && " (hasil filter)"}
+                    {(categoryId || searchTerm) && " (hasil filter)"}
                   </div>
                   <div>{maxPages > 1 && `${maxPages} halaman`}</div>
                 </div>
