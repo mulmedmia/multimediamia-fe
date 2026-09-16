@@ -34,15 +34,14 @@ export function useAuth() {
         errorMessage.toLowerCase().includes("belum terverifikasi")
       ) {
         setMessage(
-          "Please re-register with the same email to get verified by clicking Daftar di Sini"
+          "Please re-register with the same email to get verified by clicking Daftar di Sini",
         );
         setMessageType("warning");
       } else {
         setMessage(errorMessage);
       }
-      return null;
-    } finally {
       setLoading(false);
+      return null;
     }
   };
 
@@ -87,7 +86,7 @@ export function useRegister() {
           // Kirim OTP ke email yang sudah terdaftar
           await requestOtp(email);
           setMessage(
-            "Email sudah terdaftar. OTP baru telah dikirim untuk verifikasi."
+            "Email sudah terdaftar. OTP baru telah dikirim untuk verifikasi.",
           );
           setMessageType("success");
           Cookies.set("pendingEmail", email);
@@ -97,7 +96,7 @@ export function useRegister() {
           }, 1500);
         } catch (otpError) {
           setMessage(
-            "Email sudah terdaftar. Silakan coba login atau hubungi admin."
+            "Email sudah terdaftar. Silakan coba login atau hubungi admin.",
           );
         }
       } else {

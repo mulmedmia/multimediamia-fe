@@ -141,7 +141,7 @@ export default function LoginPage() {
           </button>
 
           {/* Helper Links */}
-          <div className="space-y-2 pt-2 text-center text-sm text-[#AAB1BD]">
+          <div className="space-y-1 pt-2 text-center text-sm text-[#AAB1BD]">
             <p>
               Belum punya akun?{" "}
               <Link
