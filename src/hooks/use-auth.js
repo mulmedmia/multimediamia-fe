@@ -98,7 +98,6 @@ export function useRegister() {
       } else {
         setMessage(errorMessage);
       }
-    } finally {
       setLoading(false);
     }
   };
@@ -141,9 +140,8 @@ export function useOtp() {
     } catch (err) {
       setMessageType("error");
       setMessage(err.message || "OTP tidak valid atau sudah kadaluarsa.");
-      return false;
-    } finally {
       setLoading(false);
+      return false;
     }
   };
 

@@ -70,6 +70,7 @@ export default function LoginPage() {
                   id="email"
                   type="email"
                   placeholder="account@gmail.com"
+                  required
                   {...register("email")}
                   className="w-full bg-[#141824] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-[#FFF9F5] placeholder-[#99A1AF] focus:border-[#E01C20] focus:ring-1 focus:ring-[#E01C20] transition-all outline-none"
                 />
@@ -94,14 +95,14 @@ export default function LoginPage() {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
+                  required
                   {...register("password")}
                   className="w-full bg-[#141824] border border-white/10 rounded-xl py-3 pl-10 pr-10 text-sm text-[#FFF9F5] placeholder-[#99A1AF] focus:border-[#E01C20] focus:ring-1 focus:ring-[#E01C20] transition-all outline-none"
                 />
                 <button
                   type="button"
-                  tabIndex={-1}
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#AAB1BD] hover:text-[#FFF9F5] cursor-pointer"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#AAB1BD] hover:text-[#FFF9F5] focus:text-[#FFF9F5] cursor-pointer"
                   aria-label={
                     showPassword ? "Sembunyikan password" : "Lihat password"
                   }
