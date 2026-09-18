@@ -102,7 +102,7 @@ export default function ShowItPage() {
 
               <p className="text-sm sm:text-base md:text-lg text-[#AAB1BD] leading-relaxed">
                 Jelajahi dan temukan inspirasi dari karya-karya inovatif dan kreatif
-                peserta kompetisi Multimedia in Action 2025!
+                peserta kompetisi Multimedia in Action 2026!
               </p>
             </div>
 

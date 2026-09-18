@@ -41,7 +41,6 @@ export const useRequestOtp = () => {
     } catch (error) {
       setMessage(error.message || "Gagal mengirim OTP. Silakan coba lagi.");
       setMessageType("error");
-    } finally {
       setLoading(false);
     }
   };
@@ -98,7 +97,6 @@ export const useResetPassword = () => {
         error.message || "Gagal reset password. Silakan periksa OTP Anda."
       );
       setMessageType("error");
-    } finally {
       setLoading(false);
     }
   };

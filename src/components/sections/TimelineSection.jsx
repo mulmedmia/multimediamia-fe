@@ -16,7 +16,7 @@ import {
 const TimelineSection = () => {
   const timelineEvents = [
     {
-      date: "19 Oktober 2025",
+      date: "19 Oktober 2026",
       title: "Learn It (Best Practice UI/UX & Web Dev)",
       description:
         "Sesi bimbingan mentoring kedua yang dibimbing oleh para ahli di bidang UI/UX dan Web Development.",
@@ -24,7 +24,7 @@ const TimelineSection = () => {
       icon: LightningBoltIcon,
     },
     {
-      date: "20 Okt - 02 Nov 2025",
+      date: "20 Okt - 02 Nov 2026",
       title: "Build It",
       description:
         "Peserta mengerjakan dan melampirkan hasil karya sesuai tema dari sesi mentoring.",
@@ -32,7 +32,7 @@ const TimelineSection = () => {
       icon: GearIcon,
     },
     {
-      date: "03 November 2025",
+      date: "03 November 2026",
       title: "Submit Karya Sementara",
       description:
         "Peserta wajib mengirimkan hasil karya sementara untuk mendapatkan feedback dari mentor.",
@@ -40,7 +40,7 @@ const TimelineSection = () => {
       icon: FileTextIcon,
     },
     {
-      date: "04 November 2025",
+      date: "04 November 2026",
       title: "Learn It (Best Practice Public Speaking)",
       description:
         "Sesi mentoring pertama yang dibimbing oleh para ahli di bidang Public Speaking.",
@@ -48,7 +48,7 @@ const TimelineSection = () => {
       icon: LightningBoltIcon,
     },
     {
-      date: "04 Nov - 06 Nov 2025",
+      date: "04 Nov - 06 Nov 2026",
       title: "Review It",
       description:
         "Mentor memberikan feedback kepada hasil karya sementara peserta secara asynchronous.",
@@ -56,14 +56,14 @@ const TimelineSection = () => {
       icon: EyeOpenIcon,
     },
     {
-      date: "07 November 2025",
+      date: "07 November 2026",
       title: "Share Evaluation Report",
       description: "Laporan feedback dibagikan kepada semua peserta.",
       status: "upcoming",
       icon: FileTextIcon,
     },
     {
-      date: "08 November 2025",
+      date: "08 November 2026",
       title: "Consultation Session",
       description:
         "Sesi konsultasi 1-on-1 bersama mentor secara synchronous yang didapatkan dari tiket konsultasi.",
@@ -71,7 +71,7 @@ const TimelineSection = () => {
       icon: ChatBubbleIcon,
     },
     {
-      date: "09 Nov - 15 Nov 2025",
+      date: "09 Nov - 15 Nov 2026",
       title: "Fix It",
       description:
         "Peserta memperbaiki hasil karya berdasarkan feedback dari mentor.",
@@ -79,7 +79,7 @@ const TimelineSection = () => {
       icon: GearIcon,
     },
     {
-      date: "16 November 2025",
+      date: "16 November 2026",
       title: "Submit Karya Akhir",
       description:
         "Peserta mengumpulkan hasil karya akhir untuk dinilai oleh para juri & stakeholder.",
@@ -87,14 +87,14 @@ const TimelineSection = () => {
       icon: CheckIcon,
     },
     {
-      date: "17 Nov - 21 Nov 2025",
+      date: "17 Nov - 21 Nov 2026",
       title: "Show It",
       description: "Proses seleksi transparan untuk memilih tim terbaik.",
       status: "upcoming",
       icon: EyeOpenIcon,
     },
     {
-      date: "22 Nov 2025",
+      date: "22 Nov 2026",
       title: "Pengumuman 10 Finalis",
       description:
         "Pengumuman resmi 10 tim yang berhasil lolos ke tahap selanjutnya.",
@@ -102,7 +102,7 @@ const TimelineSection = () => {
       icon: StarIcon,
     },
     {
-      date: "23 Nov - 27 Nov 2025",
+      date: "23 Nov - 27 Nov 2026",
       title: "2nd Fix It",
       description:
         "Para finalis diberi kesempatan terakhir untuk memperbaiki karya berdasarkan komentar juri.",
@@ -110,7 +110,7 @@ const TimelineSection = () => {
       icon: GearIcon,
     },
     {
-      date: "28 November 2025",
+      date: "28 November 2026",
       title: "Acara Puncak",
       description:
         "Seminar seputar teknologi dan seleksi akhir untuk menentukan 3 tim terbaik.",
@@ -132,7 +132,7 @@ const TimelineSection = () => {
           </div>
 
           <h2 className="text-3xl sm:text-4xl md:text-[30.56px] font-bold text-[#FFF9F5] tracking-tight">
-            Timeline Proyek <span className="text-[#E01C20]">MIA 2025</span>
+            Timeline Proyek <span className="text-[#E01C20]">MIA 2026</span>
           </h2>
 
           <p className="text-base md:text-[18.89px] text-[#AAB1BD] max-w-2xl mx-auto leading-relaxed">
@@ -142,7 +142,7 @@ const TimelineSection = () => {
 
         {/* Horizontal Scrollable Timeline for Desktop */}
         <div className="relative hidden md:block">
-          <div className="overflow-x-auto pb-6 scrollbar-thin">
+          <div className="overflow-x-auto pb-6 scrollbar-thin py-2">
             <div className="relative min-w-max px-4">
               {/* Connecting Horizontal Line */}
               <div className="absolute top-6 left-12 right-12 h-0.5 bg-gradient-to-r from-[#00B445]/50 via-[#E01C20]/50 to-white/10" />
@@ -165,8 +165,8 @@ const TimelineSection = () => {
                           isCompleted
                             ? "bg-[#00B445] border-[#00B445] text-white shadow-green-900/40"
                             : isActive
-                            ? "bg-[#E01C20] border-[#FF4500] text-white animate-pulse ring-4 ring-[#E01C20]/30 shadow-red-900/50"
-                            : "bg-[#1E2939] border-white/10 text-[#AAB1BD]"
+                              ? "bg-[#E01C20] border-[#FF4500] text-white animate-pulse ring-4 ring-[#E01C20]/30 shadow-red-900/50"
+                              : "bg-[#1E2939] border-white/10 text-[#AAB1BD]",
                         )}
                       >
                         <event.icon className="h-5 w-5" />
@@ -194,15 +194,15 @@ const TimelineSection = () => {
                               isCompleted
                                 ? "bg-[#00B445]/20 text-[#00B445] border border-[#00B445]/30"
                                 : isActive
-                                ? "bg-[#E01C20]/20 text-[#E01C20] border border-[#E01C20]/30"
-                                : "bg-[#1E2939] text-[#99A1AF] border border-white/10"
+                                  ? "bg-[#E01C20]/20 text-[#E01C20] border border-[#E01C20]/30"
+                                  : "bg-[#1E2939] text-[#99A1AF] border border-white/10",
                             )}
                           >
                             {isCompleted
                               ? "Selesai"
                               : isActive
-                              ? "Berlangsung"
-                              : "Akan Datang"}
+                                ? "Berlangsung"
+                                : "Akan Datang"}
                           </span>
                         </div>
                       </div>
@@ -241,8 +241,8 @@ const TimelineSection = () => {
                       isCompleted
                         ? "bg-[#00B445] border-[#00B445] text-white"
                         : isActive
-                        ? "bg-[#E01C20] border-[#FF4500] text-white animate-pulse"
-                        : "bg-[#1E2939] border-white/10 text-[#AAB1BD]"
+                          ? "bg-[#E01C20] border-[#FF4500] text-white animate-pulse"
+                          : "bg-[#1E2939] border-white/10 text-[#AAB1BD]",
                     )}
                   >
                     <event.icon className="h-4 w-4" />
@@ -264,15 +264,15 @@ const TimelineSection = () => {
                         isCompleted
                           ? "bg-[#00B445]/20 text-[#00B445]"
                           : isActive
-                          ? "bg-[#E01C20]/20 text-[#E01C20]"
-                          : "bg-[#1E2939] text-[#99A1AF]"
+                            ? "bg-[#E01C20]/20 text-[#E01C20]"
+                            : "bg-[#1E2939] text-[#99A1AF]",
                       )}
                     >
                       {isCompleted
                         ? "Selesai"
                         : isActive
-                        ? "Berlangsung"
-                        : "Akan Datang"}
+                          ? "Berlangsung"
+                          : "Akan Datang"}
                     </span>
                   </div>
                 </div>
@@ -286,4 +286,3 @@ const TimelineSection = () => {
 };
 
 export default TimelineSection;
-

@@ -183,7 +183,7 @@ const desktopColumns = [
         <div className="max-w-[200px]">
           {members.length > 0 ? (
             <div className="space-y-1">
-              {members.slice(0, 2).map((member, idx) => (
+              {members.slice(0, 3).map((member, idx) => (
                 <div
                   key={idx}
                   className="text-xs text-muted-foreground truncate"
@@ -191,9 +191,9 @@ const desktopColumns = [
                   • {member}
                 </div>
               ))}
-              {members.length > 2 && (
+              {members.length > 3 && (
                 <div className="text-xs text-muted-foreground">
-                  +{members.length - 2} lainnya
+                  +{members.length - 3} lainnya
                 </div>
               )}
             </div>
@@ -279,7 +279,7 @@ export function getPendaftarColumns({
             cell: (props) =>
               col.cell({ ...props, setDetailData, setVerifyData }),
           }
-        : col
+        : col,
     );
   if (isMobile) return injectProps(mobileColumns);
   if (isTablet) return injectProps(tabletColumns);

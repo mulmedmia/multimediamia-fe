@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { DownloadIcon, ArrowRightIcon } from "@radix-ui/react-icons";
+import Image from "next/image";
 
 const HeroSection = () => {
   return (
@@ -16,18 +17,24 @@ const HeroSection = () => {
           <div className="inline-block">
             <span className="mia-pill-badge shadow-md">
               <span className="text-amber-400">🔥</span>
-              <span>Kompetisi Digital Indonesia 2025</span>
+              <span>Kompetisi Digital Indonesia 2026</span>
             </span>
           </div>
 
           {/* Main Two-Tone Headline */}
           <h1 className="text-4xl sm:text-5xl md:text-[52px] lg:text-[64px] font-bold text-[#FFF9F5] tracking-tight leading-[1.1]">
             <span className="inline-flex items-center justify-center gap-3 sm:gap-4 md:gap-5 flex-wrap">
-              <img
-                src="/mia2026_logo.png"
-                alt="MIA Logo"
-                className="h-12 sm:h-16 md:h-20 lg:h-24 w-auto object-contain drop-shadow-[0_0_25px_rgba(224,28,32,0.5)]"
-              />
+              <div className="relative h-12 sm:h-16 md:h-20 lg:h-24 w-auto aspect-square drop-shadow-[0_0_25px_rgba(224,28,32,0.5)]">
+                <Image
+                  src="/mia2026_logo.png"
+                  alt="MIA Logo"
+                  sizes="(min-width: 1024px) 96px, (min-width: 768px) 80px, (min-width: 640px) 64px, 48px"
+                  fill={true}
+                  loading="eager"
+                  fetchPriority="high"
+                  className="object-contain"
+                />
+              </div>
               <span>
                 Multimedia{" "}
                 <span className="bg-gradient-to-r from-[#E01C20] via-[#FF4500] to-[#FED700] bg-clip-text text-transparent">
@@ -47,10 +54,7 @@ const HeroSection = () => {
               Website Development
             </span>
             , dan{" "}
-            <span className="font-semibold text-[#E01C20]">
-              UI/UX Design
-            </span>
-            .
+            <span className="font-semibold text-[#E01C20]">UI/UX Design</span>.
           </p>
 
           {/* CTA Buttons */}
@@ -81,4 +85,3 @@ const HeroSection = () => {
 };
 
 export default HeroSection;
-

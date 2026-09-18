@@ -76,11 +76,13 @@ export default function AdminCategoryPage() {
                   Tambah Kategori
                 </Button>
               </DialogTrigger>
-              <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] overflow-y-auto">
+              {/* <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] overflow-y-auto"> */}
+              <DialogContent className="w-[95vw] sm:max-w-xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>Tambah Kategori</DialogTitle>
                 </DialogHeader>
                 <CategoryForm
+                  type="create"
                   onSubmit={createMutation.mutate}
                   isLoading={createMutation.isPending}
                 />
@@ -213,11 +215,12 @@ export default function AdminCategoryPage() {
         open={!!editData}
         onOpenChange={(open) => !open && setEditData(null)}
       >
-        <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-[95vw] sm:max-w-xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Kategori</DialogTitle>
           </DialogHeader>
           <CategoryForm
+            type="edit"
             initial={editData}
             onSubmit={(payload) =>
               updateMutation.mutate({ ...payload, id: editData?.category_id })

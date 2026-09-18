@@ -72,7 +72,7 @@ export default function SubmissionDetailModal({ open, onClose, data }) {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
+            <Card className="min-w-0">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-base">
                   <User className="h-4 w-4" />
@@ -84,24 +84,24 @@ export default function SubmissionDetailModal({ open, onClose, data }) {
                   <label className="text-xs font-medium text-muted-foreground">
                     Nama
                   </label>
-                  <p className="text-sm">{data?.user?.name || "-"}</p>
+                  <p className="text-sm break-words">{data?.user?.name || "-"}</p>
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground">
                     Email
                   </label>
-                  <p className="text-sm truncate">{data?.user?.email || "-"}</p>
+                  <p className="text-sm break-words">{data?.user?.email || "-"}</p>
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground">
                     Nama Tim
                   </label>
-                  <p className="text-sm">{data?.team_name || "-"}</p>
+                  <p className="text-sm break-words">{data?.team_name || "-"}</p>
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="min-w-0">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-base">
                   <Trophy className="h-4 w-4" />
@@ -113,7 +113,7 @@ export default function SubmissionDetailModal({ open, onClose, data }) {
                   <label className="text-xs font-medium text-muted-foreground">
                     Kategori
                   </label>
-                  <p className="text-sm">
+                  <p className="text-sm break-words">
                     {data?.category?.category_name || "-"}
                   </p>
                 </div>
@@ -121,13 +121,13 @@ export default function SubmissionDetailModal({ open, onClose, data }) {
                   <label className="text-xs font-medium text-muted-foreground">
                     Kompetisi
                   </label>
-                  <p className="text-sm">{data?.category?.name || "-"}</p>
+                  <p className="text-sm break-words">{data?.category?.name || "-"}</p>
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground">
                     Judul Proyek
                   </label>
-                  <p className="text-sm">
+                  <p className="text-sm break-words">
                     {data?.project_name || data?.title || "-"}
                   </p>
                 </div>
@@ -140,7 +140,7 @@ export default function SubmissionDetailModal({ open, onClose, data }) {
               <CardTitle className="text-base">Deskripsi Proyek</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="bg-muted rounded-lg p-4 min-h-[100px] text-sm">
+              <div className="bg-muted rounded-lg p-4 min-h-[100px] text-sm break-words">
                 {data?.description || (
                   <span className="text-muted-foreground italic">
                     Tidak ada deskripsi
@@ -151,12 +151,12 @@ export default function SubmissionDetailModal({ open, onClose, data }) {
           </Card>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
+            <Card className="min-w-0">
               <CardHeader>
                 <CardTitle className="text-base">Flow Aplikasi</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="bg-muted rounded-lg p-4 min-h-[100px] text-sm">
+                <div className="bg-muted rounded-lg p-4 min-h-[100px] text-sm break-words">
                   {data?.flow_application || (
                     <span className="text-muted-foreground italic">
                       Flow tidak tersedia
@@ -166,7 +166,7 @@ export default function SubmissionDetailModal({ open, onClose, data }) {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="min-w-0">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-base">
                   <Link2 className="h-4 w-4" />
@@ -177,8 +177,8 @@ export default function SubmissionDetailModal({ open, onClose, data }) {
                 <div className="space-y-2">
                   {data?.links && data.links.length > 0 ? (
                     data.links.map((link) => (
-                      <div key={link.link_id} className="border rounded-lg p-3">
-                        <div className="font-medium text-sm">
+                      <div key={link.link_id} className="border rounded-lg p-3 min-w-0">
+                        <div className="font-medium text-sm break-words">
                           {link.link_type}
                         </div>
                         <a
@@ -190,7 +190,7 @@ export default function SubmissionDetailModal({ open, onClose, data }) {
                           {link.url}
                         </a>
                         {link.description && (
-                          <div className="text-xs text-muted-foreground mt-1">
+                          <div className="text-xs text-muted-foreground mt-1 break-words">
                             {link.description}
                           </div>
                         )}
@@ -212,7 +212,7 @@ export default function SubmissionDetailModal({ open, onClose, data }) {
                 <CardTitle className="text-base">Feedback</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-sm">{data.feedback}</div>
+                <div className="text-sm break-words">{data.feedback}</div>
               </CardContent>
             </Card>
           )}

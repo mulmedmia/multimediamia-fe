@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import Image from "next/image";
 
 // Helper untuk deteksi tablet
 function isTabletScreen() {
@@ -8,11 +9,7 @@ function isTabletScreen() {
   return width >= 768 && width < 1024;
 }
 
-export function getProductColumns({
-  isMobile,
-  setEditData,
-  setDeleteId,
-}) {
+export function getProductColumns({ isMobile, setEditData, setDeleteId }) {
   // Mobile & Tablet: card-style
   if (isMobile || (typeof window !== "undefined" && isTabletScreen())) {
     return [
@@ -22,17 +19,25 @@ export function getProductColumns({
         cell: ({ row }) => (
           <div className="flex gap-3 items-start bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-3 px-4 max-w-full md:max-w-2xl mx-auto">
             {row.original.image_url && (
-              <img
-                src={row.original.image_url}
-                alt={row.original.name}
-                className="w-16 h-16 object-cover rounded-md border border-gray-200 dark:border-gray-600 flex-shrink-0"
-              />
+              <div className="relative w-16 h-16 rounded-md border border-gray-200 dark:border-gray-600 flex-shrink-0">
+                <Image
+                  src={row.original.image_url}
+                  alt={row.original.name}
+                  fill={true}
+                  className="object-cover"
+                />
+              </div>
             )}
             <div className="flex-1">
-              <div className="font-bold text-base mb-1 text-gray-900 dark:text-white">{row.original.name}</div>
-              <div className="text-xs text-muted-foreground dark:text-gray-400 mb-1">{row.original.description}</div>
+              <div className="font-bold text-base mb-1 text-gray-900 dark:text-white">
+                {row.original.name}
+              </div>
+              <div className="text-xs text-muted-foreground dark:text-gray-400 mb-1">
+                {row.original.description}
+              </div>
               <div className="text-xs mb-1 text-gray-700 dark:text-gray-300">
-                <span className="font-medium">Harga:</span> Rp{row.original.price.toLocaleString()}
+                <span className="font-medium">Harga:</span> Rp
+                {row.original.price.toLocaleString()}
               </div>
               <div className="text-xs mb-1 text-gray-700 dark:text-gray-300">
                 <span className="font-medium">Stok:</span> {row.original.stock}
@@ -51,7 +56,9 @@ export function getProductColumns({
               <div className="flex flex-col gap-2 mt-2 w-full">
                 <Dialog
                   open={row.original.isEditing}
-                  onOpenChange={(open) => setEditData(open ? row.original : null)}
+                  onOpenChange={(open) =>
+                    setEditData(open ? row.original : null)
+                  }
                 >
                   <DialogTrigger asChild>
                     <Button size="sm" variant="outline" className="w-full">
@@ -121,11 +128,14 @@ export function getProductColumns({
       accessorKey: "image_url",
       cell: ({ row }) =>
         row.original.image_url && (
-          <img
-            src={row.original.image_url}
-            alt={row.original.name}
-            className="w-12 h-12 object-cover rounded shadow"
-          />
+          <div className="relative w-12 h-12 rounded shadow">
+            <Image
+              src={row.original.image_url}
+              alt={row.original.name}
+              fill={true}
+              className="object-cover"
+            />
+          </div>
         ),
     },
     {

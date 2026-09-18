@@ -5,6 +5,7 @@ import { useAdminRegistrations } from "@/hooks/admin-use-pendaftar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import {
   flexRender,
   getCoreRowModel,
@@ -28,22 +29,23 @@ export default function AdminPendaftarPage() {
   // State untuk filter & pagination
   const [searchTerm, setSearchTerm] = useState("");
   const [searchInput, setSearchInput] = useState(""); // Untuk input search
-  const [category, setCategory] = useState("");
+  const [categoryId, setCategoryId] = useState("");
   const [page, setPage] = useState(1);
   const limit = 10;
 
   // Debounce search term untuk mengurangi API calls
   useEffect(() => {
     const timer = setTimeout(() => {
-      setSearchTerm(searchInput);
-      // Reset ke halaman 1 saat search berubah
-      if (searchInput !== searchTerm) {
+      const trimmedInput = searchInput.trim();
+      // Hanya ganti search term & reset halaman jika hasil trim berbeda
+      if (trimmedInput !== searchTerm) {
+        setSearchTerm(trimmedInput);
         setPage(1);
       }
     }, 500); // Delay 500ms
 
     return () => clearTimeout(timer);
-  }, [searchInput]);
+  }, [searchInput, searchTerm]);
 
   // Ambil data kategori untuk filter dropdown
   const {
@@ -58,33 +60,31 @@ export default function AdminPendaftarPage() {
   });
 
   // Ambil data pendaftar dengan server-side filtering dan pagination
-  const { data, isLoading, isError, refetch } = useAdminRegistrations({
+  const {
+    data,
+    isLoading: loadingRegistrations,
+    isFetching: fetchingRegistrations,
+    isError: errorRegistrations,
+    refetch: refetchRegistrations,
+  } = useAdminRegistrations({
     page,
     limit,
-    category: category || undefined,
+    category_id: categoryId || undefined,
     search: searchTerm || undefined,
   });
 
-  // Registrations dari API
-  const registrations = Array.isArray(data?.registrations)
-    ? data.registrations
-    : [];
-  const meta = data?.meta || { page: 1, limit, totalPages: 1, total: 0 };
-
-  // Gunakan data langsung dari server (server-side filtering & pagination)
-  // TEMPORARY FIX: Client-side filtering sebagai backup jika backend belum fix
+  // Registrations dari API dengan referensi memori yang stabil untuk TanStack Table
   const tableData = useMemo(() => {
-    if (!category) return registrations;
-    
-    // Filter by category di client-side sebagai backup
-    const filtered = registrations.filter(reg => {
-      const regCategoryId = String(reg.category_id || reg.category?.category_id);
-      return regCategoryId === String(category);
-    });
-    
-    return filtered;
-  }, [registrations, category]);
-  
+    return Array.isArray(data?.registrations) ? data.registrations : [];
+  }, [data?.registrations]);
+
+  const meta = data?.meta || {
+    page: 1,
+    limit,
+    totalPages: 1,
+    total: 0,
+  };
+
   const totalItems = meta.total;
   const maxPages = meta.totalPages || 1;
 
@@ -94,7 +94,7 @@ export default function AdminPendaftarPage() {
 
   const columns = useMemo(
     () => getPendaftarColumns({ setDetailData, setVerifyData }),
-    [setDetailData, setVerifyData]
+    [setDetailData, setVerifyData],
   );
 
   const table = useReactTable({
@@ -105,8 +105,8 @@ export default function AdminPendaftarPage() {
 
   // Handler untuk kategori
   const handleCategoryChange = (e) => {
-    const newCategory = e.target.value;
-    setCategory(newCategory);
+    const newCategoryId = e.target.value;
+    setCategoryId(newCategoryId);
     setPage(1); // Reset ke halaman 1 saat kategori berubah
   };
 
@@ -139,42 +139,33 @@ export default function AdminPendaftarPage() {
   const isPreviousDisabled = page <= 1;
   const isNextDisabled = page >= maxPages;
 
-  // UI Loading
-  if (isLoading || loadingCategories) {
+  // UI Loading (hanya saat awal muat data belum ada)
+  if ((loadingRegistrations && !data) || loadingCategories) {
     return (
-      <div className="container mx-auto py-10 px-4">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-2 text-muted-foreground">Memuat data...</p>
+      <div className="container mx-auto py-10 px-4 h-full flex flex-col align-middle justify-center min-h-[60vh]">
+        <div className="flex items-center space-x-3 self-center">
+          <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-muted-foreground">Memuat data...</p>
         </div>
       </div>
     );
   }
 
   // UI Error
-  if (isError) {
-    return (
-      <div className="container mx-auto py-10 px-4">
-        <div className="text-center text-red-600 dark:text-red-400">
-          <p>Gagal memuat data pendaftar.</p>
-          <Button variant="outline" onClick={() => refetch()} className="mt-4">
-            Coba Lagi
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  if (errorRegistrations || errorCategories) {
+    const errorMessage = errorRegistrations
+      ? "Gagal memuat data pendaftar."
+      : "Gagal memuat data kategori.";
 
-  if (errorCategories) {
+    const refetch = errorRegistrations
+      ? refetchRegistrations
+      : refetchCategories;
+
     return (
-      <div className="container mx-auto py-10 px-4">
+      <div className="container mx-auto py-10 px-4 h-full flex flex-col align-middle justify-center">
         <div className="text-center text-red-600 dark:text-red-400">
-          <p>Gagal memuat data kategori.</p>
-          <Button
-            variant="outline"
-            onClick={() => refetchCategories()}
-            className="mt-4"
-          >
+          <p>{errorMessage}</p>
+          <Button variant="outline" onClick={() => refetch()} className="mt-4">
             Coba Lagi
           </Button>
         </div>
@@ -202,9 +193,9 @@ export default function AdminPendaftarPage() {
             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
               {/* Filter Kategori */}
               <select
-                value={category}
+                value={categoryId}
                 onChange={handleCategoryChange}
-                className="block w-full sm:w-48 px-3 py-2 bg-white border border-neutral-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm dark:bg-neutral-800 dark:border-neutral-700 dark:text-white"
+                className="block w-full sm:w-48 h-11 px-3.5 bg-input border border-border rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/50 focus:border-ring disabled:opacity-50 transition-all cursor-pointer"
                 disabled={loadingCategories}
               >
                 <option value="">Semua Kategori</option>
@@ -215,47 +206,52 @@ export default function AdminPendaftarPage() {
                 ))}
               </select>
 
-              {/* Search dengan Clear Button */}
+              {/* Search dengan Clear Button & Inline Spinner (Model SubmissionForm) */}
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
+                  <Search className="w-4 h-4" />
+                </div>
                 <Input
-                  placeholder="Cari pendaftar di semua halaman..."
+                  placeholder="Cari nama / email / tim"
                   value={searchInput}
                   onChange={handleSearchInputChange}
-                  className="pl-10 pr-10"
+                  className="h-11 bg-input rounded-xl pl-10 pr-10 text-sm text-foreground placeholder:text-mia-muted-2 border-border focus-visible:border-ring focus-visible:ring-ring/50 transition-all"
                 />
-                {searchInput && (
+                {fetchingRegistrations ? (
+                  <div className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                ) : searchInput ? (
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={handleClearSearch}
-                    className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 p-0 hover:bg-gray-200"
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 h-7 w-7 p-0 rounded-lg hover:bg-muted text-muted-foreground flex items-center justify-center"
                   >
                     ×
                   </Button>
-                )}
+                ) : null}
               </div>
             </div>
           </div>
 
           {/* Filter Status Info */}
-          {(category || searchTerm) && (
+          {(categoryId || searchTerm) && (
             <div className="flex flex-wrap items-center gap-2 mt-2">
               <span className="text-sm text-muted-foreground">
                 Filter aktif:
               </span>
-              {category && (
+              {categoryId && (
                 <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                   Kategori:{" "}
                   {
-                    categories.find((c) => c.category_id === category)
-                      ?.category_name
+                    categories.find(
+                      (c) => String(c.category_id) === String(categoryId),
+                    )?.category_name
                   }
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => {
-                      setCategory("");
+                      setCategoryId("");
                       setPage(1);
                     }}
                     className="ml-1 h-4 w-4 p-0 hover:bg-blue-200"
@@ -281,12 +277,12 @@ export default function AdminPendaftarPage() {
                   </Button>
                 </span>
               )}
-              {(category || searchTerm) && (
+              {(categoryId || searchTerm) && (
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    setCategory("");
+                    setCategoryId("");
                     setSearchInput("");
                     setSearchTerm("");
                     setPage(1);
@@ -305,12 +301,12 @@ export default function AdminPendaftarPage() {
             <div className="text-center py-12">
               <div className="text-6xl mb-4">🔍</div>
               <p className="text-muted-foreground text-lg font-medium mb-2">
-                {searchTerm || category
+                {searchTerm || categoryId
                   ? "Tidak ada pendaftar yang sesuai dengan filter"
                   : "Tidak ada data pendaftar"}
               </p>
               <p className="text-muted-foreground text-sm">
-                {searchTerm || category
+                {searchTerm || categoryId
                   ? "Coba ubah kriteria pencarian atau hapus filter untuk melihat data lain"
                   : "Belum ada pendaftar yang terdaftar dalam sistem"}
               </p>
@@ -329,7 +325,7 @@ export default function AdminPendaftarPage() {
                           >
                             {flexRender(
                               header.column.columnDef.header,
-                              header.getContext()
+                              header.getContext(),
                             )}
                           </th>
                         ))}
@@ -349,7 +345,7 @@ export default function AdminPendaftarPage() {
                           >
                             {flexRender(
                               cell.column.columnDef.cell,
-                              cell.getContext()
+                              cell.getContext(),
                             )}
                           </td>
                         ))}
@@ -367,7 +363,7 @@ export default function AdminPendaftarPage() {
                     Menampilkan {(page - 1) * limit + 1} -{" "}
                     {Math.min(page * limit, totalItems)} dari {totalItems} total
                     pendaftar
-                    {(category || searchTerm) && " (hasil filter)"}
+                    {(categoryId || searchTerm) && " (hasil filter)"}
                   </div>
                   <div>{maxPages > 1 && `${maxPages} halaman`}</div>
                 </div>

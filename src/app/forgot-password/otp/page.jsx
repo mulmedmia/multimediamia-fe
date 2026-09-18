@@ -151,7 +151,7 @@ export default function ResetPasswordOtpPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#AAB1BD] hover:text-[#FFF9F5] cursor-pointer"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#AAB1BD] hover:text-[#FFF9F5] focus:text-[#FFF9F5] cursor-pointer"
                 >
                   {showPassword ? (
                     <EyeOpenIcon className="w-4 h-4" />
@@ -183,7 +183,7 @@ export default function ResetPasswordOtpPage() {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#AAB1BD] hover:text-[#FFF9F5] cursor-pointer"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#AAB1BD] hover:text-[#FFF9F5] focus:text-[#FFF9F5] cursor-pointer"
                 >
                   {showConfirmPassword ? (
                     <EyeOpenIcon className="w-4 h-4" />

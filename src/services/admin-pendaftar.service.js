@@ -4,13 +4,13 @@ import api from "@/lib/api";
 export const getAllRegistrations = async ({
   page = 1,
   limit = 10,
-  category = "",
+  category_id = "",
   search = "",
 } = {}) => {
   const params = new URLSearchParams();
   params.append("page", page);
   params.append("limit", limit);
-  if (category) params.append("category", category);
+  if (category_id) params.append("category_id", category_id);
   if (search) params.append("search", search);
 
   const url = `/registrations?${params.toString()}`;

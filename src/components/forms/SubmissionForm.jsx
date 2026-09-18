@@ -34,16 +34,24 @@ const createSubmissionSchema = (teamType) => {
     .object({
       // team_name hanya required untuk GROUP
       team_name: teamType === "GROUP" ? z.string() : z.string().optional(),
-      project_name: z.string(),
+      project_name: z
+        .string()
+        .max(80, { message: "Nama project maksimal 80 karakter." }),
       description: z
         .string()
-        .min(10, { message: "Deskripsi minimal 10 karakter." }),
+        .min(10, { message: "Deskripsi minimal 10 karakter." })
+        .max(400, {
+          message: "Deskripsi maksimal 400 karakter.",
+        }),
       // flow_application hanya required untuk GROUP
       flow_application:
         teamType === "GROUP"
           ? z
               .string()
               .min(10, { message: "Flow aplikasi minimal 10 karakter." })
+              .max(400, {
+                message: "Flow aplikasi maksimal 400 karakter.",
+              })
           : z.string().optional(),
       github_url: z
         .url({

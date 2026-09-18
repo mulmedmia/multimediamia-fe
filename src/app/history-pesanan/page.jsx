@@ -50,7 +50,7 @@ export default function HistoryPesananPage() {
               </h1>
 
               <p className="text-sm sm:text-base md:text-lg text-[#AAB1BD] leading-relaxed">
-                Pantau seluruh riwayat penukaran Diamonds <span className="inline-block">💎</span> Anda dengan berbagai produk dan hadiah eksklusif MIA 2025.
+                Pantau seluruh riwayat penukaran Diamonds <span className="inline-block">💎</span> Anda dengan berbagai produk dan hadiah eksklusif MIA 2026.
               </p>
             </div>
 
@@ -281,4 +281,4 @@ export default function HistoryPesananPage() {
       <Footer />
     </div>
   );
-}
+}

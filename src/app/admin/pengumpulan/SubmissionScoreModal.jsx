@@ -1,3 +1,7 @@
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import {
   Dialog,
   DialogContent,
@@ -9,6 +13,25 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+
+export const scoreFeedbackSchema = z.object({
+  score: z.preprocess(
+    (val) =>
+      val === "" || val === null || val === undefined ? undefined : Number(val),
+    z
+      .number({
+        required_error: "Skor wajib diisi",
+        invalid_type_error: "Skor harus berupa angka",
+      })
+      .min(0, "Skor minimal 0")
+      .max(100, "Skor maksimal 100"),
+  ),
+  feedback: z
+    .string()
+    .max(400, "Feedback maksimal 400 karakter")
+    .optional(),
+});
 
 export default function SubmissionScoreModal({
   open,
@@ -21,7 +44,35 @@ export default function SubmissionScoreModal({
   onSubmit,
   isLoading,
 }) {
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(scoreFeedbackSchema),
+    defaultValues: {
+      score: score ?? "",
+      feedback: feedback ?? "",
+    },
+  });
+
+  useEffect(() => {
+    if (open) {
+      reset({
+        score: score ?? "",
+        feedback: feedback ?? "",
+      });
+    }
+  }, [open, score, feedback, reset]);
+
   if (!data) return null;
+
+  const onFormSubmit = (formData) => {
+    setScore(formData.score);
+    setFeedback(formData.feedback);
+    onSubmit();
+  };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -30,46 +81,69 @@ export default function SubmissionScoreModal({
           <DialogTitle>Update Skor & Feedback</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="score">Skor</Label>
             <Input
               id="score"
               type="number"
-              placeholder="Masukkan skor"
-              value={score}
-              onChange={(e) => setScore(e.target.value)}
+              min="0"
+              max="100"
+              placeholder="Masukkan skor (0-100)"
+              {...register("score")}
+              className={cn(
+                "h-11 bg-input rounded-xl px-4 text-sm text-foreground placeholder:text-mia-muted-2 transition-all",
+                errors.score
+                  ? "border-destructive focus-visible:ring-destructive"
+                  : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
+              )}
             />
+            {errors.score && (
+              <p className="text-xs text-destructive font-medium mt-1">
+                {errors.score.message}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="feedback">Feedback</Label>
+            <Label htmlFor="feedback">Feedback (Opsional)</Label>
             <Textarea
               id="feedback"
-              placeholder="Masukkan feedback"
-              value={feedback}
-              onChange={(e) => setFeedback(e.target.value)}
+              placeholder="Masukkan feedback (maksimal 400 karakter)"
               rows={4}
+              {...register("feedback")}
+              className={cn(
+                "bg-input dark:bg-input/30 rounded-xl p-3.5 text-sm text-foreground placeholder:text-mia-muted-2 transition-colors focus-visible:ring-offset-0 focus-visible:outline-none",
+                errors.feedback
+                  ? "border-destructive focus-visible:ring-destructive"
+                  : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
+              )}
             />
+            {errors.feedback && (
+              <p className="text-xs text-destructive font-medium mt-1">
+                {errors.feedback.message}
+              </p>
+            )}
           </div>
-        </div>
 
-        <DialogFooter className="flex-col sm:flex-row gap-2">
-          <Button
-            variant="outline"
-            onClick={onClose}
-            className="w-full sm:w-auto"
-          >
-            Batal
-          </Button>
-          <Button
-            onClick={onSubmit}
-            disabled={isLoading}
-            className="w-full sm:w-auto"
-          >
-            {isLoading ? "Menyimpan..." : "Update Skor"}
-          </Button>
-        </DialogFooter>
+          <DialogFooter className="flex-col sm:flex-row gap-2 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="w-full sm:w-auto"
+            >
+              Batal
+            </Button>
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="w-full sm:w-auto"
+            >
+              {isLoading ? "Menyimpan..." : "Update Skor"}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

@@ -28,61 +28,61 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 
-  /* Custom MIA 2025 Tokens */
-  --color-mia-red: #E01C20;
+  /* Custom MIA 2026 Tokens */
+  --color-mia-red: #e01c20;
   --color-mia-red-dark: #810220;
-  --color-mia-orange: #FF4500;
-  --color-mia-yellow: #FED700;
+  --color-mia-orange: #ff4500;
+  --color-mia-yellow: #fed700;
   --color-mia-violet: #571845;
-  --color-mia-bg: #0A0D14;
+  --color-mia-bg: #0a0d14;
   --color-mia-surface: #141824;
-  --color-mia-text: #FFF9F5;
-  --color-mia-muted: #AAB1BD;
-  --color-mia-muted-2: #99A1AF;
-  --color-mia-success: #00B445;
+  --color-mia-text: #fff9f5;
+  --color-mia-muted: #aab1bd;
+  --color-mia-muted-2: #99a1af;
+  --color-mia-success: #00b445;
 }
 
 :root {
   --radius: 0.75rem;
-  --background: #0A0D14;
-  --foreground: #FFF9F5;
+  --background: #0a0d14;
+  --foreground: #fff9f5;
   --card: rgba(15, 18, 26, 0.7);
-  --card-foreground: #FFF9F5;
-  --popover: #0A0D14;
-  --popover-foreground: #FFF9F5;
-  --primary: #E01C20;
-  --primary-foreground: #FFF9F5;
+  --card-foreground: #fff9f5;
+  --popover: #0a0d14;
+  --popover-foreground: #fff9f5;
+  --primary: #e01c20;
+  --primary-foreground: #fff9f5;
   --secondary: #141824;
-  --secondary-foreground: #FFF9F5;
+  --secondary-foreground: #fff9f5;
   --muted: #141824;
-  --muted-foreground: #AAB1BD;
+  --muted-foreground: #aab1bd;
   --accent: #141824;
-  --accent-foreground: #FFF9F5;
-  --destructive: #E01C20;
+  --accent-foreground: #fff9f5;
+  --destructive: #e01c20;
   --border: rgba(213, 216, 222, 0.12);
   --input: #141824;
-  --ring: #E01C20;
+  --ring: #e01c20;
 }
 
 .dark {
-  --background: #0A0D14;
-  --foreground: #FFF9F5;
+  --background: #0a0d14;
+  --foreground: #fff9f5;
   --card: rgba(15, 18, 26, 0.7);
-  --card-foreground: #FFF9F5;
-  --popover: #0A0D14;
-  --popover-foreground: #FFF9F5;
-  --primary: #E01C20;
-  --primary-foreground: #FFF9F5;
+  --card-foreground: #fff9f5;
+  --popover: #0a0d14;
+  --popover-foreground: #fff9f5;
+  --primary: #e01c20;
+  --primary-foreground: #fff9f5;
   --secondary: #141824;
-  --secondary-foreground: #FFF9F5;
+  --secondary-foreground: #fff9f5;
   --muted: #141824;
-  --muted-foreground: #AAB1BD;
+  --muted-foreground: #aab1bd;
   --accent: #141824;
-  --accent-foreground: #FFF9F5;
-  --destructive: #E01C20;
+  --accent-foreground: #fff9f5;
+  --destructive: #e01c20;
   --border: rgba(213, 216, 222, 0.12);
   --input: #141824;
-  --ring: #E01C20;
+  --ring: #e01c20;
 }
 
 @layer base {
@@ -90,8 +90,8 @@
     @apply border-border outline-none;
   }
   body {
-    background-color: #0A0D14;
-    color: #FFF9F5;
+    background-color: #0a0d14;
+    color: #fff9f5;
     font-family: var(--font-poppins), sans-serif;
     overflow-x: hidden;
   }
@@ -99,26 +99,58 @@
 
 html {
   scroll-behavior: smooth;
-  background-color: #0A0D14;
+  background-color: #0a0d14;
   color-scheme: dark;
 }
 
 /* 1 Full Landing Page Connected Background - Organic Asymmetrical Fiery Orange-Red Stream on Deep Pure Black */
 .mia-connected-bg {
-  background-color: #0A0D14;
+  background-color: #0a0d14;
   background-image: 
     /* 1. Hero top-left offset spotlight: Vibrant Fiery Orange-Red */
-    radial-gradient(circle 950px at 42% 8%, rgba(255, 58, 0, 0.36) 0%, rgba(226, 30, 30, 0.22) 38%, rgba(94, 3, 17, 0.12) 62%, transparent 80%),
+    radial-gradient(
+      circle 950px at 42% 8%,
+      rgba(255, 58, 0, 0.36) 0%,
+      rgba(226, 30, 30, 0.22) 38%,
+      rgba(94, 3, 17, 0.12) 62%,
+      transparent 80%
+    ),
     /* 2. Upper-right asymmetric warm orange glow (Hero -> Category gap) */
-    radial-gradient(circle 800px at 85% 24%, rgba(255, 85, 0, 0.25) 0%, rgba(200, 25, 25, 0.14) 45%, transparent 80%),
+    radial-gradient(
+        circle 800px at 85% 24%,
+        rgba(255, 85, 0, 0.25) 0%,
+        rgba(200, 25, 25, 0.14) 45%,
+        transparent 80%
+      ),
     /* 3. Mid-left organic fiery crimson glow (Category -> Gamification) */
-    radial-gradient(circle 880px at 12% 44%, rgba(255, 58, 0, 0.26) 0%, rgba(140, 10, 25, 0.15) 50%, transparent 82%),
+    radial-gradient(
+        circle 880px at 12% 44%,
+        rgba(255, 58, 0, 0.26) 0%,
+        rgba(140, 10, 25, 0.15) 50%,
+        transparent 82%
+      ),
     /* 4. Asymmetric right-center vibrant spot (Timeline area) */
-    radial-gradient(circle 900px at 72% 64%, rgba(255, 85, 0, 0.28) 0%, rgba(226, 30, 30, 0.16) 48%, transparent 80%),
+    radial-gradient(
+        circle 900px at 72% 64%,
+        rgba(255, 85, 0, 0.28) 0%,
+        rgba(226, 30, 30, 0.16) 48%,
+        transparent 80%
+      ),
     /* 5. Lower-left randomized warm accent (Sponsors & FAQ) */
-    radial-gradient(circle 750px at 28% 82%, rgba(255, 58, 0, 0.22) 0%, rgba(120, 8, 20, 0.12) 50%, transparent 82%),
+    radial-gradient(
+        circle 750px at 28% 82%,
+        rgba(255, 58, 0, 0.22) 0%,
+        rgba(120, 8, 20, 0.12) 50%,
+        transparent 82%
+      ),
     /* 6. Bottom Closing CTA center-bottom spotlight */
-    radial-gradient(circle 1050px at 50% 95%, rgba(255, 58, 0, 0.40) 0%, rgba(226, 30, 30, 0.26) 42%, rgba(94, 3, 17, 0.16) 68%, transparent 88%);
+    radial-gradient(
+        circle 1050px at 50% 95%,
+        rgba(255, 58, 0, 0.4) 0%,
+        rgba(226, 30, 30, 0.26) 42%,
+        rgba(94, 3, 17, 0.16) 68%,
+        transparent 88%
+      );
   background-repeat: no-repeat;
 }
 
@@ -126,13 +158,13 @@ html {
 .mia-card {
   background-color: rgba(15, 18, 26, 0.7);
   backdrop-filter: blur(6px);
-  border: 1px solid rgba(213, 216, 222, 0.10);
+  border: 1px solid rgba(213, 216, 222, 0.1);
   border-radius: 1rem;
 }
 
 .mia-btn-primary {
-  background-color: #E01C20;
-  color: #FFF9F5;
+  background-color: #e01c20;
+  color: #fff9f5;
   border-radius: 9999px;
   font-weight: 600;
   transition: all 0.2s ease-in-out;
@@ -145,7 +177,7 @@ html {
 
 .mia-btn-secondary {
   background-color: transparent;
-  color: #E01C20;
+  color: #e01c20;
   border: 1px solid rgba(224, 28, 32, 0.4);
   border-radius: 9999px;
   font-weight: 600;
@@ -153,15 +185,15 @@ html {
 }
 .mia-btn-secondary:hover {
   background-color: rgba(224, 28, 32, 0.1);
-  border-color: #E01C20;
-  color: #FFF9F5;
+  border-color: #e01c20;
+  color: #fff9f5;
 }
 
 .mia-pill-badge {
   background-color: rgba(30, 41, 57, 0.7);
   border: 1px solid rgba(213, 216, 222, 0.15);
   border-radius: 9999px;
-  color: #FFF9F5;
+  color: #fff9f5;
   font-size: 0.73rem;
   font-weight: 600;
   padding: 0.35rem 0.9rem;
@@ -170,3 +202,16 @@ html {
   gap: 0.4rem;
 }
 
+/* Menghilangkan tombol mata bawaan Microsoft Edge */
+input::-ms-reveal {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* Tambahan: Menghilangkan tombol silang (clear) bawaan jika diperlukan */
+input::-ms-clear {
+  display: none;
+  width: 0;
+  height: 0;
+}

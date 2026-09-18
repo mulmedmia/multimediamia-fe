@@ -5,6 +5,7 @@ import { useUserCategories } from "@/hooks/user-use-category";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowRight, Calendar, Users, User, Trophy } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 function PreviewCard({ category }) {
   const isDeadlineSoon = () => {
@@ -20,10 +21,11 @@ function PreviewCard({ category }) {
     <div className="mia-card group overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:border-[#E01C20]/40 flex flex-col h-full shadow-xl">
       {/* 16:9 Aspect Ratio Image Section */}
       <div className="relative aspect-video w-full overflow-hidden bg-[#1E2939]">
-        <img
-          src={category.image || "/placeholder-image.jpg"}
+        <Image
+          src={category.image || "/placeholder-image.png"}
           alt={category.category_name}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          fill={true}
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0A0D14] via-transparent to-transparent opacity-80" />
         <div className="absolute bottom-3 left-3 z-10">
@@ -41,7 +43,8 @@ function PreviewCard({ category }) {
             {category.title || category.category_name}
           </h3>
           <p className="text-sm text-[#AAB1BD] line-clamp-2 leading-relaxed">
-            {category.description || "Kompetisi multimedia terbaik untuk mengasah skill digital dan kreasi visualmu."}
+            {category.description ||
+              "Kompetisi multimedia terbaik untuk mengasah skill digital dan kreasi visualmu."}
           </p>
         </div>
 
@@ -67,14 +70,16 @@ function PreviewCard({ category }) {
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-xs text-[#99A1AF]">Batas Pendaftaran</p>
-              <p className={`text-xs font-semibold truncate ${isDeadlineSoon() ? "text-[#E01C20]" : "text-[#FFF9F5]"}`}>
+              <p
+                className={`text-xs font-semibold truncate ${isDeadlineSoon() ? "text-[#E01C20]" : "text-[#FFF9F5]"}`}
+              >
                 {category.deadline
                   ? new Date(category.deadline).toLocaleDateString("id-ID", {
                       day: "2-digit",
                       month: "long",
                       year: "numeric",
                     })
-                  : "20 November 2025"}
+                  : "20 November 2026"}
               </p>
             </div>
           </div>
@@ -87,7 +92,9 @@ function PreviewCard({ category }) {
             <div className="min-w-0 flex-1">
               <p className="text-xs text-[#99A1AF]">Kategori Tim</p>
               <p className="text-xs font-semibold text-[#FFF9F5]">
-                {category.team_type === "GROUP" ? "Tim (2-3 Orang)" : "Individu / Tim"}
+                {category.team_type === "GROUP"
+                  ? "Tim (2-3 Orang)"
+                  : "Individu / Tim"}
               </p>
             </div>
           </div>
@@ -111,34 +118,39 @@ export default function HomeCategoryPreview() {
     page: 1,
     status: "",
   });
-  
+
   // Fallback category items if API returns empty
   const fallbackCategories = [
     {
       category_id: "web-dev",
       category_name: "Website Development",
       title: "Web Development Competition",
-      description: "Tantangan membangun aplikasi web modern, responsif, dan performan menggunakan teknologi terkini.",
+      description:
+        "Tantangan membangun aplikasi web modern, responsif, dan performan menggunakan teknologi terkini.",
       organizer: "MIA UPNVJ",
-      deadline: "2025-11-16",
+      deadline: "2026-11-16",
       team_type: "GROUP",
-      image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop&q=80",
+      image:
+        "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop&q=80",
     },
     {
       category_id: "ui-ux",
       category_name: "UI/UX Design",
       title: "UI/UX Design Competition",
-      description: "Rancang pengalaman pengguna (UX) dan antarmuka (UI) yang solutif, intuitif, dan estetis untuk masalah nyata.",
+      description:
+        "Rancang pengalaman pengguna (UX) dan antarmuka (UI) yang solutif, intuitif, dan estetis untuk masalah nyata.",
       organizer: "MIA UPNVJ",
-      deadline: "2025-11-16",
+      deadline: "2026-11-16",
       team_type: "GROUP",
-      image: "https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?w=800&auto=format&fit=crop&q=80",
+      image:
+        "https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?w=800&auto=format&fit=crop&q=80",
     },
   ];
 
-  const categories = (data?.categories && data.categories.length > 0)
-    ? data.categories
-    : fallbackCategories;
+  const categories =
+    data?.categories && data.categories.length > 0
+      ? data.categories
+      : fallbackCategories;
 
   return (
     <section id="lomba" className="py-20 bg-transparent relative">
@@ -156,7 +168,8 @@ export default function HomeCategoryPreview() {
             Kategori Lomba <span className="text-[#E01C20]">Populer</span>
           </h2>
           <p className="text-base md:text-[18.89px] text-[#AAB1BD] max-w-2xl mx-auto leading-relaxed">
-            Temukan tantangan yang paling sesuai untukmu dan raih prestasi terbaikmu
+            Temukan tantangan yang paling sesuai untukmu dan raih prestasi
+            terbaikmu
           </p>
         </div>
 
@@ -203,4 +216,4 @@ export default function HomeCategoryPreview() {
       </div>
     </section>
   );
-}
+}

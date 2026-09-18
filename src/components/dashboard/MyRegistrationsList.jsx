@@ -206,7 +206,7 @@ export function MyRegistrationsList({ onSelectRegistration }) {
                         Feedback Panitia:
                       </p>
                       {reg.feedback ? (
-                        <p className="text-xs sm:text-sm text-foreground/90 leading-relaxed mt-1 font-normal">
+                        <p className="text-xs sm:text-sm text-foreground/90 leading-relaxed mt-1 font-normal break-words">
                           {reg.feedback}
                         </p>
                       ) : (

@@ -9,11 +9,12 @@ import {
   Link as LinkIcon,
   Loader2,
 } from "lucide-react";
+import { useUserProfile } from "@/hooks/user-use-profile";
 
 // Komponen untuk menampilkan setiap kartu submission
 const SubmissionCard = ({ submission }) => {
   const githubLink = submission.links?.find(
-    (link) => link.link_type === "GITHUB"
+    (link) => link.link_type === "GITHUB",
   )?.url;
   const otherLink = submission.links?.[0]?.url;
 
@@ -41,12 +42,12 @@ const SubmissionCard = ({ submission }) => {
     >
       <div className="flex-grow">
         <div className="flex justify-between items-start mb-2">
-          <h3 className="text-lg font-bold text-black dark:text-white pr-2">
+          <h3 className="text-lg font-bold text-black dark:text-white pr-2 min-w-0 break-words line-clamp-2">
             {submission.project_name}
           </h3>
           <span
             className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${getStatusClass(
-              submission.status
+              submission.status,
             )}`}
           >
             {submission.status}
@@ -57,7 +58,7 @@ const SubmissionCard = ({ submission }) => {
         </p>
         <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
           <span className="font-semibold">Kategori:</span>{" "}
-          {submission.category.category_name}
+          {submission.category?.category_name || "-"}
         </p>
         <p className="text-xs text-neutral-500 dark:text-neutral-500 line-clamp-3">
           {submission.description}
@@ -83,12 +84,28 @@ export default function ManageSubmissionPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const { data: profile, isLoading: isProfileLoading } = useUserProfile();
+  const userCategoryId = profile?.category?.category_id || profile?.category_id;
+  const categoryName =
+    profile?.category?.category_name ||
+    profile?.category?.name ||
+    profile?.category?.title ||
+    categories.find((c) => c.category_id === (selectedCategory || userCategoryId))
+      ?.category_name ||
+    (isProfileLoading ? "Memuat..." : "-");
+
+  useEffect(() => {
+    if (userCategoryId && !selectedCategory) {
+      setSelectedCategory(userCategoryId);
+    }
+  }, [userCategoryId]);
+
   // Fungsi untuk mengambil data kategori dari API
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-        const response = await fetch(`${BASE_URL}/categories?limit=5&page=1`);
+        const response = await fetch(`${BASE_URL}/categories?limit=50&page=1`);
         if (!response.ok) {
           throw new Error("Gagal mengambil data kategori");
         }
@@ -103,16 +120,22 @@ export default function ManageSubmissionPage() {
     fetchCategories();
   }, []);
 
-  // Fungsi untuk mengambil data submission dari API
+  // Fungsi untuk mengambil data submission dari API berdasarkan category_id
   useEffect(() => {
+    if (isProfileLoading) return;
+
     const fetchSubmissions = async () => {
       setLoading(true);
       setError(null);
       try {
         const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-        const response = await fetch(
-          `${BASE_URL}/submissions?limit=${meta.limit}&page=${meta.page}`
-        );
+        const targetCategory = selectedCategory || userCategoryId;
+        let url = `${BASE_URL}/submissions?limit=${meta.limit}&page=${meta.page}`;
+        if (targetCategory) {
+          url += `&category_id=${targetCategory}`;
+        }
+
+        const response = await fetch(url);
 
         if (!response.ok) {
           throw new Error("Gagal mengambil data submission");
@@ -135,21 +158,7 @@ export default function ManageSubmissionPage() {
     };
 
     fetchSubmissions();
-  }, [meta.page]);
-
-  const handleCategoryChange = (e) => {
-    const categoryId = e.target.value;
-    setSelectedCategory(categoryId);
-
-    if (categoryId) {
-      const filtered = submissions.filter(
-        (submission) => submission.category_id === categoryId
-      );
-      setFilteredSubmissions(filtered);
-    } else {
-      setFilteredSubmissions(submissions);
-    }
-  };
+  }, [meta.page, isProfileLoading, userCategoryId, selectedCategory]);
 
   const handleNextPage = () => {
     if (meta.page < meta.totalPages) {
@@ -175,29 +184,16 @@ export default function ManageSubmissionPage() {
         </p>
       </div>
 
-      {/* ===== DROPDOWN FILTER KATEGORI ===== */}
+      {/* ===== KATEGORI JURI ===== */}
       <div className="max-w-xs">
-        <label
-          htmlFor="category-filter"
-          className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2"
-        >
-          Filter berdasarkan Kategori
+        <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+          Kategori
         </label>
-        <select
-          id="category-filter"
-          value={selectedCategory}
-          onChange={handleCategoryChange}
-          className="block w-full px-3 py-2 bg-white border border-neutral-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm dark:bg-neutral-800 dark:border-neutral-700 dark:text-white"
-        >
-          <option value="">Semua Kategori</option>
-          {categories.map((category) => (
-            <option key={category.category_id} value={category.category_id}>
-              {category.category_name}
-            </option>
-          ))}
-        </select>
+        <div className="block w-full px-3 py-2 bg-white border border-neutral-300 rounded-md shadow-sm sm:text-sm font-semibold text-black dark:bg-neutral-800 dark:border-neutral-700 dark:text-white">
+          {categoryName}
+        </div>
       </div>
-      {/* ==================================== */}
+      {/* ========================= */}
 
       {loading && (
         <div className="flex justify-center items-center py-10">

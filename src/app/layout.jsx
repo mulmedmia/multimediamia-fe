@@ -13,7 +13,7 @@ const poppins = Poppins({
 });
 
 export const metadata = {
-  title: "Multimedia in Action 2025",
+  title: "Multimedia in Action 2026",
   description: "Kompetisi Digital Creative Terbesar untuk Mahasiswa Indonesia",
   icons: {
     icon: [

@@ -16,13 +16,14 @@ export function useAdminCategories({ limit, page, search }) {
   });
 }
 
-export function useCreateAdminCategory() {
+export function useCreateAdminCategory(onSuccessCb) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: createAdminCategory,
-    onSuccess: () => {
+    onSuccess: (data, variables, context) => {
       qc.invalidateQueries({ queryKey: ["admin-categories"] });
       toast.success("Kategori berhasil ditambahkan");
+      if (onSuccessCb) onSuccessCb(data, variables, context);
     },
     onError: () => {
       toast.error("Gagal menambah kategori");
@@ -30,13 +31,14 @@ export function useCreateAdminCategory() {
   });
 }
 
-export function useUpdateAdminCategory() {
+export function useUpdateAdminCategory(onSuccessCb) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: updateAdminCategory,
-    onSuccess: () => {
+    onSuccess: (data, variables, context) => {
       qc.invalidateQueries({ queryKey: ["admin-categories"] });
       toast.success("Kategori berhasil diupdate");
+      if (onSuccessCb) onSuccessCb(data, variables, context);
     },
     onError: () => {
       toast.error("Gagal update kategori");
@@ -44,13 +46,14 @@ export function useUpdateAdminCategory() {
   });
 }
 
-export function useDeleteAdminCategory() {
+export function useDeleteAdminCategory(onSuccessCb) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: deleteAdminCategory,
-    onSuccess: () => {
+    onSuccess: (data, variables, context) => {
       qc.invalidateQueries({ queryKey: ["admin-categories"] });
       toast.success("Kategori berhasil dihapus");
+      if (onSuccessCb) onSuccessCb(data, variables, context);
     },
     onError: () => {
       toast.error("Gagal menghapus kategori");

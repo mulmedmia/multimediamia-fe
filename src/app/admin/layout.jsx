@@ -27,7 +27,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuthContext } from "@/providers/AuthProvider";
-import { Toaster } from "sonner";
+import Image from "next/image";
 
 // Data for sidebar navigation items
 const sidebarItems = [
@@ -121,7 +121,7 @@ function SidebarContent({ onLogout, onLinkClick }) {
           onClick={onLogout}
           className="flex w-full items-center space-x-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-destructive hover:bg-destructive/10 transition-all cursor-pointer"
         >
-          <LogOut className="h-4 w-4 flex-shrink-0" />
+          <LogOut className="h-4 w-4 flex-shrink-0 text-destructive" />
           <span>Logout</span>
         </button>
       </div>
@@ -173,17 +173,16 @@ export default function AdminLayout({ children }) {
 
   return (
     <>
-      <Toaster theme="dark" position="top-right" />
       <div className="flex h-screen w-full bg-background mia-connected-bg text-foreground overflow-hidden">
         {/* Desktop-only sidebar */}
         <div className="hidden lg:block lg:w-64 xl:w-72 flex-shrink-0">
           <SidebarContent onLogout={logout} />
         </div>
 
-        {/* Main content area */}
-        <div className="flex flex-1 flex-col overflow-hidden">
-          {/* Header for main content */}
-          <header className="flex h-16 sm:h-20 items-center justify-between border-b border-border/40 px-4 sm:px-6 flex-shrink-0 bg-[#0F121A]/60 backdrop-blur-md z-30">
+        {/* Scrollable Main area */}
+        <div className="flex flex-1 flex-col overflow-y-auto relative">
+          {/* Header with Glassmorphism Backdrop Blur */}
+          <header className="sticky top-0 z-30 flex h-16 sm:h-20 items-center justify-between border-b border-border/40 px-4 sm:px-6 bg-[#0F121A]/80 backdrop-blur-md shadow-sm shrink-0">
             {/* Left side of header */}
             <div className="flex items-center gap-3">
               {/* Mobile-only sidebar trigger */}
@@ -211,11 +210,14 @@ export default function AdminLayout({ children }) {
 
               {/* Logo & Brand Title */}
               <Link href="/" className="flex items-center space-x-2.5">
-                <img
-                  src="/mia2026_logo.png"
-                  alt="Multimedia in Action Logo"
-                  className="h-7 w-7 sm:h-8 sm:w-8 object-contain"
-                />
+                <div className="relative h-7 w-7 sm:h-8 sm:w-8 aspect-square">
+                  <Image
+                    src="/mia2026_logo.png"
+                    alt="Multimedia in Action Logo"
+                    fill={true}
+                    className="object-contain"
+                  />
+                </div>
                 <span className="text-base sm:text-lg font-bold text-foreground tracking-tight">
                   Multimedia{" "}
                   <span className="bg-gradient-to-b from-mia-orange to-mia-yellow bg-clip-text text-transparent">
@@ -239,6 +241,7 @@ export default function AdminLayout({ children }) {
                 </Button>
               </Link>
 
+              {/* User Badge */}
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-input/40 border border-border/50 text-xs sm:text-sm text-foreground">
                 <User className="h-4 w-4 text-muted-foreground" />
                 <span className="hidden sm:inline truncate max-w-32 font-medium">
@@ -248,9 +251,9 @@ export default function AdminLayout({ children }) {
             </div>
           </header>
 
-          {/* Scrollable main content */}
-          <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
-            <div className="max-w-7xl mx-auto space-y-6">{children}</div>
+          {/* Main content container */}
+          <main className="flex-1 p-4 sm:p-6 lg:p-8">
+            <div className="max-w-7xl mx-auto space-y-6 h-full">{children}</div>
           </main>
         </div>
       </div>
