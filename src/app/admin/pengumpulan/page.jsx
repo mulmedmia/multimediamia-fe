@@ -1,28 +1,26 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   useAdminSubmissions,
   usePatchSubmissionStatus,
-  useDeleteSubmission,
   usePatchSubmissionScore,
 } from "@/hooks/admin-use-submission";
+import { getAllSubmissions } from "@/services/admin-submission.service";
+import { getAllUserCategories } from "@/services/user-category.service";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-  getFilteredRowModel,
-  getSortedRowModel,
-} from "@tanstack/react-table";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { getPengumpulanColumns } from "./pengumpulan-table-config";
-import SubmissionDetailModal from "./SubmissionDetailModal";
-import SubmissionStatusModal from "./SubmissionStatusModal";
-import SubmissionScoreModal from "./SubmissionScoreModal";
-import { Search } from "lucide-react";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   Select,
   SelectContent,
@@ -30,236 +28,741 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  UploadCloud,
+  Search,
+  Eye,
+  CheckCircle2,
+  Clock,
+  AlertCircle,
+  Layers,
+  Users,
+  RefreshCw,
+  XCircle,
+  X,
+  User,
+  Star,
+  ShieldCheck,
+  Link2,
+} from "lucide-react";
+import SubmissionDetailModal from "./SubmissionDetailModal";
+import SubmissionStatusModal from "./SubmissionStatusModal";
+import SubmissionScoreModal from "./SubmissionScoreModal";
 
-function TableSkeleton() {
-  return (
-    <div className="border rounded-lg">
-      <div className="p-4">
-        <div className="space-y-4">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="flex justify-between items-center">
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-32" />
-                <Skeleton className="h-3 w-24" />
-              </div>
-              <div className="flex gap-2">
-                <Skeleton className="h-8 w-16" />
-                <Skeleton className="h-8 w-16" />
-                <Skeleton className="h-8 w-16" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
+const PAGE_SIZE = 10;
 
 export default function AdminPengumpulanPage() {
-  const [globalFilter, setGlobalFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  // Filters & Pagination State
+  const [page, setPage] = useState(1);
+  const [searchInput, setSearchInput] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryId, setCategoryId] = useState("ALL");
+  const [statusFilter, setStatusFilter] = useState("ALL");
+
+  // Modal State
   const [detailData, setDetailData] = useState(null);
   const [statusData, setStatusData] = useState(null);
   const [scoreData, setScoreData] = useState(null);
 
-  const [status, setStatus] = useState("");
-  const [is_verified, setIsVerified] = useState(false);
+  const [currentStatus, setCurrentStatus] = useState("PENDING");
+  const [currentIsVerified, setCurrentIsVerified] = useState(false);
+  const [currentScore, setCurrentScore] = useState("");
+  const [currentFeedback, setCurrentFeedback] = useState("");
 
-  const [score, setScore] = useState("");
-  const [feedback, setFeedback] = useState("");
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const trimmed = searchInput.trim();
+      if (trimmed !== searchTerm) {
+        setSearchTerm(trimmed);
+        setPage(1);
+      }
+    }, 450);
 
-  const isMobile = useIsMobile();
-  const columns = useMemo(
-    () =>
-      getPengumpulanColumns({
-        isMobile,
-        setDetailData,
-        setStatusData,
-        setScoreData,
-      }),
-    [isMobile],
-  );
+    return () => clearTimeout(timer);
+  }, [searchInput, searchTerm]);
 
-  const { data, isLoading, isError } = useAdminSubmissions({});
-  const patchStatus = usePatchSubmissionStatus();
-  const patchScore = usePatchSubmissionScore();
-  const deleteMutation = useDeleteSubmission();
-
-  const submissions = data?.submissions || [];
-
-  const filteredData = useMemo(() => {
-    let filtered = submissions;
-
-    if (statusFilter !== "all") {
-      filtered = filtered.filter((item) => item.status === statusFilter);
-    }
-
-    return filtered;
-  }, [submissions, statusFilter]);
-
-  const table = useReactTable({
-    data: filteredData,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    state: {
-      globalFilter,
-    },
-    globalFilterFn: (row, columnId, filterValue) => {
-      const searchValue = filterValue.toLowerCase();
-      const searchableColumns = [
-        row.original.user?.name,
-        row.original.user?.email,
-        row.original.category?.category_name,
-        row.original.team_name,
-        row.original.project_name,
-        row.original.status,
-        row.original.score?.toString(),
-      ];
-
-      return searchableColumns.some((value) =>
-        value?.toString().toLowerCase().includes(searchValue),
-      );
-    },
-    onGlobalFilterChange: setGlobalFilter,
+  // Categories Dropdown Data
+  const {
+    data: categories = [],
+    isLoading: loadingCategories,
+  } = useQuery({
+    queryKey: ["user-categories-dropdown"],
+    queryFn: getAllUserCategories,
+    staleTime: 1000 * 60 * 10,
   });
 
-  React.useEffect(() => {
-    if (statusData) {
-      setStatus(statusData.status ?? "");
-      setIsVerified(statusData.is_verified ?? false);
-    }
-    if (scoreData) {
-      setScore(scoreData.score ?? "");
-      setFeedback(scoreData.feedback ?? "");
-    }
-  }, [statusData, scoreData]);
+  // Query Submissions
+  const {
+    data,
+    isLoading,
+    isFetching,
+    isError,
+    refetch,
+  } = useAdminSubmissions({
+    page,
+    limit: PAGE_SIZE,
+    category_id: categoryId === "ALL" ? undefined : categoryId,
+    status: statusFilter === "ALL" ? undefined : statusFilter,
+    search: searchTerm || undefined,
+  });
 
-  if (isError)
-    return <div className="text-destructive">Gagal memuat data.</div>;
+  // Global Stats Query (fetch lightweight list for top summary cards)
+  const { data: statsData } = useQuery({
+    queryKey: ["admin-submissions-overall-stats"],
+    queryFn: () => getAllSubmissions({ page: 1, limit: 1000 }),
+    staleTime: 1000 * 60 * 2,
+  });
+
+  // Mutations
+  const patchStatus = usePatchSubmissionStatus();
+  const patchScore = usePatchSubmissionScore();
+
+  const submissions = useMemo(() => {
+    return Array.isArray(data?.submissions) ? data.submissions : [];
+  }, [data?.submissions]);
+
+  const meta = data?.meta || {
+    page: 1,
+    limit: PAGE_SIZE,
+    totalPages: 1,
+    total: 0,
+  };
+
+  const totalItems = meta.total || 0;
+  const totalPages = meta.totalPages || 1;
+
+  // Calculate statistics
+  const stats = useMemo(() => {
+    const allList = statsData?.submissions || submissions;
+    const total = statsData?.meta?.total ?? totalItems;
+    const approved = allList.filter((s) => s.status === "APPROVED").length;
+    const pending = allList.filter((s) => s.status === "PENDING").length;
+    const revisionOrRejected = allList.filter(
+      (s) => s.status === "REVISION" || s.status === "REJECTED"
+    ).length;
+    return { total, approved, pending, revisionOrRejected };
+  }, [statsData, submissions, totalItems]);
+
+  // Helper date display
+  const formatDateDisplay = (dateString) => {
+    if (!dateString) return "-";
+    try {
+      return new Date(dateString).toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }) + " WIB";
+    } catch {
+      return dateString;
+    }
+  };
+
+  // Helper status badge styling
+  const renderStatusBadge = (status) => {
+    switch (status?.toUpperCase()) {
+      case "APPROVED":
+        return (
+          <Badge className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs px-2.5 py-0.5 rounded-full flex items-center gap-1 w-fit">
+            <CheckCircle2 className="h-3 w-3" /> APPROVED
+          </Badge>
+        );
+      case "PENDING":
+        return (
+          <Badge className="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs px-2.5 py-0.5 rounded-full flex items-center gap-1 w-fit">
+            <Clock className="h-3 w-3" /> PENDING
+          </Badge>
+        );
+      case "REVISION":
+        return (
+          <Badge className="bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs px-2.5 py-0.5 rounded-full flex items-center gap-1 w-fit">
+            <Clock className="h-3 w-3" /> REVISION
+          </Badge>
+        );
+      case "REJECTED":
+        return (
+          <Badge className="bg-red-500/10 text-red-400 border border-red-500/20 text-xs px-2.5 py-0.5 rounded-full flex items-center gap-1 w-fit">
+            <XCircle className="h-3 w-3" /> REJECTED
+          </Badge>
+        );
+      default:
+        return (
+          <Badge variant="outline" className="text-xs border-border/50">
+            {status || "PENDING"}
+          </Badge>
+        );
+    }
+  };
+
+  // Handle open status modal
+  const handleOpenStatus = (sub) => {
+    setStatusData(sub);
+    setCurrentStatus(sub.status || "PENDING");
+    setCurrentIsVerified(Boolean(sub.is_verified));
+  };
+
+  // Handle open score modal
+  const handleOpenScore = (sub) => {
+    setScoreData(sub);
+    setCurrentScore(sub.score !== null && sub.score !== undefined ? String(sub.score) : "");
+    setCurrentFeedback(sub.feedback || "");
+  };
+
+  const handleClearFilters = () => {
+    setSearchInput("");
+    setSearchTerm("");
+    setCategoryId("ALL");
+    setStatusFilter("ALL");
+    setPage(1);
+  };
+
+  const hasActiveFilters = searchTerm || categoryId !== "ALL" || statusFilter !== "ALL";
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="space-y-6">
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">Pengumpulan Submission</h1>
-          <p className="text-muted-foreground">
-            Kelola submission peserta di sini.
+          <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
+            <span>Admin Panel</span>
+            <span>/</span>
+            <span className="text-foreground font-medium">Pengumpulan</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
+            <UploadCloud className="h-7 w-7 text-[#E01C20]" />
+            <span>Kelola Pengumpulan Karya</span>
+          </h1>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+            Pantau karya peserta, periksa berkas submission, beri penilaian skor, dan perbarui status evaluasi.
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-            <Input
-              placeholder="Cari submission..."
-              value={globalFilter ?? ""}
-              onChange={(e) => setGlobalFilter(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full sm:w-40">
-              <SelectValue placeholder="Filter Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Semua Status</SelectItem>
-              <SelectItem value="PENDING">PENDING</SelectItem>
-              <SelectItem value="APPROVED">APPROVED</SelectItem>
-              <SelectItem value="REJECTED">REJECTED</SelectItem>
-              <SelectItem value="REVISION">REVISION</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <Button
+          variant="outline"
+          onClick={() => refetch()}
+          disabled={isFetching}
+          className="h-10 px-4 rounded-xl border-border/50 bg-input/20 hover:bg-input/40 text-foreground text-xs sm:text-sm flex items-center gap-2 cursor-pointer self-start sm:self-auto"
+        >
+          <RefreshCw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
+          <span>Refresh</span>
+        </Button>
+      </div>
 
-        {isLoading ? (
-          <TableSkeleton />
-        ) : (
-          <div className="border rounded-lg">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  {table.getHeaderGroups().map((headerGroup) => (
-                    <tr key={headerGroup.id} className="border-b">
-                      {headerGroup.headers.map((header) => (
-                        <th
-                          key={header.id}
-                          className="px-4 py-3 text-left font-medium text-sm"
-                        >
-                          {flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
-                        </th>
-                      ))}
-                    </tr>
-                  ))}
-                </thead>
-                <tbody>
-                  {table.getRowModel().rows.map((row) => (
-                    <tr key={row.id} className="border-b hover:bg-muted/50">
-                      {row.getVisibleCells().map((cell) => (
-                        <td key={cell.id} className="px-4 py-3 text-sm">
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext(),
-                          )}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+      {/* Stats Cards Row */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="bg-[#0F121A]/80 border-border/40 rounded-2xl">
+          <CardContent className="p-4 flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+              <Layers className="h-5 w-5" />
             </div>
-            {table.getRowModel().rows.length === 0 && (
-              <div className="text-center py-8 text-muted-foreground">
-                Tidak ada data yang ditemukan
+            <div>
+              <p className="text-xs text-muted-foreground">Total Submission</p>
+              <p className="text-xl font-bold text-foreground">{stats.total}</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-[#0F121A]/80 border-border/40 rounded-2xl">
+          <CardContent className="p-4 flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+              <CheckCircle2 className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Disetujui (Approved)</p>
+              <p className="text-xl font-bold text-foreground">{stats.approved}</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-[#0F121A]/80 border-border/40 rounded-2xl">
+          <CardContent className="p-4 flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+              <Clock className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Menunggu Review</p>
+              <p className="text-xl font-bold text-foreground">{stats.pending}</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-[#0F121A]/80 border-border/40 rounded-2xl">
+          <CardContent className="p-4 flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400">
+              <AlertCircle className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Revisi / Ditolak</p>
+              <p className="text-xl font-bold text-foreground">{stats.revisionOrRejected}</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Main Table Card */}
+      <Card className="bg-[#0F121A]/80 border-border/40 rounded-2xl overflow-hidden shadow-xl">
+        <CardHeader className="p-4 sm:p-6 border-b border-border/40">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            {/* Search Box */}
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Cari judul karya, nama tim, atau peserta..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                className="pl-9 pr-8 h-9 bg-input/40 border-border/50 rounded-xl text-xs sm:text-sm text-foreground"
+              />
+              {searchInput && (
+                <button
+                  type="button"
+                  onClick={() => setSearchInput("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground text-xs"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
+
+            {/* Filter Group */}
+            <div className="flex flex-wrap items-center gap-2">
+              {/* Filter Kategori */}
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs text-muted-foreground whitespace-nowrap hidden md:inline">
+                  Kategori:
+                </span>
+                <Select
+                  value={categoryId}
+                  onValueChange={(val) => {
+                    setCategoryId(val);
+                    setPage(1);
+                  }}
+                  disabled={loadingCategories}
+                >
+                  <SelectTrigger className="h-9 w-40 sm:w-44 bg-input/40 border-border/50 rounded-xl text-xs text-foreground">
+                    <SelectValue placeholder="Semua Kategori" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#141824] border-border/50 text-foreground">
+                    <SelectItem value="ALL">Semua Kategori</SelectItem>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat.category_id} value={String(cat.category_id)}>
+                        {cat.category_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-            )}
+
+              {/* Filter Status */}
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs text-muted-foreground whitespace-nowrap hidden md:inline">
+                  Status:
+                </span>
+                <Select
+                  value={statusFilter}
+                  onValueChange={(val) => {
+                    setStatusFilter(val);
+                    setPage(1);
+                  }}
+                >
+                  <SelectTrigger className="h-9 w-36 sm:w-40 bg-input/40 border-border/50 rounded-xl text-xs text-foreground">
+                    <SelectValue placeholder="Semua Status" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#141824] border-border/50 text-foreground">
+                    <SelectItem value="ALL">Semua Status</SelectItem>
+                    <SelectItem value="PENDING">PENDING</SelectItem>
+                    <SelectItem value="APPROVED">APPROVED</SelectItem>
+                    <SelectItem value="REVISION">REVISION</SelectItem>
+                    <SelectItem value="REJECTED">REJECTED</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+
+          {/* Filter Badges Active */}
+          {hasActiveFilters && (
+            <div className="flex flex-wrap items-center gap-2 pt-3">
+              <span className="text-xs text-muted-foreground">Filter aktif:</span>
+              {searchTerm && (
+                <span className="inline-flex items-center gap-1 text-[11px] px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                  Cari: &ldquo;{searchTerm}&rdquo;
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchInput("");
+                      setSearchTerm("");
+                    }}
+                    className="hover:text-blue-200 ml-0.5"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+              {categoryId !== "ALL" && (
+                <span className="inline-flex items-center gap-1 text-[11px] px-2.5 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                  Kategori:{" "}
+                  {categories.find((c) => String(c.category_id) === String(categoryId))
+                    ?.category_name || categoryId}
+                  <button
+                    type="button"
+                    onClick={() => setCategoryId("ALL")}
+                    className="hover:text-purple-200 ml-0.5"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+              {statusFilter !== "ALL" && (
+                <span className="inline-flex items-center gap-1 text-[11px] px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                  Status: {statusFilter}
+                  <button
+                    type="button"
+                    onClick={() => setStatusFilter("ALL")}
+                    className="hover:text-amber-200 ml-0.5"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleClearFilters}
+                className="h-6 px-2 text-[11px] text-muted-foreground hover:text-white"
+              >
+                Reset Filter
+              </Button>
+            </div>
+          )}
+        </CardHeader>
+
+        <CardContent className="p-0">
+          {isLoading ? (
+            <div className="p-6 space-y-3">
+              {[...Array(5)].map((_, i) => (
+                <Skeleton key={i} className="h-14 w-full bg-white/5 rounded-xl" />
+              ))}
+            </div>
+          ) : isError ? (
+            <div className="p-8 text-center space-y-3">
+              <AlertCircle className="h-8 w-8 text-[#E01C20] mx-auto" />
+              <p className="text-sm text-muted-foreground">
+                Gagal memuat data pengumpulan karya.
+              </p>
+              <Button
+                size="sm"
+                onClick={() => refetch()}
+                className="bg-[#E01C20] hover:bg-[#c4181c] text-xs font-semibold rounded-xl"
+              >
+                Coba Lagi
+              </Button>
+            </div>
+          ) : submissions.length === 0 ? (
+            /* Empty State */
+            <div className="py-16 px-4 text-center">
+              <div className="w-16 h-16 rounded-2xl bg-white/[0.03] border border-border/40 flex items-center justify-center mx-auto mb-4 text-muted-foreground">
+                <UploadCloud className="h-8 w-8 text-[#E01C20]/60" />
+              </div>
+              <h3 className="text-base font-semibold text-foreground mb-1">
+                {hasActiveFilters
+                  ? "Tidak ada karya yang cocok"
+                  : "Belum ada submission karya"}
+              </h3>
+              <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+                {hasActiveFilters
+                  ? "Coba ubah kata kunci pencarian atau ganti filter kategori/status."
+                  : "Belum ada peserta yang mengumpulkan karya pada kompetisi."}
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-b border-border/40 hover:bg-transparent">
+                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 pl-6 bg-white/[0.02]">
+                      Peserta & Tim
+                    </TableHead>
+                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
+                      Kategori Lomba
+                    </TableHead>
+                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
+                      Judul Karya / Proyek
+                    </TableHead>
+                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
+                      Status
+                    </TableHead>
+                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
+                      Leaderboard
+                    </TableHead>
+                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
+                      Skor
+                    </TableHead>
+                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
+                      Waktu Submit
+                    </TableHead>
+                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02] whitespace-nowrap">
+                      Created By
+                    </TableHead>
+                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02] whitespace-nowrap">
+                      Updated By
+                    </TableHead>
+                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 pr-6 text-right bg-[#141824] sticky right-0 z-20 shadow-[-8px_0_12px_-4px_rgba(0,0,0,0.5)] border-l border-border/40">
+                      Aksi
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {submissions.map((sub) => (
+                    <TableRow
+                      key={sub.submission_id}
+                      className="group hover:bg-white/[0.02] transition-colors border-b border-border/30"
+                    >
+                      {/* Peserta & Tim */}
+                      <TableCell className="py-3.5 pl-6">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-xl bg-white/[0.04] border border-border/40 flex items-center justify-center text-foreground font-bold text-xs flex-shrink-0">
+                            {sub.user?.name ? (
+                              sub.user.name.charAt(0).toUpperCase()
+                            ) : (
+                              <User className="h-4 w-4" />
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-semibold text-foreground text-xs sm:text-sm truncate max-w-[150px] sm:max-w-[200px]">
+                              {sub.user?.name || "Tanpa Nama"}
+                            </p>
+                            <p className="text-[11px] text-muted-foreground truncate max-w-[150px] sm:max-w-[200px]">
+                              {sub.user?.email || "-"}
+                            </p>
+                            {sub.team_name && (
+                              <p className="text-[11px] text-purple-400 font-medium truncate max-w-[150px] sm:max-w-[200px] flex items-center gap-1 mt-0.5">
+                                <Users className="h-3 w-3 inline flex-shrink-0" />
+                                <span>{sub.team_name}</span>
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </TableCell>
+
+                      {/* Kategori Lomba */}
+                      <TableCell className="py-3.5">
+                        <Badge
+                          variant="outline"
+                          className="text-xs px-2.5 py-0.5 rounded-lg border-border/50 bg-white/[0.02] text-foreground"
+                        >
+                          {sub.category?.category_name || "-"}
+                        </Badge>
+                      </TableCell>
+
+                      {/* Judul Karya / Proyek */}
+                      <TableCell className="py-3.5 max-w-[220px]">
+                        <div className="space-y-0.5">
+                          <p className="font-semibold text-foreground text-xs sm:text-sm truncate" title={sub.project_name || sub.title}>
+                            {sub.project_name || sub.title || "-"}
+                          </p>
+                          {sub.links && sub.links.length > 0 && (
+                            <span className="inline-flex items-center gap-1 text-[11px] text-blue-400">
+                              <Link2 className="h-3 w-3" />
+                              <span>{sub.links.length} Tautan Berkas</span>
+                            </span>
+                          )}
+                        </div>
+                      </TableCell>
+
+                      {/* Status Evaluasi */}
+                      <TableCell className="py-3.5">
+                        {renderStatusBadge(sub.status)}
+                      </TableCell>
+
+                      {/* Verifikasi Leaderboard */}
+                      <TableCell className="py-3.5">
+                        {sub.is_verified ? (
+                          <Badge className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[11px] px-2 py-0.5 rounded-full flex items-center gap-1 w-fit">
+                            <CheckCircle2 className="h-3 w-3" /> Terverifikasi
+                          </Badge>
+                        ) : (
+                          <Badge className="bg-zinc-500/10 text-zinc-400 border border-zinc-500/20 text-[11px] px-2 py-0.5 rounded-full flex items-center gap-1 w-fit">
+                            Belum
+                          </Badge>
+                        )}
+                      </TableCell>
+
+                      {/* Skor */}
+                      <TableCell className="py-3.5">
+                        {sub.score !== null && sub.score !== undefined ? (
+                          <div className="flex items-center gap-1 text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-lg w-fit">
+                            <Star className="h-3 w-3 fill-amber-400" />
+                            <span>{sub.score}</span>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-muted-foreground italic">-</span>
+                        )}
+                      </TableCell>
+
+                      {/* Waktu Submit */}
+                      <TableCell className="py-3.5 text-xs text-muted-foreground whitespace-nowrap">
+                        <div className="flex items-center gap-1.5">
+                          <Clock className="h-3.5 w-3.5 text-muted-foreground/60" />
+                          <span>{formatDateDisplay(sub.created_at)}</span>
+                        </div>
+                      </TableCell>
+
+                      {/* Created By */}
+                      <TableCell className="py-3.5 text-xs text-muted-foreground whitespace-nowrap">
+                        {sub.created_by_name || "-"}
+                      </TableCell>
+
+                      {/* Updated By */}
+                      <TableCell className="py-3.5 text-xs text-muted-foreground whitespace-nowrap">
+                        {sub.updated_by_name || "-"}
+                      </TableCell>
+
+                      {/* Aksi */}
+                      <TableCell className="py-3.5 pr-6 text-right sticky right-0 bg-[#0F121A] group-hover:bg-[#141824] z-10 shadow-[-8px_0_12px_-4px_rgba(0,0,0,0.5)] border-l border-border/40 transition-colors">
+                        <div className="flex items-center justify-end gap-1.5">
+                          {/* Tombol Detail */}
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setDetailData(sub)}
+                            className="h-8 px-2.5 bg-input/40 hover:bg-white/10 border-border/50 text-foreground text-xs rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer"
+                            title="Lihat Detail Karya"
+                          >
+                            <Eye className="h-3.5 w-3.5 text-blue-400" />
+                            <span className="hidden sm:inline">Detail</span>
+                          </Button>
+
+                          {/* Tombol Status */}
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleOpenStatus(sub)}
+                            className="h-8 px-2.5 bg-input/40 hover:bg-white/10 border-border/50 text-foreground text-xs rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer"
+                            title="Ubah Status & Leaderboard"
+                          >
+                            <ShieldCheck className="h-3.5 w-3.5 text-purple-400" />
+                            <span className="hidden sm:inline">Status</span>
+                          </Button>
+
+                          {/* Tombol Nilai / Skor */}
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleOpenScore(sub)}
+                            className="h-8 px-2.5 bg-input/40 hover:bg-white/10 border-border/50 text-foreground text-xs rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer"
+                            title="Beri Nilai & Feedback"
+                          >
+                            <Star className="h-3.5 w-3.5 text-amber-400" />
+                            <span className="hidden sm:inline">Skor</span>
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+
+        {/* Pagination Footer */}
+        {totalPages > 1 && (
+          <div className="p-4 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
+            <div>
+              Menampilkan{" "}
+              <span className="text-foreground font-semibold">
+                {(page - 1) * PAGE_SIZE + 1}
+              </span>{" "}
+              -{" "}
+              <span className="text-foreground font-semibold">
+                {Math.min(page * PAGE_SIZE, totalItems)}
+              </span>{" "}
+              dari{" "}
+              <span className="text-foreground font-semibold">{totalItems}</span> total
+              submission {hasActiveFilters && "(hasil filter)"}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page <= 1}
+                className="h-8 px-3 rounded-xl border-border/50 bg-input/20 text-foreground disabled:opacity-30 cursor-pointer"
+              >
+                Sebelumnya
+              </Button>
+              <div className="text-xs px-2 text-foreground font-medium">
+                Halaman {page} / {totalPages}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page >= totalPages}
+                className="h-8 px-3 rounded-xl border-border/50 bg-input/20 text-foreground disabled:opacity-30 cursor-pointer"
+              >
+                Selanjutnya
+              </Button>
+            </div>
           </div>
         )}
+      </Card>
 
-        <SubmissionDetailModal
-          open={!!detailData}
-          onClose={() => setDetailData(null)}
-          data={detailData}
-        />
+      {/* Modal Detail Submission */}
+      <SubmissionDetailModal
+        open={!!detailData}
+        onClose={() => setDetailData(null)}
+        data={detailData}
+      />
 
-        <SubmissionStatusModal
-          open={!!statusData}
-          onClose={() => setStatusData(null)}
-          data={statusData}
-          status={status}
-          setStatus={setStatus}
-          is_verified={is_verified}
-          setIsVerified={setIsVerified}
-          isLoading={patchStatus.isPending}
-          onSubmit={() =>
-            patchStatus.mutate(
-              { id: statusData.submission_id, status, is_verified },
-              { onSuccess: () => setStatusData(null) },
-            )
-          }
-        />
+      {/* Modal Status Submission */}
+      <SubmissionStatusModal
+        open={!!statusData}
+        onClose={() => setStatusData(null)}
+        data={statusData}
+        status={currentStatus}
+        setStatus={setCurrentStatus}
+        is_verified={currentIsVerified}
+        setIsVerified={setCurrentIsVerified}
+        isLoading={patchStatus.isPending}
+        onSubmit={() =>
+          patchStatus.mutate(
+            {
+              id: statusData.submission_id,
+              status: currentStatus,
+              is_verified: currentIsVerified,
+            },
+            { onSuccess: () => setStatusData(null) }
+          )
+        }
+      />
 
-        <SubmissionScoreModal
-          open={!!scoreData}
-          onClose={() => setScoreData(null)}
-          data={scoreData}
-          score={score}
-          setScore={setScore}
-          feedback={feedback}
-          setFeedback={setFeedback}
-          isLoading={patchScore.isPending}
-          onSubmit={() =>
-            patchScore.mutate(
-              { id: scoreData.submission_id, score: Number(score), feedback },
-              { onSuccess: () => setScoreData(null) },
-            )
-          }
-        />
-      </div>
+      {/* Modal Skor Submission */}
+      <SubmissionScoreModal
+        open={!!scoreData}
+        onClose={() => setScoreData(null)}
+        data={scoreData}
+        score={currentScore}
+        setScore={setCurrentScore}
+        feedback={currentFeedback}
+        setFeedback={setCurrentFeedback}
+        isLoading={patchScore.isPending}
+        onSubmit={() =>
+          patchScore.mutate(
+            {
+              id: scoreData.submission_id,
+              score: Number(currentScore),
+              feedback: currentFeedback,
+            },
+            { onSuccess: () => setScoreData(null) }
+          )
+        }
+      />
     </div>
   );
 }

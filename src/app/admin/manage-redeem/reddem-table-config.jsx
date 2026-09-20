@@ -11,7 +11,23 @@ export const mobileColumns = [
   {
     accessorKey: "product.name",
     header: "Produk",
-    cell: ({ row }) => <span>{row.original.product?.name}</span>,
+    cell: ({ row }) => (
+      <div className="flex flex-col gap-0.5">
+        <span>{row.original.product?.name}</span>
+        {Number(row.original.product?.reward_xp) > 0 && (
+          <span className="text-[10px] text-emerald-400 font-medium">
+            +{(Number(row.original.product.reward_xp) * (row.original.quantity || 1)).toLocaleString()} XP
+          </span>
+        )}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "quantity",
+    header: "Jumlah",
+    cell: ({ row }) => (
+      <span className="font-medium">{row.original.quantity || 1} item</span>
+    ),
   },
   {
     accessorKey: "points_used",

@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { ChevronLeftIcon } from "lucide-react";
+import Image from "next/image";
 
 export const AuthHeader = () => {
   return (
@@ -10,13 +11,19 @@ export const AuthHeader = () => {
       <div className="container mx-auto px-4 max-w-7xl">
         <div className="flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center space-x-2.5">
-            <img
-              src="/mia2026_logo.png"
-              alt="Logo"
-              className="h-8 w-8 object-contain"
-            />
+            <div className="relative h-8 w-8 aspect-square">
+              <Image
+                src="/mia2026_logo.png"
+                alt="Multimedia in Action Logo"
+                fill={true}
+                className="object-contain"
+              />
+            </div>
             <span className="hidden sm:inline text-lg font-bold text-[#FFF9F5]">
-              Multimedia <span className="text-[#E01C20]">in Action</span>
+              Multimedia{" "}
+              <span className="bg-gradient-to-r from-[#E01C20] via-[#FF4500] to-[#FED700] bg-clip-text text-transparent">
+                In Action
+              </span>
             </span>
           </Link>
 

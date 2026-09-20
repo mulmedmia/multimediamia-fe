@@ -8,65 +8,90 @@ import {
   Github,
   Link as LinkIcon,
   Loader2,
+  Star,
 } from "lucide-react";
+import { useUserProfile } from "@/hooks/user-use-profile";
 
 // Komponen untuk menampilkan setiap kartu submission
 const SubmissionCard = ({ submission }) => {
   const githubLink = submission.links?.find(
-    (link) => link.link_type === "GITHUB"
+    (link) => link.link_type === "GITHUB",
   )?.url;
   const otherLink = submission.links?.[0]?.url;
 
   const getStatusClass = (status) => {
     switch (status) {
-      case "PENDING":
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-400";
       case "APPROVED":
         return "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-400";
       case "REVISION":
         return "bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-400";
       case "REJECTED":
         return "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-400";
+      case "PENDING":
       default:
         return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-400";
     }
   };
 
+  const hasScore =
+    submission.score !== null &&
+    submission.score !== undefined &&
+    submission.score !== "";
+
   return (
     <div
-      className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg p-5 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow duration-300 cursor-pointer h-full"
+      className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl p-5 flex flex-col justify-between shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer h-full group"
       onClick={() =>
         (window.location.href = `/juri/manage-submission/${submission.submission_id}`)
       }
     >
       <div className="flex-grow">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="text-lg font-bold text-black dark:text-white pr-2">
+        <div className="flex justify-between items-start mb-2 gap-2">
+          <h3 className="text-lg font-bold text-black dark:text-white pr-2 min-w-0 break-words line-clamp-2 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">
             {submission.project_name}
           </h3>
           <span
-            className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${getStatusClass(
-              submission.status
+            className={`text-xs font-semibold px-2.5 py-0.5 rounded-full shrink-0 ${getStatusClass(
+              submission.status,
             )}`}
           >
             {submission.status}
           </span>
         </div>
         <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-1">
-          <span className="font-semibold">Tim:</span> {submission.team_name}
+          <span className="font-semibold text-neutral-800 dark:text-neutral-200">Tim:</span> {submission.team_name}
         </p>
-        <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
-          <span className="font-semibold">Kategori:</span>{" "}
-          {submission.category.category_name}
+        <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-2.5">
+          <span className="font-semibold text-neutral-800 dark:text-neutral-200">Kategori:</span>{" "}
+          {submission.category?.category_name || submission.category?.name || "-"}
         </p>
+
+        {/* Skor Section */}
+        <div className="mb-3">
+          {hasScore ? (
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs font-bold">
+              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500 dark:text-amber-400" />
+              <span>Skor: {submission.score}</span>
+            </div>
+          ) : (
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-neutral-100 dark:bg-neutral-800/80 border border-neutral-200 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400 text-xs font-medium">
+              <Star className="w-3.5 h-3.5 text-neutral-400" />
+              <span>Belum Dinilai</span>
+            </div>
+          )}
+        </div>
+
         <p className="text-xs text-neutral-500 dark:text-neutral-500 line-clamp-3">
           {submission.description}
         </p>
       </div>
-      <div className="mt-4">
+      <div className="mt-4 pt-3 border-t border-neutral-100 dark:border-neutral-800/80 flex items-center justify-between">
+        <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+          {hasScore ? "Sudah Dinilai" : "Menunggu Penilaian"}
+        </span>
         <button className="flex items-center space-x-2 bg-gradient-to-r from-red-600 to-red-700 dark:to-black hover:from-red-700 hover:to-red-800 dark:hover:to-gray-900 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors w-fit">
           <FileText className="w-4 h-4" />
-          <span>Beri Nilai</span>
+          <span>{hasScore ? "Ubah Nilai" : "Beri Nilai"}</span>
         </button>
       </div>
     </div>
@@ -83,12 +108,28 @@ export default function ManageSubmissionPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const { data: profile, isLoading: isProfileLoading } = useUserProfile();
+  const userCategoryId = profile?.category?.category_id || profile?.category_id;
+  const categoryName =
+    profile?.category?.category_name ||
+    profile?.category?.name ||
+    profile?.category?.title ||
+    categories.find((c) => c.category_id === (selectedCategory || userCategoryId))
+      ?.category_name ||
+    (isProfileLoading ? "Memuat..." : "-");
+
+  useEffect(() => {
+    if (userCategoryId && !selectedCategory) {
+      setSelectedCategory(userCategoryId);
+    }
+  }, [userCategoryId]);
+
   // Fungsi untuk mengambil data kategori dari API
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-        const response = await fetch(`${BASE_URL}/categories?limit=5&page=1`);
+        const response = await fetch(`${BASE_URL}/categories?limit=50&page=1`);
         if (!response.ok) {
           throw new Error("Gagal mengambil data kategori");
         }
@@ -103,16 +144,22 @@ export default function ManageSubmissionPage() {
     fetchCategories();
   }, []);
 
-  // Fungsi untuk mengambil data submission dari API
+  // Fungsi untuk mengambil data submission dari API berdasarkan category_id
   useEffect(() => {
+    if (isProfileLoading) return;
+
     const fetchSubmissions = async () => {
       setLoading(true);
       setError(null);
       try {
         const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-        const response = await fetch(
-          `${BASE_URL}/submissions?limit=${meta.limit}&page=${meta.page}`
-        );
+        const targetCategory = selectedCategory || userCategoryId;
+        let url = `${BASE_URL}/submissions?limit=${meta.limit}&page=${meta.page}`;
+        if (targetCategory) {
+          url += `&category_id=${targetCategory}`;
+        }
+
+        const response = await fetch(url);
 
         if (!response.ok) {
           throw new Error("Gagal mengambil data submission");
@@ -135,21 +182,7 @@ export default function ManageSubmissionPage() {
     };
 
     fetchSubmissions();
-  }, [meta.page]);
-
-  const handleCategoryChange = (e) => {
-    const categoryId = e.target.value;
-    setSelectedCategory(categoryId);
-
-    if (categoryId) {
-      const filtered = submissions.filter(
-        (submission) => submission.category_id === categoryId
-      );
-      setFilteredSubmissions(filtered);
-    } else {
-      setFilteredSubmissions(submissions);
-    }
-  };
+  }, [meta.page, isProfileLoading, userCategoryId, selectedCategory]);
 
   const handleNextPage = () => {
     if (meta.page < meta.totalPages) {
@@ -175,29 +208,16 @@ export default function ManageSubmissionPage() {
         </p>
       </div>
 
-      {/* ===== DROPDOWN FILTER KATEGORI ===== */}
+      {/* ===== KATEGORI JURI ===== */}
       <div className="max-w-xs">
-        <label
-          htmlFor="category-filter"
-          className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2"
-        >
-          Filter berdasarkan Kategori
+        <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+          Kategori
         </label>
-        <select
-          id="category-filter"
-          value={selectedCategory}
-          onChange={handleCategoryChange}
-          className="block w-full px-3 py-2 bg-white border border-neutral-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm dark:bg-neutral-800 dark:border-neutral-700 dark:text-white"
-        >
-          <option value="">Semua Kategori</option>
-          {categories.map((category) => (
-            <option key={category.category_id} value={category.category_id}>
-              {category.category_name}
-            </option>
-          ))}
-        </select>
+        <div className="block w-full px-3 py-2 bg-white border border-neutral-300 rounded-md shadow-sm sm:text-sm font-semibold text-black dark:bg-neutral-800 dark:border-neutral-700 dark:text-white">
+          {categoryName}
+        </div>
       </div>
-      {/* ==================================== */}
+      {/* ========================= */}
 
       {loading && (
         <div className="flex justify-center items-center py-10">

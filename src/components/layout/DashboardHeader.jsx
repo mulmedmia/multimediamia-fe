@@ -17,25 +17,27 @@ import {
   User,
   LayoutDashboard,
   Clock,
-  Trophy,
-  Sparkles,
   Menu,
+  Target,
+  Gift,
 } from "lucide-react";
+import Image from "next/image";
 
 export function DashboardHeader() {
   const pathname = usePathname();
   const { user, loading, logout } = useAuthContext();
 
+  const isPeserta = user && user.role !== "ADMIN" && user.role !== "JURI";
   const dashboardLink =
     user?.role === "ADMIN"
       ? "/admin/dashboard"
       : user?.role === "JURI"
-      ? "/juri/manage-submission"
-      : "/dashboard";
+        ? "/juri/manage-submission"
+        : "/dashboard";
   const profileLink = "/profile";
   const historyPesananLink = "/history-pesanan";
-  const leaderboardLink = "/leaderboard";
-  const showItLink = "/show-it";
+  const misiHarianLink = "/misi-harian";
+  const hadiahLink = "/product";
 
   const getNavLinkClass = (path) => {
     const isActive = pathname === path;
@@ -55,11 +57,14 @@ export function DashboardHeader() {
             href="/"
             className="flex items-center space-x-2.5 flex-shrink-0"
           >
-            <img
-              src="/mia2026_logo.png"
-              alt="Multimedia in Action Logo"
-              className="h-7 w-7 sm:h-8 sm:w-8 object-contain"
-            />
+            <div className="relative h-7 w-7 sm:h-8 sm:w-8 aspect-square">
+              <Image
+                src="/mia2026_logo.png"
+                alt="Multimedia in Action Logo"
+                fill={true}
+                className="object-contain"
+              />
+            </div>
             <span className="text-base sm:text-lg font-bold text-foreground tracking-tight">
               Multimedia{" "}
               <span className="bg-gradient-to-r from-[#E01C20] via-[#FF4500] to-[#FED700] bg-clip-text text-transparent">
@@ -72,29 +77,31 @@ export function DashboardHeader() {
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             {/* Desktop Navigation Links */}
             <nav className="hidden md:flex items-center space-x-2">
-              {user && (
-                <Link
-                  href={historyPesananLink}
-                  className={getNavLinkClass(historyPesananLink)}
-                >
-                  <Clock className="h-4 w-4 text-[#E01C20]" />
-                  <span>History Pesanan</span>
-                </Link>
+              {isPeserta && (
+                <>
+                  <Link
+                    href={historyPesananLink}
+                    className={getNavLinkClass(historyPesananLink)}
+                  >
+                    <Clock className="h-4 w-4 text-amber-400" />
+                    <span>History Pesanan</span>
+                  </Link>
+                  <Link
+                    href={misiHarianLink}
+                    className={getNavLinkClass(misiHarianLink)}
+                  >
+                    <Target className="h-4 w-4 text-amber-400" />
+                    <span>Misi Harian</span>
+                  </Link>
+                  <Link
+                    href={hadiahLink}
+                    className={getNavLinkClass(hadiahLink)}
+                  >
+                    <Gift className="h-4 w-4 text-amber-400" />
+                    <span>Hadiah</span>
+                  </Link>
+                </>
               )}
-              <Link
-                href={showItLink}
-                className={getNavLinkClass(showItLink)}
-              >
-                <Sparkles className="h-4 w-4 text-[#E01C20]" />
-                <span>Show It</span>
-              </Link>
-              <Link
-                href={leaderboardLink}
-                className={getNavLinkClass(leaderboardLink)}
-              >
-                <Trophy className="h-4 w-4 text-amber-400" />
-                <span>Leaderboard</span>
-              </Link>
             </nav>
 
             {/* User Profile / Auth State */}
@@ -113,78 +120,80 @@ export function DashboardHeader() {
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
-                  className="w-56 bg-[#0A0D14] border border-border/50 text-foreground rounded-2xl p-2 shadow-2xl z-50"
+                  className="w-56 bg-[#0A0D14] border border-white/10 text-[#FFF9F5] rounded-2xl p-2 shadow-2xl z-50"
                   align="end"
                   forceMount
                 >
                   <DropdownMenuLabel className="font-normal px-3 py-2">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-semibold text-foreground truncate">
+                      <p className="text-sm font-semibold text-[#FFF9F5] truncate">
                         {user.name}
                       </p>
-                      <p className="text-xs text-muted-foreground truncate">
+                      <p className="text-xs text-[#AAB1BD] truncate">
                         {user.email}
                       </p>
                     </div>
                   </DropdownMenuLabel>
-                  <DropdownMenuSeparator className="bg-border/40" />
+                  <DropdownMenuSeparator className="bg-white/10" />
                   <DropdownMenuItem asChild>
                     <Link
                       href={dashboardLink}
-                      className="flex items-center px-3 py-2 rounded-xl text-sm text-foreground hover:bg-white/5 cursor-pointer"
+                      className="flex items-center px-3 py-2 rounded-xl text-sm text-[#FFF9F5] hover:bg-white/5 cursor-pointer"
                     >
-                      <LayoutDashboard className="mr-2 h-4 w-4 text-muted-foreground" />
+                      <LayoutDashboard className="mr-2 h-4 w-4 text-[#FFF9F5]" />
                       <span>Dashboard</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link
                       href={profileLink}
-                      className="flex items-center px-3 py-2 rounded-xl text-sm text-foreground hover:bg-white/5 cursor-pointer"
+                      className="flex items-center px-3 py-2 rounded-xl text-sm text-[#FFF9F5] hover:bg-white/5 cursor-pointer"
                     >
-                      <User className="mr-2 h-4 w-4 text-muted-foreground" />
+                      <User className="mr-2 h-4 w-4 text-[#FFF9F5]" />
                       <span>Profile</span>
                     </Link>
                   </DropdownMenuItem>
 
-                  {/* Mobile Navigation in Dropdown */}
-                  <div className="md:hidden">
-                    <DropdownMenuSeparator className="bg-border/40" />
-                    <DropdownMenuItem asChild>
-                      <Link
-                        href={historyPesananLink}
-                        className="flex items-center px-3 py-2 rounded-xl text-sm text-foreground hover:bg-white/5 cursor-pointer"
-                      >
-                        <Clock className="mr-2 h-4 w-4 text-[#E01C20]" />
-                        <span>History Pesanan</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link
-                        href={showItLink}
-                        className="flex items-center px-3 py-2 rounded-xl text-sm text-foreground hover:bg-white/5 cursor-pointer"
-                      >
-                        <Sparkles className="mr-2 h-4 w-4 text-[#E01C20]" />
-                        <span>Show It</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link
-                        href={leaderboardLink}
-                        className="flex items-center px-3 py-2 rounded-xl text-sm text-foreground hover:bg-white/5 cursor-pointer"
-                      >
-                        <Trophy className="mr-2 h-4 w-4 text-amber-400" />
-                        <span>Leaderboard</span>
-                      </Link>
-                    </DropdownMenuItem>
-                  </div>
+                  {/* Menu khusus peserta: Misi Harian, Hadiah, History Pesanan */}
+                  {isPeserta && (
+                    <>
+                      <DropdownMenuSeparator className="bg-white/10" />
+                      <DropdownMenuItem asChild>
+                        <Link
+                          href={misiHarianLink}
+                          className="flex items-center px-3 py-2 rounded-xl text-sm text-[#FFF9F5] hover:bg-white/5 cursor-pointer"
+                        >
+                          <Target className="mr-2 h-4 w-4 text-amber-400" />
+                          <span>Misi Harian</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link
+                          href={hadiahLink}
+                          className="flex items-center px-3 py-2 rounded-xl text-sm text-[#FFF9F5] hover:bg-white/5 cursor-pointer"
+                        >
+                          <Gift className="mr-2 h-4 w-4 text-amber-400" />
+                          <span>Hadiah</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link
+                          href={historyPesananLink}
+                          className="flex items-center px-3 py-2 rounded-xl text-sm text-[#FFF9F5] hover:bg-white/5 cursor-pointer"
+                        >
+                          <Clock className="mr-2 h-4 w-4 text-amber-400" />
+                          <span>History Pesanan</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
 
-                  <DropdownMenuSeparator className="bg-border/40" />
+                  <DropdownMenuSeparator className="bg-white/10" />
                   <DropdownMenuItem
                     onClick={logout}
-                    className="flex items-center px-3 py-2 rounded-xl text-sm text-destructive hover:bg-destructive/10 focus:text-destructive cursor-pointer"
+                    className="flex items-center px-3 py-2 rounded-xl text-sm text-[#E01C20] hover:bg-[#E01C20]/10 focus:text-[#E01C20] focus:bg-[#E01C20]/10 cursor-pointer"
                   >
-                    <LogOut className="mr-2 h-4 w-4 text-inherit" />
+                    <LogOut className="mr-2 h-4 w-4 text-[#E01C20]" />
                     <span>Logout</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -195,7 +204,11 @@ export function DashboardHeader() {
                 <div className="md:hidden">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="text-[#FFF9F5]">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-[#FFF9F5]"
+                      >
                         <Menu className="h-5 w-5" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -203,25 +216,6 @@ export function DashboardHeader() {
                       className="w-48 bg-[#141824] border border-white/10 text-[#FFF9F5]"
                       align="end"
                     >
-                      <DropdownMenuItem asChild>
-                        <Link
-                          href={showItLink}
-                          className="flex items-center text-sm text-[#FFF9F5] hover:bg-[#0A0D14] cursor-pointer"
-                        >
-                          <Sparkles className="mr-2 h-4 w-4 text-[#E01C20]" />
-                          <span>Show It</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link
-                          href={leaderboardLink}
-                          className="flex items-center text-sm text-[#FFF9F5] hover:bg-[#0A0D14] cursor-pointer"
-                        >
-                          <Trophy className="mr-2 h-4 w-4 text-[#FED700]" />
-                          <span>Leaderboard</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator className="bg-white/10" />
                       <DropdownMenuItem asChild>
                         <Link
                           href="/login"

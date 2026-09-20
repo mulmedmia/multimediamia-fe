@@ -1,12 +1,52 @@
+import dynamic from "next/dynamic";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import HeroSection from "@/components/sections/HeroSection";
 import HomeCategoryPreview from "@/components/sections/HomeCategoryPreview";
-import GamificationSection from "@/components/sections/GamificationSection";
-import TimelineSection from "@/components/sections/TimelineSection";
-import SponsorsSection from "@/components/sections/SponsorsSection";
-import FAQSection from "@/components/sections/FAQSection";
-import ContactSection from "@/components/sections/ContactSection";
+
+// Dynamic imports untuk section di bawah lipatan layar (below-the-fold)
+// Memotong ukuran bundle awal secara signifikan dan meningkatkan skor TBT/LCP
+const GamificationSection = dynamic(
+  () => import("@/components/sections/GamificationSection"),
+  {
+    loading: () => <div className="min-h-[360px]" />,
+  }
+);
+
+const TimelineSection = dynamic(
+  () => import("@/components/sections/TimelineSection"),
+  {
+    loading: () => <div className="min-h-[360px]" />,
+  }
+);
+
+const SponsorsSection = dynamic(
+  () => import("@/components/sections/SponsorsSection"),
+  {
+    loading: () => <div className="min-h-[220px]" />,
+  }
+);
+
+const MediaPartnerSection = dynamic(
+  () => import("@/components/sections/MediaPartnerSection"),
+  {
+    loading: () => <div className="min-h-[260px]" />,
+  }
+);
+
+const FAQSection = dynamic(
+  () => import("@/components/sections/FAQSection"),
+  {
+    loading: () => <div className="min-h-[360px]" />,
+  }
+);
+
+const ContactSection = dynamic(
+  () => import("@/components/sections/ContactSection"),
+  {
+    loading: () => <div className="min-h-[280px]" />,
+  }
+);
 
 export default function HomePage() {
   return (
@@ -18,6 +58,7 @@ export default function HomePage() {
         <GamificationSection />
         <TimelineSection />
         <SponsorsSection />
+        <MediaPartnerSection />
         <FAQSection />
         <ContactSection />
       </main>
@@ -25,4 +66,3 @@ export default function HomePage() {
     </div>
   );
 }
-

@@ -27,9 +27,24 @@ import {
   Trash2,
   Calendar,
   Trophy,
+  Clock,
+  Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+
+const formatDeadline = (date) => {
+  if (!date) return "-";
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return "-";
+  return d.toLocaleString("id-ID", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
 
 export function MyRegistrationsList({ onSelectRegistration }) {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
@@ -144,6 +159,22 @@ export function MyRegistrationsList({ onSelectRegistration }) {
       <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 w-full">
         {registrations?.map((reg) => {
           const hasSubmission = hasSubmissionForCategory(reg.category_id);
+          const now = new Date();
+          const prelimDate = reg.category?.preliminary_deadline
+            ? new Date(reg.category.preliminary_deadline)
+            : reg.category?.deadline
+              ? new Date(reg.category.deadline)
+              : null;
+          const finalDate = reg.category?.final_deadline
+            ? new Date(reg.category.final_deadline)
+            : reg.category?.deadline
+              ? new Date(reg.category.deadline)
+              : null;
+
+          const isPastPrelim = prelimDate ? now > prelimDate : false;
+          const isPastFinal = finalDate ? now > finalDate : false;
+          const isSubmissionOpen = reg.category?.is_submission_open !== false;
+          const allowRevision = !!reg.category?.allow_revision;
 
           return (
             <div
@@ -184,17 +215,99 @@ export function MyRegistrationsList({ onSelectRegistration }) {
                   </div>
                 </div>
 
-                {/* Registration Date */}
-                <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
-                  <Calendar className="w-4 h-4 text-muted-foreground" />
-                  <span>
-                    Terdaftar:{" "}
-                    {new Date(reg.created_at).toLocaleDateString("id-ID", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })}
-                  </span>
+                {/* Registration Date & Gamification Badges */}
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-muted-foreground" />
+                    <span>
+                      Terdaftar:{" "}
+                      {new Date(reg.created_at).toLocaleDateString("id-ID", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-400 font-bold text-xs">
+                      <Zap className="w-3 h-3 fill-amber-400/40" />
+                      {Number(reg.xp || 0).toLocaleString("id-ID")} XP
+                    </span>
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/25 text-cyan-400 font-bold text-xs">
+                      <span>💎</span>
+                      {Number(reg.diamond || 0).toLocaleString("id-ID")}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Deadlines: Karya Sementara & Karya Final */}
+                <div className="p-3.5 sm:p-4 bg-input/30 border border-border/40 rounded-2xl space-y-2.5">
+                  <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground">
+                    <span className="flex items-center gap-1.5 uppercase tracking-wider text-[11px]">
+                      <Clock className="w-3.5 h-3.5 text-primary" />
+                      Batas Pengumpulan Karya
+                    </span>
+                    {!isSubmissionOpen ? (
+                      <span className="text-[11px] font-semibold text-rose-400 bg-rose-500/10 border border-rose-500/20 px-2.5 py-0.5 rounded-full">
+                        Ditutup
+                      </span>
+                    ) : isPastFinal ? (
+                      <span className="text-[11px] font-semibold text-muted-foreground bg-white/5 border border-white/10 px-2.5 py-0.5 rounded-full">
+                        Selesai
+                      </span>
+                    ) : isPastPrelim && !allowRevision ? (
+                      <span className="text-[11px] font-semibold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 rounded-full">
+                        Menunggu Revisi
+                      </span>
+                    ) : allowRevision ? (
+                      <span className="text-[11px] font-semibold text-purple-400 bg-purple-500/10 border border-purple-500/20 px-2.5 py-0.5 rounded-full">
+                        Fase Perbaikan
+                      </span>
+                    ) : (
+                      <span className="text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full">
+                        Karya Sementara
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                    {/* Karya Sementara */}
+                    <div className="p-2.5 rounded-xl bg-[#0F121A]/80 border border-white/5 space-y-1">
+                      <div className="flex items-center gap-1.5 text-muted-foreground text-[11px]">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0"></span>
+                        <span>Karya Sementara:</span>
+                      </div>
+                      <p
+                        className={cn(
+                          "font-semibold pl-3 text-xs sm:text-[13px]",
+                          isPastPrelim
+                            ? "text-muted-foreground line-through opacity-75"
+                            : "text-foreground",
+                        )}
+                      >
+                        {formatDeadline(prelimDate)}
+                      </p>
+                    </div>
+
+                    {/* Karya Final */}
+                    <div className="p-2.5 rounded-xl bg-[#0F121A]/80 border border-white/5 space-y-1">
+                      <div className="flex items-center gap-1.5 text-muted-foreground text-[11px]">
+                        <span className="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0"></span>
+                        <span>Karya Final:</span>
+                      </div>
+                      <p
+                        className={cn(
+                          "font-semibold pl-3 text-xs sm:text-[13px]",
+                          isPastFinal
+                            ? "text-muted-foreground line-through opacity-75"
+                            : "text-foreground",
+                        )}
+                      >
+                        {formatDeadline(finalDate)}
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Feedback Box - MIA Red Theme */}
@@ -206,7 +319,7 @@ export function MyRegistrationsList({ onSelectRegistration }) {
                         Feedback Panitia:
                       </p>
                       {reg.feedback ? (
-                        <p className="text-xs sm:text-sm text-foreground/90 leading-relaxed mt-1 font-normal">
+                        <p className="text-xs sm:text-sm text-foreground/90 leading-relaxed mt-1 font-normal break-words">
                           {reg.feedback}
                         </p>
                       ) : (

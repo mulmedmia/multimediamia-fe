@@ -3,10 +3,6 @@
 import React, { useState, useEffect } from "react";
 import { useCategoryById } from "@/hooks/user-use-category";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Calendar,
   User,
@@ -18,7 +14,6 @@ import {
   AlertCircle,
   Users,
   Clock,
-  Sparkles,
 } from "lucide-react";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
@@ -26,46 +21,58 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import Image from "next/image";
+import { useGuidebook } from "@/hooks/use-guidebook";
 
-// Loading Skeleton Component matching design.md specification
+// Loading Skeleton Component matching MIA 2026 design system
 function CategoryDetailSkeleton() {
   return (
-    <div className="flex flex-col min-h-screen bg-white dark:bg-[#151C28]">
-      <Header />
-      <main className="flex-grow container mx-auto pt-28 pb-16 px-4 md:px-6 lg:px-8">
-        <Skeleton className="h-10 w-36 rounded-full mb-8 bg-gray-200 dark:bg-gray-800" />
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-8">
-            <Card className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#151C28]/60 p-6">
-              <Skeleton className="h-10 w-3/4 mb-4 bg-gray-200 dark:bg-gray-800" />
-              <Skeleton className="h-5 w-1/3 mb-6 bg-gray-200 dark:bg-gray-800" />
-              <div className="space-y-3">
-                <Skeleton className="h-4 w-full bg-gray-200 dark:bg-gray-800" />
-                <Skeleton className="h-4 w-full bg-gray-200 dark:bg-gray-800" />
-                <Skeleton className="h-4 w-4/5 bg-gray-200 dark:bg-gray-800" />
+    <div className="min-h-screen bg-[#0A0D14] mia-connected-bg text-[#FFF9F5] flex flex-col justify-between">
+      <div>
+        <Header />
+        <main className="pt-24 sm:pt-28 pb-16 relative z-10">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl space-y-8">
+            <div className="h-10 w-44 rounded-full bg-[#1E2939] animate-pulse" />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-2 space-y-8">
+                <div className="mia-card p-6 md:p-8 space-y-4 animate-pulse">
+                  <div className="h-6 w-24 bg-[#1E2939] rounded-full" />
+                  <div className="h-10 w-3/4 bg-[#1E2939] rounded" />
+                  <div className="space-y-2 pt-4">
+                    <div className="h-4 w-full bg-[#1E2939] rounded" />
+                    <div className="h-4 w-5/6 bg-[#1E2939] rounded" />
+                    <div className="h-4 w-2/3 bg-[#1E2939] rounded" />
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+                    <div className="h-14 bg-[#1E2939] rounded-xl" />
+                    <div className="h-14 bg-[#1E2939] rounded-xl" />
+                  </div>
+                </div>
+
+                <div className="mia-card p-6 md:p-8 space-y-4 animate-pulse">
+                  <div className="h-6 w-48 bg-[#1E2939] rounded" />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="h-20 bg-[#1E2939] rounded-xl" />
+                    <div className="h-20 bg-[#1E2939] rounded-xl" />
+                  </div>
+                </div>
               </div>
-            </Card>
-            <Card className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#151C28]/60 p-6">
-              <Skeleton className="h-6 w-48 mb-4 bg-gray-200 dark:bg-gray-800" />
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Skeleton className="h-20 w-full rounded-xl bg-gray-200 dark:bg-gray-800" />
-                <Skeleton className="h-20 w-full rounded-xl bg-gray-200 dark:bg-gray-800" />
-                <Skeleton className="h-20 w-full rounded-xl bg-gray-200 dark:bg-gray-800" />
+
+              <div className="space-y-6">
+                <div className="mia-card aspect-video w-full bg-[#1E2939] animate-pulse" />
+                <div className="mia-card h-40 w-full bg-[#1E2939] animate-pulse" />
+                <div className="mia-card h-32 w-full bg-[#1E2939] animate-pulse" />
               </div>
-            </Card>
+            </div>
           </div>
-          <div className="space-y-8">
-            <Skeleton className="h-64 w-full rounded-2xl bg-gray-200 dark:bg-gray-800" />
-            <Skeleton className="h-48 w-full rounded-2xl bg-gray-200 dark:bg-gray-800" />
-          </div>
-        </div>
-      </main>
+        </main>
+      </div>
       <Footer />
     </div>
   );
 }
 
-// Countdown Timer Component per design.md
+// Countdown Timer Component matching MIA 2026 standard
 function CountdownTimer({ targetDate }) {
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
@@ -107,41 +114,41 @@ function CountdownTimer({ targetDate }) {
   }
 
   return (
-    <div className="text-center p-5 bg-gradient-to-b from-[#1E2939]/90 to-[#151C28]/90 dark:from-[#1E2939]/90 dark:to-[#151C28]/90 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm backdrop-blur-md">
-      <div className="inline-flex items-center justify-center gap-1.5 mb-4 text-[#E01C20] font-semibold text-xs uppercase tracking-wider">
+    <div className="mia-card p-5 text-center space-y-4 shadow-lg">
+      <div className="inline-flex items-center justify-center gap-1.5 text-[#E01C20] font-semibold text-xs uppercase tracking-wider">
         <Clock className="h-4 w-4" />
         <span>Sisa Waktu Pendaftaran</span>
       </div>
       <div className="grid grid-cols-4 gap-2 text-center">
-        <div className="bg-white dark:bg-[#151C28] rounded-xl p-2.5 border border-gray-200 dark:border-gray-800 shadow-inner">
+        <div className="bg-[#1E2939]/80 rounded-xl p-2.5 border border-white/10">
           <div className="text-xl md:text-2xl font-bold text-[#E01C20]">
             {timeLeft.days}
           </div>
-          <div className="text-[10px] text-gray-500 dark:text-[#99A1AF] font-medium uppercase mt-0.5">
+          <div className="text-[10px] text-[#AAB1BD] font-medium uppercase mt-0.5">
             Hari
           </div>
         </div>
-        <div className="bg-white dark:bg-[#151C28] rounded-xl p-2.5 border border-gray-200 dark:border-gray-800 shadow-inner">
+        <div className="bg-[#1E2939]/80 rounded-xl p-2.5 border border-white/10">
           <div className="text-xl md:text-2xl font-bold text-[#E01C20]">
             {timeLeft.hours}
           </div>
-          <div className="text-[10px] text-gray-500 dark:text-[#99A1AF] font-medium uppercase mt-0.5">
+          <div className="text-[10px] text-[#AAB1BD] font-medium uppercase mt-0.5">
             Jam
           </div>
         </div>
-        <div className="bg-white dark:bg-[#151C28] rounded-xl p-2.5 border border-gray-200 dark:border-gray-800 shadow-inner">
+        <div className="bg-[#1E2939]/80 rounded-xl p-2.5 border border-white/10">
           <div className="text-xl md:text-2xl font-bold text-[#E01C20]">
             {timeLeft.minutes}
           </div>
-          <div className="text-[10px] text-gray-500 dark:text-[#99A1AF] font-medium uppercase mt-0.5">
+          <div className="text-[10px] text-[#AAB1BD] font-medium uppercase mt-0.5">
             Menit
           </div>
         </div>
-        <div className="bg-white dark:bg-[#151C28] rounded-xl p-2.5 border border-gray-200 dark:border-gray-800 shadow-inner">
+        <div className="bg-[#1E2939]/80 rounded-xl p-2.5 border border-white/10">
           <div className="text-xl md:text-2xl font-bold text-[#E01C20]">
             {timeLeft.seconds}
           </div>
-          <div className="text-[10px] text-gray-500 dark:text-[#99A1AF] font-medium uppercase mt-0.5">
+          <div className="text-[10px] text-[#AAB1BD] font-medium uppercase mt-0.5">
             Detik
           </div>
         </div>
@@ -152,6 +159,7 @@ function CountdownTimer({ targetDate }) {
 
 export default function CategoryDetailPage(props) {
   const router = useRouter();
+  const { guidebookUrl: globalGuidebookUrl } = useGuidebook();
   const params =
     typeof props.params?.then === "function"
       ? React.use(props.params)
@@ -166,13 +174,13 @@ export default function CategoryDetailPage(props) {
   } = useCategoryById(categoryId);
 
   const formatDate = (dateString) => {
-    if (!dateString) return "TBD";
+    if (!dateString) return "-";
     try {
       return format(new Date(dateString), "dd MMMM yyyy 'pukul' HH:mm", {
         locale: id,
       });
     } catch {
-      return "Tanggal tidak valid";
+      return "-";
     }
   };
 
@@ -181,54 +189,38 @@ export default function CategoryDetailPage(props) {
     return new Date(deadlineString) < new Date();
   };
 
-  const getStatusConfig = (status) => {
-    switch (status) {
-      case "VERIFIED":
-        return {
-          icon: CheckCircle2,
-          text: "Terverifikasi",
-          bg: "bg-[#00B445]/20 text-[#00B445] border-[#00B445]/40",
-        };
-      case "NOT_VERIFIED":
-        return {
-          icon: AlertCircle,
-          text: "Belum Terverifikasi",
-          bg: "bg-yellow-500/20 text-yellow-500 border-yellow-500/40",
-        };
-      default:
-        return {
-          icon: XCircle,
-          text: "Status Tidak Diketahui",
-          bg: "bg-gray-800 text-gray-300 border-gray-700",
-        };
-    }
-  };
+  const registrationDeadline =
+    category?.batch_2_end || category?.final_deadline || category?.deadline;
+  const isRegistrationClosed = isDeadlinePassed(registrationDeadline);
 
   if (isLoading) return <CategoryDetailSkeleton />;
 
   if (isError) {
     return (
-      <div className="flex flex-col min-h-screen bg-white dark:bg-[#151C28]">
-        <Header />
-        <main className="flex-grow container mx-auto pt-28 pb-16 px-4">
-          <Alert variant="destructive" className="max-w-lg mx-auto rounded-2xl">
-            <AlertTitle className="font-semibold">Gagal Memuat Detail Kategori</AlertTitle>
-            <AlertDescription>
-              {error?.message ||
-                "Terjadi kesalahan saat memuat detail kategori. Silakan coba lagi."}
-            </AlertDescription>
-          </Alert>
-          <div className="text-center mt-6">
-            <Button
-              variant="outline"
-              className="rounded-full cursor-pointer"
-              onClick={() => router.back()}
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Kembali
-            </Button>
-          </div>
-        </main>
+      <div className="min-h-screen bg-[#0A0D14] mia-connected-bg text-[#FFF9F5] flex flex-col justify-between">
+        <div>
+          <Header />
+          <main className="pt-28 pb-16 px-4 max-w-lg mx-auto text-center">
+            <div className="mia-card p-8 md:p-10 space-y-4">
+              <div className="w-14 h-14 bg-red-500/10 border border-red-500/20 text-[#E01C20] rounded-2xl flex items-center justify-center mx-auto">
+                <AlertCircle className="h-7 w-7" />
+              </div>
+              <h2 className="text-xl font-bold text-[#FFF9F5]">Gagal Memuat Kategori</h2>
+              <p className="text-xs text-[#AAB1BD]">
+                {error?.message || "Terjadi kesalahan saat memuat detail kategori lomba."}
+              </p>
+              <div className="pt-2">
+                <Button
+                  onClick={() => router.back()}
+                  className="mia-btn-secondary px-6 text-xs font-semibold cursor-pointer"
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Kembali
+                </Button>
+              </div>
+            </div>
+          </main>
+        </div>
         <Footer />
       </div>
     );
@@ -236,288 +228,283 @@ export default function CategoryDetailPage(props) {
 
   if (!category) {
     return (
-      <div className="flex flex-col min-h-screen bg-white dark:bg-[#151C28]">
-        <Header />
-        <main className="flex-grow container mx-auto pt-28 pb-16 px-4">
-          <Alert variant="destructive" className="max-w-lg mx-auto rounded-2xl">
-            <AlertTitle className="font-semibold">Kategori Tidak Ditemukan</AlertTitle>
-            <AlertDescription>
-              Kategori yang Anda cari tidak ditemukan atau mungkin telah dihapus.
-            </AlertDescription>
-          </Alert>
-          <div className="text-center mt-6">
-            <Link href="/category">
-              <Button variant="outline" className="rounded-full cursor-pointer">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Kembali ke Daftar Kategori
-              </Button>
-            </Link>
-          </div>
-        </main>
+      <div className="min-h-screen bg-[#0A0D14] mia-connected-bg text-[#FFF9F5] flex flex-col justify-between">
+        <div>
+          <Header />
+          <main className="pt-28 pb-16 px-4 max-w-lg mx-auto text-center">
+            <div className="mia-card p-8 md:p-10 space-y-4">
+              <div className="w-14 h-14 bg-[#E01C20]/15 border border-[#E01C20]/30 text-[#E01C20] rounded-2xl flex items-center justify-center mx-auto">
+                <Trophy className="h-7 w-7" />
+              </div>
+              <h2 className="text-xl font-bold text-[#FFF9F5]">Kategori Tidak Ditemukan</h2>
+              <p className="text-xs text-[#AAB1BD]">
+                Kategori yang Anda cari tidak ditemukan atau telah dinonaktifkan.
+              </p>
+              <div className="pt-2">
+                <Link href="/category">
+                  <span className="mia-btn-primary px-6 py-2.5 text-xs font-semibold inline-flex items-center gap-2 cursor-pointer shadow-md">
+                    <ArrowLeft className="h-4 w-4" />
+                    <span>Kembali ke Katalog Kompetisi</span>
+                  </span>
+                </Link>
+              </div>
+            </div>
+          </main>
+        </div>
         <Footer />
       </div>
     );
   }
 
-  const statusConfig = getStatusConfig(category.status);
-  const StatusIcon = statusConfig.icon;
-
   return (
-    <div className="flex flex-col min-h-screen bg-white dark:bg-[#151C28] text-gray-900 dark:text-[#FFF9F5] relative overflow-hidden font-sans">
-      {/* Background Radial & Grid Pattern (per design.md) */}
-      <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] dark:hidden"></div>
+    <div className="min-h-screen bg-[#0A0D14] mia-connected-bg text-[#FFF9F5] flex flex-col justify-between selection:bg-[#E01C20] selection:text-white">
+      <div>
+        <Header />
 
-      <div className="hidden dark:block absolute inset-0 -z-10 h-full w-full bg-[#151C28]">
-        {/* Spotlights & Red Glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[450px] bg-gradient-to-b from-[#810220]/40 via-[#E01C20]/15 to-transparent blur-3xl rounded-full pointer-events-none"></div>
-        <div className="absolute bottom-0 right-0 w-[600px] h-[350px] bg-gradient-to-t from-[#810220]/30 to-transparent blur-3xl rounded-full pointer-events-none"></div>
-        <div className="absolute bottom-0 left-0 right-0 top-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]"></div>
-      </div>
-
-      <Header />
-
-      <main className="flex-grow container mx-auto pt-28 pb-16 px-4 md:px-6 lg:px-8 relative z-10">
-        {/* Top Back Navigation Bar */}
-        <div className="mb-8">
-          <Button
-            variant="outline"
-            onClick={() => router.back()}
-            className="rounded-full border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-[#1E2939]/80 backdrop-blur-md hover:border-[#E01C20] transition-all cursor-pointer shadow-sm group text-xs px-5 h-10"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" />
-            <span>Kembali ke Katalog Kategori</span>
-          </Button>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Left Column (Detail Info & Schedule) */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Primary Detail Card */}
-            <Card className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#151C28]/80 rounded-3xl shadow-sm overflow-hidden p-6 md:p-8">
-              <div className="flex flex-col md:flex-row items-start justify-between gap-4 mb-6">
-                <div className="flex-1 space-y-2">
-                  <div className="inline-flex items-center gap-2">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-[#E01C20]/10 text-[#E01C20] border border-[#E01C20]/30">
-                      <Trophy className="h-3 w-3 mr-1 text-[#FED700]" />
-                      {category.category_name}
-                    </span>
-                  </div>
-                  <h1 className="text-2xl md:text-4xl font-bold tracking-tight text-gray-900 dark:text-[#FFF9F5] leading-tight">
-                    {category.title || category.category_name}
-                  </h1>
-                </div>
-
-                {/* Status Badge */}
-                <span
-                  className={`inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md border shadow-sm ${statusConfig.bg}`}
-                >
-                  <StatusIcon className="h-3.5 w-3.5 mr-1.5" />
-                  {statusConfig.text}
+        <main className="pt-24 sm:pt-28 pb-16 relative z-10">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl space-y-8">
+            {/* Top Back Navigation Bar */}
+            <div>
+              <Link href="/category">
+                <span className="mia-btn-secondary px-4 py-2 text-xs sm:text-sm inline-flex items-center gap-2 cursor-pointer group shadow-sm">
+                  <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+                  <span>Kembali ke Katalog Kompetisi</span>
                 </span>
-              </div>
+              </Link>
+            </div>
 
-              {/* Category Description */}
-              <div className="space-y-6 pt-2">
-                <div>
-                  <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-400 dark:text-[#99A1AF] mb-3">
-                    Deskripsi Lomba
-                  </h3>
-                  <p className="text-sm md:text-base text-gray-700 dark:text-[#AAB1BD] leading-relaxed">
-                    {category.description ||
-                      "Tidak ada deskripsi rinci tersedia untuk kategori lomba ini."}
-                  </p>
-                </div>
-
-                {/* Info Chips (Organizer & Team Type) */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
-                  {/* Penyelenggara */}
-                  <div className="flex items-center gap-3.5 p-3.5 bg-gray-50 dark:bg-[#1E2939]/70 rounded-2xl border border-gray-100 dark:border-gray-800">
-                    <div className="w-10 h-10 bg-[#E01C20]/10 dark:bg-[#E01C20]/20 rounded-full flex items-center justify-center flex-shrink-0">
-                      <User className="h-5 w-5 text-[#E01C20]" />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Main Left Column (Detail Info & Schedule) */}
+              <div className="lg:col-span-2 space-y-8">
+                {/* Primary Detail Card */}
+                <div className="mia-card p-6 md:p-8 space-y-6 relative overflow-hidden shadow-xl">
+                  <div className="flex flex-col md:flex-row items-start justify-between gap-4">
+                    <div className="flex-1 space-y-2">
+                      <div>
+                        <span className="mia-pill-badge bg-[#0A0D14]/90 text-[#FFF9F5] backdrop-blur-md font-mono">
+                          <Trophy className="h-3 w-3 text-[#FED700]" />
+                          {category.slug || category.category_name}
+                        </span>
+                      </div>
+                      <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-[#FFF9F5] leading-tight">
+                        {category.name || category.category_name}
+                      </h1>
                     </div>
-                    <div>
-                      <p className="text-xs text-gray-400 dark:text-[#99A1AF]">
-                        Diselenggarakan oleh
-                      </p>
-                      <p className="text-sm font-semibold text-gray-900 dark:text-[#FFF9F5]">
-                        {category.organizer || "Penyelenggara MIA 2026"}
-                      </p>
-                    </div>
-                  </div>
 
-                  {/* Tipe Tim */}
-                  <div className="flex items-center gap-3.5 p-3.5 bg-gray-50 dark:bg-[#1E2939]/70 rounded-2xl border border-gray-100 dark:border-gray-800">
-                    <div className="w-10 h-10 bg-blue-500/10 dark:bg-blue-500/20 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Users className="h-5 w-5 text-blue-500" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-400 dark:text-[#99A1AF]">
-                        Tipe Tim
-                      </p>
-                      <p className="text-sm font-semibold text-gray-900 dark:text-[#FFF9F5]">
-                        {category.team_type === "GROUP"
-                          ? "Kelompok / Tim"
-                          : "Individu"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Card>
-
-            {/* Schedule Card */}
-            <Card className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#151C28]/80 rounded-3xl shadow-sm p-6 md:p-8">
-              <CardTitle className="flex items-center gap-2 text-lg font-bold mb-6 text-gray-900 dark:text-[#FFF9F5]">
-                <Calendar className="h-5 w-5 text-[#E01C20]" />
-                <span>Jadwal Pelaksanaan Lomba</span>
-              </CardTitle>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Mulai */}
-                <div className="p-4 rounded-2xl bg-gray-50 dark:bg-[#1E2939]/60 border border-gray-100 dark:border-gray-800 space-y-1">
-                  <div className="text-xs text-gray-400 dark:text-[#99A1AF]">
-                    Pendaftaran Mulai
-                  </div>
-                  <div className="text-sm font-bold text-gray-900 dark:text-[#FFF9F5]">
-                    {formatDate(category.startDate)}
-                  </div>
-                </div>
-
-                {/* Deadline (Highlighted) */}
-                <div className="p-4 rounded-2xl bg-[#E01C20]/10 dark:bg-[#E01C20]/15 border border-[#E01C20]/30 space-y-1">
-                  <div className="text-xs text-[#E01C20] font-semibold">
-                    Deadline Pendaftaran
-                  </div>
-                  <div className="text-sm font-bold text-[#E01C20]">
-                    {formatDate(category.deadline)}
-                  </div>
-                </div>
-
-                {/* Selesai */}
-                <div className="p-4 rounded-2xl bg-gray-50 dark:bg-[#1E2939]/60 border border-gray-100 dark:border-gray-800 space-y-1">
-                  <div className="text-xs text-gray-400 dark:text-[#99A1AF]">
-                    Lomba Berakhir
-                  </div>
-                  <div className="text-sm font-bold text-gray-900 dark:text-[#FFF9F5]">
-                    {formatDate(category.endDate)}
-                  </div>
-                </div>
-              </div>
-            </Card>
-          </div>
-
-          {/* Right Column (Image, Countdown, Actions) */}
-          <div className="space-y-8">
-            {/* Image Preview Card */}
-            <Card className="overflow-hidden border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#151C28]/80 rounded-3xl shadow-sm">
-              <div className="relative h-64 overflow-hidden bg-gradient-to-br from-red-950/20 via-black to-red-900/10">
-                <img
-                  src={category.image || "/placeholder-image.jpg"}
-                  alt={category.category_name}
-                  className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                  onError={(e) => {
-                    e.target.src = "/placeholder-image.jpg";
-                  }}
-                />
-              </div>
-            </Card>
-
-            {/* Countdown Timer */}
-            <CountdownTimer targetDate={category.deadline} />
-
-            {/* Registration Actions Card */}
-            <Card className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#151C28]/80 rounded-3xl shadow-sm p-6 space-y-4">
-              {category.status === "VERIFIED" ? (
-                <>
-                  {/* Button Daftar */}
-                  <Link
-                    href={
-                      isDeadlinePassed(category.deadline)
-                        ? "#"
-                        : `/competition-registration?category=${category.category_id}`
-                    }
-                    className={`block ${
-                      isDeadlinePassed(category.deadline)
-                        ? "pointer-events-none"
-                        : ""
-                    }`}
-                  >
-                    <Button
-                      disabled={isDeadlinePassed(category.deadline)}
-                      className={`w-full h-12 rounded-full font-bold text-sm transition-all duration-300 shadow-md flex items-center justify-center gap-2 ${
-                        isDeadlinePassed(category.deadline)
-                          ? "bg-gray-400 dark:bg-gray-700 text-gray-200 opacity-60 cursor-not-allowed"
-                          : "bg-[#E01C20] hover:bg-[#9D1416] text-[#FFF9F5] shadow-[0_4px_20px_rgba(224,28,32,0.35)] hover:scale-[1.02] cursor-pointer"
+                    {/* Status Badge */}
+                    <span
+                      className={`inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md border shadow-sm ${
+                        category.status === "VERIFIED"
+                          ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-400"
+                          : "bg-amber-500/15 border-amber-500/30 text-amber-400"
                       }`}
                     >
-                      <Trophy className="h-4 w-4 text-[#FED700]" />
-                      <span>
-                        {isDeadlinePassed(category.deadline)
-                          ? "Pendaftaran Telah Ditutup"
-                          : "Daftar Sekarang"}
-                      </span>
-                    </Button>
-                  </Link>
+                      {category.status === "VERIFIED" ? (
+                        <>
+                          <CheckCircle2 className="h-3.5 w-3.5 mr-1.5 text-emerald-400" />
+                          <span>Terverifikasi</span>
+                        </>
+                      ) : (
+                        <>
+                          <AlertCircle className="h-3.5 w-3.5 mr-1.5 text-amber-400" />
+                          <span>Belum Terverifikasi</span>
+                        </>
+                      )}
+                    </span>
+                  </div>
 
-                  {/* Button Download Panduan */}
-                  <Button
-                    variant="outline"
-                    className="w-full h-12 rounded-full font-semibold text-sm border-gray-300 dark:border-gray-700 hover:border-[#E01C20] text-gray-800 dark:text-[#FFF9F5] transition-all duration-300 cursor-pointer flex items-center justify-center gap-2"
-                    asChild
-                  >
-                    <a
-                      href={
-                        category.file_url ||
-                        "https://drive.google.com/drive/folders/1x34lDmoqSFdOfsxUpxpe2KiAaGT2zk5m"
-                      }
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Download className="h-4 w-4 text-[#E01C20]" />
-                      <span>Download Guidebook</span>
-                    </a>
-                  </Button>
-                </>
-              ) : (
-                <div className="text-center p-4 bg-yellow-500/10 rounded-2xl border border-yellow-500/30">
-                  <AlertCircle className="h-8 w-8 text-yellow-500 mx-auto mb-2" />
-                  <p className="text-yellow-500 font-bold text-sm">
-                    Kategori Belum Terverifikasi
-                  </p>
-                  <p className="text-xs text-yellow-600/80 dark:text-yellow-400/80 mt-1">
-                    Pendaftaran akan dibuka setelah kategori ini diverifikasi oleh admin.
-                  </p>
-                </div>
-              )}
-            </Card>
+                  {/* Category Description */}
+                  <div className="space-y-3 pt-2 border-t border-white/5">
+                    <h3 className="text-xs uppercase tracking-wider text-[#AAB1BD] font-semibold">
+                      Deskripsi Perlombaan
+                    </h3>
+                    <p className="text-sm md:text-base text-[#D5D8DE] leading-relaxed whitespace-pre-line">
+                      {category.description ||
+                        "Tidak ada deskripsi rinci tersedia untuk kategori lomba ini."}
+                    </p>
+                  </div>
 
-            {/* Metadata Extra Card */}
-            <Card className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#151C28]/80 rounded-3xl shadow-sm p-6">
-              <h3 className="font-semibold mb-4 text-sm text-gray-900 dark:text-[#FFF9F5]">
-                Informasi Tambahan
-              </h3>
-              <div className="space-y-3 text-xs">
-                <div className="flex justify-between py-1 border-b border-gray-100 dark:border-gray-800/60">
-                  <span className="text-gray-400 dark:text-[#99A1AF]">
-                    Nama Kompetisi:
-                  </span>
-                  <span className="font-medium text-gray-900 dark:text-[#FFF9F5]">
-                    {category.name || category.category_name}
-                  </span>
+                  {/* Info Chips (Organizer & Team Type) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                    {/* Penyelenggara */}
+                    <div className="flex items-center gap-3.5 p-3.5 rounded-xl bg-[#1E2939]/60 border border-white/5">
+                      <div className="w-10 h-10 rounded-full bg-[#E01C20]/15 border border-[#E01C20]/30 flex items-center justify-center flex-shrink-0">
+                        <User className="h-5 w-5 text-[#E01C20]" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-[#99A1AF]">Diselenggarakan oleh</p>
+                        <p className="text-sm font-semibold text-[#FFF9F5]">
+                          {category.organizer || "Panitia MIA 2026"}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Tipe Tim */}
+                    <div className="flex items-center gap-3.5 p-3.5 rounded-xl bg-[#1E2939]/60 border border-white/5">
+                      <div className="w-10 h-10 rounded-full bg-[#FED700]/15 border border-[#FED700]/30 flex items-center justify-center flex-shrink-0">
+                        <Users className="h-5 w-5 text-[#FED700]" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-[#99A1AF]">Tipe Tim</p>
+                        <p className="text-sm font-semibold text-[#FFF9F5]">
+                          {category.team_type === "GROUP"
+                            ? "Tim (1-3 Orang)"
+                            : "Individu"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex justify-between py-1 border-b border-gray-100 dark:border-gray-800/60">
-                  <span className="text-gray-400 dark:text-[#99A1AF]">
-                    Status Akses:
-                  </span>
-                  <span className="font-medium text-gray-900 dark:text-[#FFF9F5]">
-                    Publik
-                  </span>
+
+                {/* Schedule Card */}
+                <div className="mia-card p-6 md:p-8 space-y-5 shadow-xl">
+                  <div className="flex items-center gap-2.5 text-lg font-bold text-[#FFF9F5]">
+                    <Calendar className="h-5 w-5 text-[#E01C20]" />
+                    <span>Jadwal Pelaksanaan Lomba</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Batch 1 Pendaftaran (if available) */}
+                    {(category.batch_1_start || category.batch_1_end) && (
+                      <div className="p-4 rounded-xl bg-[#1E2939]/60 border border-white/5 space-y-1">
+                        <div className="text-xs text-[#99A1AF] font-medium flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-[#FF4500]" />
+                          <span>Pendaftaran Batch 1</span>
+                        </div>
+                        <div className="text-sm sm:text-base font-bold text-[#FFF9F5]">
+                          {formatDate(category.batch_1_start)} – {formatDate(category.batch_1_end)}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Batch 2 Pendaftaran (if available) */}
+                    {(category.batch_2_start || category.batch_2_end) && (
+                      <div className="p-4 rounded-xl bg-[#1E2939]/60 border border-white/5 space-y-1">
+                        <div className="text-xs text-[#99A1AF] font-medium flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-[#FED700]" />
+                          <span>Pendaftaran Batch 2</span>
+                        </div>
+                        <div className="text-sm sm:text-base font-bold text-[#FFF9F5]">
+                          {formatDate(category.batch_2_start)} – {formatDate(category.batch_2_end)}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Pengumpulan Karya Penyisihan (if available) */}
+                    {category.preliminary_deadline && (
+                      <div className="p-4 rounded-xl bg-[#1E2939]/60 border border-white/5 space-y-1">
+                        <div className="text-xs text-[#99A1AF] font-medium flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-[#3B82F6]" />
+                          <span>Pengumpulan Karya Penyisihan</span>
+                        </div>
+                        <div className="text-sm sm:text-base font-bold text-[#FFF9F5]">
+                          {formatDate(category.preliminary_deadline)}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Pengumpulan Karya Final (if available) */}
+                    {category.final_deadline && (
+                      <div className="p-4 rounded-xl bg-[#1E2939]/60 border border-white/5 space-y-1">
+                        <div className="text-xs text-[#99A1AF] font-medium flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-[#10B981]" />
+                          <span>Pengumpulan Karya Final</span>
+                        </div>
+                        <div className="text-sm sm:text-base font-bold text-[#FFF9F5]">
+                          {formatDate(category.final_deadline)}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Batas Akhir Pendaftaran (Akhir Batch 2) */}
+                    <div className="p-4 rounded-xl bg-[#E01C20]/15 border border-[#E01C20]/30 space-y-1 shadow-[0_0_15px_rgba(224,28,32,0.15)]">
+                      <div className="text-xs text-[#FF936B] font-semibold flex items-center gap-1.5">
+                        <Clock className="h-3.5 w-3.5 text-[#E01C20]" />
+                        <span>Batas Akhir Pendaftaran</span>
+                      </div>
+                      <div className="text-sm sm:text-base font-bold text-[#FFF9F5]">
+                        {formatDate(category.batch_2_end || registrationDeadline)}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </Card>
+
+              {/* Right Column (Image, Countdown, Actions) */}
+              <div className="space-y-6">
+                {/* Image Preview Card */}
+                <div className="mia-card overflow-hidden relative aspect-video w-full shadow-xl">
+                  <Image
+                    src={category.image || "/placeholder-image.png"}
+                    alt={category.name || category.slug || "Category"}
+                    fill={true}
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0A0D14]/80 via-transparent to-transparent pointer-events-none" />
+                </div>
+
+                {/* Countdown Timer */}
+                <CountdownTimer targetDate={category?.batch_2_end || registrationDeadline} />
+
+                {/* Registration Actions Card */}
+                <div className="mia-card p-6 space-y-3.5 shadow-xl">
+                  {category.status === "VERIFIED" ? (
+                    <>
+                      {/* Button Daftar */}
+                      <Link
+                        href={
+                          isRegistrationClosed
+                            ? "#"
+                            : `/competition-registration?category=${category.category_id}`
+                        }
+                        className={`block ${
+                          isRegistrationClosed ? "pointer-events-none" : ""
+                        }`}
+                      >
+                        <span
+                          className={`w-full h-12 flex items-center justify-center gap-2 text-sm font-bold transition-all duration-300 shadow-md ${
+                            isRegistrationClosed
+                              ? "bg-[#1E2939] text-[#AAB1BD] opacity-60 cursor-not-allowed rounded-full"
+                              : "mia-btn-primary cursor-pointer"
+                          }`}
+                        >
+                          <Trophy className="h-4 w-4 text-[#FED700]" />
+                          <span>
+                            {isRegistrationClosed
+                              ? "Pendaftaran Telah Ditutup"
+                              : "Daftar Sekarang"}
+                          </span>
+                        </span>
+                      </Link>
+
+                      {/* Button Download Panduan */}
+                      <a
+                        href={category.file_url || globalGuidebookUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mia-btn-secondary w-full h-12 flex items-center justify-center gap-2 text-sm font-semibold cursor-pointer"
+                      >
+                        <Download className="h-4 w-4 text-[#E01C20]" />
+                        <span>Download Guidebook</span>
+                      </a>
+                    </>
+                  ) : (
+                    <div className="text-center p-4 bg-amber-500/10 rounded-2xl border border-amber-500/30">
+                      <AlertCircle className="h-8 w-8 text-amber-400 mx-auto mb-2" />
+                      <p className="text-amber-400 font-bold text-sm">
+                        Kategori Belum Terverifikasi
+                      </p>
+                      <p className="text-xs text-amber-300/80 mt-1">
+                        Pendaftaran akan dibuka setelah kategori ini diverifikasi oleh panitia.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
 
       <Footer />
     </div>

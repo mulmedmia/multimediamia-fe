@@ -11,14 +11,17 @@ export function useUserCategories({
   page = 1, 
   status = "", 
   search = "",
-  enabled = true 
+  enabled = true,
+  placeholderData,
+  initialData,
 } = {}) {
   return useQuery({
     queryKey: ["user-categories", { limit, page, status, search }],
     queryFn: () => getUserCategories({ limit, page, status, search }),
     staleTime: 1000 * 60 * 5, // 5 menit
-    refetchInterval: 1000 * 60 * 10, // 10 menit
     enabled,
+    placeholderData,
+    initialData,
   });
 }
 

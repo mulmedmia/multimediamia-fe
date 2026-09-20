@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAllSubmissions } from "@/hooks/user-use-submissions";
 import { useCategories } from "@/hooks/user-use-gamifikasi";
-import { DashboardHeader } from "@/components/layout/DashboardHeader";
+import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import {
   Select,
@@ -16,7 +16,6 @@ import {
 import {
   Sparkles,
   Users,
-  Calendar,
   AlertCircle,
   Target,
   Star,
@@ -25,7 +24,6 @@ import {
   ExternalLink,
   User,
   Lightbulb,
-  Grid3X3,
   ArrowRight,
 } from "lucide-react";
 
@@ -39,10 +37,6 @@ export default function ShowItPage() {
     isLoading: submissionsLoading,
     isError,
   } = useAllSubmissions(selectedCategoryId);
-
-  const selectedCategory = categories?.find(
-    (cat) => cat.category_id === selectedCategoryId
-  );
 
   // Filter hanya submission yang berstatus APPROVED
   const allSubmissions = submissionsData?.submissions || [];
@@ -85,7 +79,7 @@ export default function ShowItPage() {
   return (
     <div className="min-h-screen bg-[#0A0D14] mia-connected-bg text-[#FFF9F5] flex flex-col justify-between selection:bg-[#E01C20] selection:text-white">
       <div>
-        <DashboardHeader />
+        <Header />
 
         <main className="pt-24 sm:pt-28 pb-16 relative z-10">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl space-y-8 md:space-y-12">
@@ -102,7 +96,7 @@ export default function ShowItPage() {
 
               <p className="text-sm sm:text-base md:text-lg text-[#AAB1BD] leading-relaxed">
                 Jelajahi dan temukan inspirasi dari karya-karya inovatif dan kreatif
-                peserta kompetisi Multimedia in Action 2025!
+                peserta kompetisi Multimedia in Action 2026!
               </p>
             </div>
 
@@ -122,89 +116,37 @@ export default function ShowItPage() {
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <Select
-                  value={selectedCategoryId}
-                  onValueChange={handleCategoryChange}
-                  disabled={categoriesLoading}
-                >
-                  <SelectTrigger className="w-full h-12 bg-[#141824] border border-white/15 hover:border-[#E01C20]/60 rounded-xl text-[#FFF9F5] focus:ring-[#E01C20] transition-colors cursor-pointer">
-                    <SelectValue
-                      placeholder={
-                        categoriesLoading
-                          ? "Memuat kategori..."
-                          : "💡 Pilih kategori lomba..."
-                      }
-                    />
-                  </SelectTrigger>
-                  <SelectContent className="bg-[#141824] border border-white/15 text-[#FFF9F5] rounded-xl shadow-2xl">
-                    {categories?.map((category) => (
-                      <SelectItem
-                        key={category.category_id}
-                        value={category.category_id}
-                        className="flex flex-col items-start py-2.5 px-3.5 gap-1 text-left text-[#FFF9F5] hover:bg-[#E01C20]/20 focus:bg-[#E01C20]/20 rounded-lg cursor-pointer transition-colors"
-                      >
-                        <span className="font-semibold text-sm md:text-base">
-                          {category.name}
-                        </span>
-                        <span className="text-xs text-[#AAB1BD]">
-                          {category.category_name}
-                        </span>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                {selectedCategory && (
-                  <div className="bg-[#1E2939]/40 border border-white/10 rounded-xl p-4 md:p-6 space-y-4">
-                    <div className="flex items-start gap-3">
-                      <div className="p-2 bg-[#E01C20]/20 border border-[#E01C20]/30 rounded-lg text-[#E01C20] flex-shrink-0">
-                        <Star className="h-4 w-4" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-base md:text-lg font-bold text-[#FFF9F5] mb-1">
-                          {selectedCategory.name}
-                        </h3>
-                        <p className="text-xs md:text-sm text-[#AAB1BD] leading-relaxed">
-                          {selectedCategory.description}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-2 md:gap-3 pt-2">
-                      <div className="flex items-center gap-2 px-3 py-1.5 bg-[#1E2939] border border-white/10 rounded-full text-xs md:text-sm text-[#AAB1BD]">
-                        <Calendar className="h-3.5 w-3.5 text-[#E01C20]" />
-                        <span>
-                          Deadline:{" "}
-                          <strong className="text-[#FFF9F5]">
-                            {new Date(selectedCategory.deadline).toLocaleDateString("id-ID", {
-                              day: "numeric",
-                              month: "long",
-                              year: "numeric",
-                            })}
-                          </strong>
-                        </span>
-                      </div>
-
-                      <div className="flex items-center gap-2 px-3 py-1.5 bg-[#1E2939] border border-white/10 rounded-full text-xs md:text-sm text-[#AAB1BD]">
-                        <Users className="h-3.5 w-3.5 text-[#FED700]" />
-                        <span>
-                          Tipe Tim: <strong className="text-[#FFF9F5]">{selectedCategory.team_type}</strong>
-                        </span>
-                      </div>
-
-                      {submissions.length > 0 && (
-                        <div className="flex items-center gap-2 px-3 py-1.5 bg-[#1E2939] border border-white/10 rounded-full text-xs md:text-sm text-[#AAB1BD]">
-                          <Grid3X3 className="h-3.5 w-3.5 text-[#00B445]" />
-                          <span>
-                            <strong className="text-[#FFF9F5]">{submissions.length}</strong> Karya Disetujui
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
+              <Select
+                value={selectedCategoryId}
+                onValueChange={handleCategoryChange}
+                disabled={categoriesLoading}
+              >
+                <SelectTrigger className="w-full h-12 bg-[#141824] border border-white/15 hover:border-[#E01C20]/60 rounded-xl text-[#FFF9F5] focus:ring-[#E01C20] transition-colors cursor-pointer">
+                  <SelectValue
+                    placeholder={
+                      categoriesLoading
+                        ? "Memuat kategori..."
+                        : "💡 Pilih kategori lomba..."
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent className="bg-[#141824] border border-white/15 text-[#FFF9F5] rounded-xl shadow-2xl">
+                  {categories?.map((category) => (
+                    <SelectItem
+                      key={category.category_id}
+                      value={category.category_id}
+                      className="flex flex-col items-start py-2.5 px-3.5 gap-1 text-left text-[#FFF9F5] hover:bg-[#E01C20]/20 focus:bg-[#E01C20]/20 rounded-lg cursor-pointer transition-colors"
+                    >
+                      <span className="font-semibold text-sm md:text-base">
+                        {category.name}
+                      </span>
+                      <span className="text-xs text-[#AAB1BD]">
+                        {category.category_name}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Loading State */}

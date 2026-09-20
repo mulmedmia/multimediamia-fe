@@ -2,20 +2,32 @@ import api from "@/lib/api";
 
 /**
  * Get user's redemption history.
+ * @param {object} filters
  * @returns {Promise<{redemptions: Array, meta: object}>}
  */
-export const getMyRedemptions = async () => {
-  const res = await api.get("/gamification/redeem/my");
+export const getMyRedemptions = async (filters = {}) => {
+  const params = new URLSearchParams();
+  if (filters.page) params.append("page", filters.page);
+  if (filters.limit) params.append("limit", filters.limit);
+  if (filters.category_id) params.append("category_id", filters.category_id);
+  if (filters.search) params.append("search", filters.search);
+  const queryString = params.toString() ? `?${params.toString()}` : "";
+  const res = await api.get(`/gamification/redeem/my${queryString}`);
   return res.data.data;
 };
 
 /**
  * Get leaderboard by category.
  * @param {string} categoryId
- * @returns {Promise<Array>}
+ * @param {object} options
+ * @returns {Promise<{leaderboard: Array, meta: object}>}
  */
-export const getLeaderboardByCategory = async (categoryId) => {
-  const res = await api.get(`/gamification/${categoryId}`);
+export const getLeaderboardByCategory = async (categoryId, { page = 1, limit = 10 } = {}) => {
+  const params = new URLSearchParams();
+  if (page) params.append("page", page);
+  if (limit) params.append("limit", limit);
+  const queryString = params.toString() ? `?${params.toString()}` : "";
+  const res = await api.get(`/gamification/${categoryId}${queryString}`);
   return res.data.data;
 };
 

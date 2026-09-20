@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { Link2Icon, PersonIcon, LayersIcon } from "@radix-ui/react-icons";
+import { Info, ExternalLink, FileText } from "lucide-react";
+import { useGuidebook } from "@/hooks/use-guidebook";
 
 const teamFormSchema = z
   .object({
@@ -56,6 +58,7 @@ function PersonInput({
   placeholder,
   role,
   required = false,
+  disabled = false,
 }) {
   return (
     <div className="relative">
@@ -66,9 +69,10 @@ function PersonInput({
         type="text"
         placeholder={placeholder}
         required={required}
+        disabled={disabled}
         {...register(field)}
         className={cn(
-          "h-11 bg-input rounded-xl pl-10 pr-22 text-sm text-foreground placeholder:text-mia-muted-2 transition-all peer",
+          "h-11 bg-input rounded-xl pl-10 pr-22 text-sm text-foreground placeholder:text-mia-muted-2 transition-all peer disabled:opacity-60 disabled:cursor-not-allowed",
           errors[field]
             ? "border-destructive focus-visible:ring-destructive"
             : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
@@ -96,8 +100,14 @@ export function TeamForm({
   onSubmit,
   onCancel,
   isPending = false,
+  disabled = false,
 }) {
+  const isVerified = Boolean(registration?.is_verified);
+  const isFormDisabled = isPending || disabled || isVerified;
+  const { guidebookUrl: globalGuidebookUrl } = useGuidebook();
   const teamType = registration?.category?.team_type || "GROUP";
+  const guidebookUrl =
+    registration?.category?.file_url || globalGuidebookUrl;
 
   const {
     register,
@@ -116,7 +126,7 @@ export function TeamForm({
     },
   });
 
-  // Untuk lomba Grup (2-3 orang) dengan 1 ketua + 2 anggota
+  // Untuk lomba Grup (1-3 orang) dengan 1 ketua + 2 anggota
   const groupPersonInputs = [
     {
       field: "team_lead",
@@ -217,9 +227,10 @@ export function TeamForm({
               type="text"
               placeholder="Masukkan nama peserta"
               required
+              disabled={isFormDisabled}
               {...register("team_lead")}
               className={cn(
-                "h-11 bg-input rounded-xl pl-10 pr-4 text-sm text-foreground placeholder:text-mia-muted-2 transition-all",
+                "h-11 bg-input rounded-xl pl-10 pr-4 text-sm text-foreground placeholder:text-mia-muted-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed",
                 errors.team_lead
                   ? "border-destructive focus-visible:ring-destructive"
                   : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
@@ -249,9 +260,10 @@ export function TeamForm({
                 id="team_name"
                 placeholder="Masukkan nama tim"
                 required
+                disabled={isFormDisabled}
                 {...register("team_name")}
                 className={cn(
-                  "h-11 bg-input rounded-xl pl-10 pr-4 text-sm text-foreground placeholder:text-mia-muted-2 transition-all",
+                  "h-11 bg-input rounded-xl pl-10 pr-4 text-sm text-foreground placeholder:text-mia-muted-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed",
                   errors.team_name
                     ? "border-destructive focus-visible:ring-destructive"
                     : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
@@ -273,6 +285,7 @@ export function TeamForm({
                 {...person}
                 register={register}
                 errors={errors}
+                disabled={isFormDisabled}
               />
             ))}
 
@@ -290,12 +303,12 @@ export function TeamForm({
       <Separator />
 
       {/* Drive Document Link Field */}
-      <div className="space-y-2">
+      <div className="space-y-3">
         <Label
           htmlFor="file_url"
           className="block text-sm font-semibold text-foreground"
         >
-          Link Drive Dokumen
+          Link Drive Dokumen <span className="text-[#E01C20]">*</span>
         </Label>
         <div className="relative">
           <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
@@ -305,20 +318,50 @@ export function TeamForm({
             id="file_url"
             placeholder="https://drive.google.com/..."
             required
+            disabled={isFormDisabled}
             {...register("file_url")}
             className={cn(
-              "h-11 bg-input rounded-xl pl-10 pr-4 text-sm text-foreground placeholder:text-mia-muted-2 transition-all",
+              "h-11 bg-input rounded-xl pl-10 pr-4 text-sm text-foreground placeholder:text-mia-muted-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed",
               errors.file_url
                 ? "border-destructive focus-visible:ring-destructive"
                 : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
             )}
           />
         </div>
-        <p className="text-xs text-mia-muted-2">
-          Upload dokumen-dokumen persyaratan ke Google Drive dan masukkan link
-          publiknya di sini
-        </p>
         <InputError fieldError={errors.file_url} />
+
+        {/* Keterangan Dokumen Persyaratan & Tombol Guidebook */}
+        <div className="p-3.5 rounded-xl bg-[#1E2939]/70 border border-white/10 space-y-3">
+          <div className="flex items-start gap-2.5 text-xs text-[#AAB1BD] leading-relaxed">
+            <Info className="h-4 w-4 text-[#FED700] flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-semibold text-[#FFF9F5] mb-0.5">
+                Ketentuan Berkas Pendaftaran:
+              </p>
+              <p>
+                Unggah seluruh dokumen persyaratan ke Google Drive Anda dan pastikan akses folder disetel ke{" "}
+                <strong className="text-[#FED700]">"Siapa saja yang memiliki link" (Public)</strong>. Rincian dokumen persyaratan lengkap dapat Anda cek di dalam <strong>Guidebook Perlombaan</strong>.
+              </p>
+            </div>
+          </div>
+
+          <div className="pt-0.5">
+            <a
+              href={guidebookUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mia-btn-secondary py-2 px-3.5 text-xs font-semibold inline-flex items-center gap-2 cursor-pointer w-full sm:w-auto justify-center group"
+            >
+              <FileText className="h-3.5 w-3.5 text-[#E01C20]" />
+              <span>
+                {registration?.category?.category_name || registration?.category?.name
+                  ? `Buka Guidebook ${registration.category.category_name || registration.category.name}`
+                  : "Buka Guidebook Perlombaan"}
+              </span>
+              <ExternalLink className="h-3 w-3 text-[#AAB1BD] group-hover:text-white transition-colors" />
+            </a>
+          </div>
+        </div>
       </div>
 
       {/* Action Buttons */}
@@ -336,10 +379,14 @@ export function TeamForm({
         )}
         <Button
           type="submit"
-          disabled={isPending}
-          className="mia-btn-primary h-11 px-6 text-sm font-semibold rounded-full shadow-lg shadow-red-900/30 cursor-pointer"
+          disabled={isFormDisabled}
+          className="mia-btn-primary h-11 px-6 text-sm font-semibold rounded-full shadow-lg shadow-red-900/30 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isPending ? "Menyimpan..." : "Simpan Perubahan"}
+          {isPending
+            ? "Menyimpan..."
+            : isVerified
+              ? "Tim Terverifikasi"
+              : "Simpan Perubahan"}
         </Button>
       </div>
     </form>

@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import {
   getAdminProducts,
   createAdminProduct,
@@ -7,12 +7,12 @@ import {
 } from "@/services/admin-product.service";
 import { toast } from "sonner";
 
-export function useAdminProducts({ limit, page, search }) {
+export function useAdminProducts({ limit = 10, page = 1, search = "", is_active = "" } = {}) {
   return useQuery({
-    queryKey: ["admin-products", { limit, page, search }],
-    queryFn: () => getAdminProducts({ limit, page, search }),
+    queryKey: ["admin-products", { limit, page, search, is_active }],
+    queryFn: () => getAdminProducts({ limit, page, search, is_active }),
+    placeholderData: keepPreviousData,
     staleTime: 1000 * 60,
-    refetchInterval: 1000 * 60,
   });
 }
 
@@ -25,8 +25,8 @@ export function useCreateAdminProduct(onSuccess) {
       toast.success("Produk berhasil ditambahkan");
       onSuccess?.();
     },
-    onError: () => {
-      toast.error("Gagal menambah produk");
+    onError: (err) => {
+      toast.error(err?.response?.data?.message || "Gagal menambah produk");
     },
   });
 }
@@ -40,8 +40,8 @@ export function useUpdateAdminProduct(onSuccess) {
       toast.success("Produk berhasil diupdate");
       onSuccess?.();
     },
-    onError: () => {
-      toast.error("Gagal update produk");
+    onError: (err) => {
+      toast.error(err?.response?.data?.message || "Gagal update produk");
     },
   });
 }
@@ -55,8 +55,8 @@ export function useDeleteAdminProduct(onSuccess) {
       toast.success("Produk berhasil dihapus");
       onSuccess?.();
     },
-    onError: () => {
-      toast.error("Gagal menghapus produk");
+    onError: (err) => {
+      toast.error(err?.response?.data?.message || "Gagal menghapus produk");
     },
   });
 }

@@ -10,10 +10,12 @@ const poppins = Poppins({
   variable: "--font-poppins",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
+  preload: true,
 });
 
 export const metadata = {
-  title: "Multimedia in Action 2025",
+  title: "Multimedia in Action 2026",
   description: "Kompetisi Digital Creative Terbesar untuk Mahasiswa Indonesia",
   icons: {
     icon: [

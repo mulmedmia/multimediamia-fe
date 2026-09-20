@@ -1,17 +1,24 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 
-export const getGamifikasiColumns = ({ isMobile, setEditUser, reset }) => {
+export const getGamifikasiColumns = ({ isMobile, setEditTeam, reset }) => {
   const baseColumns = [
     {
-      accessorKey: "name",
-      header: "Nama",
+      accessorKey: "team_name",
+      header: "Nama Tim",
     },
     {
-      accessorKey: "points",
-      header: "Poin",
+      accessorKey: "diamond",
+      header: "Diamond",
       cell: ({ row }) => (
-        <span className="font-medium">{row.original.points ?? 0}</span>
+        <span className="font-medium">{row.original.diamond ?? 0}</span>
+      ),
+    },
+    {
+      accessorKey: "xp",
+      header: "XP",
+      cell: ({ row }) => (
+        <span className="font-medium">{row.original.xp ?? 0} XP</span>
       ),
     },
   ];
@@ -19,17 +26,20 @@ export const getGamifikasiColumns = ({ isMobile, setEditUser, reset }) => {
   const desktopColumns = [
     ...baseColumns.slice(0, 1),
     {
-      accessorKey: "email",
-      header: "Email",
-    },
-    ...baseColumns.slice(1),
-    {
-      accessorKey: "role",
-      header: "Role",
+      accessorKey: "category",
+      header: "Kategori",
       cell: ({ row }) => (
-        <span className="capitalize">{row.original.role}</span>
+        <span>{row.original.category?.name || "-"}</span>
       ),
     },
+    {
+      accessorKey: "team_leader_name",
+      header: "Ketua Tim",
+      cell: ({ row }) => (
+        <span>{row.original.team_leader_name || row.original.user?.name || "-"}</span>
+      ),
+    },
+    ...baseColumns.slice(1),
   ];
 
   const actionColumn = {
@@ -40,11 +50,14 @@ export const getGamifikasiColumns = ({ isMobile, setEditUser, reset }) => {
         size="sm"
         variant="outline"
         onClick={() => {
-          setEditUser(row.original);
-          reset({ points: row.original.points || 0 });
+          setEditTeam(row.original);
+          reset({
+            diamond: row.original.diamond ?? 0,
+            xp: row.original.xp ?? 0,
+          });
         }}
       >
-        Edit
+        Edit Diamond & XP
       </Button>
     ),
   };
