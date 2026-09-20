@@ -11,9 +11,11 @@ export default function CategoryCard({ category, onEdit, onDelete }) {
           <div className="flex justify-between items-start gap-2">
             <div className="flex-1">
               <h3 className="font-semibold text-sm line-clamp-2">
-                {category.category_name}
+                {category.name || category.category_name}
               </h3>
-              <p className="text-xs text-muted-foreground">{category.name}</p>
+              <p className="text-xs text-muted-foreground font-mono">
+                {category.slug || category.category_name}
+              </p>
             </div>
             <div className="flex flex-shrink-0">
               <Button
@@ -36,8 +38,10 @@ export default function CategoryCard({ category, onEdit, onDelete }) {
           </div>
           <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
             <div>
-              <span className="text-muted-foreground">Judul:</span>
-              <p className="font-medium truncate">{category.title || "-"}</p>
+              <span className="text-muted-foreground">Singkatan / Slug:</span>
+              <p className="font-mono font-medium truncate">
+                {category.slug || category.category_name || "-"}
+              </p>
             </div>
             <div>
               <span className="text-muted-foreground">Status:</span>
@@ -50,11 +54,23 @@ export default function CategoryCard({ category, onEdit, onDelete }) {
               </p>
             </div>
             <div>
-              <span className="text-muted-foreground">Deadline:</span>
+              <span className="text-muted-foreground">Karya Sementara:</span>
               <p className="font-medium">
-                {category.deadline
-                  ? format(new Date(category.deadline), "dd MMM yyyy")
-                  : "-"}
+                {category.preliminary_deadline
+                  ? format(new Date(category.preliminary_deadline), "dd MMM yyyy HH:mm")
+                  : category.deadline
+                    ? format(new Date(category.deadline), "dd MMM yyyy")
+                    : "-"}
+              </p>
+            </div>
+            <div>
+              <span className="text-muted-foreground">Karya Final:</span>
+              <p className="font-medium">
+                {category.final_deadline
+                  ? format(new Date(category.final_deadline), "dd MMM yyyy HH:mm")
+                  : category.deadline
+                    ? format(new Date(category.deadline), "dd MMM yyyy")
+                    : "-"}
               </p>
             </div>
           </div>

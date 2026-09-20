@@ -22,20 +22,151 @@ import {
   CodeIcon,
   VideoIcon,
   InfoCircledIcon,
-  Pencil1Icon,
 } from "@radix-ui/react-icons";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "../ui/textarea";
 
 // !!! Asumsikan zod object punya `keys` yang sama dengan yang dilempar oleh Backend
-// Schema dinamis berdasarkan team type
-const createSubmissionSchema = (teamType) => {
+// Schema dinamis berdasarkan team type, kategori, dan fase deadline
+const createSubmissionSchema = (teamType, categorySlug, isFinalPhase) => {
+  const isWIA = categorySlug === "WIA";
+  const isUIA = categorySlug === "UIA";
+
+  if (isWIA) {
+    return z.object({
+      team_name: teamType === "GROUP" ? z.string() : z.string().optional(),
+      project_name: z
+        .string()
+        .min(1, { message: "Nama project wajib diisi." })
+        .max(80, { message: "Nama project maksimal 80 karakter." }),
+      description: z
+        .string()
+        .min(10, { message: "Deskripsi minimal 10 karakter." })
+        .max(400, {
+          message: "Deskripsi maksimal 400 karakter.",
+        }),
+      flow_application:
+        teamType === "GROUP"
+          ? z
+              .string()
+              .min(10, { message: "Flow aplikasi minimal 10 karakter." })
+              .max(400, {
+                message: "Flow aplikasi maksimal 400 karakter.",
+              })
+          : z.string().optional(),
+      proposal_url: z
+        .string()
+        .min(1, { message: "Link draft proposal (Google Docs) wajib diisi." })
+        .url({ message: "Harap masukkan format URL proposal yang valid." }),
+      proposal_description: z.string().optional(),
+      github_url: z
+        .string()
+        .min(1, { message: "Link repository GitHub utama wajib diisi." })
+        .url({ message: "Harap masukkan format URL GitHub yang valid." }),
+      github_description: z.string().optional(),
+      github_secondary_url: z
+        .string()
+        .url({ message: "Harap masukkan URL GitHub kedua yang valid." })
+        .optional()
+        .or(z.literal("")),
+      github_secondary_description: z.string().optional(),
+      deployment_url: isFinalPhase
+        ? z
+            .string()
+            .min(1, { message: "Link deployment / live website wajib diisi pada fase final." })
+            .url({ message: "Harap masukkan URL deployment yang valid." })
+        : z
+            .string()
+            .url({ message: "Harap masukkan URL deployment yang valid." })
+            .optional()
+            .or(z.literal("")),
+      deployment_description: z.string().optional(),
+      youtube_url: isFinalPhase
+        ? z
+            .string()
+            .min(1, { message: "Link video demo YouTube wajib diisi pada fase final." })
+            .url({ message: "Harap masukkan URL YouTube yang valid." })
+        : z
+            .string()
+            .url({ message: "Harap masukkan URL YouTube yang valid." })
+            .optional()
+            .or(z.literal("")),
+      youtube_description: z.string().optional(),
+      other_url: z
+        .string()
+        .url({ message: "Harap masukkan URL yang valid." })
+        .optional()
+        .or(z.literal("")),
+      other_description: z.string().optional(),
+    });
+  }
+
+  if (isUIA) {
+    return z.object({
+      team_name: teamType === "GROUP" ? z.string() : z.string().optional(),
+      project_name: z
+        .string()
+        .min(1, { message: "Nama project wajib diisi." })
+        .max(80, { message: "Nama project maksimal 80 karakter." }),
+      description: z
+        .string()
+        .min(10, { message: "Deskripsi minimal 10 karakter." })
+        .max(400, {
+          message: "Deskripsi maksimal 400 karakter.",
+        }),
+      flow_application:
+        teamType === "GROUP"
+          ? z
+              .string()
+              .min(10, { message: "Flow aplikasi minimal 10 karakter." })
+              .max(400, {
+                message: "Flow aplikasi maksimal 400 karakter.",
+              })
+          : z.string().optional(),
+      proposal_url: z
+        .string()
+        .min(1, { message: "Link draft proposal (Google Docs) wajib diisi." })
+        .url({ message: "Harap masukkan format URL proposal yang valid." }),
+      figma_url: z
+        .string()
+        .min(1, { message: "Link desain Figma wajib diisi." })
+        .url({ message: "Harap masukkan format URL Figma yang valid." }),
+      figma_prototype_url: isFinalPhase
+        ? z
+            .string()
+            .min(1, { message: "Link prototipe Figma wajib diisi pada fase final." })
+            .url({ message: "Harap masukkan format URL prototipe Figma yang valid." })
+        : z
+            .string()
+            .url({ message: "Harap masukkan format URL prototipe Figma yang valid." })
+            .optional()
+            .or(z.literal("")),
+      youtube_url: isFinalPhase
+        ? z
+            .string()
+            .min(1, { message: "Link video demo YouTube wajib diisi pada fase final." })
+            .url({ message: "Harap masukkan URL YouTube yang valid." })
+        : z
+            .string()
+            .url({ message: "Harap masukkan URL YouTube yang valid." })
+            .optional()
+            .or(z.literal("")),
+      other_url: z
+        .string()
+        .url({ message: "Harap masukkan URL yang valid." })
+        .optional()
+        .or(z.literal("")),
+    });
+  }
+
+  // Fallback untuk kategori Non-WIA / Non-UIA
   return z
     .object({
       // team_name hanya required untuk GROUP
       team_name: teamType === "GROUP" ? z.string() : z.string().optional(),
       project_name: z
         .string()
+        .min(1, { message: "Nama project wajib diisi." })
         .max(80, { message: "Nama project maksimal 80 karakter." }),
       description: z
         .string()
@@ -54,24 +185,22 @@ const createSubmissionSchema = (teamType) => {
               })
           : z.string().optional(),
       github_url: z
+        .string()
         .url({
-          protocol: /^https?$/,
-          hostname: /^github\.com/,
           message: "Harap masukkan URL GitHub yang valid.",
         })
         .optional()
         .or(z.literal("")),
       youtube_url: z
+        .string()
         .url({
-          protocol: /^https?$/,
-          hostname: /^youtu(\.be|be\.com)$/,
           message: "Harap masukkan URL YouTube yang valid.",
         })
         .optional()
         .or(z.literal("")),
       other_url: z
+        .string()
         .url({
-          protocol: /^https?$/,
           message: "Harap masukkan URL yang valid.",
         })
         .optional()
@@ -98,54 +227,43 @@ const createSubmissionSchema = (teamType) => {
     });
 };
 
-const LINK_CONFIGS = [
-  {
-    field: "github_url",
-    placeholder: "https://github.com/username/repository",
-    descField: "github_description",
-    descPlaceholder: "Repository source code",
-    label: "Link GitHub",
-    Icon: CodeIcon,
-    type: "GITHUB",
-  },
-  {
-    field: "youtube_url",
-    placeholder: "https://youtube.com/watch?v=...",
-    descField: "youtube_description",
-    descPlaceholder: "Video demo project",
-    label: "Link YouTube",
-    Icon: VideoIcon,
-    type: "YOUTUBE",
-  },
-  {
-    field: "other_url",
-    placeholder: "https://example.com/live-demo",
-    descField: "other_description",
-    descPlaceholder: "Live demo website",
-    label: "Link Lainnya",
-    Icon: Link2Icon,
-    type: "OTHER",
-  },
-];
-
 function LinkInput({
   field = "",
   placeholder = "",
-  descField = "",
-  descPlaceholder = "",
   label = "",
+  helperText = "",
+  required = false,
   Icon,
   register,
   errors,
 }) {
   return (
-    <div className="space-y-2">
-      <Label
-        htmlFor={field}
-        className="block text-sm font-semibold text-foreground"
-      >
-        {label}
-      </Label>
+    <div className="space-y-2 p-3.5 bg-input/20 border border-border/40 rounded-xl transition-all">
+      <div className="flex items-center justify-between gap-2">
+        <Label
+          htmlFor={field}
+          className="block text-sm font-semibold text-foreground"
+        >
+          {label}{" "}
+          {required ? (
+            <span className="text-red-500 font-bold">*</span>
+          ) : (
+            <span className="text-xs font-normal text-muted-foreground">(Opsional)</span>
+          )}
+        </Label>
+        {required && (
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500/15 border border-red-500/30 text-red-400">
+            Wajib
+          </span>
+        )}
+      </div>
+
+      {helperText && (
+        <p className="text-xs text-muted-foreground/80 leading-relaxed">
+          {helperText}
+        </p>
+      )}
+
       <div className="relative">
         <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
           <Icon className="w-4 h-4" />
@@ -163,17 +281,6 @@ function LinkInput({
         />
       </div>
       <InputError fieldError={errors[field]} />
-      <div className="relative">
-        <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
-          <Pencil1Icon className="w-3.5 h-3.5" />
-        </div>
-        <Input
-          id={descField}
-          placeholder={descPlaceholder}
-          {...register(descField)}
-          className="h-10 bg-input/60 rounded-xl pl-9 pr-4 text-xs text-foreground placeholder:text-mia-muted-2 border-border/60 focus-visible:border-ring focus-visible:ring-ring/50"
-        />
-      </div>
     </div>
   );
 }
@@ -203,20 +310,226 @@ export function SubmissionForm({
 
   // Tentukan team type dari registration
   const teamType = registration?.category?.team_type || "GROUP";
+  const categorySlug = registration?.category?.slug?.toUpperCase();
+  const isWIA = categorySlug === "WIA";
+  const isUIA = categorySlug === "UIA";
 
-  // Memoized schema berdasarkan teamType
+  const isFinalPhase = useMemo(() => {
+    if (!registration?.category) return false;
+    if (registration.category.allow_revision) return true;
+    if (registration.category.preliminary_deadline) {
+      return new Date() > new Date(registration.category.preliminary_deadline);
+    }
+    return false;
+  }, [registration?.category]);
+
+  const activeLinkConfigs = useMemo(() => {
+    if (isWIA) {
+      return [
+        {
+          field: "proposal_url",
+          placeholder: "https://docs.google.com/document/d/...",
+          descField: "proposal_description",
+          descPlaceholder: "Draft Proposal (Google Docs)",
+          label: "Link Draft Proposal (Google Docs)",
+          helperText:
+            "Wajib. Pastikan hak akses link Google Docs diatur ke publik / Siapa saja yang memiliki link (Viewer).",
+          Icon: FileTextIcon,
+          type: "PROPOSAL",
+          required: true,
+        },
+        {
+          field: "github_url",
+          placeholder: "https://github.com/username/repository",
+          descField: "github_description",
+          descPlaceholder: "Repository GitHub Utama",
+          label: "Link Repo GitHub (Utama)",
+          helperText: "Wajib. Repository source code utama aplikasi.",
+          Icon: CodeIcon,
+          type: "GITHUB",
+          required: true,
+        },
+        {
+          field: "github_secondary_url",
+          placeholder: "https://github.com/username/repository-backend",
+          descField: "github_secondary_description",
+          descPlaceholder: "Repository GitHub Tambahan (FE/BE dipisah)",
+          label: "Link Repo GitHub (Opsional - FE/BE Terpisah)",
+          helperText: "Opsional jika Anda memisahkan repo Frontend dan Backend.",
+          Icon: CodeIcon,
+          type: "GITHUB_SECONDARY",
+          required: false,
+        },
+        {
+          field: "deployment_url",
+          placeholder: "https://my-app.vercel.app",
+          descField: "deployment_description",
+          descPlaceholder: "Deployment / Live Website",
+          label: `Link Deployment / Live Website ${
+            isFinalPhase ? "(Wajib Saat Final)" : "(Opsional Sementara)"
+          }`,
+          helperText: isFinalPhase
+            ? "Wajib diisi pada tahap pengumpulan karya final."
+            : "Opsional pada pengumpulan sementara, wajib saat pengumpulan karya final.",
+          Icon: Link2Icon,
+          type: "DEPLOYMENT",
+          required: isFinalPhase,
+        },
+        {
+          field: "youtube_url",
+          placeholder: "https://youtube.com/watch?v=... atau https://youtu.be/...",
+          descField: "youtube_description",
+          descPlaceholder: "Video Demo Aplikasi YouTube",
+          label: `Link Video Demo YouTube ${
+            isFinalPhase ? "(Wajib Saat Final)" : "(Opsional Sementara)"
+          }`,
+          helperText: isFinalPhase
+            ? "Wajib diisi pada tahap pengumpulan karya final."
+            : "Opsional pada pengumpulan sementara, wajib saat pengumpulan karya final.",
+          Icon: VideoIcon,
+          type: "YOUTUBE",
+          required: isFinalPhase,
+        },
+        {
+          field: "other_url",
+          placeholder: "https://...",
+          descField: "other_description",
+          descPlaceholder: "Panduan, kredensial akun uji coba juri, dsb.",
+          label: "Link Lainnya (Opsional)",
+          helperText:
+            "Opsional (misal panduan instalasi, kredensial akun uji coba juri, dll.)",
+          Icon: InfoCircledIcon,
+          type: "OTHER",
+          required: false,
+        },
+      ];
+    }
+
+    if (isUIA) {
+      return [
+        {
+          field: "proposal_url",
+          placeholder: "https://docs.google.com/document/d/...",
+          descField: "proposal_description",
+          descPlaceholder: "Draft Proposal (Google Docs)",
+          label: "Link Draft Proposal (Google Docs)",
+          helperText:
+            "Wajib. Pastikan hak akses link Google Docs diatur ke publik / Siapa saja yang memiliki link (Viewer).",
+          Icon: FileTextIcon,
+          type: "PROPOSAL",
+          required: true,
+        },
+        {
+          field: "figma_url",
+          placeholder: "https://www.figma.com/design/...",
+          descField: "figma_description",
+          descPlaceholder: "Desain Figma",
+          label: "Link Desain Figma",
+          helperText: "Wajib. Tautan file desain Figma proyek Anda.",
+          Icon: LayersIcon,
+          type: "FIGMA",
+          required: true,
+        },
+        {
+          field: "figma_prototype_url",
+          placeholder: "https://www.figma.com/proto/...",
+          descField: "figma_prototype_description",
+          descPlaceholder: "Prototipe Figma",
+          label: `Link Prototipe Figma ${
+            isFinalPhase ? "(Wajib Saat Final)" : "(Opsional Sementara)"
+          }`,
+          helperText: isFinalPhase
+            ? "Wajib diisi pada tahap pengumpulan karya final."
+            : "Opsional pada pengumpulan sementara, wajib saat pengumpulan karya final.",
+          Icon: LayersIcon,
+          type: "FIGMA_PROTOTYPE",
+          required: isFinalPhase,
+        },
+        {
+          field: "youtube_url",
+          placeholder: "https://youtube.com/watch?v=... atau https://youtu.be/...",
+          descField: "youtube_description",
+          descPlaceholder: "Video Demo Aplikasi YouTube",
+          label: `Link Video Demo YouTube ${
+            isFinalPhase ? "(Wajib Saat Final)" : "(Opsional Sementara)"
+          }`,
+          helperText: isFinalPhase
+            ? "Wajib diisi pada tahap pengumpulan karya final."
+            : "Opsional pada pengumpulan sementara, wajib saat pengumpulan karya final.",
+          Icon: VideoIcon,
+          type: "YOUTUBE",
+          required: isFinalPhase,
+        },
+        {
+          field: "other_url",
+          placeholder: "https://...",
+          descField: "other_description",
+          descPlaceholder: "Panduan, kredensial akun uji coba juri, dsb.",
+          label: "Link Lainnya (Opsional)",
+          helperText:
+            "Opsional (misal panduan pengujian, aset pendukung, dll.)",
+          Icon: InfoCircledIcon,
+          type: "OTHER",
+          required: false,
+        },
+      ];
+    }
+
+    return [
+      {
+        field: "github_url",
+        placeholder: "https://github.com/username/repository",
+        descField: "github_description",
+        descPlaceholder: "Repository source code",
+        label: "Link GitHub",
+        helperText: "Tautan repositori kode sumber proyek Anda.",
+        Icon: CodeIcon,
+        type: "GITHUB",
+        required: false,
+      },
+      {
+        field: "youtube_url",
+        placeholder: "https://youtube.com/watch?v=...",
+        descField: "youtube_description",
+        descPlaceholder: "Video demo project",
+        label: "Link YouTube",
+        helperText: "Tautan video presentasi atau demo proyek.",
+        Icon: VideoIcon,
+        type: "YOUTUBE",
+        required: false,
+      },
+      {
+        field: "other_url",
+        placeholder: "https://example.com/live-demo",
+        descField: "other_description",
+        descPlaceholder: "Live demo website",
+        label: "Link Lainnya",
+        helperText: "Tautan pendukung lain seperti live demo atau panduan.",
+        Icon: Link2Icon,
+        type: "OTHER",
+        required: false,
+      },
+    ];
+  }, [isWIA, isUIA, isFinalPhase]);
+
+  // Memoized schema berdasarkan teamType, categorySlug, dan isFinalPhase
   const submissionSchema = useMemo(() => {
-    return createSubmissionSchema(teamType);
-  }, [teamType]);
+    return createSubmissionSchema(teamType, categorySlug, isFinalPhase);
+  }, [teamType, categorySlug, isFinalPhase]);
 
-  // Default values berdasarkan team type
+  // Default values berdasarkan team type dan activeLinkConfigs
   const getDefaultValues = useMemo(() => {
-    const linksInfo = LINK_CONFIGS.reduce((acc, { type, field, descField }) => {
-      const found = editingSubmission?.links?.find((l) => l.link_type === type);
-      acc[field] = found?.url || "";
-      acc[descField] = found?.description || "";
-      return acc;
-    }, {});
+    const linksInfo = activeLinkConfigs.reduce(
+      (acc, { type, field, descField }) => {
+        const found = editingSubmission?.links?.find(
+          (l) => l.link_type === type,
+        );
+        acc[field] = found?.url || "";
+        acc[descField] = found?.description || "";
+        return acc;
+      },
+      {},
+    );
 
     return {
       team_name: teamType === "GROUP" ? registration?.team_name || "" : "",
@@ -226,7 +539,7 @@ export function SubmissionForm({
         teamType === "GROUP" ? editingSubmission?.flow_application || "" : "",
       ...linksInfo,
     };
-  }, [registration, editingSubmission, teamType]);
+  }, [registration, editingSubmission, teamType, activeLinkConfigs]);
 
   const {
     register,
@@ -282,15 +595,21 @@ export function SubmissionForm({
       return;
     }
 
-    // Prepare links array based on filled URLs
+    // Prepare links array based on active configs
     const links = [];
 
-    for (const { field, type, descField, descPlaceholder } of LINK_CONFIGS) {
-      if (data[field]) {
+    for (const {
+      field,
+      type,
+      descField,
+      descPlaceholder,
+    } of activeLinkConfigs) {
+      const val = data[field];
+      if (val && val.trim() !== "") {
         links.push({
           link_type: type,
-          url: data[field],
-          description: data[descField] || descPlaceholder,
+          url: val.trim(),
+          description: data[descField]?.trim() || descPlaceholder,
         });
       }
     }
@@ -461,11 +780,32 @@ export function SubmissionForm({
       {/* Links Section */}
       <div className="space-y-4">
         <div>
-          <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
-            Link Project & Berkas
+          <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider flex items-center flex-wrap gap-2">
+            <span>
+              {isWIA
+                ? "Link Berkas & Repositori Web In Action"
+                : isUIA
+                  ? "Link Berkas & Desain UI/UX In Action"
+                  : "Link Project & Berkas"}
+            </span>
+            {(isWIA || isUIA) && (
+              <span className="text-xs font-normal normal-case px-2.5 py-0.5 rounded-full bg-primary/10 border border-primary/25 text-primary">
+                {isFinalPhase
+                  ? "Fase Pengumpulan Final"
+                  : "Fase Pengumpulan Sementara"}
+              </span>
+            )}
           </h3>
-          <p className="text-xs text-mia-muted-2 mt-0.5">
-            Isi minimal satu link. Semua link bersifat opsional.
+          <p className="text-xs text-mia-muted-2 mt-1 leading-relaxed">
+            {isWIA
+              ? isFinalPhase
+                ? "Pada fase final, Draft Proposal, Repo GitHub Utama, Deployment, dan Video YouTube wajib diisi."
+                : "Pada pengumpulan sementara, Draft Proposal dan Repo GitHub Utama wajib diisi. Deployment dan Video YouTube bersifat opsional dan wajib saat pengumpulan final."
+              : isUIA
+                ? isFinalPhase
+                  ? "Pada fase final, Draft Proposal, Desain Figma, Prototipe Figma, dan Video YouTube wajib diisi."
+                  : "Pada pengumpulan sementara, Draft Proposal dan Desain Figma wajib diisi. Prototipe Figma dan Video YouTube bersifat opsional dan wajib saat pengumpulan final."
+                : "Isi minimal satu link project (GitHub, YouTube, atau Link Lainnya)."}
           </p>
           {errors.links_required && (
             <div className="mt-2.5 p-3 bg-rose-500/10 border border-rose-500/25 rounded-xl text-xs text-rose-300 flex items-center gap-2">
@@ -475,9 +815,9 @@ export function SubmissionForm({
           )}
         </div>
 
-        {LINK_CONFIGS.map((link, index) => (
+        {activeLinkConfigs.map((link, index) => (
           <LinkInput
-            key={index}
+            key={link.field || index}
             {...link}
             register={register}
             errors={errors}

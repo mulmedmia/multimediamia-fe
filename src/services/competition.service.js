@@ -67,7 +67,7 @@ export const deleteRegistration = async (registrationId) => {
  */
 export const getLeaderboard = async (categoryId) => {
   try {
-    const response = await api.get(`/leaderboard/${categoryId}`);
+    const response = await api.get(`/gamification/${categoryId}`);
     return response.data.data;
   } catch (error) {
     console.error("Gagal mengambil data leaderboard:", error);
@@ -81,11 +81,5 @@ export const getLeaderboard = async (categoryId) => {
  * @returns {Promise<Array>}
  */
 export const getCompetitionSchedule = async (competitionId) => {
-  try {
-    const response = await api.get(`/competitions/${competitionId}/schedule`);
-    return response.data.data;
-  } catch (error) {
-    console.error("Gagal mengambil jadwal kompetisi:", error);
-    return [];
-  }
+  return [];
 };

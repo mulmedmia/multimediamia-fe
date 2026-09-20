@@ -24,7 +24,9 @@ import { toast } from "sonner";
 import { useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Link2Icon, PersonIcon, LayersIcon } from "@radix-ui/react-icons";
+import { Info, ExternalLink, FileText } from "lucide-react";
 import { Separator } from "../ui/separator";
+import { useGuidebook } from "@/hooks/use-guidebook";
 
 const registrationSchema = z
   .object({
@@ -140,9 +142,15 @@ export function CompetitionRegistrationForm({ defaultCategoryId }) {
     },
   });
 
+  const { guidebookUrl: globalGuidebookUrl } = useGuidebook();
   const selectedCategoryType = watch("selected_category_type");
+  const currentCategoryId = watch("category_id");
+  const selectedCategory = categories?.find(
+    (cat) => String(cat.category_id) === String(currentCategoryId),
+  );
+  const guidebookUrl = selectedCategory?.file_url || globalGuidebookUrl;
 
-  // Untuk lomba Grup (2-3 orang) dengan 1 ketua + 2 anggota
+  // Untuk lomba Grup (1-3 orang) dengan 1 ketua + 2 anggota
   const groupPersonInputs = [
     {
       field: "team_lead",
@@ -355,12 +363,12 @@ export function CompetitionRegistrationForm({ defaultCategoryId }) {
       <Separator />
 
       {/* Drive Document Link Field */}
-      <div className="space-y-2">
+      <div className="space-y-3">
         <Label
           htmlFor="file_url"
           className="block text-sm font-semibold text-foreground"
         >
-          Link Drive Dokumen
+          Link Drive Dokumen <span className="text-[#E01C20]">*</span>
         </Label>
         <div className="relative">
           <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
@@ -379,11 +387,43 @@ export function CompetitionRegistrationForm({ defaultCategoryId }) {
             )}
           />
         </div>
-        <p className="text-xs text-mia-muted-2">
-          Upload dokumen persyaratan ke Google Drive dan masukkan link publik di
-          sini
-        </p>
         <InputError fieldError={errors.file_url} />
+
+        {/* Keterangan Dokumen Persyaratan & Tombol Guidebook */}
+        <div className="p-3.5 rounded-xl bg-[#1E2939]/70 border border-white/10 space-y-3">
+          <div className="flex items-start gap-2.5 text-xs text-[#AAB1BD] leading-relaxed">
+            <Info className="h-4 w-4 text-[#FED700] flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-semibold text-[#FFF9F5] mb-0.5">
+                Ketentuan Berkas Pendaftaran:
+              </p>
+              <p>
+                Unggah seluruh dokumen persyaratan (Kartu Pelajar / KTM, bukti pembayaran, dan berkas lainnya) ke Google Drive Anda. Pastikan akses link disetel ke{" "}
+                <strong className="text-[#FED700]">"Siapa saja yang memiliki link" (Public)</strong> agar dapat diverifikasi oleh panitia.
+              </p>
+              <p className="mt-1 text-[#99A1AF]">
+                Daftar rincian dan format dokumen persyaratan selengkapnya dapat dilihat di dalam <strong>Guidebook Perlombaan</strong>.
+              </p>
+            </div>
+          </div>
+
+          <div className="pt-0.5">
+            <a
+              href={guidebookUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mia-btn-secondary py-2 px-3.5 text-xs font-semibold inline-flex items-center gap-2 cursor-pointer w-full sm:w-auto justify-center group"
+            >
+              <FileText className="h-3.5 w-3.5 text-[#E01C20]" />
+              <span>
+                {selectedCategory?.category_name || selectedCategory?.name
+                  ? `Buka Guidebook ${selectedCategory.category_name || selectedCategory.name}`
+                  : "Buka Guidebook Perlombaan"}
+              </span>
+              <ExternalLink className="h-3 w-3 text-[#AAB1BD] group-hover:text-white transition-colors" />
+            </a>
+          </div>
+        </div>
       </div>
 
       {/* Submit Button */}

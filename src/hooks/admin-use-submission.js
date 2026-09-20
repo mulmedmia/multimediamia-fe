@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import {
   getAllSubmissions,
   getSubmissionById,
@@ -9,10 +9,12 @@ import {
 import { toast } from "sonner";
 
 // Query: ambil semua submission
-export function useAdminSubmissions({ limit, page, status, search }) {
+export function useAdminSubmissions({ limit = 10, page = 1, category_id = "", status = "", search = "" } = {}) {
   return useQuery({
-    queryKey: ["admin-submissions", { limit, page, status, search }],
-    queryFn: () => getAllSubmissions({ limit, page, status, search }),
+    queryKey: ["admin-submissions", { limit, page, category_id, status, search }],
+    queryFn: () => getAllSubmissions({ limit, page, category_id, status, search }),
+    placeholderData: keepPreviousData,
+    staleTime: 1000 * 60 * 2,
   });
 }
 

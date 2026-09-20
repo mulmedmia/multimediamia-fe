@@ -4,8 +4,12 @@ export const getAdminCategories = async ({
   limit = 10,
   page = 1,
   search = "",
+  status = "",
 }) => {
   const params = { limit, page, search };
+  if (status && status !== "ALL") {
+    params.status = status;
+  }
   const res = await api.get("/categories", { params });
   return res.data.data;
 };
@@ -35,4 +39,12 @@ export const updateAdminCategory = async ({ id, ...data }) => {
 export const deleteAdminCategory = async (id) => {
   const res = await api.delete(`/categories/${id}`);
   return res.data;
+};
+
+export const toggleAdminCategorySubmission = async ({ id, is_submission_open, allow_revision }) => {
+  const res = await api.patch(`/categories/${id}/toggle-submission`, {
+    is_submission_open,
+    allow_revision,
+  });
+  return res.data.data;
 };

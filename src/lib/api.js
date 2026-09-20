@@ -3,7 +3,7 @@ import Cookies from "js-cookie";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
-  timeout: 10000,
+  timeout: 45000, // 45 detik untuk mengantisipasi cold-start Render free tier
   headers: {
     "Content-Type": "application/json",
   },
@@ -17,6 +17,10 @@ api.interceptors.request.use(
     }
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+    // If request data is FormData, remove Content-Type header so browser/axios sets multipart/form-data with the correct boundary
+    if (typeof FormData !== "undefined" && config.data instanceof FormData) {
+      delete config.headers["Content-Type"];
     }
     return config;
   },

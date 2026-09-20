@@ -4,8 +4,23 @@ import React from "react";
 import Link from "next/link";
 import { DownloadIcon, ArrowRightIcon } from "@radix-ui/react-icons";
 import Image from "next/image";
+import { useAuthContext } from "@/providers/AuthProvider";
+import { useGuidebook } from "@/hooks/use-guidebook";
 
 const HeroSection = () => {
+  const { user } = useAuthContext();
+  const { guidebookUrl } = useGuidebook();
+
+  const handleDaftarClick = (e) => {
+    if (user) {
+      e.preventDefault();
+      const el = document.getElementById("lomba");
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth" });
+        window.history.pushState(null, "", "/#lomba");
+      }
+    }
+  };
   return (
     <section
       id="beranda"
@@ -30,36 +45,41 @@ const HeroSection = () => {
                   alt="MIA Logo"
                   sizes="(min-width: 1024px) 96px, (min-width: 768px) 80px, (min-width: 640px) 64px, 48px"
                   fill={true}
-                  loading="eager"
-                  fetchPriority="high"
+                  priority={true}
                   className="object-contain"
                 />
               </div>
               <span>
                 Multimedia{" "}
                 <span className="bg-gradient-to-r from-[#E01C20] via-[#FF4500] to-[#FED700] bg-clip-text text-transparent">
-                  in Action
+                  In Action 2026
                 </span>
               </span>
             </span>
             <span className="block text-2xl sm:text-3xl md:text-[36px] font-bold text-[#AAB1BD] mt-3 font-sans">
-              Kompetisi Digital Creative
+              From Visionaries to Architects of Change
             </span>
           </h1>
 
           {/* Body Copy */}
           <p className="text-base sm:text-lg md:text-[18.89px] text-[#AAB1BD] max-w-2xl mx-auto leading-relaxed">
-            Tunjukkan kreativitas dan inovasi Anda dalam 2 kategori lomba:{" "}
+            Jangan biarkan inovasimu hanya sebatas wacana! Tunjukkan skill teknis dan kreativitas tim kamu dalam 2 kategori lomba bergengsi:{" "}
             <span className="font-semibold text-[#E01C20]">
-              Website Development
-            </span>
-            , dan{" "}
+              Web Development
+            </span>{" "}
+            dan{" "}
             <span className="font-semibold text-[#E01C20]">UI/UX Design</span>.
+            <br className="hidden sm:inline" />{" "}
+            <span className="font-medium text-[#FFF9F5]">Dream It. Build It. Change It.</span>
           </p>
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
-            <Link href="/register" className="w-full sm:w-auto">
+            <Link
+              href={user ? "/#lomba" : "/register"}
+              className="w-full sm:w-auto"
+              onClick={handleDaftarClick}
+            >
               <span className="mia-btn-primary px-8 py-3.5 text-base flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-red-900/30">
                 Daftar Sekarang
                 <ArrowRightIcon className="w-4 h-4" />
@@ -67,7 +87,7 @@ const HeroSection = () => {
             </Link>
 
             <a
-              href="https://drive.google.com/drive/folders/1x34lDmoqSFdOfsxUpxpe2KiAaGT2zk5m?usp=sharing"
+              href={guidebookUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full sm:w-auto"

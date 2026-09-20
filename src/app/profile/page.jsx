@@ -5,8 +5,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+import { useAuthContext } from "@/providers/AuthProvider";
 import { useUserProfile, useUpdateUserProfile } from "@/hooks/user-use-profile";
-import Header from "@/components/layout/Header";
+import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import Footer from "@/components/layout/Footer";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -38,8 +40,16 @@ const passwordSchema = z.object({
 });
 
 export default function ProfilePage() {
+  const { user, loading: authLoading } = useAuthContext();
+  const router = useRouter();
   const { data: profile, isLoading } = useUserProfile();
   const updateMutation = useUpdateUserProfile();
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push("/login");
+    }
+  }, [user, authLoading, router]);
 
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -111,7 +121,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen w-full bg-background mia-connected-bg text-foreground relative overflow-hidden selection:bg-primary selection:text-white flex flex-col justify-between">
-      <Header />
+      <DashboardHeader />
 
       <main className="relative z-10 pt-28 pb-20 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto w-full space-y-8 flex-1">
         {/* Page Title Section */}
@@ -156,9 +166,15 @@ export default function ProfilePage() {
                   {profile?.role || "USER"}
                 </span>
 
-                {typeof profile?.points === "number" && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mia-yellow/10 border border-mia-yellow/30 text-mia-yellow text-xs font-semibold">
-                    💎 {profile.points} Diamonds
+                {(typeof profile?.xp === "number" || typeof user?.xp === "number") && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-semibold">
+                    ⚡ {(profile?.xp ?? user?.xp ?? 0).toLocaleString()} XP
+                  </span>
+                )}
+
+                {(typeof profile?.points === "number" || typeof user?.points === "number") && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-semibold">
+                    💎 {(profile?.points ?? user?.points ?? 0).toLocaleString()} Diamonds
                   </span>
                 )}
               </div>

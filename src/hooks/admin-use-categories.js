@@ -4,13 +4,14 @@ import {
   createAdminCategory,
   updateAdminCategory,
   deleteAdminCategory,
+  toggleAdminCategorySubmission,
 } from "@/services/admin-category.service";
 import { toast } from "sonner";
 
-export function useAdminCategories({ limit, page, search }) {
+export function useAdminCategories({ limit, page, search, status }) {
   return useQuery({
-    queryKey: ["admin-categories", { limit, page, search }],
-    queryFn: () => getAdminCategories({ limit, page, search }),
+    queryKey: ["admin-categories", { limit, page, search, status }],
+    queryFn: () => getAdminCategories({ limit, page, search, status }),
     staleTime: 1000 * 60,
     refetchInterval: 1000 * 60,
   });
@@ -57,6 +58,27 @@ export function useDeleteAdminCategory(onSuccessCb) {
     },
     onError: () => {
       toast.error("Gagal menghapus kategori");
+    },
+  });
+}
+
+export function useToggleAdminCategorySubmission(onSuccessCb) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: toggleAdminCategorySubmission,
+    onSuccess: (data, variables, context) => {
+      qc.invalidateQueries({ queryKey: ["admin-categories"] });
+      toast.success(
+        data?.is_submission_open
+          ? "Pengumpulan karya berhasil dibuka"
+          : "Pengumpulan karya berhasil ditutup"
+      );
+      if (onSuccessCb) onSuccessCb(data, variables, context);
+    },
+    onError: (err) => {
+      toast.error(
+        err?.response?.data?.message || "Gagal mengubah status pengumpulan"
+      );
     },
   });
 }

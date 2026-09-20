@@ -22,7 +22,7 @@ import {
   Mail,
   Users,
 } from "lucide-react";
-import { DashboardHeader } from "@/components/layout/DashboardHeader";
+import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { cn } from "@/lib/utils";
 
@@ -128,15 +128,20 @@ export default function SubmissionDetailPage(props) {
   // Fungsi untuk mendapatkan links selain YouTube
   const getNonYouTubeLinks = () => {
     if (!submission?.links) return [];
-    return submission.links.filter(
-      (link) => link.link_type?.toLowerCase() !== "youtube"
-    );
+    const seen = new Set();
+    return submission.links.filter((link) => {
+      if (link.link_type?.toLowerCase() === "youtube") return false;
+      const key = link.link_id || `${link.link_type}-${link.url}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
   };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-mia-bg mia-connected-bg text-mia-text flex flex-col justify-between">
-        <DashboardHeader />
+        <Header />
         <main className="flex-1 flex items-center justify-center pt-24 sm:pt-28 pb-16 px-4">
           <div className="text-center space-y-4">
             <div className="animate-spin rounded-full h-10 w-10 border-2 border-mia-red border-t-transparent mx-auto"></div>
@@ -151,7 +156,7 @@ export default function SubmissionDetailPage(props) {
   if (error || !submission) {
     return (
       <div className="min-h-screen bg-mia-bg mia-connected-bg text-mia-text flex flex-col justify-between">
-        <DashboardHeader />
+        <Header />
         <main className="flex-1 flex items-center justify-center pt-24 sm:pt-28 pb-16 px-4">
           <div className="w-full max-w-2xl">
             <div className="mia-card p-8 md:p-12 text-center space-y-5">
@@ -184,7 +189,7 @@ export default function SubmissionDetailPage(props) {
   return (
     <div className="min-h-screen bg-mia-bg mia-connected-bg text-mia-text flex flex-col justify-between selection:bg-mia-red selection:text-white">
       <div>
-        <DashboardHeader />
+        <Header />
 
         <main className="pt-24 sm:pt-28 pb-16 relative z-10">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl space-y-6 md:space-y-8">
@@ -474,9 +479,9 @@ export default function SubmissionDetailPage(props) {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
                   {getNonYouTubeLinks().length > 0 ? (
-                    getNonYouTubeLinks().map((link) => (
+                    getNonYouTubeLinks().map((link, index) => (
                       <div
-                        key={link.link_id}
+                        key={link.link_id ? `${link.link_id}-${index}` : `link-${index}`}
                         className="bg-mia-surface border border-white/10 rounded-xl p-4 flex flex-col justify-between space-y-3 min-w-0"
                       >
                         <div className="flex items-center gap-2">
