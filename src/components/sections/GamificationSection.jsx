@@ -10,25 +10,25 @@ import Link from "next/link";
 const GamificationSection = () => {
   const features = [
     {
-      icon: <StarFilledIcon className="h-6 w-6 text-[#FED700]" />,
-      iconBg: "bg-[#FED700]/15 border-[#FED700]/30",
-      title: "Kumpulkan XP & Diamond",
+      icon: <span className="text-2xl select-none">💎</span>,
+      iconBg: "bg-cyan-500/15 border-cyan-500/30",
+      title: "💎 Kumpulkan XP & Diamond",
       description:
-        "Dapatkan XP dan Diamond dari setiap aktivitas, mulai dari pendaftaran, pengerjaan kuis, hingga pengumpulan hasil karya.",
+        "Dapatkan XP dan Diamond dari setiap aktivitas di dalam platform, mulai dari tahap pendaftaran, pengerjaan misi harian dan mingguan, kuis, hingga pengumpulan karya secara tepat waktu. Semakin aktif dan konsisten timmu, semakin besar reward yang menanti!",
     },
     {
-      icon: <RocketIcon className="h-6 w-6 text-[#E01C20]" />,
-      iconBg: "bg-[#E01C20]/15 border-[#E01C20]/30",
-      title: "Leaderboard Kompetitif",
+      icon: <span className="text-2xl select-none">🏆</span>,
+      iconBg: "bg-amber-500/15 border-amber-500/30",
+      title: "🏆 Leaderboard Kompetitif",
       description:
-        "Pantau peringkat posisi Anda secara real-time di leaderboard publik dan bersaing secara sportif untuk menjadi yang terbaik.",
+        "Pantau peringkat posisi tim kamu secara real-time di leaderboard publik. Bersainglah secara sportif dengan ratusan tim dari seluruh Indonesia untuk membuktikan siapa Architects of Change yang paling produktif!",
     },
     {
-      icon: <BookmarkIcon className="h-6 w-6 text-[#00B445]" />,
-      iconBg: "bg-[#00B445]/15 border-[#00B445]/30",
-      title: "Tukar dengan Hadiah",
+      icon: <span className="text-2xl select-none">🎁</span>,
+      iconBg: "bg-rose-500/15 border-rose-500/30",
+      title: "🎁 Tukar dengan Hadiah",
       description:
-        "Tukarkan Diamonds yang terkumpul dengan merchandise eksklusif, voucher menarik, atau tiket konsultasi 1-on-1 bersama mentor.",
+        "Tukarkan Diamonds yang terkumpul dengan berbagai reward eksklusif, mulai dari token kelas dicoding, hingga tiket spesial untuk mendapatkan akses konsultasi 1-on-1 secara langsung bersama mentor profesional.",
     },
   ];
 
@@ -49,8 +49,7 @@ const GamificationSection = () => {
           </h2>
 
           <p className="text-base md:text-[18.89px] text-[#AAB1BD] max-w-2xl mx-auto leading-relaxed">
-            Kami menghadirkan pengalaman kompetisi yang lebih seru dengan sistem
-            gamifikasi dan leaderboard yang kompetitif.
+            Kami menghadirkan pengalaman kompetisi yang lebih seru, interaktif, dan menantang dengan sistem gamifikasi dan leaderboard kompetitif.
           </p>
         </div>
 

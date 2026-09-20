@@ -94,6 +94,11 @@ export function getProductColumns({ isMobile, setEditData, setDeleteId }) {
       cell: ({ row }) => row.original.name,
     },
     {
+      header: "Kategori",
+      accessorKey: "category_id",
+      cell: ({ row }) => row.original.category?.name || "-",
+    },
+    {
       header: "Deskripsi",
       accessorKey: "description",
       cell: ({ row }) => row.original.description,

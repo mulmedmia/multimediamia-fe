@@ -215,3 +215,9 @@ input::-ms-clear {
   width: 0;
   height: 0;
 }
+
+/* PageSpeed Optimization: Skip layout calculation for offscreen sections */
+.content-visibility-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 450px;
+}

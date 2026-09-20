@@ -4,10 +4,15 @@ import api from "@/lib/api";
 export const getAllSubmissions = async ({
   limit = 10,
   page = 1,
+  category_id = "",
   status = "",
   search = "",
-}) => {
-  const params = { limit, page, status, search };
+} = {}) => {
+  const params = { limit, page };
+  if (category_id && category_id !== "ALL") params.category_id = category_id;
+  if (status && status !== "ALL" && status !== "all") params.status = status;
+  if (search && search.trim()) params.search = search.trim();
+
   const res = await api.get("/submissions", { params });
   return res.data.data;
 };

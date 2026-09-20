@@ -22,12 +22,15 @@ import {
   ShoppingBag,
   ChevronLeft,
   Filter,
+  Target,
+  BookOpen,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuthContext } from "@/providers/AuthProvider";
 import Image from "next/image";
+import { Toaster } from "sonner";
 
 // Data for sidebar navigation items
 const sidebarItems = [
@@ -42,6 +45,11 @@ const sidebarItems = [
     icon: Filter,
   },
   {
+    title: "Guidebook",
+    href: "/admin/guidebook",
+    icon: BookOpen,
+  },
+  {
     title: "Pendaftaran",
     href: "/admin/pendaftar",
     icon: Notebook,
@@ -50,6 +58,11 @@ const sidebarItems = [
     title: "Pengumpulan",
     href: "/admin/pengumpulan",
     icon: UploadCloud,
+  },
+  {
+    title: "Misi Harian",
+    href: "/admin/misi",
+    icon: Target,
   },
   {
     title: "Produk",
@@ -68,7 +81,7 @@ const sidebarItems = [
   },
   {
     title: "Manage Redeem",
-    href: "/admin/manage-reddem",
+    href: "/admin/manage-redeem",
     icon: ShoppingBag,
   },
 ];

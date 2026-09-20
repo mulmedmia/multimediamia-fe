@@ -1,8 +1,12 @@
+"use client";
+
+import React from "react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -15,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ShieldCheck, CheckCircle2 } from "lucide-react";
 
 export default function SubmissionStatusModal({
   open,
@@ -31,53 +36,93 @@ export default function SubmissionStatusModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Update Status Submission</DialogTitle>
+      <DialogContent className="bg-[#0A0D14] border border-border/50 text-[#FFF9F5] max-w-md rounded-2xl p-6 shadow-2xl">
+        <DialogHeader className="space-y-2">
+          <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 mx-auto">
+            <ShieldCheck className="h-6 w-6" />
+          </div>
+          <DialogTitle className="text-lg font-bold text-center text-foreground">
+            Update Status Submission
+          </DialogTitle>
+          <DialogDescription className="text-xs text-muted-foreground text-center">
+            Perbarui status kelayakan karya dan status verifikasi leaderboard.
+          </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+        {/* Ringkasan Karya */}
+        <div className="p-3.5 bg-[#0F121A] border border-border/40 rounded-xl space-y-1.5 text-xs">
+          <div className="flex justify-between items-center py-0.5 border-b border-border/20">
+            <span className="text-muted-foreground">Judul Karya:</span>
+            <span className="font-semibold text-foreground truncate max-w-[200px]">
+              {data.project_name || data.title || "-"}
+            </span>
+          </div>
+          <div className="flex justify-between items-center py-0.5 border-b border-border/20">
+            <span className="text-muted-foreground">Peserta / Tim:</span>
+            <span className="font-medium text-foreground truncate max-w-[200px]">
+              {data.team_name ? data.team_name : data.user?.name || "-"}
+            </span>
+          </div>
+          <div className="flex justify-between items-center py-0.5">
+            <span className="text-muted-foreground">Kategori:</span>
+            <span className="text-muted-foreground">
+              {data.category?.category_name || "-"}
+            </span>
+          </div>
+        </div>
+
+        <div className="space-y-4 pt-1">
           <div className="space-y-2">
-            <Label htmlFor="status">Status</Label>
+            <Label htmlFor="status" className="text-xs text-muted-foreground font-medium">
+              Status Evaluasi Karya
+            </Label>
             <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger>
-                <SelectValue placeholder="Pilih status" />
+              <SelectTrigger className="h-10 bg-input/40 border-border/50 rounded-xl text-xs text-foreground">
+                <SelectValue placeholder="Pilih status karya" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="PENDING">PENDING</SelectItem>
-                <SelectItem value="APPROVED">APPROVED</SelectItem>
-                <SelectItem value="REJECTED">REJECTED</SelectItem>
-                <SelectItem value="REVISION">REVISION</SelectItem>
+              <SelectContent className="bg-[#141824] border-border/50 text-foreground">
+                <SelectItem value="PENDING">PENDING (Menunggu Evaluasi)</SelectItem>
+                <SelectItem value="APPROVED">APPROVED (Disetujui / Lolos)</SelectItem>
+                <SelectItem value="REVISION">REVISION (Perlu Perbaikan)</SelectItem>
+                <SelectItem value="REJECTED">REJECTED (Ditolak)</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-start space-x-3 p-3 bg-white/[0.02] border border-border/30 rounded-xl">
             <Checkbox
               id="verified"
               checked={is_verified}
               onCheckedChange={setIsVerified}
+              className="mt-0.5 rounded-md border-border/60 data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600"
             />
-            <Label htmlFor="verified">
-              Verifikasi untuk Ditampilkan pada Leaderboard
+            <Label htmlFor="verified" className="text-xs text-muted-foreground leading-relaxed cursor-pointer select-none">
+              <span className="text-foreground font-medium block">
+                Verifikasi untuk Leaderboard
+              </span>
+              Izinkan karya ini tampil pada klasemen/leaderboard publik kompetisi.
             </Label>
           </div>
         </div>
 
-        <DialogFooter className="flex-col sm:flex-row gap-2">
+        <DialogFooter className="gap-2 sm:gap-2 pt-2">
           <Button
-            variant="outline"
+            type="button"
+            variant="ghost"
             onClick={onClose}
-            className="w-full sm:w-auto"
+            disabled={isLoading}
+            className="rounded-xl text-xs text-muted-foreground hover:text-white"
           >
             Batal
           </Button>
           <Button
+            type="button"
             onClick={onSubmit}
             disabled={isLoading}
-            className="w-full sm:w-auto"
+            className="bg-gradient-to-r from-[#FF5722] to-[#E01C20] hover:from-[#e04515] hover:to-[#c4181c] text-white rounded-xl text-xs font-semibold px-4 cursor-pointer"
           >
-            {isLoading ? "Menyimpan..." : "Update Status"}
+            <CheckCircle2 className="h-4 w-4 mr-1.5" />
+            {isLoading ? "Menyimpan..." : "Simpan Perubahan"}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -6,12 +6,16 @@ export const getAllRegistrations = async ({
   limit = 10,
   category_id = "",
   search = "",
+  is_verified,
 } = {}) => {
   const params = new URLSearchParams();
   params.append("page", page);
   params.append("limit", limit);
-  if (category_id) params.append("category_id", category_id);
+  if (category_id && category_id !== "ALL") params.append("category_id", category_id);
   if (search) params.append("search", search);
+  if (is_verified !== undefined && is_verified !== "" && is_verified !== "ALL") {
+    params.append("is_verified", is_verified);
+  }
 
   const url = `/registrations?${params.toString()}`;
   const res = await api.get(url);

@@ -2,110 +2,85 @@
 
 import React from "react";
 import Link from "next/link";
-import { useUserCategories } from "@/hooks/user-use-category";
-import { FaInstagram, FaTiktok } from "react-icons/fa";
-import { EnvelopeClosedIcon, MobileIcon } from "@radix-ui/react-icons";
 import Image from "next/image";
+import { useUserCategories } from "@/hooks/user-use-category";
+import { useGuidebook } from "@/hooks/use-guidebook";
+import { FaInstagram, FaTiktok, FaLinkedin, FaGlobe } from "react-icons/fa";
 
 const Footer = () => {
-  const currentYear = new Date().getFullYear();
+  const { guidebookUrl } = useGuidebook();
 
   const { data } = useUserCategories({
     limit: 10,
     page: 1,
-    status: "VERIFIED",
   });
   const categories = data?.categories || [];
+
+  const uiaCategory = categories.find(
+    (c) => (c.slug || "").toUpperCase() === "UIA"
+  );
+  const wiaCategory = categories.find(
+    (c) => (c.slug || "").toUpperCase() === "WIA"
+  );
+
+  const uiaHref = uiaCategory ? `/category/${uiaCategory.category_id}` : "/category";
+  const wiaHref = wiaCategory ? `/category/${wiaCategory.category_id}` : "/category";
 
   return (
     <footer className="bg-[#07090E] border-t border-white/10 text-[#FFF9F5] pt-16 pb-8 relative z-10">
       <div className="container mx-auto px-4 max-w-7xl">
-        {/* Main Footer Content - 4 Columns */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
+        {/* Main Footer Content */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-10 mb-12">
           {/* Brand Section */}
-          <div className="space-y-4">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="relative h-8 w-8 aspect-square">
+          <div className="lg:col-span-4 space-y-4">
+            <Link href="/" className="flex items-center gap-2.5">
+              <div className="relative h-8 w-8 aspect-square flex-shrink-0">
                 <Image
                   src="/mia2026_logo.png"
-                  alt="Logo"
+                  alt="MIA Logo"
                   fill={true}
                   className="object-contain"
                 />
               </div>
               <span className="text-xl font-bold text-[#FFF9F5]">
-                Multimedia <span className="text-[#E01C20]">in Action</span>
+                Multimedia{" "}
+                <span className="bg-gradient-to-r from-[#E01C20] via-[#FF4500] to-[#FED700] bg-clip-text text-transparent">
+                  In Action 2026
+                </span>
               </span>
             </Link>
 
-            <p className="text-sm text-[#AAB1BD] leading-relaxed">
-              Kompetisi multimedia terbesar untuk mahasiswa Indonesia. Wujudkan
-              kreativitas dan inovasi digital Anda bersama kami.
+            <p className="text-sm text-[#AAB1BD] leading-relaxed max-w-sm">
+              Kompetisi multimedia berbasis proyek industri terbesar untuk pelajar SMA/SMK dan mahasiswa Indonesia. Wujudkan kreativitas dan inovasi digitalmu bersama kami.
             </p>
-
-            <div className="flex items-center gap-3 pt-2">
-              <Link
-                href="https://www.instagram.com/multimedia.in.action?igsh=bGtvMWZpNDExbDVj"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-[#1E2939] border border-white/10 flex items-center justify-center text-[#AAB1BD] hover:text-[#FFF9F5] hover:bg-[#E01C20] transition-all cursor-pointer"
-                aria-label="Instagram"
-              >
-                <FaInstagram className="h-4 w-4" />
-              </Link>
-              <Link
-                href="https://www.tiktok.com/@multimediainaction?_t=ZS-8zwQ9E8K2i1&_r=1"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-[#1E2939] border border-white/10 flex items-center justify-center text-[#AAB1BD] hover:text-[#FFF9F5] hover:bg-[#E01C20] transition-all cursor-pointer"
-                aria-label="TikTok"
-              >
-                <FaTiktok className="h-4 w-4" />
-              </Link>
-            </div>
           </div>
 
           {/* Column 2: Kompetisi */}
-          <div className="space-y-4">
-            <h4 className="text-base font-bold text-[#FFF9F5] uppercase tracking-wider">
+          <div className="lg:col-span-2 space-y-3.5">
+            <h4 className="text-xs font-bold text-[#FFF9F5] uppercase tracking-wider">
               Kompetisi
             </h4>
-            <ul className="space-y-2.5 text-sm text-[#AAB1BD]">
-              {categories.length > 0 ? (
-                categories.map((category) => (
-                  <li key={category.category_id}>
-                    <Link
-                      href={`/category/${category.category_id}`}
-                      className="hover:text-[#E01C20] transition-colors"
-                    >
-                      {category.category_name}
-                    </Link>
-                  </li>
-                ))
-              ) : (
-                <>
-                  <li>
-                    <Link
-                      href="/category"
-                      className="hover:text-[#E01C20] transition-colors"
-                    >
-                      UI/UX Design
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/category"
-                      className="hover:text-[#E01C20] transition-colors"
-                    >
-                      Website Development
-                    </Link>
-                  </li>
-                </>
-              )}
+            <ul className="space-y-2 text-sm text-[#AAB1BD]">
+              <li>
+                <Link
+                  href={uiaHref}
+                  className="hover:text-[#E01C20] transition-colors"
+                >
+                  UIA (UI/UX In Action)
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={wiaHref}
+                  className="hover:text-[#E01C20] transition-colors"
+                >
+                  WIA (Web Development)
+                </Link>
+              </li>
               <li className="pt-1">
                 <Link
                   href="/category"
-                  className="text-[#E01C20] hover:underline font-semibold flex items-center gap-1"
+                  className="text-[#E01C20] hover:underline font-semibold inline-flex items-center gap-1 text-sm"
                 >
                   Lihat Semua →
                 </Link>
@@ -114,11 +89,11 @@ const Footer = () => {
           </div>
 
           {/* Column 3: Informasi */}
-          <div className="space-y-4">
-            <h4 className="text-base font-bold text-[#FFF9F5] uppercase tracking-wider">
+          <div className="lg:col-span-3 space-y-3.5">
+            <h4 className="text-xs font-bold text-[#FFF9F5] uppercase tracking-wider">
               Informasi
             </h4>
-            <ul className="space-y-2.5 text-sm text-[#AAB1BD]">
+            <ul className="space-y-2 text-sm text-[#AAB1BD]">
               <li>
                 <Link
                   href="/#timeline"
@@ -132,7 +107,7 @@ const Footer = () => {
                   href="/#faq"
                   className="hover:text-[#E01C20] transition-colors"
                 >
-                  FAQ
+                  FAQ (Frequently Asked Questions)
                 </Link>
               </li>
               <li>
@@ -145,7 +120,7 @@ const Footer = () => {
               </li>
               <li>
                 <a
-                  href="https://drive.google.com/drive/folders/1x34lDmoqSFdOfsxUpxpe2KiAaGT2zk5m?usp=sharing"
+                  href={guidebookUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-[#E01C20] transition-colors"
@@ -156,43 +131,103 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Column 4: Kontak */}
-          <div className="space-y-4">
-            <h4 className="text-base font-bold text-[#FFF9F5] uppercase tracking-wider">
-              Kontak
-            </h4>
-            <ul className="space-y-3 text-sm text-[#AAB1BD]">
-              <li className="flex items-center gap-2">
-                <EnvelopeClosedIcon className="h-4 w-4 text-[#E01C20]" />
+          {/* Column 4: Kontak & Stay Connected */}
+          <div className="lg:col-span-3 space-y-5">
+            {/* Kontak Kami */}
+            <div className="space-y-2">
+              <h4 className="text-xs font-bold text-[#FFF9F5] uppercase tracking-wider">
+                Kontak Kami
+              </h4>
+              <ul className="space-y-1.5 text-xs sm:text-sm text-[#AAB1BD]">
+                <li>
+                  <a
+                    href="mailto:mia.upnvj@gmail.com"
+                    className="hover:text-[#E01C20] transition-colors flex items-center gap-1.5"
+                  >
+                    <span>✉️</span>
+                    <span>Email: <span className="text-[#FFF9F5] hover:underline">mia.upnvj@gmail.com</span></span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://wa.me/6281384239173"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-[#E01C20] transition-colors flex items-center gap-1.5"
+                  >
+                    <span>📞</span>
+                    <span>UIA: <span className="text-[#FFF9F5] hover:underline">+62 813-8423-9173</span> (Sabira)</span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://wa.me/6285894728193"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-[#E01C20] transition-colors flex items-center gap-1.5"
+                  >
+                    <span>📞</span>
+                    <span>WIA: <span className="text-[#FFF9F5] hover:underline">+62 858-9472-8193</span> (Maulana)</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Stay Connected */}
+            <div className="space-y-2.5 pt-2 border-t border-white/5">
+              <h4 className="text-xs font-bold text-[#FFF9F5] uppercase tracking-wider">
+                Stay Connected
+              </h4>
+              <div className="flex items-center gap-2.5 pt-0.5">
+                {/* Website */}
                 <a
-                  href="mailto:mia.upnvj@gmail.com"
-                  className="hover:text-[#E01C20] transition-colors"
-                >
-                  mia.upnvj@gmail.com
-                </a>
-              </li>
-              <li className="flex items-center gap-2">
-                <MobileIcon className="h-4 w-4 text-[#E01C20]" />
-                <a
-                  href="https://wa.me/6289601101197"
+                  href="https://www.mia2026.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-[#E01C20] transition-colors"
+                  className="w-9 h-9 rounded-full bg-[#141824] border border-white/10 flex items-center justify-center text-[#AAB1BD] hover:text-[#FFF9F5] hover:bg-[#E01C20] hover:border-[#E01C20] transition-all duration-300 shadow-sm cursor-pointer"
+                  aria-label="Website MIA 2026"
+                  title="Website (www.mia2026.com)"
                 >
-                  +62 896-0110-1197
+                  <FaGlobe className="h-4 w-4" />
                 </a>
-              </li>
-              <li className="pt-1">
+
+                {/* Instagram */}
                 <a
-                  href="https://wa.me/6289601101197"
+                  href="https://www.instagram.com/multimedia.in.action/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mia-btn-secondary px-4 py-2 text-xs inline-flex items-center gap-1.5"
+                  className="w-9 h-9 rounded-full bg-[#141824] border border-white/10 flex items-center justify-center text-[#AAB1BD] hover:text-[#FFF9F5] hover:bg-[#E01C20] hover:border-[#E01C20] transition-all duration-300 shadow-sm cursor-pointer"
+                  aria-label="Instagram"
+                  title="Instagram (@multimedia.in.action)"
                 >
-                  Hubungi Panitia
+                  <FaInstagram className="h-4 w-4" />
                 </a>
-              </li>
-            </ul>
+
+                {/* TikTok */}
+                <a
+                  href="https://www.tiktok.com/@multimediainaction?_t=ZS-8zwQ9E8K2i1&_r=1"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-9 h-9 rounded-full bg-[#141824] border border-white/10 flex items-center justify-center text-[#AAB1BD] hover:text-[#FFF9F5] hover:bg-[#E01C20] hover:border-[#E01C20] transition-all duration-300 shadow-sm cursor-pointer"
+                  aria-label="TikTok"
+                  title="TikTok (@multimediainaction)"
+                >
+                  <FaTiktok className="h-4 w-4" />
+                </a>
+
+                {/* LinkedIn */}
+                <a
+                  href="https://www.linkedin.com/company/multimedia-in-action-mia/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-9 h-9 rounded-full bg-[#141824] border border-white/10 flex items-center justify-center text-[#AAB1BD] hover:text-[#FFF9F5] hover:bg-[#0077B5] hover:border-[#0077B5] transition-all duration-300 shadow-sm cursor-pointer"
+                  aria-label="LinkedIn"
+                  title="LinkedIn (Multimedia In Action)"
+                >
+                  <FaLinkedin className="h-4 w-4" />
+                </a>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -201,7 +236,7 @@ const Footer = () => {
 
         {/* Bottom Copyright */}
         <div className="text-center text-xs text-[#99A1AF]">
-          © {currentYear} Multimedia in Action (MIA). All rights reserved.
+          © 2026 Multimedia in Action (MIA). All rights reserved.
         </div>
       </div>
     </footer>

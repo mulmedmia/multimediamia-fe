@@ -8,6 +8,7 @@ import {
   Github,
   Link as LinkIcon,
   Loader2,
+  Star,
 } from "lucide-react";
 import { useUserProfile } from "@/hooks/user-use-profile";
 
@@ -20,33 +21,37 @@ const SubmissionCard = ({ submission }) => {
 
   const getStatusClass = (status) => {
     switch (status) {
-      case "PENDING":
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-400";
       case "APPROVED":
         return "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-400";
       case "REVISION":
         return "bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-400";
       case "REJECTED":
         return "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-400";
+      case "PENDING":
       default:
         return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-400";
     }
   };
 
+  const hasScore =
+    submission.score !== null &&
+    submission.score !== undefined &&
+    submission.score !== "";
+
   return (
     <div
-      className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg p-5 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow duration-300 cursor-pointer h-full"
+      className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl p-5 flex flex-col justify-between shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer h-full group"
       onClick={() =>
         (window.location.href = `/juri/manage-submission/${submission.submission_id}`)
       }
     >
       <div className="flex-grow">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="text-lg font-bold text-black dark:text-white pr-2 min-w-0 break-words line-clamp-2">
+        <div className="flex justify-between items-start mb-2 gap-2">
+          <h3 className="text-lg font-bold text-black dark:text-white pr-2 min-w-0 break-words line-clamp-2 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">
             {submission.project_name}
           </h3>
           <span
-            className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${getStatusClass(
+            className={`text-xs font-semibold px-2.5 py-0.5 rounded-full shrink-0 ${getStatusClass(
               submission.status,
             )}`}
           >
@@ -54,20 +59,39 @@ const SubmissionCard = ({ submission }) => {
           </span>
         </div>
         <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-1">
-          <span className="font-semibold">Tim:</span> {submission.team_name}
+          <span className="font-semibold text-neutral-800 dark:text-neutral-200">Tim:</span> {submission.team_name}
         </p>
-        <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
-          <span className="font-semibold">Kategori:</span>{" "}
-          {submission.category?.category_name || "-"}
+        <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-2.5">
+          <span className="font-semibold text-neutral-800 dark:text-neutral-200">Kategori:</span>{" "}
+          {submission.category?.category_name || submission.category?.name || "-"}
         </p>
+
+        {/* Skor Section */}
+        <div className="mb-3">
+          {hasScore ? (
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs font-bold">
+              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500 dark:text-amber-400" />
+              <span>Skor: {submission.score}</span>
+            </div>
+          ) : (
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-neutral-100 dark:bg-neutral-800/80 border border-neutral-200 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400 text-xs font-medium">
+              <Star className="w-3.5 h-3.5 text-neutral-400" />
+              <span>Belum Dinilai</span>
+            </div>
+          )}
+        </div>
+
         <p className="text-xs text-neutral-500 dark:text-neutral-500 line-clamp-3">
           {submission.description}
         </p>
       </div>
-      <div className="mt-4">
+      <div className="mt-4 pt-3 border-t border-neutral-100 dark:border-neutral-800/80 flex items-center justify-between">
+        <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+          {hasScore ? "Sudah Dinilai" : "Menunggu Penilaian"}
+        </span>
         <button className="flex items-center space-x-2 bg-gradient-to-r from-red-600 to-red-700 dark:to-black hover:from-red-700 hover:to-red-800 dark:hover:to-gray-900 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors w-fit">
           <FileText className="w-4 h-4" />
-          <span>Beri Nilai</span>
+          <span>{hasScore ? "Ubah Nilai" : "Beri Nilai"}</span>
         </button>
       </div>
     </div>

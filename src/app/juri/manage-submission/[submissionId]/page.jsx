@@ -24,6 +24,7 @@ import {
   Play,
   Save,
   Loader2,
+  Layers,
 } from "lucide-react";
 import { usePatchSubmissionScore } from "@/hooks/admin-use-submission";
 import { cn } from "@/lib/utils";
@@ -131,20 +132,49 @@ export default function JuriSubmissionDetailPage(props) {
 
   const getLinkIcon = (linkType) => {
     switch (linkType?.toLowerCase()) {
+      case "proposal":
+      case "documentation":
+      case "docs":
+        return <FileText className="h-4 w-4" />;
       case "github":
+      case "github_secondary":
         return <Github className="h-4 w-4" />;
+      case "figma":
+      case "figma_prototype":
+        return <Layers className="h-4 w-4" />;
       case "youtube":
         return <Youtube className="h-4 w-4" />;
+      case "deployment":
       case "demo":
       case "preview":
       case "live":
       case "other":
         return <Globe className="h-4 w-4" />;
-      case "documentation":
-      case "docs":
-        return <FileText className="h-4 w-4" />;
       default:
         return <LinkIcon className="h-4 w-4" />;
+    }
+  };
+
+  const getLinkTypeLabel = (linkType) => {
+    switch (linkType?.toUpperCase()) {
+      case "PROPOSAL":
+        return "Draft Proposal (GDocs)";
+      case "GITHUB":
+        return "GitHub Utama";
+      case "GITHUB_SECONDARY":
+        return "GitHub Tambahan";
+      case "DEPLOYMENT":
+        return "Deployment / Live";
+      case "FIGMA":
+        return "Desain Figma";
+      case "FIGMA_PROTOTYPE":
+        return "Prototipe Figma";
+      case "YOUTUBE":
+        return "YouTube Demo";
+      case "OTHER":
+        return "Link Lainnya";
+      default:
+        return linkType;
     }
   };
 
@@ -180,9 +210,14 @@ export default function JuriSubmissionDetailPage(props) {
   const getNonYouTubeLinks = () => {
     if (!submission?.links) return [];
 
-    return submission.links.filter(
-      (link) => link.link_type?.toLowerCase() !== "youtube",
-    );
+    const seen = new Set();
+    return submission.links.filter((link) => {
+      if (link.link_type?.toLowerCase() === "youtube") return false;
+      const key = link.link_id || `${link.link_type}-${link.url}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
   };
 
   const onFormSubmit = async (formData) => {
@@ -324,7 +359,7 @@ export default function JuriSubmissionDetailPage(props) {
                   <span>
                     {submission.score !== undefined &&
                     submission.score !== null &&
-                    submission.score > 0
+                    submission.score !== ""
                       ? `Skor: ${submission.score}`
                       : "Belum Dinilai"}
                   </span>
@@ -641,17 +676,17 @@ export default function JuriSubmissionDetailPage(props) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
             {getNonYouTubeLinks().length > 0 ? (
-              getNonYouTubeLinks().map((link) => (
+              getNonYouTubeLinks().map((link, index) => (
                 <div
-                  key={link.link_id}
+                  key={link.link_id ? `${link.link_id}-${index}` : `link-${index}`}
                   className="bg-mia-surface/60 border border-white/10 rounded-xl p-4 flex flex-col justify-between space-y-3 min-w-0"
                 >
                   <div className="flex items-center gap-2">
                     <span className="p-2 rounded-lg bg-[#1E2939] text-muted-foreground">
                       {getLinkIcon(link.link_type)}
                     </span>
-                    <span className="font-semibold text-sm text-mia-text capitalize break-words">
-                      {link.link_type}
+                    <span className="font-semibold text-sm text-mia-text break-words">
+                      {getLinkTypeLabel(link.link_type)}
                     </span>
                   </div>
 

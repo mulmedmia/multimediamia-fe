@@ -1,8 +1,17 @@
 import api from "@/lib/api";
 
 // Get all products (with pagination & search)
-export const getAdminProducts = async ({ limit = 10, page = 1, search = "" }) => {
-  const params = { limit, page, search };
+export const getAdminProducts = async ({
+  limit = 10,
+  page = 1,
+  search = "",
+  is_active,
+} = {}) => {
+  const params = { limit, page };
+  if (search && search.trim()) params.search = search.trim();
+  if (is_active !== undefined && is_active !== "ALL" && is_active !== "") {
+    params.is_active = is_active;
+  }
   const res = await api.get("/products", { params });
   return res.data.data;
 };
@@ -13,7 +22,9 @@ export const createAdminProduct = async (data) => {
   Object.entries(data).forEach(([key, value]) => {
     if (value !== undefined && value !== null) formData.append(key, value);
   });
-  const res = await api.post("/products", formData);
+  const res = await api.post("/products", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
   return res.data.data;
 };
 
@@ -23,7 +34,9 @@ export const updateAdminProduct = async ({ id, ...data }) => {
   Object.entries(data).forEach(([key, value]) => {
     if (value !== undefined && value !== null) formData.append(key, value);
   });
-  const res = await api.patch(`/products/${id}`, formData);
+  const res = await api.patch(`/products/${id}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
   return res.data.data;
 };
 

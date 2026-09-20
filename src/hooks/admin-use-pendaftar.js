@@ -15,10 +15,10 @@ import { toast } from "sonner";
  * @param {string} params.category_id
  * @param {string} params.search
  */
-export function useAdminRegistrations({ page = 1, limit = 10, category_id = "", search = "" }) {
+export function useAdminRegistrations({ page = 1, limit = 10, category_id = "", search = "", is_verified = "" }) {
   return useQuery({
-    queryKey: ["admin-registrations", { page, limit, category_id, search }],
-    queryFn: () => getAllRegistrations({ page, limit, category_id, search }),
+    queryKey: ["admin-registrations", { page, limit, category_id, search, is_verified }],
+    queryFn: () => getAllRegistrations({ page, limit, category_id, search, is_verified }),
     placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 2,
   });

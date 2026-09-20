@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getAllJuri, createJuri, deleteJuri } from "@/services/admin-juri.service";
+import { getAllJuri, createJuri, deleteJuri, updateJuriCategory } from "@/services/admin-juri.service";
 import { toast } from "sonner";
 
 // Query: ambil semua juri
@@ -22,6 +22,22 @@ export function useCreateJuri(onSuccessCb) {
     },
     onError: (err) => {
       toast.error(err?.response?.data?.message || "Gagal menambah juri!");
+    },
+  });
+}
+
+// Mutation: update kategori juri
+export function useUpdateJuriCategory(onSuccessCb) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: updateJuriCategory,
+    onSuccess: (data, variables, context) => {
+      qc.invalidateQueries({ queryKey: ["admin-juri"] });
+      toast.success(data.message || "Kategori juri berhasil diperbarui!");
+      if (onSuccessCb) onSuccessCb(data, variables, context);
+    },
+    onError: (err) => {
+      toast.error(err?.response?.data?.message || "Gagal memperbarui kategori juri!");
     },
   });
 }

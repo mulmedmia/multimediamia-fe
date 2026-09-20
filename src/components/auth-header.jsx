@@ -20,7 +20,10 @@ export const AuthHeader = () => {
               />
             </div>
             <span className="hidden sm:inline text-lg font-bold text-[#FFF9F5]">
-              Multimedia <span className="text-[#E01C20]">in Action</span>
+              Multimedia{" "}
+              <span className="bg-gradient-to-r from-[#E01C20] via-[#FF4500] to-[#FED700] bg-clip-text text-transparent">
+                In Action
+              </span>
             </span>
           </Link>
 

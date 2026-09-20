@@ -1,29 +1,36 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import {
-  getAllUsers,
-  patchUserPoints,
+  getGamifikasiTeams,
+  patchRegistrationGamification,
 } from "@/services/admin-gamifikasi.service";
 import { toast } from "sonner";
 
-// Query untuk ambil semua user dengan pagination
-export function useGamifikasiUsers({ page = 1, limit = 10 } = {}) {
+// Query untuk ambil semua tim terdaftar dengan pagination, search, dan kategori
+export function useGamifikasiTeams({ page = 1, limit = 10, search = "", category_id = "" } = {}) {
   return useQuery({
-    queryKey: ["admin-gamifikasi-users", { page, limit }],
-    queryFn: () => getAllUsers({ page, limit }),
+    queryKey: ["admin-gamifikasi-teams", { page, limit, search, category_id }],
+    queryFn: () => getGamifikasiTeams({ page, limit, search, category_id }),
+    placeholderData: keepPreviousData,
+    staleTime: 1000 * 60,
   });
 }
 
-// Mutation untuk update poin user
-export function usePatchUserPoints() {
+// Mutation untuk update diamond & xp tim
+export function usePatchRegistrationGamification() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: patchUserPoints,
+    mutationFn: patchRegistrationGamification,
     onSuccess: (data) => {
-      qc.invalidateQueries({ queryKey: ["admin-gamifikasi-users"] });
-      toast.success(data.message || "Poin berhasil diupdate!");
+      qc.invalidateQueries({ queryKey: ["admin-gamifikasi-teams"] });
+      qc.invalidateQueries({ queryKey: ["admin-registrations"] });
+      toast.success(data?.message || "Gamifikasi tim (Diamond & XP) berhasil diupdate!");
     },
     onError: (err) => {
-      toast.error(err?.response?.data?.message || "Gagal update poin!");
+      toast.error(err?.response?.data?.message || "Gagal update gamifikasi tim!");
     },
   });
 }
+
+// Backwards compatibility aliases
+export const useGamifikasiUsers = useGamifikasiTeams;
+export const usePatchUserPoints = usePatchRegistrationGamification;

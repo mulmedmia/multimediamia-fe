@@ -3,22 +3,24 @@ import { getMyRedemptions, getLeaderboardByCategory, getCategories } from "@/ser
 
 /**
  * Hook untuk mengambil riwayat penukaran user.
+ * @param {object} filters
  */
-export function useMyRedemptions() {
+export function useMyRedemptions(filters = {}) {
   return useQuery({
-    queryKey: ["my-redemptions"],
-    queryFn: getMyRedemptions,
+    queryKey: ["my-redemptions", filters],
+    queryFn: () => getMyRedemptions(filters),
   });
 }
 
 /**
  * Hook untuk mengambil leaderboard berdasarkan kategori.
  * @param {string} categoryId
+ * @param {object} options
  */
-export function useLeaderboardByCategory(categoryId) {
+export function useLeaderboardByCategory(categoryId, { page = 1, limit = 10 } = {}) {
   return useQuery({
-    queryKey: ["leaderboard", categoryId],
-    queryFn: () => getLeaderboardByCategory(categoryId),
+    queryKey: ["leaderboard", categoryId, { page, limit }],
+    queryFn: () => getLeaderboardByCategory(categoryId, { page, limit }),
     enabled: !!categoryId,
   });
 }
