@@ -32,30 +32,32 @@ const SponsorsSection = () => {
         </div>
 
         {/* Sponsor Marquee Carousel with AVIF Logos */}
-        <div className="overflow-hidden py-2">
+        <div className="overflow-hidden py-2 select-none pointer-events-none">
           <Marquee
             gradient={true}
             gradientColor="#0A0D14"
             gradientWidth={80}
             speed={45}
-            pauseOnHover={true}
+            pauseOnHover={false}
+            pauseOnClick={false}
             className="items-center"
           >
             {sponsors.concat(sponsors).concat(sponsors).map((sponsor, index) => (
               <div
                 key={index}
-                className="mia-card mx-3.5 w-52 sm:w-56 h-36 p-5 flex flex-col items-center justify-center gap-3 border border-border/40 hover:border-[#FED700]/50 transition-all duration-300 group shadow-xl bg-[#0F121A]/80 backdrop-blur-sm rounded-2xl"
+                className="mia-card mx-3.5 w-52 sm:w-56 h-36 p-5 flex flex-col items-center justify-center gap-3 border border-border/40 shadow-xl bg-[#0F121A]/80 backdrop-blur-sm rounded-2xl select-none pointer-events-none cursor-default"
               >
-                <div className="relative w-36 h-18 flex items-center justify-center">
+                <div className="relative w-36 h-18 flex items-center justify-center select-none pointer-events-none">
                   <Image
                     src={sponsor.src}
                     alt={sponsor.name}
                     width={140}
                     height={70}
-                    className="max-h-full max-w-full w-auto h-auto object-contain transition-transform duration-300 group-hover:scale-105"
+                    draggable={false}
+                    className="max-h-full max-w-full w-auto h-auto object-contain select-none pointer-events-none"
                   />
                 </div>
-                <span className="text-xs font-semibold text-[#AAB1BD] group-hover:text-[#FFF9F5] transition-colors flex items-center gap-1.5">
+                <span className="text-xs font-semibold text-[#AAB1BD] flex items-center gap-1.5 select-none">
                   <span className="text-[#FED700] text-[10px]">◆</span>
                   {sponsor.name}
                 </span>

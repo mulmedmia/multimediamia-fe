@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import Image from "next/image";
+import { getSafeImageUrl } from "@/lib/image-loader";
 
 // Helper untuk deteksi tablet
 function isTabletScreen() {
@@ -27,7 +28,7 @@ export function getCategoryColumns({
             {row.original.image && (
               <div className="relative w-16 h-16 rounded-md border flex-shrink-0">
                 <Image
-                  src={row.original.image}
+                  src={getSafeImageUrl(row.original.image)}
                   alt={row.original.name || row.original.slug || "Category"}
                   fill={true}
                   className="object-cover"
@@ -175,7 +176,7 @@ export function getCategoryColumns({
         row.original.image && (
           <div className="relative w-12 h-12 rounded shadow">
             <Image
-              src={row.original.image}
+              src={getSafeImageUrl(row.original.image)}
               alt={row.original.name || row.original.slug || "Category"}
               fill={true}
               className="object-cover"

@@ -17,6 +17,7 @@ import {
 import {
   Cross1Icon,
   HamburgerMenuIcon,
+  PersonIcon,
 } from "@radix-ui/react-icons";
 import { LayoutDashboard, User, LogOut, Clock, Target, Gift } from "lucide-react";
 import Image from "next/image";

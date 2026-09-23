@@ -10,7 +10,6 @@ import {
   Link2,
   CheckCircle2,
   XCircle,
-  Star,
   Github,
   Globe,
   LinkIcon,
@@ -19,12 +18,12 @@ import {
   Sparkles,
   Calendar,
   Play,
-  Mail,
   Users,
 } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { cn } from "@/lib/utils";
+import YouTubePreview from "@/components/common/YouTubePreview";
 
 export default function SubmissionDetailPage(props) {
   const params =
@@ -96,33 +95,6 @@ export default function SubmissionDetailPage(props) {
       default:
         return <LinkIcon className="h-4 w-4" />;
     }
-  };
-
-  // Fungsi untuk mengkonversi URL YouTube menjadi embed URL
-  const convertToEmbedUrl = (url) => {
-    if (!url) return null;
-    const regExp =
-      /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-    const match = url.match(regExp);
-
-    if (match && match[2].length === 11) {
-      const videoId = match[2];
-      return `https://www.youtube.com/embed/${videoId}`;
-    }
-
-    return null;
-  };
-
-  // Fungsi untuk mencari link YouTube dari submission
-  const getYouTubeVideoUrl = () => {
-    if (!submission?.links) return null;
-    const youtubeLink = submission.links.find(
-      (link) => link.link_type?.toLowerCase() === "youtube"
-    );
-    if (youtubeLink?.url) {
-      return convertToEmbedUrl(youtubeLink.url);
-    }
-    return null;
   };
 
   // Fungsi untuk mendapatkan links selain YouTube
@@ -258,16 +230,6 @@ export default function SubmissionDetailPage(props) {
                         </span>
                       </div>
 
-                      {/* Skor */}
-                      <div className="px-3.5 py-1.5 rounded-full border border-amber-500/40 bg-amber-500/10 text-amber-400 inline-flex items-center gap-1.5">
-                        <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                        <span>
-                          {submission.score && submission.score > 0
-                            ? `Skor: ${submission.score}`
-                            : "Belum Dinilai"}
-                        </span>
-                      </div>
-
                       {/* Kategori */}
                       <div className="px-3.5 py-1.5 rounded-full bg-purple-900/60 border border-purple-500/50 text-purple-200 inline-flex items-center gap-1.5">
                         <Trophy className="h-3.5 w-3.5 text-purple-300" />
@@ -299,29 +261,13 @@ export default function SubmissionDetailPage(props) {
 
               {/* Right Card - Larger Video Preview */}
               <div className="lg:col-span-7 mia-card p-3 sm:p-4 md:p-5 flex flex-col justify-center overflow-hidden shadow-2xl">
-                <div className="aspect-video w-full bg-mia-surface rounded-xl overflow-hidden border border-white/10 relative shadow-inner">
-                  {getYouTubeVideoUrl() ? (
-                    <iframe
-                      src={getYouTubeVideoUrl()}
-                      width="100%"
-                      height="100%"
-                      title={submission.project_name}
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      className="w-full h-full"
-                    />
-                  ) : (
-                    <div className="flex flex-col items-center justify-center h-full text-mia-muted space-y-2 p-8">
-                      <div className="w-14 h-14 rounded-full bg-[#1E2939] flex items-center justify-center text-mia-muted-2">
-                        <Play className="h-7 w-7 ml-0.5 opacity-60" />
-                      </div>
-                      <span className="text-xs sm:text-sm text-center text-mia-muted-2">
-                        Video presentasi tidak disematkan
-                      </span>
-                    </div>
-                  )}
-                </div>
+                <YouTubePreview
+                  submission={submission}
+                  title={`Video Karya ${submission.project_name}`}
+                  showFallback={true}
+                  fallbackText="Video presentasi tidak disematkan oleh peserta"
+                  className="rounded-xl border border-white/10"
+                />
               </div>
             </div>
 
@@ -347,14 +293,6 @@ export default function SubmissionDetailPage(props) {
                         </span>
                         <span className="text-sm font-medium text-mia-text">
                           {submission.user?.name || "-"}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-xs font-semibold text-mia-muted-2 uppercase tracking-wide block mb-0.5">
-                          Email Kontak
-                        </span>
-                        <span className="text-sm text-mia-muted">
-                          {submission.user?.email || "-"}
                         </span>
                       </div>
                       <div>

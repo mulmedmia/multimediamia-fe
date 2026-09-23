@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
+import { getSafeImageUrl } from "@/lib/image-loader";
 import { useQuery } from "@tanstack/react-query";
 import {
   useAdminProducts,
@@ -10,6 +11,7 @@ import {
   useDeleteAdminProduct,
 } from "@/hooks/admin-use.product";
 import { getAdminProducts } from "@/services/admin-product.service";
+import { getAllUserCategories } from "@/services/user-category.service";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -64,6 +66,7 @@ export default function AdminProductPage() {
   const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [categoryFilter, setCategoryFilter] = useState("ALL");
 
   // State Modal
   const [openCreate, setOpenCreate] = useState(false);
@@ -83,6 +86,13 @@ export default function AdminProductPage() {
     return () => clearTimeout(timer);
   }, [searchInput, searchTerm]);
 
+  // Query Categories for filter dropdown
+  const { data: categories = [] } = useQuery({
+    queryKey: ["user-categories-dropdown"],
+    queryFn: getAllUserCategories,
+    staleTime: 5 * 60 * 1000,
+  });
+
   // Query Products
   const {
     data,
@@ -95,6 +105,8 @@ export default function AdminProductPage() {
     page,
     search: searchTerm || undefined,
     is_active: statusFilter === "ALL" ? undefined : statusFilter,
+    category_id: categoryFilter === "ALL" ? undefined : categoryFilter,
+    exact: categoryFilter !== "ALL" && categoryFilter !== "GLOBAL" ? true : undefined,
   });
 
   // Query Global Stats for top summary cards
@@ -137,10 +149,13 @@ export default function AdminProductPage() {
     setSearchInput("");
     setSearchTerm("");
     setStatusFilter("ALL");
+    setCategoryFilter("ALL");
     setPage(1);
   };
 
-  const hasActiveFilters = searchTerm || statusFilter !== "ALL";
+  const hasActiveFilters = Boolean(
+    searchTerm || statusFilter !== "ALL" || categoryFilter !== "ALL"
+  );
 
   return (
     <div className="space-y-6">
@@ -258,6 +273,33 @@ export default function AdminProductPage() {
               )}
             </div>
 
+            {/* Filter Kategori */}
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground whitespace-nowrap">
+                Kategori:
+              </span>
+              <Select
+                value={categoryFilter}
+                onValueChange={(val) => {
+                  setCategoryFilter(val);
+                  setPage(1);
+                }}
+              >
+                <SelectTrigger className="h-9 w-40 sm:w-48 bg-input/40 border-border/50 rounded-xl text-xs text-foreground">
+                  <SelectValue placeholder="Semua Kategori" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#141824] border-border/50 text-foreground max-h-64">
+                  <SelectItem value="ALL">Semua Kategori</SelectItem>
+                  <SelectItem value="GLOBAL">🌐 Khusus Global</SelectItem>
+                  {categories.map((c) => (
+                    <SelectItem key={c.category_id} value={c.category_id}>
+                      {c.name || c.category_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Filter Status */}
             <div className="flex items-center gap-2">
               <span className="text-xs text-muted-foreground whitespace-nowrap">
@@ -295,6 +337,22 @@ export default function AdminProductPage() {
                       setSearchInput("");
                       setSearchTerm("");
                     }}
+                    className="hover:text-blue-200 ml-0.5"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+              {categoryFilter !== "ALL" && (
+                <span className="inline-flex items-center gap-1 text-[11px] px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                  Kategori:{" "}
+                  {categoryFilter === "GLOBAL"
+                    ? "🌐 Khusus Global"
+                    : categories.find((c) => c.category_id === categoryFilter)?.name ||
+                      categoryFilter}
+                  <button
+                    type="button"
+                    onClick={() => setCategoryFilter("ALL")}
                     className="hover:text-blue-200 ml-0.5"
                   >
                     ×
@@ -403,7 +461,7 @@ export default function AdminProductPage() {
                           {prod.image_url ? (
                             <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-border/50 bg-black/40 flex-shrink-0">
                               <Image
-                                src={prod.image_url}
+                                src={getSafeImageUrl(prod.image_url)}
                                 alt={prod.name}
                                 fill
                                 className="object-cover"
@@ -419,9 +477,13 @@ export default function AdminProductPage() {
                               <p className="font-semibold text-foreground text-xs sm:text-sm truncate">
                                 {prod.name}
                               </p>
-                              {prod.category?.name && (
+                              {prod.category?.name ? (
                                 <Badge className="bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[10px] px-1.5 py-0.2 rounded font-medium">
                                   {prod.category.name}
+                                </Badge>
+                              ) : (
+                                <Badge className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] px-1.5 py-0.2 rounded font-medium">
+                                  🌐 Semua Kategori
                                 </Badge>
                               )}
                               {prod.is_single_redeem && (

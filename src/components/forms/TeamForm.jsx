@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -10,8 +10,9 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { Link2Icon, PersonIcon, LayersIcon } from "@radix-ui/react-icons";
-import { Info, ExternalLink, FileText } from "lucide-react";
+import { Info, ExternalLink, FileText, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { useGuidebook } from "@/hooks/use-guidebook";
+import { checkTeamNameAvailability } from "@/services/competition.service";
 
 const teamFormSchema = z
   .object({
@@ -113,6 +114,9 @@ export function TeamForm({
     register,
     handleSubmit,
     reset,
+    watch,
+    setError,
+    clearErrors,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(teamFormSchema),
@@ -125,6 +129,73 @@ export function TeamForm({
       team_type: teamType,
     },
   });
+
+  const [teamNameStatus, setTeamNameStatus] = useState(null); // null | "checking" | "available" | "taken"
+  const [teamNameMessage, setTeamNameMessage] = useState("");
+  const categoryId = registration?.category_id || registration?.category?.category_id;
+  const registrationId = registration?.registration_id;
+  const teamNameValue = watch("team_name");
+
+  // Real-time check keunikan nama tim saat edit
+  useEffect(() => {
+    if (teamType !== "GROUP" || !categoryId) {
+      setTeamNameStatus(null);
+      setTeamNameMessage("");
+      return;
+    }
+
+    const trimmed = (teamNameValue || "").trim();
+    if (!trimmed || trimmed.length < 3) {
+      setTeamNameStatus(null);
+      setTeamNameMessage("");
+      if (errors.team_name?.type === "duplicate") {
+        clearErrors("team_name");
+      }
+      return;
+    }
+
+    // Jika sama dengan nama tim semula pada pendaftaran ini, otomatis valid
+    if (
+      registration?.team_name &&
+      trimmed.toLowerCase() === registration.team_name.trim().toLowerCase()
+    ) {
+      setTeamNameStatus("available");
+      setTeamNameMessage("Nama tim saat ini");
+      if (errors.team_name?.type === "duplicate") {
+        clearErrors("team_name");
+      }
+      return;
+    }
+
+    setTeamNameStatus("checking");
+    const timer = setTimeout(async () => {
+      try {
+        const result = await checkTeamNameAvailability(
+          categoryId,
+          trimmed,
+          registrationId,
+        );
+        if (result.available) {
+          setTeamNameStatus("available");
+          setTeamNameMessage("Nama tim tersedia");
+          if (errors.team_name?.type === "duplicate") {
+            clearErrors("team_name");
+          }
+        } else {
+          setTeamNameStatus("taken");
+          setTeamNameMessage(result.message || "Nama tim sudah digunakan dalam kategori lomba ini");
+          setError("team_name", {
+            type: "duplicate",
+            message: result.message || "Nama tim sudah digunakan dalam kategori lomba ini",
+          });
+        }
+      } catch {
+        setTeamNameStatus(null);
+      }
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [teamNameValue, categoryId, teamType, registration?.team_name, registrationId, setError, clearErrors, errors.team_name?.type]);
 
   // Untuk lomba Grup (1-3 orang) dengan 1 ketua + 2 anggota
   const groupPersonInputs = [
@@ -188,7 +259,38 @@ export function TeamForm({
     return val.trim().replace(/\s+/g, " ");
   };
 
-  const handleFormSubmit = (data) => {
+  const handleFormSubmit = async (data) => {
+    if (teamNameStatus === "taken") {
+      setError("team_name", {
+        type: "duplicate",
+        message: teamNameMessage || "Nama tim sudah digunakan dalam kategori lomba ini",
+      });
+      return;
+    }
+
+    if (teamType === "GROUP" && categoryId) {
+      const trimmed = (data.team_name || "").trim();
+      const isOriginal =
+        registration?.team_name &&
+        trimmed.toLowerCase() === registration.team_name.trim().toLowerCase();
+
+      if (!isOriginal && trimmed) {
+        try {
+          const res = await checkTeamNameAvailability(categoryId, trimmed, registrationId);
+          if (!res.available) {
+            setTeamNameStatus("taken");
+            setError("team_name", {
+              type: "duplicate",
+              message: res.message || "Nama tim sudah digunakan dalam kategori lomba ini",
+            });
+            return;
+          }
+        } catch {
+          // Biarkan proses submit berlanjut jika network timeout, backend akan memvalidasi kembali
+        }
+      }
+    }
+
     const trimmedTeamName = cleanString(data.team_name);
     const trimmedFileUrl = data.file_url ? data.file_url.trim() : "";
     const trimmedLead = cleanString(data.team_lead);
@@ -263,14 +365,34 @@ export function TeamForm({
                 disabled={isFormDisabled}
                 {...register("team_name")}
                 className={cn(
-                  "h-11 bg-input rounded-xl pl-10 pr-4 text-sm text-foreground placeholder:text-mia-muted-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed",
-                  errors.team_name
+                  "h-11 bg-input rounded-xl pl-10 pr-10 text-sm text-foreground placeholder:text-mia-muted-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed",
+                  errors.team_name || teamNameStatus === "taken"
                     ? "border-destructive focus-visible:ring-destructive"
-                    : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
+                    : teamNameStatus === "available"
+                      ? "border-emerald-500/60 focus-visible:border-emerald-500 focus-visible:ring-emerald-500/30"
+                      : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
                 )}
               />
+              <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
+                {teamNameStatus === "checking" && (
+                  <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />
+                )}
+                {teamNameStatus === "available" && (
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                )}
+                {teamNameStatus === "taken" && (
+                  <AlertCircle className="w-4 h-4 text-destructive" />
+                )}
+              </div>
             </div>
-            <InputError fieldError={errors.team_name} />
+            {errors.team_name ? (
+              <InputError fieldError={errors.team_name} />
+            ) : teamNameStatus === "available" ? (
+              <p className="text-xs text-emerald-400 font-medium flex items-center gap-1 mt-1">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>{teamNameMessage || "Nama tim tersedia"}</span>
+              </p>
+            ) : null}
           </div>
 
           {/* Team Members Stacks */}

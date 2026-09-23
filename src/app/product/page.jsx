@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { getSafeImageUrl } from "@/lib/image-loader";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
@@ -303,75 +304,60 @@ export default function ProductPage() {
                 </Link>
               </div>
             ) : (
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-[#141824] border border-white/10">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs font-semibold text-[#AAB1BD] px-1">
-                    {participatingCategories.length > 1
-                      ? "Filter Kategori Lomba:"
-                      : "Kategori Lomba Anda:"}
-                  </span>
-                  {participatingCategories.length === 1 ? (
-                    <div className="px-4 py-1.5 rounded-xl text-xs font-bold bg-[#E01C20] text-white shadow-[0_0_15px_rgba(224,28,32,0.3)] flex items-center gap-2">
-                      <Trophy className="h-3.5 w-3.5" />
-                      <span>{activeCategory?.name}</span>
-                      {activeCategory?.team_name && (
-                        <span className="bg-white/20 px-2 py-0.5 rounded text-[11px] font-normal">
-                          Tim: {activeCategory.team_name}
-                        </span>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      {participatingCategories.map((cat) => {
-                        const isSelected = cat.category_id === selectedCategoryId;
-                        return (
-                          <button
-                            key={cat.category_id}
-                            type="button"
-                            onClick={() => {
-                              setSelectedCategoryId(cat.category_id);
-                              setPage(1);
-                            }}
-                            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center gap-2 ${
-                              isSelected
-                                ? "bg-[#E01C20] text-white shadow-[0_0_15px_rgba(224,28,32,0.3)]"
-                                : "text-[#AAB1BD] bg-white/5 hover:bg-white/10 hover:text-white"
+              <div className="flex flex-wrap items-center gap-2 p-3.5 rounded-2xl bg-[#141824] border border-white/10">
+                <span className="text-xs font-semibold text-[#AAB1BD] px-1">
+                  {participatingCategories.length > 1
+                    ? "Filter Kategori Lomba:"
+                    : "Kategori Lomba Anda:"}
+                </span>
+                {participatingCategories.length === 1 ? (
+                  <div className="px-4 py-1.5 rounded-xl text-xs font-bold bg-[#E01C20] text-white shadow-[0_0_15px_rgba(224,28,32,0.3)] flex items-center gap-2">
+                    <Trophy className="h-3.5 w-3.5" />
+                    <span>{activeCategory?.name}</span>
+                    {activeCategory?.team_name && (
+                      <span className="bg-white/20 px-2 py-0.5 rounded text-[11px] font-normal">
+                        Tim: {activeCategory.team_name}
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {participatingCategories.map((cat) => {
+                      const isSelected = cat.category_id === selectedCategoryId;
+                      return (
+                        <button
+                          key={cat.category_id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedCategoryId(cat.category_id);
+                            setPage(1);
+                          }}
+                          className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center gap-2 ${
+                            isSelected
+                              ? "bg-[#E01C20] text-white shadow-[0_0_15px_rgba(224,28,32,0.3)]"
+                              : "text-[#AAB1BD] bg-white/5 hover:bg-white/10 hover:text-white"
+                          }`}
+                        >
+                          <Trophy
+                            className={`h-3.5 w-3.5 ${
+                              isSelected ? "text-white" : "text-[#AAB1BD]"
                             }`}
-                          >
-                            <Trophy
-                              className={`h-3.5 w-3.5 ${
-                                isSelected ? "text-white" : "text-[#AAB1BD]"
+                          />
+                          <span>{cat.name}</span>
+                          {cat.team_name && (
+                            <span
+                              className={`px-1.5 py-0.5 rounded text-[10px] ${
+                                isSelected
+                                  ? "bg-white/20 text-white"
+                                  : "bg-white/5 text-[#AAB1BD]"
                               }`}
-                            />
-                            <span>{cat.name}</span>
-                            {cat.team_name && (
-                              <span
-                                className={`px-1.5 py-0.5 rounded text-[10px] ${
-                                  isSelected
-                                    ? "bg-white/20 text-white"
-                                    : "bg-white/5 text-[#AAB1BD]"
-                                }`}
-                              >
-                                {cat.team_name}
-                              </span>
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-
-                {activeCategory && (
-                  <div className="flex items-center gap-3 px-3 py-1 text-xs">
-                    <span className="text-[#FED700] font-bold flex items-center gap-1">
-                      <span>💎</span> {userDiamonds.toLocaleString()}
-                    </span>
-                    <span className="text-white/20">|</span>
-                    <span className="text-amber-400 font-bold flex items-center gap-1">
-                      <Zap className="h-3.5 w-3.5 fill-amber-400" />{" "}
-                      {userXp.toLocaleString()} XP
-                    </span>
+                            >
+                              {cat.team_name}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -447,7 +433,7 @@ export default function ProductPage() {
                       <div className="relative h-48 overflow-hidden bg-gradient-to-br from-red-950/20 via-black to-red-900/10">
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent z-10"></div>
                         <Image
-                          src={product.image_url || "/placeholder-image.png"}
+                          src={getSafeImageUrl(product.image_url) || "/placeholder-image.png"}
                           alt={product.name}
                           fill={true}
                           className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -457,6 +443,11 @@ export default function ProductPage() {
                             <Gift className="h-3.5 w-3.5 text-[#E01C20]" />
                             {hasXpReward ? "Konversi EXP" : "Merchandise"}
                           </span>
+                          {!product.category_id && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 backdrop-blur-md">
+                              🌐 Semua Kategori
+                            </span>
+                          )}
                           {isSingle && (
                             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/40 backdrop-blur-md">
                               1x Redeem

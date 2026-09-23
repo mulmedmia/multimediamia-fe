@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 // Kolom utama untuk table pengumpulan
-export const getPengumpulanColumns = ({ isMobile, setDetailData, setStatusData, setScoreData }) => [
+export const getPengumpulanColumns = ({ isMobile, setDetailData, setStatusData }) => [
   { accessorKey: "user.name", header: "Nama" },
   { accessorKey: "user.email", header: "Email" },
   { accessorKey: "category.category_name", header: "Kategori" },
@@ -23,7 +23,6 @@ export const getPengumpulanColumns = ({ isMobile, setDetailData, setStatusData, 
       </Badge>
     ),
   },
-  { accessorKey: "score", header: "Skor" },
   {
     id: "actions",
     header: "Aksi",
@@ -34,9 +33,6 @@ export const getPengumpulanColumns = ({ isMobile, setDetailData, setStatusData, 
         </Button>
         <Button size="sm" variant="secondary" onClick={() => setStatusData(row.original)}>
           Status
-        </Button>
-        <Button size="sm" variant="secondary" onClick={() => setScoreData(row.original)}>
-          Skor
         </Button>
       </div>
     ),

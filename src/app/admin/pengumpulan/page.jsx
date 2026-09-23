@@ -5,7 +5,6 @@ import { useQuery } from "@tanstack/react-query";
 import {
   useAdminSubmissions,
   usePatchSubmissionStatus,
-  usePatchSubmissionScore,
 } from "@/hooks/admin-use-submission";
 import { getAllSubmissions } from "@/services/admin-submission.service";
 import { getAllUserCategories } from "@/services/user-category.service";
@@ -48,7 +47,6 @@ import {
 } from "lucide-react";
 import SubmissionDetailModal from "./SubmissionDetailModal";
 import SubmissionStatusModal from "./SubmissionStatusModal";
-import SubmissionScoreModal from "./SubmissionScoreModal";
 
 const PAGE_SIZE = 10;
 
@@ -63,12 +61,9 @@ export default function AdminPengumpulanPage() {
   // Modal State
   const [detailData, setDetailData] = useState(null);
   const [statusData, setStatusData] = useState(null);
-  const [scoreData, setScoreData] = useState(null);
 
   const [currentStatus, setCurrentStatus] = useState("PENDING");
   const [currentIsVerified, setCurrentIsVerified] = useState(false);
-  const [currentScore, setCurrentScore] = useState("");
-  const [currentFeedback, setCurrentFeedback] = useState("");
 
   // Debounce search input
   useEffect(() => {
@@ -117,7 +112,6 @@ export default function AdminPengumpulanPage() {
 
   // Mutations
   const patchStatus = usePatchSubmissionStatus();
-  const patchScore = usePatchSubmissionScore();
 
   const submissions = useMemo(() => {
     return Array.isArray(data?.submissions) ? data.submissions : [];
@@ -200,15 +194,9 @@ export default function AdminPengumpulanPage() {
   // Handle open status modal
   const handleOpenStatus = (sub) => {
     setStatusData(sub);
-    setCurrentStatus(sub.status || "PENDING");
-    setCurrentIsVerified(Boolean(sub.is_verified));
-  };
-
-  // Handle open score modal
-  const handleOpenScore = (sub) => {
-    setScoreData(sub);
-    setCurrentScore(sub.score !== null && sub.score !== undefined ? String(sub.score) : "");
-    setCurrentFeedback(sub.feedback || "");
+    const initialStatus = sub.status || "PENDING";
+    setCurrentStatus(initialStatus);
+    setCurrentIsVerified(initialStatus === "APPROVED" ? Boolean(sub.is_verified) : false);
   };
 
   const handleClearFilters = () => {
@@ -236,7 +224,7 @@ export default function AdminPengumpulanPage() {
             <span>Kelola Pengumpulan Karya</span>
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-            Pantau karya peserta, periksa berkas submission, beri penilaian skor, dan perbarui status evaluasi.
+            Pantau karya peserta, periksa berkas submission dan evaluasi juri, serta perbarui status karya.
           </p>
         </div>
 
@@ -496,10 +484,7 @@ export default function AdminPengumpulanPage() {
                       Status
                     </TableHead>
                     <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
-                      Leaderboard
-                    </TableHead>
-                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
-                      Skor
+                      Tampilkan di Show It
                     </TableHead>
                     <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
                       Waktu Submit
@@ -578,28 +563,16 @@ export default function AdminPengumpulanPage() {
                         {renderStatusBadge(sub.status)}
                       </TableCell>
 
-                      {/* Verifikasi Leaderboard */}
+                      {/* Tampilkan di Show It */}
                       <TableCell className="py-3.5">
                         {sub.is_verified ? (
                           <Badge className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[11px] px-2 py-0.5 rounded-full flex items-center gap-1 w-fit">
-                            <CheckCircle2 className="h-3 w-3" /> Terverifikasi
+                            <CheckCircle2 className="h-3 w-3" /> Ditampilkan
                           </Badge>
                         ) : (
                           <Badge className="bg-zinc-500/10 text-zinc-400 border border-zinc-500/20 text-[11px] px-2 py-0.5 rounded-full flex items-center gap-1 w-fit">
-                            Belum
+                            Tidak
                           </Badge>
-                        )}
-                      </TableCell>
-
-                      {/* Skor */}
-                      <TableCell className="py-3.5">
-                        {sub.score !== null && sub.score !== undefined ? (
-                          <div className="flex items-center gap-1 text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-lg w-fit">
-                            <Star className="h-3 w-3 fill-amber-400" />
-                            <span>{sub.score}</span>
-                          </div>
-                        ) : (
-                          <span className="text-xs text-muted-foreground italic">-</span>
                         )}
                       </TableCell>
 
@@ -642,22 +615,10 @@ export default function AdminPengumpulanPage() {
                             variant="outline"
                             onClick={() => handleOpenStatus(sub)}
                             className="h-8 px-2.5 bg-input/40 hover:bg-white/10 border-border/50 text-foreground text-xs rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer"
-                            title="Ubah Status & Leaderboard"
+                            title="Ubah Status & Penayangan Show It"
                           >
                             <ShieldCheck className="h-3.5 w-3.5 text-purple-400" />
                             <span className="hidden sm:inline">Status</span>
-                          </Button>
-
-                          {/* Tombol Nilai / Skor */}
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleOpenScore(sub)}
-                            className="h-8 px-2.5 bg-input/40 hover:bg-white/10 border-border/50 text-foreground text-xs rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer"
-                            title="Beri Nilai & Feedback"
-                          >
-                            <Star className="h-3.5 w-3.5 text-amber-400" />
-                            <span className="hidden sm:inline">Skor</span>
                           </Button>
                         </div>
                       </TableCell>
@@ -742,27 +703,6 @@ export default function AdminPengumpulanPage() {
         }
       />
 
-      {/* Modal Skor Submission */}
-      <SubmissionScoreModal
-        open={!!scoreData}
-        onClose={() => setScoreData(null)}
-        data={scoreData}
-        score={currentScore}
-        setScore={setCurrentScore}
-        feedback={currentFeedback}
-        setFeedback={setCurrentFeedback}
-        isLoading={patchScore.isPending}
-        onSubmit={() =>
-          patchScore.mutate(
-            {
-              id: scoreData.submission_id,
-              score: Number(currentScore),
-              feedback: currentFeedback,
-            },
-            { onSuccess: () => setScoreData(null) }
-          )
-        }
-      />
     </div>
   );
 }

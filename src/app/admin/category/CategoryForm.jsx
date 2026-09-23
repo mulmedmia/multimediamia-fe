@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import { getSafeImageUrl } from "@/lib/image-loader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -22,6 +23,7 @@ import {
   Calendar,
   Clock,
   ExternalLink,
+  MessageCircle,
 } from "lucide-react";
 
 // Helper datetime-local formatter
@@ -93,6 +95,7 @@ export default function CategoryForm({
     batch_2_start: formatDatetimeForInput(initial?.batch_2_start) || (type === "create" ? getDefaultBatch2Start() : ""),
     batch_2_end: formatDatetimeForInput(initial?.batch_2_end) || (type === "create" ? getDefaultBatch2End() : ""),
     file_url: initial?.file_url || "",
+    whatsapp_group_url: initial?.whatsapp_group_url || "",
     image: null,
   });
 
@@ -117,6 +120,7 @@ export default function CategoryForm({
         batch_2_start: formatDatetimeForInput(initial.batch_2_start) || "",
         batch_2_end: formatDatetimeForInput(initial.batch_2_end) || "",
         file_url: initial.file_url || "",
+        whatsapp_group_url: initial.whatsapp_group_url || "",
         image: null,
       });
       setPreviewUrl(initial.image || initial.image_url || null);
@@ -136,6 +140,7 @@ export default function CategoryForm({
         batch_2_start: getDefaultBatch2Start(),
         batch_2_end: getDefaultBatch2End(),
         file_url: "",
+        whatsapp_group_url: "",
         image: null,
       });
       setPreviewUrl(null);
@@ -227,6 +232,15 @@ export default function CategoryForm({
       return;
     }
 
+    if (form.whatsapp_group_url && form.whatsapp_group_url.trim()) {
+      try {
+        new URL(form.whatsapp_group_url.trim());
+      } catch {
+        setError("Format Link Grup WhatsApp tidak valid (harus diawali http:// atau https://).");
+        return;
+      }
+    }
+
     if (type === "create" && !form.image) {
       setError("Banner / gambar kategori wajib diunggah.");
       return;
@@ -252,6 +266,7 @@ export default function CategoryForm({
       batch_2_start: form.batch_2_start ? new Date(form.batch_2_start).toISOString() : null,
       batch_2_end: form.batch_2_end ? new Date(form.batch_2_end).toISOString() : null,
       file_url: form.file_url.trim(),
+      whatsapp_group_url: form.whatsapp_group_url ? form.whatsapp_group_url.trim() : null,
     };
 
     if (form.image) {
@@ -486,11 +501,11 @@ export default function CategoryForm({
             {previewUrl ? (
               <div className="relative w-28 h-16 rounded-xl overflow-hidden border border-border/50 bg-black/40 flex-shrink-0">
                 <Image
-                  src={previewUrl}
+                  src={getSafeImageUrl(previewUrl)}
                   alt="Preview"
                   fill
                   className="object-cover"
-                  unoptimized={previewUrl.startsWith("blob:")}
+                  unoptimized={typeof previewUrl === "string" && previewUrl.startsWith("blob:")}
                 />
               </div>
             ) : (
@@ -548,6 +563,30 @@ export default function CategoryForm({
           />
           <p className="text-[11px] text-muted-foreground">
             Tautan dokumen panduan teknis yang dapat diunduh atau dibaca oleh calon peserta.
+          </p>
+        </div>
+
+        {/* Link Grup WhatsApp */}
+        <div className="space-y-1.5 sm:col-span-2">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="whatsapp_group_url" className="text-xs text-muted-foreground font-medium flex items-center gap-1.5">
+              <MessageCircle className="h-3.5 w-3.5 text-emerald-400" />
+              <span>Link Grup WhatsApp Kategori</span>
+            </Label>
+            <span className="text-[10px] text-muted-foreground/70">
+              Opsional
+            </span>
+          </div>
+          <Input
+            id="whatsapp_group_url"
+            type="url"
+            placeholder="https://chat.whatsapp.com/..."
+            value={form.whatsapp_group_url}
+            onChange={(e) => setForm((f) => ({ ...f, whatsapp_group_url: e.target.value }))}
+            className="h-10 bg-input/40 border-border/50 rounded-xl text-xs sm:text-sm text-foreground placeholder:text-muted-foreground/60"
+          />
+          <p className="text-[11px] text-muted-foreground">
+            Tautan undangan grup WhatsApp untuk koordinasi dan informasi penting bagi peserta lomba kategori ini.
           </p>
         </div>
       </div>

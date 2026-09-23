@@ -2,10 +2,12 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
+import { getSafeImageUrl } from "@/lib/image-loader";
 import { useQuery } from "@tanstack/react-query";
 import { useAdminRedemptions } from "@/hooks/admin-use-reddem";
 import { getAllRedemptions } from "@/services/admin-reddem.service";
 import { useAdminProducts } from "@/hooks/admin-use.product";
+import { useAdminCategories } from "@/hooks/admin-use-categories";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -57,6 +59,7 @@ export default function ManageRedemptionPage() {
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("ALL");
   const [productFilter, setProductFilter] = useState("ALL");
 
   // Modal State
@@ -75,6 +78,20 @@ export default function ManageRedemptionPage() {
     return () => clearTimeout(timer);
   }, [searchInput, searchTerm]);
 
+  // Query Categories for dropdown filter
+  const { data: categoriesData } = useAdminCategories({ limit: 100 });
+  const categories = categoriesData?.categories || [];
+
+  // Query Products for dropdown filter
+  const { data: productsData } = useAdminProducts({ limit: 100 });
+  const products = productsData?.products || [];
+
+  // Products filtered by selected category
+  const availableProducts = useMemo(() => {
+    if (categoryFilter === "ALL") return products;
+    return products.filter((p) => String(p.category_id) === String(categoryFilter));
+  }, [products, categoryFilter]);
+
   // Query Redemptions
   const {
     data,
@@ -86,12 +103,9 @@ export default function ManageRedemptionPage() {
     page,
     limit: PAGE_SIZE,
     search: searchTerm || undefined,
+    category_id: categoryFilter === "ALL" ? undefined : categoryFilter,
     product_id: productFilter === "ALL" ? undefined : productFilter,
   });
-
-  // Query Products for dropdown filter
-  const { data: productsData } = useAdminProducts({ limit: 100 });
-  const products = productsData?.products || [];
 
   // Global Stats Query for top cards
   const { data: allStatsData } = useQuery({
@@ -150,11 +164,13 @@ export default function ManageRedemptionPage() {
   const handleClearFilters = () => {
     setSearchInput("");
     setSearchTerm("");
+    setCategoryFilter("ALL");
     setProductFilter("ALL");
     setPage(1);
   };
 
-  const hasActiveFilters = searchTerm || productFilter !== "ALL";
+  const hasActiveFilters =
+    searchTerm || categoryFilter !== "ALL" || productFilter !== "ALL";
 
   return (
     <div className="space-y-6">
@@ -264,30 +280,69 @@ export default function ManageRedemptionPage() {
               )}
             </div>
 
-            {/* Filter Produk */}
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground whitespace-nowrap">
-                Produk:
-              </span>
-              <Select
-                value={productFilter}
-                onValueChange={(val) => {
-                  setProductFilter(val);
-                  setPage(1);
-                }}
-              >
-                <SelectTrigger className="h-9 w-44 sm:w-48 bg-input/40 border-border/50 rounded-xl text-xs text-foreground">
-                  <SelectValue placeholder="Semua Produk" />
-                </SelectTrigger>
-                <SelectContent className="bg-[#141824] border-border/50 text-foreground">
-                  <SelectItem value="ALL">Semua Produk</SelectItem>
-                  {products.map((p) => (
-                    <SelectItem key={p.product_id} value={String(p.product_id)}>
-                      {p.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            {/* Filter Dropdowns (Kategori & Produk) */}
+            <div className="flex flex-wrap items-center gap-3">
+              {/* Filter Kategori Lomba */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground whitespace-nowrap">
+                  Kategori:
+                </span>
+                <Select
+                  value={categoryFilter}
+                  onValueChange={(val) => {
+                    setCategoryFilter(val);
+                    setPage(1);
+                    // Jika produk yang dipilih tidak sesuai dengan kategori yang baru, reset pilihan produk
+                    if (val !== "ALL" && productFilter !== "ALL") {
+                      const p = products.find(
+                        (prod) => String(prod.product_id) === String(productFilter)
+                      );
+                      if (p && String(p.category_id) !== String(val)) {
+                        setProductFilter("ALL");
+                      }
+                    }
+                  }}
+                >
+                  <SelectTrigger className="h-9 w-40 sm:w-44 bg-input/40 border-border/50 rounded-xl text-xs text-foreground truncate">
+                    <SelectValue placeholder="Semua Kategori" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#141824] border-border/50 text-foreground max-h-64">
+                    <SelectItem value="ALL">Semua Kategori</SelectItem>
+                    <SelectItem value="GLOBAL">🌐 Khusus Global</SelectItem>
+                    {categories.map((c) => (
+                      <SelectItem key={c.category_id} value={String(c.category_id)}>
+                        {c.name || c.category_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Filter Produk */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground whitespace-nowrap">
+                  Produk:
+                </span>
+                <Select
+                  value={productFilter}
+                  onValueChange={(val) => {
+                    setProductFilter(val);
+                    setPage(1);
+                  }}
+                >
+                  <SelectTrigger className="h-9 w-40 sm:w-44 bg-input/40 border-border/50 rounded-xl text-xs text-foreground truncate">
+                    <SelectValue placeholder="Semua Produk" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#141824] border-border/50 text-foreground max-h-64">
+                    <SelectItem value="ALL">Semua Produk</SelectItem>
+                    {availableProducts.map((p) => (
+                      <SelectItem key={p.product_id} value={String(p.product_id)}>
+                        {p.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
 
@@ -304,6 +359,23 @@ export default function ManageRedemptionPage() {
                       setSearchInput("");
                       setSearchTerm("");
                     }}
+                    className="hover:text-blue-200 ml-0.5"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+              {categoryFilter !== "ALL" && (
+                <span className="inline-flex items-center gap-1 text-[11px] px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                  Kategori:{" "}
+                  {categoryFilter === "GLOBAL"
+                    ? "🌐 Khusus Global"
+                    : categories.find(
+                        (c) => String(c.category_id) === String(categoryFilter)
+                      )?.name || categoryFilter}
+                  <button
+                    type="button"
+                    onClick={() => setCategoryFilter("ALL")}
                     className="hover:text-blue-200 ml-0.5"
                   >
                     ×
@@ -434,7 +506,7 @@ export default function ManageRedemptionPage() {
                           {r.product?.image_url ? (
                             <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-border/50 bg-black/40 flex-shrink-0">
                               <Image
-                                src={r.product.image_url}
+                                src={getSafeImageUrl(r.product.image_url)}
                                 alt={r.product.name}
                                 fill
                                 className="object-cover"
@@ -449,11 +521,22 @@ export default function ManageRedemptionPage() {
                             <p className="font-semibold text-foreground text-xs sm:text-sm truncate">
                               {r.product?.name || "Produk Dihapus"}
                             </p>
-                            {r.product?.price && (
-                              <p className="text-[11px] text-muted-foreground">
-                                Nilai: Rp {Number(r.product.price).toLocaleString("id-ID")}
-                              </p>
-                            )}
+                            <div className="flex items-center gap-1.5 flex-wrap mt-0.5">
+                              {(r.category?.name || r.product?.category?.name) ? (
+                                <Badge className="bg-blue-500/15 text-blue-400 border border-blue-500/30 text-[10px] px-1.5 py-0 rounded font-medium">
+                                  {r.category?.name || r.product?.category?.name}
+                                </Badge>
+                              ) : (
+                                <Badge className="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[10px] px-1.5 py-0 rounded font-medium">
+                                  🌐 Semua Kategori
+                                </Badge>
+                              )}
+                              {r.product?.price && (
+                                <span className="text-[11px] text-muted-foreground">
+                                  Nilai: Rp {Number(r.product.price).toLocaleString("id-ID")}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </TableCell>
@@ -600,6 +683,15 @@ export default function ManageRedemptionPage() {
                 {detailData?.product?.name || "-"}
               </span>
             </div>
+
+            {(detailData?.category?.name || detailData?.product?.category?.name) && (
+              <div className="flex justify-between items-center py-0.5 border-b border-border/20">
+                <span className="text-muted-foreground">Kategori Lomba:</span>
+                <Badge className="bg-blue-500/15 text-blue-400 border border-blue-500/30 text-[10px] px-2 py-0.5 rounded font-medium">
+                  {detailData?.category?.name || detailData?.product?.category?.name}
+                </Badge>
+              </div>
+            )}
 
             <div className="flex justify-between items-center py-0.5 border-b border-border/20">
               <span className="text-muted-foreground">Diamond Digunakan:</span>

@@ -5,6 +5,7 @@ import {
   updateAdminCategory,
   deleteAdminCategory,
   toggleAdminCategorySubmission,
+  toggleAdminCategoryShowIt,
 } from "@/services/admin-category.service";
 import { toast } from "sonner";
 
@@ -82,3 +83,25 @@ export function useToggleAdminCategorySubmission(onSuccessCb) {
     },
   });
 }
+
+export function useToggleAdminCategoryShowIt(onSuccessCb) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: toggleAdminCategoryShowIt,
+    onSuccess: (data, variables, context) => {
+      qc.invalidateQueries({ queryKey: ["admin-categories"] });
+      toast.success(
+        data?.is_show_it_open
+          ? "Karya kategori berhasil ditampilkan di Show It"
+          : "Karya kategori berhasil disembunyikan dari Show It"
+      );
+      if (onSuccessCb) onSuccessCb(data, variables, context);
+    },
+    onError: (err) => {
+      toast.error(
+        err?.response?.data?.message || "Gagal mengubah status penayangan Show It"
+      );
+    },
+  });
+}
+

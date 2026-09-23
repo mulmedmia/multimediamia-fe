@@ -14,6 +14,11 @@ export const mobileColumns = [
     cell: ({ row }) => (
       <div className="flex flex-col gap-0.5">
         <span>{row.original.product?.name}</span>
+        {(row.original.category?.name || row.original.product?.category?.name) && (
+          <span className="text-[10px] text-blue-400 font-medium">
+            {row.original.category?.name || row.original.product?.category?.name}
+          </span>
+        )}
         {Number(row.original.product?.reward_xp) > 0 && (
           <span className="text-[10px] text-emerald-400 font-medium">
             +{(Number(row.original.product.reward_xp) * (row.original.quantity || 1)).toLocaleString()} XP

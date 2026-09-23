@@ -48,3 +48,11 @@ export const toggleAdminCategorySubmission = async ({ id, is_submission_open, al
   });
   return res.data.data;
 };
+
+export const toggleAdminCategoryShowIt = async ({ id, is_show_it_open }) => {
+  const res = await api.patch(`/categories/${id}/toggle-show-it`, {
+    is_show_it_open,
+  });
+  return res.data.data;
+};
+
