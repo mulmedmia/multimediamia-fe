@@ -20,14 +20,13 @@ import {
   Clock,
   CheckCircle2,
   XCircle,
-  Star,
   ExternalLink,
   Users,
   Mail,
   GitBranch,
   PlayCircle,
-  MessageSquare,
 } from "lucide-react";
+import YouTubePreview from "@/components/common/YouTubePreview";
 
 export default function SubmissionDetailModal({ open, onClose, data }) {
   if (!data) return null;
@@ -128,23 +127,12 @@ export default function SubmissionDetailModal({ open, onClose, data }) {
               {getStatusBadge(data?.status)}
               {data?.is_verified ? (
                 <Badge className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[11px] px-2 py-0.5 rounded-full flex items-center gap-1">
-                  <CheckCircle2 className="h-3 w-3" /> Verif Leaderboard
+                  <CheckCircle2 className="h-3 w-3" /> Tampil di Show It
                 </Badge>
               ) : (
                 <Badge className="bg-zinc-500/10 text-zinc-400 border border-zinc-500/20 text-[11px] px-2 py-0.5 rounded-full flex items-center gap-1">
-                  Belum Verif Leaderboard
+                  Belum Tampil di Show It
                 </Badge>
-              )}
-            </div>
-
-            <div className="flex items-center gap-2">
-              {data?.score !== null && data?.score !== undefined ? (
-                <div className="flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-400 text-xs font-bold">
-                  <Star className="h-3.5 w-3.5 fill-amber-400" />
-                  <span>Skor: {data.score} / 100</span>
-                </div>
-              ) : (
-                <span className="text-xs text-muted-foreground italic">Belum dinilai</span>
               )}
             </div>
           </div>
@@ -214,6 +202,14 @@ export default function SubmissionDetailModal({ open, onClose, data }) {
             </div>
           </div>
 
+          {/* Preview Video Demo YouTube (Jika Ada) */}
+          <YouTubePreview
+            submission={data}
+            title={`Video Karya ${data?.project_name || data?.title || "Peserta"}`}
+            showFallback={false}
+            className="rounded-xl border border-border/40 shadow-md"
+          />
+
           {/* Deskripsi Proyek */}
           <div className="bg-[#0F121A]/90 border border-border/40 rounded-xl p-4 space-y-2">
             <h3 className="text-xs sm:text-sm font-semibold text-foreground flex items-center gap-2 pb-1 border-b border-border/30">
@@ -280,19 +276,6 @@ export default function SubmissionDetailModal({ open, onClose, data }) {
               <p className="text-xs text-muted-foreground italic">Tidak ada tautan lampiran tambahan.</p>
             )}
           </div>
-
-          {/* Feedback & Catatan Evaluasi (jika ada) */}
-          {data?.feedback && (
-            <div className="bg-[#0F121A]/90 border border-border/40 rounded-xl p-4 space-y-2">
-              <h3 className="text-xs sm:text-sm font-semibold text-foreground flex items-center gap-2 pb-1 border-b border-border/30">
-                <MessageSquare className="h-4 w-4 text-amber-400" />
-                <span>Feedback & Catatan Juri</span>
-              </h3>
-              <div className="p-3 bg-white/[0.02] border border-border/30 rounded-xl text-xs sm:text-sm text-foreground/90 italic leading-relaxed">
-                &ldquo;{data.feedback}&rdquo;
-              </div>
-            </div>
-          )}
         </div>
 
         <DialogFooter className="pt-3">

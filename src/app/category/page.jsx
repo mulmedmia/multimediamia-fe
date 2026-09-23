@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+import Image from "next/image";
+import { getSafeImageUrl } from "@/lib/image-loader";
 import { useUserCategories } from "@/hooks/user-use-category";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -141,7 +143,7 @@ function CategoryCard({ category }) {
       {/* 16:9 Aspect Ratio Image Section */}
       <div className="relative aspect-video w-full overflow-hidden bg-[#1E2939]">
         <Image
-          src={category.image || "/placeholder-image.png"}
+          src={getSafeImageUrl(category.image) || "/placeholder-image.png"}
           alt={title}
           fill={true}
           className="object-cover transition-transform duration-500 group-hover:scale-105"

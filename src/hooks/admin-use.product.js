@@ -7,10 +7,10 @@ import {
 } from "@/services/admin-product.service";
 import { toast } from "sonner";
 
-export function useAdminProducts({ limit = 10, page = 1, search = "", is_active = "" } = {}) {
+export function useAdminProducts({ limit = 10, page = 1, search = "", is_active = "", category_id = "", exact } = {}) {
   return useQuery({
-    queryKey: ["admin-products", { limit, page, search, is_active }],
-    queryFn: () => getAdminProducts({ limit, page, search, is_active }),
+    queryKey: ["admin-products", { limit, page, search, is_active, category_id, exact }],
+    queryFn: () => getAdminProducts({ limit, page, search, is_active, category_id, exact }),
     placeholderData: keepPreviousData,
     staleTime: 1000 * 60,
   });

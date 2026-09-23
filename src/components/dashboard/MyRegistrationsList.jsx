@@ -29,6 +29,7 @@ import {
   Trophy,
   Clock,
   Zap,
+  MessageCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -211,6 +212,19 @@ export function MyRegistrationsList({ onSelectRegistration }) {
                       <span className="text-xs sm:text-sm px-3 py-1 rounded-full font-semibold bg-sky-500/15 border border-sky-500/30 text-sky-400">
                         Karya Terupload
                       </span>
+                    )}
+                    {reg.category?.whatsapp_group_url && (
+                      <a
+                        href={reg.category.whatsapp_group_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        title="Buka Grup WhatsApp Lomba"
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/25 transition-colors cursor-pointer"
+                      >
+                        <MessageCircle className="w-3.5 h-3.5" />
+                        <span>Grup WA</span>
+                      </a>
                     )}
                   </div>
                 </div>

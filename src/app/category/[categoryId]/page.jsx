@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Image from "next/image";
+import { getSafeImageUrl } from "@/lib/image-loader";
 import { useGuidebook } from "@/hooks/use-guidebook";
 
 // Loading Skeleton Component matching MIA 2026 design system
@@ -435,7 +436,7 @@ export default function CategoryDetailPage(props) {
                 {/* Image Preview Card */}
                 <div className="mia-card overflow-hidden relative aspect-video w-full shadow-xl">
                   <Image
-                    src={category.image || "/placeholder-image.png"}
+                    src={getSafeImageUrl(category.image) || "/placeholder-image.png"}
                     alt={category.name || category.slug || "Category"}
                     fill={true}
                     className="object-cover"
