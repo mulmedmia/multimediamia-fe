@@ -1,8 +1,18 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 
+// Normalisasi base URL agar selalu memiliki format yang valid dengan prefix /api/v1
+const getBaseUrl = () => {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
+  const trimmed = envUrl.replace(/\/+$/, "");
+  if (trimmed.endsWith("/api/v1")) {
+    return trimmed;
+  }
+  return `${trimmed}/api/v1`;
+};
+
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: getBaseUrl(),
   timeout: 45000, // 45 detik untuk mengantisipasi cold-start Render free tier
   headers: {
     "Content-Type": "application/json",
@@ -40,7 +50,7 @@ api.interceptors.response.use(
 
     if (error.response?.status === 401 && !isAuthEndpoint && !isLoginPage) {
       if (typeof window !== "undefined") {
-        Cookies.remove("authToken");
+        Cookies.remove("authToken", { path: "/" });
         window.location.href = "/login";
       }
     }

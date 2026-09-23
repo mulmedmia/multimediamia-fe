@@ -20,7 +20,13 @@ export function useAuth() {
       const data = await login(email, password);
       setMessageType("success");
       setMessage("Login berhasil! Anda akan diarahkan...");
-      Cookies.set("authToken", data.data.token);
+      const isHttps = typeof window !== "undefined" && window.location.protocol === "https:";
+      Cookies.set("authToken", data.data.token, {
+        path: "/",
+        expires: 1, // Berlaku 1 hari
+        sameSite: "lax",
+        secure: isHttps,
+      });
       return data;
     } catch (err) {
       const errorMessage = err.message || "Email atau password salah.";
@@ -33,7 +39,7 @@ export function useAuth() {
       ) {
         try {
           await requestOtp(email);
-          Cookies.set("pendingEmail", email);
+          Cookies.set("pendingEmail", email, { path: "/" });
           setMessage(
             "Akun belum terverifikasi. Kode OTP baru telah dikirim ke email Anda.",
           );
@@ -46,14 +52,14 @@ export function useAuth() {
             otpError.message || "Gagal mengirim ulang OTP verifikasi.",
           );
           setMessageType("error");
-          setLoading(false);
         }
       } else {
         setMessageType("error");
         setMessage(errorMessage);
-        setLoading(false);
       }
       return null;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -80,7 +86,7 @@ export function useRegister() {
       const data = await register(fullname, email, password);
       setMessage("Registrasi berhasil. OTP telah dikirim ke email Anda.");
       setMessageType("success");
-      Cookies.set("pendingEmail", email);
+      Cookies.set("pendingEmail", email, { path: "/" });
       router.push("/register/otp");
     } catch (err) {
       setMessageType("error");
@@ -132,7 +138,7 @@ export function useOtp() {
       await verifyOtp(email, otp);
       setMessage("Verifikasi berhasil! Anda bisa login sekarang.");
       setMessageType("success");
-      Cookies.remove("pendingEmail");
+      Cookies.remove("pendingEmail", { path: "/" });
       setTimeout(() => {
         router.push("/login");
       }, 1500);
