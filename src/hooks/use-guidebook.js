@@ -17,13 +17,14 @@ export function useGuidebook() {
   const query = useQuery({
     queryKey: GUIDEBOOK_QUERY_KEY,
     queryFn: getGuidebookSetting,
-    staleTime: 1000 * 60 * 5, // 5 menit
-    initialData: DEFAULT_GUIDEBOOK_URL,
+    staleTime: 1000 * 30, // 30 detik
+    placeholderData: DEFAULT_GUIDEBOOK_URL,
   });
 
   return {
     guidebookUrl: query.data || DEFAULT_GUIDEBOOK_URL,
     isLoading: query.isLoading,
+    isFetching: query.isFetching,
     isError: query.isError,
     refetch: query.refetch,
   };

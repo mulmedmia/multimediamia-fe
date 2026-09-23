@@ -19,17 +19,18 @@ import { useGuidebook, useUpdateGuidebook } from "@/hooks/use-guidebook";
 import { toast } from "sonner";
 
 export default function AdminGuidebookPage() {
-  const { guidebookUrl, isLoading } = useGuidebook();
+  const { guidebookUrl, isLoading, isFetching } = useGuidebook();
   const updateMutation = useUpdateGuidebook();
 
   const [inputUrl, setInputUrl] = useState("");
   const [error, setError] = useState("");
+  const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
-    if (guidebookUrl) {
+    if (guidebookUrl && !isDirty) {
       setInputUrl(guidebookUrl);
     }
-  }, [guidebookUrl]);
+  }, [guidebookUrl, isDirty]);
 
   const handleSave = (e) => {
     e.preventDefault();
@@ -53,7 +54,11 @@ export default function AdminGuidebookPage() {
     }
 
     setError("");
-    updateMutation.mutate(trimmed);
+    updateMutation.mutate(trimmed, {
+      onSuccess: () => {
+        setIsDirty(false);
+      },
+    });
   };
 
   const handleTestLink = () => {
@@ -136,6 +141,7 @@ export default function AdminGuidebookPage() {
                   disabled={isLoading || updateMutation.isPending}
                   onChange={(e) => {
                     setInputUrl(e.target.value);
+                    setIsDirty(true);
                     if (error) setError("");
                   }}
                   className="h-11 bg-input/40 border-border/50 rounded-xl text-xs sm:text-sm text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-1 focus-visible:ring-[#E01C20]"
