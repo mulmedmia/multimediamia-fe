@@ -27,7 +27,6 @@ import {
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Link from "next/link";
-import Image from "next/image";
 
 const PAGE_SIZE = 6;
 
