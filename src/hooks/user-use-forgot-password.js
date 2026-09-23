@@ -32,7 +32,7 @@ export const useRequestOtp = () => {
       setMessageType("success");
 
       // Simpan email untuk digunakan di halaman OTP
-      Cookies.set("pendingEmail", email, { expires: 1 / 24 }); // 1 jam
+      Cookies.set("pendingEmail", email, { path: "/", expires: 1 / 24 }); // 1 jam
 
       // Redirect ke halaman OTP setelah 1.5 detik
       setTimeout(() => {
@@ -86,7 +86,7 @@ export const useResetPassword = () => {
       setMessageType("success");
 
       // Hapus email yang tersimpan
-      Cookies.remove("pendingEmail");
+      Cookies.remove("pendingEmail", { path: "/" });
 
       // Redirect ke halaman login setelah 2 detik
       setTimeout(() => {

@@ -19,16 +19,29 @@ export function AuthProvider({ children }) {
         const token = Cookies.get("authToken");
         if (token) {
           const decodedToken = jwtDecode(token);
-          if (decodedToken.exp * 1000 < Date.now()) {
-            Cookies.remove("authToken");
+          if (decodedToken.exp && decodedToken.exp * 1000 < Date.now()) {
+            Cookies.remove("authToken", { path: "/" });
             setUser(null);
           } else {
+            // Segera isi user awal dari payload JWT agar route guards tidak menendang ke /login
+            setUser({
+              users_id: decodedToken.userId,
+              email: decodedToken.email,
+              role: decodedToken.role,
+            });
+
             try {
               const profile = await getProfile();
-              setUser(profile.data);
-            } catch {
-              setUser(null);
-              Cookies.remove("authToken");
+              if (profile?.data) {
+                setUser(profile.data);
+              }
+            } catch (err) {
+              // HANYA hapus token jika server merespons 401 Unauthorized.
+              // Jika Render sedang cold-start atau jaringan lambat, JANGAN hapus token!
+              if (err.response?.status === 401) {
+                setUser(null);
+                Cookies.remove("authToken", { path: "/" });
+              }
             }
           }
         } else {
@@ -36,7 +49,7 @@ export function AuthProvider({ children }) {
         }
       } catch {
         setUser(null);
-        Cookies.remove("authToken");
+        Cookies.remove("authToken", { path: "/" });
       } finally {
         setLoading(false);
       }
@@ -47,21 +60,33 @@ export function AuthProvider({ children }) {
 
   const login = (userData) => {
     setUser(userData);
-    setTimeout(() => {
-      if (userData.role === "ADMIN") {
-        router.replace("/admin/dashboard");
-      } else if (userData.role === "JURI") {
-        router.replace("/juri/manage-submission");
-      } else {
-        router.replace("/");
-      }
-    }, 1000);
+    const role = userData?.role;
+    let target = "/dashboard";
+    if (role === "ADMIN") {
+      target = "/admin/dashboard";
+    } else if (role === "JURI") {
+      target = "/juri/manage-submission";
+    } else if (typeof window !== "undefined") {
+      const searchParams = new URLSearchParams(window.location.search);
+      target = searchParams.get("redirect") || "/dashboard";
+    }
+
+    // Gunakan window.location.href untuk navigasi langsung agar browser mengirimkan cookie root ke middleware
+    if (typeof window !== "undefined") {
+      window.location.href = target;
+    } else {
+      router.replace(target);
+    }
   };
 
   const logout = () => {
-    Cookies.remove("authToken");
+    Cookies.remove("authToken", { path: "/" });
     setUser(null);
-    router.replace("/login");
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    } else {
+      router.replace("/login");
+    }
   };
 
   const value = {
