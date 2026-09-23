@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import Image from "next/image";
+import { getSafeImageUrl } from "@/lib/image-loader";
 import {
   useAdminCategories,
   useCreateAdminCategory,
@@ -51,6 +52,9 @@ import {
   Image as ImageIcon,
   Lock,
   Unlock,
+  Eye,
+  EyeOff,
+  MessageCircle,
 } from "lucide-react";
 import CategoryForm from "./CategoryForm";
 
@@ -377,7 +381,7 @@ export default function AdminCategoryPage() {
                         <div className="relative w-14 h-10 rounded-lg overflow-hidden bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0">
                           {category.image ? (
                             <Image
-                              src={category.image}
+                              src={getSafeImageUrl(category.image)}
                               alt={category.name || category.slug || "Category"}
                               fill
                               className="object-cover"
@@ -527,6 +531,23 @@ export default function AdminCategoryPage() {
                                 className="h-8 w-8 p-0 rounded-lg hover:bg-white/10 hover:text-white cursor-pointer"
                               >
                                 <ExternalLink className="h-4 w-4" />
+                              </Button>
+                            </a>
+                          )}
+
+                          {category.whatsapp_group_url && (
+                            <a
+                              href={category.whatsapp_group_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              title="Buka Grup WhatsApp"
+                            >
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-8 w-8 p-0 rounded-lg hover:bg-emerald-500/20 text-emerald-400 cursor-pointer"
+                              >
+                                <MessageCircle className="h-4 w-4" />
                               </Button>
                             </a>
                           )}
@@ -778,6 +799,7 @@ export default function AdminCategoryPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
     </div>
   );
 }

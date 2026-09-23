@@ -61,7 +61,7 @@ export default function MissionForm({ initial, onSubmit, isLoading, onCancel }) 
   );
 
   const [form, setForm] = useState({
-    category_id: initial?.category_id || "",
+    category_id: initial?.category_id || "ALL",
     title: initial?.title || "",
     description: initial?.description || "",
     deadline: formatDatetimeForInput(initial?.deadline) || "",
@@ -90,7 +90,7 @@ export default function MissionForm({ initial, onSubmit, isLoading, onCancel }) 
         initial.min_diamond === initial.max_diamond;
       setRewardMode(fixed ? "FIXED" : "RANGE");
       setForm({
-        category_id: initial.category_id || "",
+        category_id: initial.category_id || "ALL",
         title: initial.title || "",
         description: initial.description || "",
         deadline: formatDatetimeForInput(initial.deadline) || "",
@@ -113,7 +113,7 @@ export default function MissionForm({ initial, onSubmit, isLoading, onCancel }) 
     } else {
       setRewardMode("FIXED");
       setForm({
-        category_id: "",
+        category_id: "ALL",
         title: "",
         description: "",
         deadline: "",
@@ -132,11 +132,6 @@ export default function MissionForm({ initial, onSubmit, isLoading, onCancel }) 
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    if (!form.category_id) {
-      setError("Kategori kompetisi wajib dipilih.");
-      return;
-    }
     if (!form.title.trim() || form.title.trim().length < 5) {
       setError("Judul misi wajib diisi minimal 5 karakter.");
       return;
@@ -212,7 +207,8 @@ export default function MissionForm({ initial, onSubmit, isLoading, onCancel }) 
     setError("");
 
     const payload = {
-      category_id: form.category_id,
+      category_id:
+        form.category_id && form.category_id !== "ALL" ? form.category_id : null,
       title: form.title.trim(),
       description: form.description.trim(),
       deadline: new Date(form.deadline).toISOString(),
@@ -244,14 +240,17 @@ export default function MissionForm({ initial, onSubmit, isLoading, onCancel }) 
             <span>Kategori Kompetisi <span className="text-[#E01C20]">*</span></span>
           </Label>
           <Select
-            value={form.category_id}
+            value={form.category_id || "ALL"}
             onValueChange={(val) => setForm((f) => ({ ...f, category_id: val }))}
             disabled={loadingCategories}
           >
             <SelectTrigger className="h-10 bg-input/40 border-border/50 rounded-xl text-xs text-foreground">
-              <SelectValue placeholder={loadingCategories ? "Memuat kategori..." : "Pilih kategori kompetisi"} />
+              <SelectValue placeholder={loadingCategories ? "Memuat kategori..." : "Pilih cakupan kategori"} />
             </SelectTrigger>
             <SelectContent className="bg-[#141824] border-border/50 text-foreground">
+              <SelectItem value="ALL">
+                🌐 Semua Kategori (Global / Bersama)
+              </SelectItem>
               {categories.map((cat) => (
                 <SelectItem key={cat.category_id} value={String(cat.category_id)}>
                   {cat.category_name || cat.name}
@@ -259,6 +258,11 @@ export default function MissionForm({ initial, onSubmit, isLoading, onCancel }) 
               ))}
             </SelectContent>
           </Select>
+          <p className="text-[11px] text-muted-foreground">
+            {form.category_id === "ALL" || !form.category_id
+              ? "Misi ini akan tampil di seluruh kategori lomba (WIA & UIA). Reward akan diberikan ke seluruh tim yang diikuti peserta."
+              : "Misi ini hanya akan tampil khusus untuk kategori yang dipilih."}
+          </p>
         </div>
 
         {/* Judul Misi */}

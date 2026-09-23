@@ -8,9 +8,10 @@ import {
   Github,
   Link as LinkIcon,
   Loader2,
-  Star,
 } from "lucide-react";
 import { useUserProfile } from "@/hooks/user-use-profile";
+import YouTubePreview from "@/components/common/YouTubePreview";
+import api from "@/lib/api";
 
 // Komponen untuk menampilkan setiap kartu submission
 const SubmissionCard = ({ submission }) => {
@@ -33,11 +34,6 @@ const SubmissionCard = ({ submission }) => {
     }
   };
 
-  const hasScore =
-    submission.score !== null &&
-    submission.score !== undefined &&
-    submission.score !== "";
-
   return (
     <div
       className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl p-5 flex flex-col justify-between shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer h-full group"
@@ -46,6 +42,14 @@ const SubmissionCard = ({ submission }) => {
       }
     >
       <div className="flex-grow">
+        {/* Preview Video YouTube Karya (Bisa di-play langsung) */}
+        <YouTubePreview
+          submission={submission}
+          title={`Video Karya ${submission.project_name}`}
+          showFallback={false}
+          className="rounded-lg mb-3 border border-neutral-200 dark:border-neutral-800"
+        />
+
         <div className="flex justify-between items-start mb-2 gap-2">
           <h3 className="text-lg font-bold text-black dark:text-white pr-2 min-w-0 break-words line-clamp-2 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">
             {submission.project_name}
@@ -66,32 +70,17 @@ const SubmissionCard = ({ submission }) => {
           {submission.category?.category_name || submission.category?.name || "-"}
         </p>
 
-        {/* Skor Section */}
-        <div className="mb-3">
-          {hasScore ? (
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs font-bold">
-              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500 dark:text-amber-400" />
-              <span>Skor: {submission.score}</span>
-            </div>
-          ) : (
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-neutral-100 dark:bg-neutral-800/80 border border-neutral-200 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400 text-xs font-medium">
-              <Star className="w-3.5 h-3.5 text-neutral-400" />
-              <span>Belum Dinilai</span>
-            </div>
-          )}
-        </div>
-
         <p className="text-xs text-neutral-500 dark:text-neutral-500 line-clamp-3">
           {submission.description}
         </p>
       </div>
       <div className="mt-4 pt-3 border-t border-neutral-100 dark:border-neutral-800/80 flex items-center justify-between">
         <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
-          {hasScore ? "Sudah Dinilai" : "Menunggu Penilaian"}
+          Status: {submission.status}
         </span>
         <button className="flex items-center space-x-2 bg-gradient-to-r from-red-600 to-red-700 dark:to-black hover:from-red-700 hover:to-red-800 dark:hover:to-gray-900 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors w-fit">
           <FileText className="w-4 h-4" />
-          <span>{hasScore ? "Ubah Nilai" : "Beri Nilai"}</span>
+          <span>Lihat Karya</span>
         </button>
       </div>
     </div>
@@ -128,17 +117,12 @@ export default function ManageSubmissionPage() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-        const response = await fetch(`${BASE_URL}/categories?limit=50&page=1`);
-        if (!response.ok) {
-          throw new Error("Gagal mengambil data kategori");
-        }
-        const result = await response.json();
-        if (result.status) {
-          setCategories(result.data.categories);
+        const res = await api.get("/categories?limit=50&page=1");
+        if (res.data?.status) {
+          setCategories(res.data.data.categories || []);
         }
       } catch (err) {
-        console.error(err.message);
+        console.error("Gagal mengambil data kategori:", err?.message);
       }
     };
     fetchCategories();
@@ -152,30 +136,27 @@ export default function ManageSubmissionPage() {
       setLoading(true);
       setError(null);
       try {
-        const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
         const targetCategory = selectedCategory || userCategoryId;
-        let url = `${BASE_URL}/submissions?limit=${meta.limit}&page=${meta.page}`;
+        const params = {
+          limit: meta.limit,
+          page: meta.page,
+        };
         if (targetCategory) {
-          url += `&category_id=${targetCategory}`;
+          params.category_id = targetCategory;
         }
 
-        const response = await fetch(url);
+        const res = await api.get("/submissions", { params });
+        const result = res.data;
 
-        if (!response.ok) {
-          throw new Error("Gagal mengambil data submission");
-        }
-
-        const result = await response.json();
-
-        if (result.status) {
+        if (result?.status) {
           setSubmissions(result.data.submissions || []);
           setFilteredSubmissions(result.data.submissions || []);
           setMeta(result.data.meta || { page: 1, limit: 6, totalPages: 1 });
         } else {
-          throw new Error(result.message || "Gagal memuat data");
+          throw new Error(result?.message || "Gagal memuat data");
         }
       } catch (err) {
-        setError(err.message);
+        setError(err.response?.data?.message || err.message);
       } finally {
         setLoading(false);
       }
@@ -203,8 +184,7 @@ export default function ManageSubmissionPage() {
           Kelola Pengumpulan
         </h1>
         <p className="mt-2 text-sm sm:text-base text-neutral-500 dark:text-neutral-400">
-          Lihat, kelola, dan nilai semua karya yang telah dikumpulkan oleh
-          peserta.
+          Lihat dan periksa semua karya yang telah dikumpulkan oleh peserta.
         </p>
       </div>
 

@@ -69,8 +69,8 @@ export const updateSubmission = async (submissionId, submissionData) => {
  */
 export const getAllSubmissionsByCategory = async (categoryId) => {
   try {
-    // Menggunakan endpoint submissions global (bukan my/submissions)
-    const response = await api.get(`/submissions?category_id=${categoryId}`);
+    // Menggunakan endpoint submissions global (bukan my/submissions) khusus penayangan Show It
+    const response = await api.get(`/submissions?category_id=${categoryId}&show_it=true`);
     return response.data.data;
   } catch (error) {
     console.error("Gagal mengambil semua submission:", error);

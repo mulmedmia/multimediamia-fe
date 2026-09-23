@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowRight, Calendar, Users, User, Trophy } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { getSafeImageUrl } from "@/lib/image-loader";
 
 const CATEGORY_CUSTOM_DATA = {
   UIA: {
@@ -88,7 +89,7 @@ function PreviewCard({ category }) {
       {/* 16:9 Aspect Ratio Image Section */}
       <div className="relative aspect-video w-full overflow-hidden bg-[#1E2939]">
         <Image
-          src={category.image || "/placeholder-image.png"}
+          src={getSafeImageUrl(category.image) || "/placeholder-image.png"}
           alt={title}
           fill={true}
           className="object-cover transition-transform duration-500 group-hover:scale-105"

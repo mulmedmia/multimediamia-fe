@@ -581,10 +581,14 @@ export function SubmissionForm({
     },
     onError: (error) => {
       console.error("Submission error:", error);
+      const serverMessage =
+        error?.error ||
+        error?.response?.data?.error ||
+        error?.response?.data?.message ||
+        error?.message ||
+        (typeof error === "string" ? error : "Terjadi kesalahan");
       toast.error(
-        `Gagal ${editingSubmission ? "memperbarui" : "mengunggah"}: ${
-          error.response?.data?.message || error.message || "Terjadi kesalahan"
-        }`,
+        `Gagal ${editingSubmission ? "memperbarui" : "mengunggah"}: ${serverMessage}`,
       );
     },
   });

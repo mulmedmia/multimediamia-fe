@@ -181,6 +181,7 @@ export default function AdminMisiPage() {
   // Available missions for submissions dropdown (filtered by submissionCategoryFilter)
   const availableMissionsForSubmissions = useMemo(() => {
     if (submissionCategoryFilter === "ALL") return missions;
+    if (submissionCategoryFilter === "GLOBAL") return missions.filter((m) => !m.category_id);
     return missions.filter((m) => m.category_id === submissionCategoryFilter);
   }, [missions, submissionCategoryFilter]);
 
@@ -214,6 +215,15 @@ export default function AdminMisiPage() {
 
   // Open Review Dialog for a submission
   const handleOpenReview = (submission) => {
+    if (submission.status === "REJECTED") {
+      toast.error("Pengumpulan misi yang sudah ditolak tidak dapat diedit kembali!");
+      return;
+    }
+    if (submission.status === "APPROVED") {
+      toast.info("Pengumpulan misi yang sudah disetujui tidak dapat diedit kembali.");
+      return;
+    }
+
     setSelectedSubmission(submission);
     const missionRef =
       selectedMissionForSubmissions ||
@@ -239,6 +249,17 @@ export default function AdminMisiPage() {
 
   // Submit Review (ACC or Reject)
   const handleReviewAction = (statusToSet) => {
+    if (selectedSubmission?.status === "REJECTED") {
+      toast.error("Pengumpulan misi yang sudah ditolak tidak dapat diedit kembali!");
+      setIsReviewOpen(false);
+      return;
+    }
+    if (selectedSubmission?.status === "APPROVED") {
+      toast.error("Pengumpulan misi yang sudah disetujui tidak dapat diedit kembali!");
+      setIsReviewOpen(false);
+      return;
+    }
+
     const missionRef = targetReviewMission;
 
     if (statusToSet === "APPROVED" && missionRef) {
@@ -429,6 +450,7 @@ export default function AdminMisiPage() {
                   </SelectTrigger>
                   <SelectContent className="bg-[#141824] border-border/50 text-foreground max-h-64">
                     <SelectItem value="ALL">Semua Kategori</SelectItem>
+                    <SelectItem value="GLOBAL">🌐 Khusus Global</SelectItem>
                     {categories.map((c) => (
                       <SelectItem key={c.category_id} value={c.category_id}>
                         {c.name || c.category_name}
@@ -509,9 +531,13 @@ export default function AdminMisiPage() {
                             <p className="text-sm font-semibold text-foreground line-clamp-1">
                               {mission.title}
                             </p>
-                            {mission.category?.name && (
+                            {mission.category?.name ? (
                               <Badge className="bg-blue-500/15 text-blue-400 border border-blue-500/30 text-[10px] px-1.5 py-0 rounded font-medium">
                                 {mission.category.name}
+                              </Badge>
+                            ) : (
+                              <Badge className="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[10px] px-1.5 py-0 rounded font-medium">
+                                🌐 Semua Kategori
                               </Badge>
                             )}
                           </div>
@@ -699,7 +725,9 @@ export default function AdminMisiPage() {
                         if (
                           val !== "ALL" &&
                           selectedMissionForSubmissions &&
-                          selectedMissionForSubmissions.category_id !== val
+                          (val === "GLOBAL"
+                            ? selectedMissionForSubmissions.category_id !== null
+                            : selectedMissionForSubmissions.category_id !== val)
                         ) {
                           setSelectedMissionForSubmissions(null);
                         }
@@ -710,6 +738,7 @@ export default function AdminMisiPage() {
                       </SelectTrigger>
                       <SelectContent className="bg-[#141824] border-border/50 text-foreground max-h-64">
                         <SelectItem value="ALL">Semua Kategori</SelectItem>
+                        <SelectItem value="GLOBAL">🌐 Khusus Global</SelectItem>
                         {categories.map((c) => (
                           <SelectItem key={c.category_id} value={c.category_id}>
                             {c.name || c.category_name}
@@ -856,26 +885,26 @@ export default function AdminMisiPage() {
                               <p className="text-xs font-medium text-foreground line-clamp-1">
                                 {missionTitle}
                               </p>
-                              {(sub.category?.name ||
-                                sub.category?.category_name ||
-                                sub.mission?.category?.name ||
-                                categories.find(
-                                  (c) =>
-                                    c.category_id ===
-                                    (sub.mission?.category_id || sub.category_id)
-                                )?.name) && (
-                                <Badge className="mt-1 bg-blue-500/15 text-blue-400 border border-blue-500/30 text-[10px] px-1.5 py-0 rounded font-medium">
-                                  {sub.category?.name ||
-                                    sub.category?.category_name ||
-                                    sub.mission?.category?.name ||
-                                    categories.find(
-                                      (c) =>
-                                        c.category_id ===
-                                        (sub.mission?.category_id ||
-                                          sub.category_id)
-                                    )?.name}
-                                </Badge>
-                              )}
+                              {(() => {
+                                const catName =
+                                  sub.category?.name ||
+                                  sub.category?.category_name ||
+                                  sub.mission?.category?.name ||
+                                  categories.find(
+                                    (c) =>
+                                      c.category_id ===
+                                      (sub.mission?.category_id || sub.category_id)
+                                  )?.name;
+                                return catName ? (
+                                  <Badge className="mt-1 bg-blue-500/15 text-blue-400 border border-blue-500/30 text-[10px] px-1.5 py-0 rounded font-medium">
+                                    {catName}
+                                  </Badge>
+                                ) : (
+                                  <Badge className="mt-1 bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[10px] px-1.5 py-0 rounded font-medium">
+                                    🌐 Semua Kategori
+                                  </Badge>
+                                );
+                              })()}
                             </TableCell>
 
                             <TableCell className="max-w-[180px]">
@@ -922,7 +951,17 @@ export default function AdminMisiPage() {
                                   +{sub.awarded_xp} XP / +{sub.awarded_diamond} 💎
                                 </span>
                               ) : sub.status === "REJECTED" ? (
-                                <span className="text-red-400 text-[11px] italic">Ditolak</span>
+                                <div className="space-y-0.5">
+                                  <span className="text-red-400 text-[11px] font-medium">Ditolak</span>
+                                  {sub.admin_feedback && (
+                                    <p
+                                      className="text-[10px] text-muted-foreground/80 truncate max-w-[150px]"
+                                      title={`Alasan: ${sub.admin_feedback}`}
+                                    >
+                                      Alasan: {sub.admin_feedback}
+                                    </p>
+                                  )}
+                                </div>
                               ) : (
                                 <span className="text-muted-foreground text-[11px]">Belum dinilai</span>
                               )}
@@ -939,13 +978,33 @@ export default function AdminMisiPage() {
                             </TableCell>
 
                             <TableCell className="text-right whitespace-nowrap sticky right-0 bg-[#0F121A] group-hover:bg-[#141824] z-10 shadow-[-8px_0_12px_-4px_rgba(0,0,0,0.5)] border-l border-border/40 transition-colors">
-                              <Button
-                                size="sm"
-                                onClick={() => handleOpenReview(sub)}
-                                className="bg-[#E01C20] hover:bg-[#c4181c] text-white rounded-lg text-xs font-semibold h-7 px-3 cursor-pointer shadow-sm"
-                              >
-                                {sub.status === "PENDING" ? "Nilai / ACC" : "Edit Nilai"}
-                              </Button>
+                              {sub.status === "PENDING" ? (
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleOpenReview(sub)}
+                                  className="bg-[#E01C20] hover:bg-[#c4181c] text-white rounded-lg text-xs font-semibold h-7 px-3 cursor-pointer shadow-sm"
+                                >
+                                  Nilai / ACC
+                                </Button>
+                              ) : sub.status === "REJECTED" ? (
+                                <Button
+                                  size="sm"
+                                  disabled
+                                  className="bg-white/5 border border-red-500/30 text-red-400/70 rounded-lg text-xs font-medium h-7 px-3 cursor-not-allowed opacity-60"
+                                  title="Pengumpulan misi telah ditolak dan tidak dapat diedit kembali"
+                                >
+                                  Ditolak (Terkunci)
+                                </Button>
+                              ) : (
+                                <Button
+                                  size="sm"
+                                  disabled
+                                  className="bg-white/5 border border-emerald-500/30 text-emerald-400/70 rounded-lg text-xs font-medium h-7 px-3 cursor-not-allowed opacity-60"
+                                  title="Pengumpulan misi telah disetujui dan reward telah diberikan"
+                                >
+                                  Selesai (Terkunci)
+                                </Button>
+                              )}
                             </TableCell>
                           </TableRow>
                         );
@@ -1117,6 +1176,12 @@ export default function AdminMisiPage() {
                 </span>
               </div>
             </div>
+
+            {!targetReviewMission?.category_id && (
+              <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-300 flex items-center gap-2">
+                <span>🌐 <b>Misi Global:</b> Reward XP dan Diamond akan otomatis diberikan ke seluruh tim lomba yang diikuti peserta ini.</span>
+              </div>
+            )}
 
             {/* Input Awarded XP & Diamond */}
             <div className="grid grid-cols-2 gap-3">

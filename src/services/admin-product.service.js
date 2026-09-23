@@ -6,11 +6,19 @@ export const getAdminProducts = async ({
   page = 1,
   search = "",
   is_active,
+  category_id,
+  exact,
 } = {}) => {
   const params = { limit, page };
   if (search && search.trim()) params.search = search.trim();
   if (is_active !== undefined && is_active !== "ALL" && is_active !== "") {
     params.is_active = is_active;
+  }
+  if (category_id && category_id !== "ALL") {
+    params.category_id = category_id;
+  }
+  if (exact !== undefined) {
+    params.exact = exact;
   }
   const res = await api.get("/products", { params });
   return res.data.data;

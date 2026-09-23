@@ -3,6 +3,7 @@ import { jwtVerify } from "jose";
 import { jwtDecode } from "jwt-decode";
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
+const BYPASS_TOKEN = process.env.MAINTENANCE_BYPASS_TOKEN || "mia2026_dev_bypass";
 
 async function isTokenValid(token) {
   try {
@@ -36,6 +37,66 @@ export async function middleware(req) {
     }
   }
 
+  // ============================================================
+  // 1. MAINTENANCE MODE HANDLING
+  // ============================================================
+  const isMaintenance = process.env.NEXT_PUBLIC_MAINTENANCE_MODE === "true";
+  const hasBypassCookie = cookies.get("maintenance_bypass")?.value === "true";
+  const hasBypassQuery = nextUrl.searchParams.get("bypass_maintenance") === BYPASS_TOKEN;
+  const isAdminOrJuri = valid && (role === "ADMIN" || role === "JURI");
+
+  if (isMaintenance) {
+    // Penanganan bypass melalui query parameter (?bypass_maintenance=TOKEN)
+    if (hasBypassQuery) {
+      const cleanUrl = new URL(nextUrl.pathname, req.url);
+      nextUrl.searchParams.forEach((val, key) => {
+        if (key !== "bypass_maintenance") {
+          cleanUrl.searchParams.set(key, val);
+        }
+      });
+      const response = NextResponse.redirect(cleanUrl);
+      response.cookies.set("maintenance_bypass", "true", {
+        path: "/",
+        httpOnly: true,
+        maxAge: 60 * 60 * 24, // Berlaku 24 jam
+        sameSite: "lax",
+      });
+      return response;
+    }
+
+    const isBypassed = hasBypassCookie || isAdminOrJuri;
+
+    // Halaman maintenance itu sendiri selalu diizinkan
+    if (nextUrl.pathname === "/maintenance") {
+      return NextResponse.next();
+    }
+
+    // Izinkan halaman login agar Admin / Juri dapat masuk
+    if (nextUrl.pathname === "/login") {
+      if (token && valid) {
+        if (role === "ADMIN") {
+          return NextResponse.redirect(new URL("/admin/dashboard", req.url));
+        } else if (role === "JURI") {
+          return NextResponse.redirect(new URL("/juri/manage-submission", req.url));
+        }
+      }
+      return NextResponse.next();
+    }
+
+    // Jika tidak dibypass, alihkan pengunjung umum ke /maintenance
+    if (!isBypassed) {
+      return NextResponse.redirect(new URL("/maintenance", req.url));
+    }
+  } else {
+    // Jika mode maintenance NONAKTIF, cegah akses manual ke /maintenance
+    if (nextUrl.pathname === "/maintenance") {
+      return NextResponse.redirect(new URL("/", req.url));
+    }
+  }
+
+  // ============================================================
+  // 2. EXISTING AUTH & ROLE CHECKS
+  // ============================================================
   if (nextUrl.pathname.startsWith("/register/otp")) {
     if (!pendingEmail) {
       return NextResponse.redirect(new URL("/register", req.url));
@@ -96,20 +157,20 @@ export async function middleware(req) {
     }
     return NextResponse.next();
   }
+
   return NextResponse.next();
 }
 
 export const config = {
   matcher: [
-    "/dashboard/:path*",
-    "/admin/:path*",
-    "/juri/:path*",
-    "/history-pesanan/:path*",
-    "/misi-harian/:path*",
-    "/product/:path*",
-    "/profile/:path*",
-    "/register/otp",
-    "/login",
-    "/competition-info/:path*/daftar-lomba",
+    /*
+     * Match all request paths except for:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico, sitemap.xml, robots.txt
+     * - static assets (.svg, .png, .jpg, .jpeg, .gif, .webp, .ico, .woff, .woff2)
+     */
+    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff|woff2|ttf|eot)$).*)",
   ],
 };

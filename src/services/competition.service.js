@@ -50,6 +50,22 @@ export const updateRegistration = async (registrationId, data) => {
   return res.data;
 };
 
+// Check if team name is available in a category
+export const checkTeamNameAvailability = async (categoryId, teamName, excludeId = null) => {
+  if (!categoryId || !teamName || !teamName.trim()) {
+    return { available: true };
+  }
+  const params = new URLSearchParams({
+    category_id: categoryId,
+    team_name: teamName.trim(),
+  });
+  if (excludeId) {
+    params.append("exclude_id", excludeId);
+  }
+  const res = await api.get(`/registrations/check-team-name?${params.toString()}`);
+  return res.data.data;
+};
+
 export const deleteRegistration = async (registrationId) => {
   try {
     const response = await api.delete(`/registrations/${registrationId}`);

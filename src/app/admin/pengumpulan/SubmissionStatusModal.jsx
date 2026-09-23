@@ -45,7 +45,7 @@ export default function SubmissionStatusModal({
             Update Status Submission
           </DialogTitle>
           <DialogDescription className="text-xs text-muted-foreground text-center">
-            Perbarui status kelayakan karya dan status verifikasi leaderboard.
+            Perbarui status kelayakan karya dan izin penayangan di Show It.
           </DialogDescription>
         </DialogHeader>
 
@@ -76,7 +76,15 @@ export default function SubmissionStatusModal({
             <Label htmlFor="status" className="text-xs text-muted-foreground font-medium">
               Status Evaluasi Karya
             </Label>
-            <Select value={status} onValueChange={setStatus}>
+            <Select
+              value={status}
+              onValueChange={(val) => {
+                setStatus(val);
+                if (val !== "APPROVED") {
+                  setIsVerified(false);
+                }
+              }}
+            >
               <SelectTrigger className="h-10 bg-input/40 border-border/50 rounded-xl text-xs text-foreground">
                 <SelectValue placeholder="Pilih status karya" />
               </SelectTrigger>
@@ -89,19 +97,42 @@ export default function SubmissionStatusModal({
             </Select>
           </div>
 
-          <div className="flex items-start space-x-3 p-3 bg-white/[0.02] border border-border/30 rounded-xl">
+          <div
+            className={`flex items-start space-x-3 p-3 rounded-xl border transition-colors ${
+              status === "APPROVED"
+                ? "bg-white/[0.02] border-border/30"
+                : "bg-white/[0.01] border-border/20 opacity-60"
+            }`}
+          >
             <Checkbox
               id="verified"
-              checked={is_verified}
-              onCheckedChange={setIsVerified}
-              className="mt-0.5 rounded-md border-border/60 data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600"
+              checked={status === "APPROVED" && Boolean(is_verified)}
+              onCheckedChange={(checked) => {
+                if (status === "APPROVED") {
+                  setIsVerified(Boolean(checked));
+                }
+              }}
+              disabled={status !== "APPROVED"}
+              className="mt-0.5 rounded-md border-border/60 data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600 disabled:cursor-not-allowed"
             />
-            <Label htmlFor="verified" className="text-xs text-muted-foreground leading-relaxed cursor-pointer select-none">
-              <span className="text-foreground font-medium block">
-                Verifikasi untuk Leaderboard
-              </span>
-              Izinkan karya ini tampil pada klasemen/leaderboard publik kompetisi.
-            </Label>
+            <div className="space-y-1">
+              <Label
+                htmlFor="verified"
+                className={`text-xs text-muted-foreground leading-relaxed select-none ${
+                  status === "APPROVED" ? "cursor-pointer" : "cursor-not-allowed"
+                }`}
+              >
+                <span className="text-foreground font-medium block">
+                  Tampilkan di Show It
+                </span>
+                Izinkan karya ini tampil pada galeri pameran publik Show It.
+              </Label>
+              {status !== "APPROVED" && (
+                <p className="text-[11px] text-amber-400 font-medium">
+                  * Hanya dapat diaktifkan jika status evaluasi karya adalah APPROVED.
+                </p>
+              )}
+            </div>
           </div>
         </div>
 

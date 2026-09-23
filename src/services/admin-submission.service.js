@@ -37,12 +37,3 @@ export const deleteSubmission = async (id) => {
   const res = await api.delete(`/submissions/${id}`);
   return res.data;
 };
-
-// Update score and feedback
-export const patchSubmissionScore = async ({ id, score, feedback }) => {
-  const res = await api.patch(`/submissions/${id}/score-feedback`, {
-    score,
-    feedback,
-  });
-  return res.data;
-};

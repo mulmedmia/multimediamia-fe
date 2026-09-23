@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import { getSafeImageUrl } from "@/lib/image-loader";
 import { useQuery } from "@tanstack/react-query";
 import { getAllUserCategories } from "@/services/user-category.service";
 import { Button } from "@/components/ui/button";
@@ -27,7 +28,7 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
   });
 
   const [form, setForm] = useState({
-    category_id: initial?.category_id || "",
+    category_id: initial?.category_id || "ALL",
     name: initial?.name || "",
     description: initial?.description || "",
     price: initial?.price !== undefined ? String(initial.price) : "",
@@ -45,7 +46,7 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
   useEffect(() => {
     if (initial) {
       setForm({
-        category_id: initial.category_id || "",
+        category_id: initial.category_id || "ALL",
         name: initial.name || "",
         description: initial.description || "",
         price: initial.price !== undefined ? String(initial.price) : "",
@@ -70,10 +71,6 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!form.category_id) {
-      setError("Kategori kompetisi wajib dipilih.");
-      return;
-    }
     if (!form.name.trim()) {
       setError("Nama produk wajib diisi.");
       return;
@@ -98,7 +95,8 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
     setError("");
 
     const payload = {
-      category_id: form.category_id,
+      category_id:
+        form.category_id && form.category_id !== "ALL" ? form.category_id : null,
       name: form.name.trim(),
       description: form.description.trim(),
       price: Number(form.price),
@@ -130,17 +128,20 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
         <div className="space-y-1.5 sm:col-span-2">
           <Label className="text-xs text-muted-foreground font-medium flex items-center gap-1.5">
             <Trophy className="h-3.5 w-3.5 text-[#FED700]" />
-            <span>Kategori Kompetisi <span className="text-[#E01C20]">*</span></span>
+            <span>Kategori Kompetisi</span>
           </Label>
           <Select
-            value={form.category_id}
+            value={form.category_id || "ALL"}
             onValueChange={(val) => setForm((f) => ({ ...f, category_id: val }))}
             disabled={loadingCategories}
           >
             <SelectTrigger className="h-10 bg-input/40 border-border/50 rounded-xl text-xs text-foreground">
-              <SelectValue placeholder={loadingCategories ? "Memuat kategori..." : "Pilih kategori kompetisi"} />
+              <SelectValue placeholder={loadingCategories ? "Memuat kategori..." : "Pilih cakupan kategori"} />
             </SelectTrigger>
             <SelectContent className="bg-[#141824] border-border/50 text-foreground">
+              <SelectItem value="ALL">
+                🌐 Semua Kategori (Global / Bersama)
+              </SelectItem>
               {categories.map((cat) => (
                 <SelectItem key={cat.category_id} value={String(cat.category_id)}>
                   {cat.category_name || cat.name}
@@ -148,6 +149,11 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
               ))}
             </SelectContent>
           </Select>
+          <p className="text-[11px] text-muted-foreground">
+            {form.category_id === "ALL" || !form.category_id
+              ? "Produk ini akan tampil di seluruh kategori lomba (WIA & UIA). Peserta dari kategori lomba mana pun dapat menukar produk ini."
+              : "Produk ini hanya akan tampil khusus untuk kategori yang dipilih."}
+          </p>
         </div>
 
         {/* Nama Produk */}
@@ -339,7 +345,7 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
             {previewUrl ? (
               <div className="relative w-18 h-18 rounded-xl overflow-hidden border border-border/50 bg-black/40 flex-shrink-0">
                 <Image
-                  src={previewUrl}
+                  src={getSafeImageUrl(previewUrl)}
                   alt="Preview"
                   fill
                   className="object-cover"

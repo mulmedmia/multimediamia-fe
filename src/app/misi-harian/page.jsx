@@ -328,72 +328,57 @@ export default function MisiHarianPage() {
                 </Link>
               </div>
             ) : (
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-[#141824] border border-white/10">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs font-semibold text-[#AAB1BD] px-1">
-                    {participatingCategories.length > 1
-                      ? "Filter Kategori Lomba:"
-                      : "Kategori Lomba Anda:"}
-                  </span>
-                  {participatingCategories.length === 1 ? (
-                    <div className="px-4 py-1.5 rounded-xl text-xs font-bold bg-[#E01C20] text-white shadow-[0_0_15px_rgba(224,28,32,0.3)] flex items-center gap-2">
-                      <Trophy className="h-3.5 w-3.5" />
-                      <span>{activeCategory?.name}</span>
-                      {activeCategory?.team_name && (
-                        <span className="bg-white/20 px-2 py-0.5 rounded text-[11px] font-normal">
-                          Tim: {activeCategory.team_name}
-                        </span>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      {participatingCategories.map((cat) => {
-                        const isSelected = cat.category_id === selectedCategoryId;
-                        return (
-                          <button
-                            key={cat.category_id}
-                            type="button"
-                            onClick={() => setSelectedCategoryId(cat.category_id)}
-                            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center gap-2 ${
-                              isSelected
-                                ? "bg-[#E01C20] text-white shadow-[0_0_15px_rgba(224,28,32,0.3)]"
-                                : "text-[#AAB1BD] bg-white/5 hover:bg-white/10 hover:text-white"
+              <div className="flex flex-wrap items-center gap-2 p-3.5 rounded-2xl bg-[#141824] border border-white/10">
+                <span className="text-xs font-semibold text-[#AAB1BD] px-1">
+                  {participatingCategories.length > 1
+                    ? "Filter Kategori Lomba:"
+                    : "Kategori Lomba Anda:"}
+                </span>
+                {participatingCategories.length === 1 ? (
+                  <div className="px-4 py-1.5 rounded-xl text-xs font-bold bg-[#E01C20] text-white shadow-[0_0_15px_rgba(224,28,32,0.3)] flex items-center gap-2">
+                    <Trophy className="h-3.5 w-3.5" />
+                    <span>{activeCategory?.name}</span>
+                    {activeCategory?.team_name && (
+                      <span className="bg-white/20 px-2 py-0.5 rounded text-[11px] font-normal">
+                        Tim: {activeCategory.team_name}
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {participatingCategories.map((cat) => {
+                      const isSelected = cat.category_id === selectedCategoryId;
+                      return (
+                        <button
+                          key={cat.category_id}
+                          type="button"
+                          onClick={() => setSelectedCategoryId(cat.category_id)}
+                          className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center gap-2 ${
+                            isSelected
+                              ? "bg-[#E01C20] text-white shadow-[0_0_15px_rgba(224,28,32,0.3)]"
+                              : "text-[#AAB1BD] bg-white/5 hover:bg-white/10 hover:text-white"
+                          }`}
+                        >
+                          <Trophy
+                            className={`h-3.5 w-3.5 ${
+                              isSelected ? "text-white" : "text-[#AAB1BD]"
                             }`}
-                          >
-                            <Trophy
-                              className={`h-3.5 w-3.5 ${
-                                isSelected ? "text-white" : "text-[#AAB1BD]"
+                          />
+                          <span>{cat.name}</span>
+                          {cat.team_name && (
+                            <span
+                              className={`px-1.5 py-0.5 rounded text-[10px] ${
+                                isSelected
+                                  ? "bg-white/20 text-white"
+                                  : "bg-white/5 text-[#AAB1BD]"
                               }`}
-                            />
-                            <span>{cat.name}</span>
-                            {cat.team_name && (
-                              <span
-                                className={`px-1.5 py-0.5 rounded text-[10px] ${
-                                  isSelected
-                                    ? "bg-white/20 text-white"
-                                    : "bg-white/5 text-[#AAB1BD]"
-                                }`}
-                              >
-                                {cat.team_name}
-                              </span>
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-
-                {activeCategory && (
-                  <div className="flex items-center gap-3 px-3 py-1 text-xs">
-                    <span className="text-amber-400 font-bold flex items-center gap-1">
-                      <Zap className="h-3.5 w-3.5 fill-amber-400" />{" "}
-                      {activeCategory.xp.toLocaleString()} XP
-                    </span>
-                    <span className="text-white/20">|</span>
-                    <span className="text-[#FED700] font-bold flex items-center gap-1">
-                      <span>💎</span> {activeCategory.diamond.toLocaleString()}
-                    </span>
+                            >
+                              {cat.team_name}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -550,35 +535,47 @@ export default function MisiHarianPage() {
                             </span>
                           </div>
 
-                          {/* Status Badges */}
-                          {sub?.status === "APPROVED" && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                              <CheckCircle2 className="h-3 w-3" />
-                              <span>Disetujui</span>
-                            </span>
-                          )}
-                          {sub?.status === "PENDING" && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/30">
-                              <Clock3 className="h-3 w-3" />
-                              <span>Review</span>
-                            </span>
-                          )}
-                          {sub?.status === "REJECTED" && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#E01C20]/15 text-[#E01C20] border border-[#E01C20]/30">
-                              <XCircle className="h-3 w-3" />
-                              <span>Ditolak</span>
-                            </span>
-                          )}
-                          {!sub && expired && (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-white/5 border border-white/10 text-[#AAB1BD]">
-                              Kadaluarsa
-                            </span>
-                          )}
-                          {!sub && !expired && (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-500/15 text-blue-400 border border-blue-500/30">
-                              Tersedia
-                            </span>
-                          )}
+                          {/* Category and Status Badges */}
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            {mission.category?.name ? (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-500/15 text-blue-400 border border-blue-500/30">
+                                {mission.category.name}
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                                🌐 Semua Kategori
+                              </span>
+                            )}
+
+                            {sub?.status === "APPROVED" && (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                                <CheckCircle2 className="h-3 w-3" />
+                                <span>Disetujui</span>
+                              </span>
+                            )}
+                            {sub?.status === "PENDING" && (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                                <Clock3 className="h-3 w-3" />
+                                <span>Review</span>
+                              </span>
+                            )}
+                            {sub?.status === "REJECTED" && (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#E01C20]/15 text-[#E01C20] border border-[#E01C20]/30">
+                                <XCircle className="h-3 w-3" />
+                                <span>Ditolak</span>
+                              </span>
+                            )}
+                            {!sub && expired && (
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-white/5 border border-white/10 text-[#AAB1BD]">
+                                Kadaluarsa
+                              </span>
+                            )}
+                            {!sub && !expired && (
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-500/15 text-blue-400 border border-blue-500/30">
+                                Tersedia
+                              </span>
+                            )}
+                          </div>
                         </div>
 
                         {/* Title */}
@@ -771,6 +768,12 @@ export default function MisiHarianPage() {
                 </span>
               </div>
             </div>
+
+            {!selectedMission?.category_id && (
+              <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-300 leading-relaxed">
+                🌐 <b>Misi Bersama (Semua Kategori):</b> Anda cukup mengumpulkan misi ini 1 kali. Reward XP dan Diamond akan otomatis diberikan ke seluruh tim lomba aktif yang Anda ikuti!
+              </div>
+            )}
 
             {/* Instruction Link reminder */}
             {selectedMission?.google_docs_url && (

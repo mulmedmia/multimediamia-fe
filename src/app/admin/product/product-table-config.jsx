@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import Image from "next/image";
+import { getSafeImageUrl } from "@/lib/image-loader";
 
 // Helper untuk deteksi tablet
 function isTabletScreen() {
@@ -21,7 +22,7 @@ export function getProductColumns({ isMobile, setEditData, setDeleteId }) {
             {row.original.image_url && (
               <div className="relative w-16 h-16 rounded-md border border-gray-200 dark:border-gray-600 flex-shrink-0">
                 <Image
-                  src={row.original.image_url}
+                  src={getSafeImageUrl(row.original.image_url)}
                   alt={row.original.name}
                   fill={true}
                   className="object-cover"
@@ -38,6 +39,10 @@ export function getProductColumns({ isMobile, setEditData, setDeleteId }) {
               <div className="text-xs mb-1 text-gray-700 dark:text-gray-300">
                 <span className="font-medium">Harga:</span> Rp
                 {row.original.price.toLocaleString()}
+              </div>
+              <div className="text-xs mb-1 text-gray-700 dark:text-gray-300">
+                <span className="font-medium">Kategori:</span>{" "}
+                {row.original.category?.name || "🌐 Semua Kategori"}
               </div>
               <div className="text-xs mb-1 text-gray-700 dark:text-gray-300">
                 <span className="font-medium">Stok:</span> {row.original.stock}
@@ -96,7 +101,16 @@ export function getProductColumns({ isMobile, setEditData, setDeleteId }) {
     {
       header: "Kategori",
       accessorKey: "category_id",
-      cell: ({ row }) => row.original.category?.name || "-",
+      cell: ({ row }) =>
+        row.original.category?.name ? (
+          <span className="text-xs font-medium text-foreground">
+            {row.original.category.name}
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+            🌐 Semua Kategori
+          </span>
+        ),
     },
     {
       header: "Deskripsi",
@@ -135,7 +149,7 @@ export function getProductColumns({ isMobile, setEditData, setDeleteId }) {
         row.original.image_url && (
           <div className="relative w-12 h-12 rounded shadow">
             <Image
-              src={row.original.image_url}
+              src={getSafeImageUrl(row.original.image_url)}
               alt={row.original.name}
               fill={true}
               className="object-cover"

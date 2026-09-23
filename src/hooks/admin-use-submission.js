@@ -4,7 +4,6 @@ import {
   getSubmissionById,
   patchSubmissionStatus,
   deleteSubmission,
-  patchSubmissionScore,
 } from "@/services/admin-submission.service";
 import { toast } from "sonner";
 
@@ -57,17 +56,3 @@ export function useDeleteSubmission() {
   });
 }
 
-// Mutation: update score & feedback
-export function usePatchSubmissionScore() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: patchSubmissionScore,
-    onSuccess: (data) => {
-      qc.invalidateQueries({ queryKey: ["admin-submissions"] });
-      toast.success(data.message || "Score berhasil diupdate!");
-    },
-    onError: (err) => {
-      toast.error(err?.response?.data?.message || "Gagal update score!");
-    },
-  });
-}

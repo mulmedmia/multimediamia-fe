@@ -18,6 +18,7 @@ import {
   Clock,
   AlertCircle,
   Zap,
+  MessageCircle,
 } from "lucide-react";
 import { SubmissionForm } from "@/components/forms/SubmissionForm";
 import { toast } from "sonner";
@@ -446,6 +447,43 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                         >
                           <ExternalLink className="h-3 w-3" />
                           <span>Google Drive Dokumen</span>
+                        </a>
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Grup WhatsApp Peserta (Sesuai Kategori Lomba) */}
+                {activeRegistration.category?.whatsapp_group_url && (
+                  <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-emerald-950/40 via-[#0F121A] to-emerald-950/20 border border-emerald-500/40 space-y-3 shadow-md shadow-emerald-950/30">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="flex items-start gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 flex-shrink-0 mt-0.5">
+                          <MessageCircle className="w-5 h-5" />
+                        </div>
+                        <div className="space-y-0.5">
+                          <p className="text-xs font-bold text-emerald-400 uppercase tracking-wider">
+                            Grup WhatsApp Resmi ({activeRegistration.category?.name || "Kategori Lomba"})
+                          </p>
+                          <p className="text-xs text-muted-foreground leading-relaxed">
+                            Grup koordinasi bagi seluruh peserta kategori ini untuk arahan teknis dan pengumuman panitia.
+                          </p>
+                        </div>
+                      </div>
+
+                      <Button
+                        size="sm"
+                        asChild
+                        className="rounded-full bg-[#25D366] hover:bg-[#20bd5a] text-black font-bold text-xs px-4 h-9 shadow-md shadow-emerald-950/40 inline-flex items-center gap-1.5 cursor-pointer flex-shrink-0"
+                      >
+                        <a
+                          href={activeRegistration.category.whatsapp_group_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <MessageCircle className="h-4 w-4 fill-current" />
+                          <span>Buka Grup WhatsApp</span>
+                          <ExternalLink className="h-3 w-3 opacity-75" />
                         </a>
                       </Button>
                     </div>

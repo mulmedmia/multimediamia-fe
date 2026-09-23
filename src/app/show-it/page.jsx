@@ -18,7 +18,6 @@ import {
   Users,
   AlertCircle,
   Target,
-  Star,
   Github,
   Youtube,
   ExternalLink,
@@ -26,22 +25,27 @@ import {
   Lightbulb,
   ArrowRight,
 } from "lucide-react";
+import YouTubePreview from "@/components/common/YouTubePreview";
 
 export default function ShowItPage() {
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const router = useRouter();
 
   const { data: categories, isLoading: categoriesLoading } = useCategories();
+  const selectedCategory = categories?.find(
+    (c) => c.category_id === selectedCategoryId
+  );
+
   const {
     data: submissionsData,
     isLoading: submissionsLoading,
     isError,
   } = useAllSubmissions(selectedCategoryId);
 
-  // Filter hanya submission yang berstatus APPROVED
+  // Filter hanya submission yang berstatus APPROVED dan diizinkan tampil di Show It
   const allSubmissions = submissionsData?.submissions || [];
   const submissions = allSubmissions.filter(
-    (submission) => submission.status === "APPROVED"
+    (submission) => submission.status === "APPROVED" && Boolean(submission.is_verified)
   );
 
   const getStatusBadge = (status) => {
@@ -176,7 +180,7 @@ export default function ShowItPage() {
               </div>
             )}
 
-            {/* Empty State */}
+            {/* Empty State jika belum ada karya yang disetujui dan ditampilkan */}
             {submissions.length === 0 && selectedCategoryId && !submissionsLoading && !isError && (
               <div className="mia-card p-8 md:p-14 text-center space-y-4 border-dashed border-white/15">
                 <div className="w-14 h-14 bg-[#E01C20]/15 border border-[#E01C20]/30 text-[#E01C20] rounded-2xl flex items-center justify-center mx-auto">
@@ -187,7 +191,7 @@ export default function ShowItPage() {
                     Belum Ada Karya
                   </h3>
                   <p className="text-sm text-[#AAB1BD]">
-                    Belum ada karya yang disetujui untuk kategori ini. Jadilah yang pertama mengirimkan karya terbaikmu!
+                    Belum ada karya yang disetujui dan ditampilkan untuk kategori ini.
                   </p>
                 </div>
               </div>
@@ -219,6 +223,14 @@ export default function ShowItPage() {
                       className="mia-card p-6 flex flex-col justify-between hover:border-[#E01C20]/60 hover:shadow-[0_0_30px_rgba(224,28,32,0.15)] transition-all duration-300 group cursor-pointer"
                     >
                       <div className="space-y-4">
+                        {/* Preview YouTube (Dapat di-play langsung) */}
+                        <YouTubePreview
+                          submission={submission}
+                          title={`Video Karya ${submission.project_name}`}
+                          showFallback={false}
+                          className="rounded-xl border border-white/10"
+                        />
+
                         {/* Header & Status */}
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex-1 min-w-0">
@@ -245,16 +257,6 @@ export default function ShowItPage() {
                         <p className="text-sm text-[#AAB1BD] line-clamp-3 leading-relaxed">
                           {submission.description || "Tidak ada deskripsi singkat."}
                         </p>
-
-                        {/* Score (If Available) */}
-                        {submission.score && submission.score > 0 && (
-                          <div className="flex items-center gap-2 p-2 bg-[#FED700]/10 border border-[#FED700]/20 rounded-lg w-fit">
-                            <Star className="h-4 w-4 text-[#FED700] fill-[#FED700]" />
-                            <span className="text-xs font-bold text-[#FED700]">
-                              Skor: {submission.score}
-                            </span>
-                          </div>
-                        )}
 
                         {/* Project Links */}
                         {submission.links && submission.links.length > 0 && (
