@@ -2,6 +2,7 @@ import React from "react";
 import Image from "next/image";
 
 const mediaPartners = [
+  { name: "Ar-Risalah KSMI", src: "/media_partner/ar_risalah_logo.avif" },
   { name: "BEM Fasilkom UNSIKA", src: "/media_partner/bem_fasilkom_unsika_logo.avif" },
   { name: "BEM Fasilkom UPNVJT", src: "/media_partner/bem_fasilkom_upnvjt_logo.avif" },
   { name: "BEM FIK UPNVJ", src: "/media_partner/bem_fik_upnvj_logo.avif" },
@@ -22,9 +23,11 @@ const mediaPartners = [
   { name: "HIMA SI UNIKOM", src: "/media_partner/hima_si_unikom_logo.avif?v=3" },
   { name: "HIMSI UIN", src: "/media_partner/himsi_uin_logo.avif" },
   { name: "HIVE UIN", src: "/media_partner/hive_uin_logo.avif" },
+  { name: "Lombakan", src: "/media_partner/lombakan_logo.avif" },
   { name: "Lomba Tekno", src: "/media_partner/lomba_tekno_logo.avif" },
   { name: "Lomba UI/UX", src: "/media_partner/lomba_uiux_logo.avif" },
   { name: "Robotik UPNVJ", src: "/media_partner/robotik_upnvj_logo.avif" },
+  { name: "Senat Mahasiswa FIK", src: "/media_partner/senat_fik_logo.avif" },
   { name: "Tekno Event Campus", src: "/media_partner/teknoevent_campus_logo.avif" },
   { name: "Tekno Event", src: "/media_partner/teknoevent_logo.avif" },
   { name: "Veterantech UPNVJ", src: "/media_partner/veterantech_upnvj_logo.avif" },
