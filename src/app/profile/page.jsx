@@ -26,10 +26,23 @@ import {
 
 // Zod Validation Schemas
 const profileSchema = z.object({
-  name: z.string().refine((val) => val.replace(/\s+/g, "").length >= 3, {
-    message: "Nama lengkap minimal 3 karakter",
-  }),
-  nim: z.string().optional(),
+  name: z
+    .string()
+    .trim()
+    .min(3, { message: "Nama lengkap minimal 3 karakter" })
+    .max(100, { message: "Nama lengkap maksimal 100 karakter" })
+    .regex(/^[a-zA-Z0-9\s'.,-]+$/, {
+      message: "Nama tidak boleh mengandung tag HTML atau simbol khusus",
+    }),
+  nim: z
+    .string()
+    .trim()
+    .max(30, { message: "NIM maksimal 30 karakter" })
+    .regex(/^[a-zA-Z0-9.-]*$/, {
+      message: "NIM hanya boleh huruf, angka, titik, atau strip",
+    })
+    .optional()
+    .or(z.literal("")),
 });
 
 const passwordSchema = z.object({
