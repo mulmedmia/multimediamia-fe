@@ -19,7 +19,7 @@ import {
   HamburgerMenuIcon,
   PersonIcon,
 } from "@radix-ui/react-icons";
-import { LayoutDashboard, User, LogOut, Clock, Target, Gift } from "lucide-react";
+import { LayoutDashboard, User, LogOut, Clock, Target, Gift, Bug } from "lucide-react";
 import Image from "next/image";
 
 export default function Header() {
@@ -91,6 +91,18 @@ export default function Header() {
     };
   }, [pathname]);
 
+  // Lock background body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMenuOpen]);
+
   const navItems = [
     { href: "/#beranda", label: "Beranda", id: "beranda" },
     { href: "/#lomba", label: "Kategori Lomba", id: "lomba" },
@@ -153,7 +165,7 @@ export default function Header() {
     <header
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300 w-full",
-        scrolled || pathname !== "/"
+        scrolled || pathname !== "/" || isMenuOpen
           ? "bg-[#0A0D14]/90 backdrop-blur-md border-b border-white/10 shadow-lg"
           : "bg-transparent",
       )}
@@ -303,6 +315,18 @@ export default function Header() {
                       </>
                     )}
                     <DropdownMenuSeparator className="bg-white/10" />
+                    <DropdownMenuItem asChild>
+                      <a
+                        href="https://forms.gle/L2GTwsMEREkcGxh29"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center px-3 py-2 rounded-xl text-sm text-[#FFF9F5] hover:bg-white/5 cursor-pointer"
+                      >
+                        <Bug className="mr-2 h-4 w-4 text-amber-400" />
+                        <span>Laporkan Bug Web</span>
+                      </a>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator className="bg-white/10" />
                     <DropdownMenuItem
                       onClick={logout}
                       className="flex items-center px-3 py-2 rounded-xl text-sm text-[#E01C20] hover:bg-[#E01C20]/10 focus:text-[#E01C20] focus:bg-[#E01C20]/10 cursor-pointer"
@@ -347,9 +371,9 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Mobile/Tablet Menu - Improved mobile styling */}
+      {/* Mobile/Tablet Menu - Improved mobile styling with scroll container */}
       {isMenuOpen && (
-        <div className="lg:hidden bg-background/95 backdrop-blur-sm border-t shadow-lg">
+        <div className="lg:hidden bg-[#0A0D14]/95 backdrop-blur-md border-t border-white/10 shadow-2xl max-h-[calc(100vh-4rem)] sm:max-h-[calc(100vh-5rem)] overflow-y-auto min-h-0">
           <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 md:px-6 py-4 sm:py-5 md:py-6">
             <div className="space-y-4">
               {/* Navigation Links */}
@@ -411,7 +435,7 @@ export default function Header() {
                       <Link href={dashboardLink} passHref>
                         <Button
                           variant="outline"
-                          className="w-full justify-start h-11 sm:h-12 md:h-12 text-base sm:text-lg md:text-xl text-[#FFF9F5]"
+                          className="w-full justify-start h-11 sm:h-12 md:h-12 text-base sm:text-lg md:text-xl text-[#FFF9F5] transition-none"
                           onClick={handleLinkClick}
                         >
                           <LayoutDashboard className="mr-3 h-4 w-4 sm:h-4.5 sm:w-4.5 md:h-5 md:w-5 flex-shrink-0 text-[#FFF9F5]" />
@@ -422,7 +446,7 @@ export default function Header() {
                       <Link href={profileLink} passHref>
                         <Button
                           variant="outline"
-                          className="w-full justify-start h-11 sm:h-12 md:h-12 text-base sm:text-lg md:text-xl text-[#FFF9F5]"
+                          className="w-full justify-start h-11 sm:h-12 md:h-12 text-base sm:text-lg md:text-xl text-[#FFF9F5] transition-none"
                           onClick={handleLinkClick}
                         >
                           <User className="mr-3 h-4 w-4 sm:h-4.5 sm:w-4.5 md:h-5 md:w-5 flex-shrink-0 text-[#FFF9F5]" />
@@ -435,7 +459,7 @@ export default function Header() {
                           <Link href={misiHarianLink} passHref>
                             <Button
                               variant="outline"
-                              className="w-full justify-start h-11 sm:h-12 md:h-12 text-base sm:text-lg md:text-xl text-[#FFF9F5]"
+                              className="w-full justify-start h-11 sm:h-12 md:h-12 text-base sm:text-lg md:text-xl text-[#FFF9F5] transition-none"
                               onClick={handleLinkClick}
                             >
                               <Target className="mr-3 h-4 w-4 sm:h-4.5 sm:w-4.5 md:h-5 md:w-5 flex-shrink-0 text-amber-400" />
@@ -445,7 +469,7 @@ export default function Header() {
                           <Link href={hadiahLink} passHref>
                             <Button
                               variant="outline"
-                              className="w-full justify-start h-11 sm:h-12 md:h-12 text-base sm:text-lg md:text-xl text-[#FFF9F5]"
+                              className="w-full justify-start h-11 sm:h-12 md:h-12 text-base sm:text-lg md:text-xl text-[#FFF9F5] transition-none"
                               onClick={handleLinkClick}
                             >
                               <Gift className="mr-3 h-4 w-4 sm:h-4.5 sm:w-4.5 md:h-5 md:w-5 flex-shrink-0 text-amber-400" />
@@ -455,7 +479,7 @@ export default function Header() {
                           <Link href={historyPesananLink} passHref>
                             <Button
                               variant="outline"
-                              className="w-full justify-start h-11 sm:h-12 md:h-12 text-base sm:text-lg md:text-xl text-[#FFF9F5]"
+                              className="w-full justify-start h-11 sm:h-12 md:h-12 text-base sm:text-lg md:text-xl text-[#FFF9F5] transition-none"
                               onClick={handleLinkClick}
                             >
                               <Clock className="mr-3 h-4 w-4 sm:h-4.5 sm:w-4.5 md:h-5 md:w-5 flex-shrink-0 text-amber-400" />
@@ -465,13 +489,24 @@ export default function Header() {
                         </>
                       )}
 
+                      <a
+                        href="https://forms.gle/L2GTwsMEREkcGxh29"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={handleLinkClick}
+                        className="flex items-center h-11 sm:h-12 md:h-12 px-4 rounded-md border border-input text-base sm:text-lg md:text-xl text-[#FFF9F5] hover:bg-muted/50 transition-colors"
+                      >
+                        <Bug className="mr-3 h-4 w-4 sm:h-4.5 sm:w-4.5 md:h-5 md:w-5 flex-shrink-0 text-amber-400" />
+                        Laporkan Bug Web
+                      </a>
+
                       <Button
                         onClick={() => {
                           logout();
                           handleLinkClick();
                         }}
                         variant="ghost"
-                        className="w-full justify-start text-[#E01C20] hover:text-[#E01C20] hover:bg-red-500/10 dark:hover:bg-red-950/30 h-11 sm:h-12 md:h-12 text-base sm:text-lg md:text-xl"
+                        className="w-full justify-start text-[#E01C20] hover:text-[#E01C20] hover:bg-red-500/10 dark:hover:bg-red-950/30 h-11 sm:h-12 md:h-12 text-base sm:text-lg md:text-xl transition-none"
                       >
                         <LogOut className="mr-3 h-4 w-4 sm:h-4.5 sm:w-4.5 md:h-5 md:w-5 flex-shrink-0 text-[#E01C20]" />
                         Logout

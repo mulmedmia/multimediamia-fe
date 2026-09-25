@@ -20,6 +20,7 @@ import {
   Menu,
   Target,
   Gift,
+  Bug,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -188,6 +189,18 @@ export function DashboardHeader() {
                     </>
                   )}
 
+                  <DropdownMenuSeparator className="bg-white/10" />
+                  <DropdownMenuItem asChild>
+                    <a
+                      href="https://forms.gle/L2GTwsMEREkcGxh29"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center px-3 py-2 rounded-xl text-sm text-[#FFF9F5] hover:bg-white/5 cursor-pointer"
+                    >
+                      <Bug className="mr-2 h-4 w-4 text-amber-400" />
+                      <span>Laporkan Bug Web</span>
+                    </a>
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-white/10" />
                   <DropdownMenuItem
                     onClick={logout}
