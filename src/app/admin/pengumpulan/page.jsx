@@ -44,19 +44,28 @@ import {
   Star,
   ShieldCheck,
   Link2,
+  FileSpreadsheet,
 } from "lucide-react";
 import SubmissionDetailModal from "./SubmissionDetailModal";
 import SubmissionStatusModal from "./SubmissionStatusModal";
+import { exportToExcel } from "@/lib/export-excel";
+import { useAuthContext } from "@/providers/AuthProvider";
+import { toast } from "sonner";
 
 const PAGE_SIZE = 10;
 
 export default function AdminPengumpulanPage() {
+  const { user } = useAuthContext();
+
   // Filters & Pagination State
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryId, setCategoryId] = useState("ALL");
   const [statusFilter, setStatusFilter] = useState("ALL");
+
+  // Export State
+  const [isExporting, setIsExporting] = useState(false);
 
   // Modal State
   const [detailData, setDetailData] = useState(null);
@@ -207,6 +216,90 @@ export default function AdminPengumpulanPage() {
     setPage(1);
   };
 
+  const handleExportExcel = async () => {
+    try {
+      setIsExporting(true);
+      toast.info("Sedang menyiapkan data pengumpulan karya untuk diekspor...");
+
+      const res = await getAllSubmissions({
+        page: 1,
+        limit: 1000,
+        category_id: categoryId === "ALL" ? undefined : categoryId,
+        status: statusFilter === "ALL" ? undefined : statusFilter,
+        search: searchTerm || undefined,
+      });
+
+      const list = Array.isArray(res?.submissions) ? res.submissions : [];
+
+      if (list.length === 0) {
+        toast.warning("Tidak ada data pengumpulan karya untuk diekspor.");
+        return;
+      }
+
+      const columns = [
+        { header: "No", key: "no", width: 8, align: "center" },
+        { header: "Waktu Pengumpulan", key: "created_at", width: 22, align: "center" },
+        { header: "Nama Peserta", key: "user_name", width: 25 },
+        { header: "Email", key: "user_email", width: 26 },
+        { header: "Nama Tim", key: "team_name", width: 20 },
+        { header: "Kategori Lomba", key: "category", width: 22 },
+        { header: "Judul Karya / Proyek", key: "project_name", width: 32 },
+        { header: "Status Karya", key: "status", width: 16, align: "center" },
+        { header: "Tampil di Show It", key: "is_verified", width: 18, align: "center" },
+        { header: "Draft Proposal (Docs)", key: "proposal_url", width: 35 },
+        { header: "GitHub Utama", key: "github_url", width: 35 },
+        { header: "Deployment / Live", key: "deployment_url", width: 35 },
+        { header: "Desain Figma", key: "figma_url", width: 35 },
+        { header: "Demo YouTube", key: "youtube_url", width: 35 },
+      ];
+
+      const rows = list.map((item, index) => {
+        const links = Array.isArray(item.links) ? item.links : [];
+        const getLinkUrl = (type) => {
+          const found = links.find((l) => l.link_type?.toUpperCase() === type.toUpperCase());
+          return found?.url || "-";
+        };
+
+        const figmaLink =
+          getLinkUrl("FIGMA") !== "-"
+            ? getLinkUrl("FIGMA")
+            : getLinkUrl("FIGMA_PROTOTYPE");
+
+        return {
+          no: index + 1,
+          created_at: formatDateDisplay(item.created_at),
+          user_name: item.user?.name || "-",
+          user_email: item.user?.email || "-",
+          team_name: item.team_name || "Individu",
+          category: item.category?.category_name || item.category?.name || "-",
+          project_name: item.project_name || item.title || "-",
+          status: item.status || "PENDING",
+          is_verified: item.is_verified ? "Ya" : "Tidak",
+          proposal_url: getLinkUrl("PROPOSAL"),
+          github_url: getLinkUrl("GITHUB"),
+          deployment_url: getLinkUrl("DEPLOYMENT"),
+          figma_url: figmaLink,
+          youtube_url: getLinkUrl("YOUTUBE"),
+        };
+      });
+
+      await exportToExcel({
+        pageTitle: "PENGUMPULAN",
+        accountName: user?.name || user?.email || "Admin MIA",
+        fileName: `MIA2026_Data_Pengumpulan_Karya_${new Date().toISOString().slice(0, 10)}`,
+        columns,
+        data: rows,
+      });
+
+      toast.success(`Berhasil mengekspor ${rows.length} data pengumpulan karya!`);
+    } catch (err) {
+      console.error("Export error:", err);
+      toast.error("Gagal mengekspor data: " + (err.message || "Terjadi kesalahan"));
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const hasActiveFilters = searchTerm || categoryId !== "ALL" || statusFilter !== "ALL";
 
   return (
@@ -228,15 +321,30 @@ export default function AdminPengumpulanPage() {
           </p>
         </div>
 
-        <Button
-          variant="outline"
-          onClick={() => refetch()}
-          disabled={isFetching}
-          className="h-10 px-4 rounded-xl border-border/50 bg-input/20 hover:bg-input/40 text-foreground text-xs sm:text-sm flex items-center gap-2 cursor-pointer self-start sm:self-auto"
-        >
-          <RefreshCw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
-          <span>Refresh</span>
-        </Button>
+        <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+          <Button
+            variant="outline"
+            onClick={() => refetch()}
+            disabled={isFetching}
+            className="h-10 px-4 rounded-xl border-border/50 bg-input/20 hover:bg-input/40 text-foreground text-xs sm:text-sm flex items-center gap-2 cursor-pointer"
+          >
+            <RefreshCw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
+            <span>Refresh</span>
+          </Button>
+
+          <Button
+            onClick={handleExportExcel}
+            disabled={isExporting}
+            className="h-10 px-4 rounded-xl border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs sm:text-sm flex items-center gap-2 cursor-pointer transition-colors shadow-sm"
+          >
+            {isExporting ? (
+              <RefreshCw className="h-4 w-4 animate-spin text-emerald-400" />
+            ) : (
+              <FileSpreadsheet className="h-4 w-4 text-emerald-400" />
+            )}
+            <span>{isExporting ? "Mengekspor..." : "Export Excel"}</span>
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards Row */}
