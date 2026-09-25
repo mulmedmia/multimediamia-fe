@@ -128,6 +128,17 @@ const Footer = () => {
                   Panduan Lomba
                 </a>
               </li>
+              <li>
+                <a
+                  href="https://forms.gle/L2GTwsMEREkcGxh29"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-[#E01C20] transition-colors inline-flex items-center gap-1.5"
+                >
+                  <span>🐛</span>
+                  <span>Laporkan Bug Web</span>
+                </a>
+              </li>
             </ul>
           </div>
 

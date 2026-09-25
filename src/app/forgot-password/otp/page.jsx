@@ -9,6 +9,7 @@ import {
   EyeOpenIcon,
   EyeClosedIcon,
   LockClosedIcon,
+  InfoCircledIcon,
 } from "@radix-ui/react-icons";
 
 export default function ResetPasswordOtpPage() {
@@ -96,7 +97,15 @@ export default function ResetPasswordOtpPage() {
             </p>
           </div>
 
-          <div className="space-y-4 pt-2">
+          {/* Reminder Cek Inbox & Spam */}
+          <div className="bg-[#141824]/90 border border-white/10 rounded-xl p-3 flex items-start gap-2.5 text-left shadow-inner">
+            <InfoCircledIcon className="w-4 h-4 text-[#E01C20] shrink-0 mt-0.5" />
+            <p className="text-xs text-[#AAB1BD] leading-relaxed">
+              Belum menerima kode? Mohon periksa folder <strong className="text-[#FFF9F5] font-semibold">Inbox</strong> dan <strong className="text-[#FFF9F5] font-semibold">Spam / Junk</strong> di email Anda.
+            </p>
+          </div>
+
+          <div className="space-y-4 pt-1">
             {/* OTP Code */}
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-center text-[#FFF9F5]">
