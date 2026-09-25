@@ -1,8 +1,4 @@
-"use client";
-
 import React from "react";
-import { useUserCategories } from "@/hooks/user-use-category";
-import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowRight, Calendar, Users, User, Trophy } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -197,13 +193,25 @@ const DEFAULT_PREVIEW_CATEGORIES = [
   },
 ];
 
-export default function HomeCategoryPreview() {
-  const { data } = useUserCategories({
-    limit: 4,
-    page: 1,
-    status: "",
-    placeholderData: { categories: DEFAULT_PREVIEW_CATEGORIES },
-  });
+async function loadCategories() {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories?limit=4&page=1`,
+      {
+        next: {
+          revalidate: 3600,
+          tags: ["categories"],
+        },
+      },
+    )
+    const {data} = await response.json()
+    return data;
+  } catch(err) {
+    return null;
+  }
+}
+
+export default async function HomeCategoryPreview() {
+  const data = await loadCategories();
 
   const rawCategories = data?.categories || DEFAULT_PREVIEW_CATEGORIES;
   const sortedCategories = [...rawCategories].sort((a, b) => {
