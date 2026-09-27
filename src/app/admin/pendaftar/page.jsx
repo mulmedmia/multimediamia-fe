@@ -40,9 +40,13 @@ import {
   X,
   FileText,
   User,
+  FileSpreadsheet,
 } from "lucide-react";
 import PendaftarDetailModal from "./PendaftarDetailModal";
 import PendaftarVerifyModal from "./PendaftarVerifyModal";
+import { exportToExcel } from "@/lib/export-excel";
+import { useAuthContext } from "@/providers/AuthProvider";
+import { toast } from "sonner";
 
 const PAGE_SIZE = 10;
 
@@ -64,12 +68,17 @@ const parseTeamMembers = (teamMembersString) => {
 };
 
 export default function AdminPendaftarPage() {
+  const { user } = useAuthContext();
+
   // Filters & Pagination State
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryId, setCategoryId] = useState("ALL");
   const [statusFilter, setStatusFilter] = useState("ALL");
+
+  // Export State
+  const [isExporting, setIsExporting] = useState(false);
 
   // Modal State
   const [detailData, setDetailData] = useState(null);
@@ -168,6 +177,74 @@ export default function AdminPendaftarPage() {
     setPage(1);
   };
 
+  const handleExportExcel = async () => {
+    try {
+      setIsExporting(true);
+      toast.info("Sedang menyiapkan data pendaftaran untuk diekspor...");
+
+      const res = await getAllRegistrations({
+        page: 1,
+        limit: 1000,
+        category_id: categoryId === "ALL" ? undefined : categoryId,
+        search: searchTerm || undefined,
+        is_verified: statusFilter === "ALL" ? undefined : statusFilter,
+      });
+
+      const list = Array.isArray(res?.registrations) ? res.registrations : [];
+
+      if (list.length === 0) {
+        toast.warning("Tidak ada data pendaftaran untuk diekspor.");
+        return;
+      }
+
+      const columns = [
+        { header: "No", key: "no", width: 8, align: "center" },
+        { header: "Waktu Pendaftaran", key: "created_at", width: 22, align: "center" },
+        { header: "Nama Ketua / Akun", key: "user_name", width: 25 },
+        { header: "Email", key: "user_email", width: 26 },
+        { header: "Nama Tim", key: "team_name", width: 20 },
+        { header: "Kategori Lomba", key: "category", width: 22 },
+        { header: "Asal Instansi", key: "institution", width: 25 },
+        { header: "Anggota Tim", key: "team_members", width: 35 },
+        { header: "Status Verifikasi", key: "is_verified", width: 20, align: "center" },
+        { header: "Bukti Pembayaran", key: "payment_proof", width: 35 },
+        { header: "Link KTM / Identitas", key: "ktm_url", width: 35 },
+      ];
+
+      const rows = list.map((item, index) => {
+        const members = parseTeamMembers(item.team_members);
+        return {
+          no: index + 1,
+          created_at: formatDateDisplay(item.created_at),
+          user_name: item.user?.name || "-",
+          user_email: item.user?.email || "-",
+          team_name: item.team_name || "Individu",
+          category: item.category?.category_name || "-",
+          institution: item.institution || "-",
+          team_members: members.length > 0 ? members.join(", ") : "-",
+          is_verified: item.is_verified ? "Terverifikasi" : "Belum Diverifikasi",
+          payment_proof: item.payment_proof || item.file_url || "-",
+          ktm_url: item.ktm_url || item.file_url || "-",
+        };
+      });
+
+      await exportToExcel({
+        pageTitle: "PENDAFTARAN",
+        accountName: user?.name || user?.email || "Admin MIA",
+        fileName: `MIA2026_Data_Pendaftar_${new Date().toISOString().slice(0, 10)}`,
+        columns,
+        data: rows,
+      });
+
+      toast.success(`Berhasil mengekspor ${rows.length} data pendaftaran!`);
+    } catch (err) {
+      console.error("Export error:", err);
+      toast.error("Gagal mengekspor data: " + (err.message || "Terjadi kesalahan"));
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const hasActiveFilters = searchTerm || categoryId !== "ALL" || statusFilter !== "ALL";
 
   return (
@@ -189,15 +266,30 @@ export default function AdminPendaftarPage() {
           </p>
         </div>
 
-        <Button
-          variant="outline"
-          onClick={() => refetch()}
-          disabled={isFetching}
-          className="h-10 px-4 rounded-xl border-border/50 bg-input/20 hover:bg-input/40 text-foreground text-xs sm:text-sm flex items-center gap-2 cursor-pointer self-start sm:self-auto"
-        >
-          <RefreshCw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
-          <span>Refresh</span>
-        </Button>
+        <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+          <Button
+            variant="outline"
+            onClick={() => refetch()}
+            disabled={isFetching}
+            className="h-10 px-4 rounded-xl border-border/50 bg-input/20 hover:bg-input/40 text-foreground text-xs sm:text-sm flex items-center gap-2 cursor-pointer"
+          >
+            <RefreshCw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
+            <span>Refresh</span>
+          </Button>
+
+          <Button
+            onClick={handleExportExcel}
+            disabled={isExporting}
+            className="h-10 px-4 rounded-xl border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs sm:text-sm flex items-center gap-2 cursor-pointer transition-colors shadow-sm"
+          >
+            {isExporting ? (
+              <RefreshCw className="h-4 w-4 animate-spin text-emerald-400" />
+            ) : (
+              <FileSpreadsheet className="h-4 w-4 text-emerald-400" />
+            )}
+            <span>{isExporting ? "Mengekspor..." : "Export Excel"}</span>
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards Row */}

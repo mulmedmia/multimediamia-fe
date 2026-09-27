@@ -50,17 +50,26 @@ import {
   Package,
   Eye,
   Image as ImageIcon,
+  FileSpreadsheet,
 } from "lucide-react";
+import { exportToExcel } from "@/lib/export-excel";
+import { useAuthContext } from "@/providers/AuthProvider";
+import { toast } from "sonner";
 
 const PAGE_SIZE = 10;
 
 export default function ManageRedemptionPage() {
+  const { user } = useAuthContext();
+
   // State Filter & Pagination
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("ALL");
   const [productFilter, setProductFilter] = useState("ALL");
+
+  // Export State
+  const [isExporting, setIsExporting] = useState(false);
 
   // Modal State
   const [detailData, setDetailData] = useState(null);
@@ -169,6 +178,69 @@ export default function ManageRedemptionPage() {
     setPage(1);
   };
 
+  const handleExportExcel = async () => {
+    try {
+      setIsExporting(true);
+      toast.info("Sedang menyiapkan data redeem merchandise untuk diekspor...");
+
+      const res = await getAllRedemptions({
+        page: 1,
+        limit: 1000,
+        search: searchTerm || undefined,
+        product_id: productFilter === "ALL" ? undefined : productFilter,
+        category_id: categoryFilter === "ALL" ? undefined : categoryFilter,
+      });
+
+      const list = Array.isArray(res?.redemptions) ? res.redemptions : [];
+
+      if (list.length === 0) {
+        toast.warning("Tidak ada data redeem untuk diekspor.");
+        return;
+      }
+
+      const columns = [
+        { header: "No", key: "no", width: 8, align: "center" },
+        { header: "ID Transaksi", key: "redemption_id", width: 28 },
+        { header: "Waktu Penukaran", key: "created_at", width: 22, align: "center" },
+        { header: "Nama Peserta", key: "user_name", width: 25 },
+        { header: "Email", key: "user_email", width: 26 },
+        { header: "Nama Merchandise", key: "product_name", width: 25 },
+        { header: "Jumlah", key: "quantity", width: 14, align: "center" },
+        { header: "Diamond Digunakan", key: "points_used", width: 20, align: "center" },
+        { header: "Status Penukaran", key: "status", width: 18, align: "center" },
+      ];
+
+      const rows = list.map((item, index) => {
+        return {
+          no: index + 1,
+          redemption_id: item.redemption_id || "-",
+          created_at: formatDateDisplay(item.created_at),
+          user_name: item.user?.name || "-",
+          user_email: item.user?.email || "-",
+          product_name: item.product?.name || "-",
+          quantity: `${item.quantity || 1} item`,
+          points_used: `${(item.points_used ?? 0).toLocaleString("id-ID")} Diamond`,
+          status: "Berhasil Ditebus",
+        };
+      });
+
+      await exportToExcel({
+        pageTitle: "MANAGE REDEEM",
+        accountName: user?.name || user?.email || "Admin MIA",
+        fileName: `MIA2026_Data_Redeem_Merchandise_${new Date().toISOString().slice(0, 10)}`,
+        columns,
+        data: rows,
+      });
+
+      toast.success(`Berhasil mengekspor ${rows.length} data redeem merchandise!`);
+    } catch (err) {
+      console.error("Export error:", err);
+      toast.error("Gagal mengekspor data: " + (err.message || "Terjadi kesalahan"));
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const hasActiveFilters =
     searchTerm || categoryFilter !== "ALL" || productFilter !== "ALL";
 
@@ -191,15 +263,30 @@ export default function ManageRedemptionPage() {
           </p>
         </div>
 
-        <Button
-          variant="outline"
-          onClick={() => refetch()}
-          disabled={isFetching}
-          className="h-10 px-4 rounded-xl border-border/50 bg-input/20 hover:bg-input/40 text-foreground text-xs sm:text-sm flex items-center gap-2 cursor-pointer self-start sm:self-auto"
-        >
-          <RefreshCw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
-          <span>Refresh</span>
-        </Button>
+        <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+          <Button
+            variant="outline"
+            onClick={() => refetch()}
+            disabled={isFetching}
+            className="h-10 px-4 rounded-xl border-border/50 bg-input/20 hover:bg-input/40 text-foreground text-xs sm:text-sm flex items-center gap-2 cursor-pointer"
+          >
+            <RefreshCw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
+            <span>Refresh</span>
+          </Button>
+
+          <Button
+            onClick={handleExportExcel}
+            disabled={isExporting}
+            className="h-10 px-4 rounded-xl border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs sm:text-sm flex items-center gap-2 cursor-pointer transition-colors shadow-sm"
+          >
+            {isExporting ? (
+              <RefreshCw className="h-4 w-4 animate-spin text-emerald-400" />
+            ) : (
+              <FileSpreadsheet className="h-4 w-4 text-emerald-400" />
+            )}
+            <span>{isExporting ? "Mengekspor..." : "Export Excel"}</span>
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards Row */}
