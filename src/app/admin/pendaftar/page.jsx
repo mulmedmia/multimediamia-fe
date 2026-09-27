@@ -670,7 +670,7 @@ export default function AdminPendaftarPage() {
 
                         {/* Aksi */}
                         <TableCell className="py-3.5 pr-6 text-right sticky right-0 bg-[#0F121A] group-hover:bg-[#141824] z-10 shadow-[-8px_0_12px_-4px_rgba(0,0,0,0.5)] border-l border-border/40 transition-colors">
-                          <div className="flex items-center justify-end gap-1.5">
+                          <div className="flex items-center justify-start gap-1.5">
                             {/* Tombol Detail */}
                             <Button
                               size="sm"
