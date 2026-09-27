@@ -563,7 +563,7 @@ export default function AdminPendaftarPage() {
                         {/* Peserta */}
                         <TableCell className="py-3.5 pl-6">
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-xl bg-white/[0.04] border border-border/40 flex items-center justify-center text-foreground font-bold text-xs flex-shrink-0">
+                            <div className="w-9 h-9 rounded-xl bg-white/[0.04] border border-border/40 flex items-center justify-center text-foreground font-bold text-xs flex-shrink-0 select-none">
                               {reg.user?.name ? reg.user.name.charAt(0).toUpperCase() : <User className="h-4 w-4" />}
                             </div>
                             <div className="min-w-0">

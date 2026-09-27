@@ -441,7 +441,7 @@ export default function ManageJuriPage() {
                       {/* Profil Juri */}
                       <TableCell className="py-3.5 pl-6">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 font-bold text-xs flex-shrink-0">
+                          <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 font-bold text-xs flex-shrink-0 select-none">
                             {j.name ? j.name.charAt(0).toUpperCase() : "J"}
                           </div>
                           <div className="min-w-0 max-w-[200px] sm:max-w-[280px]">
