@@ -1020,7 +1020,7 @@ export default function AdminMisiPage() {
 
       {/* Create Mission Dialog */}
       <Dialog open={openCreate} onOpenChange={setOpenCreate}>
-        <DialogContent className="bg-[#0A0D14] border border-border/50 text-[#FFF9F5] max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl p-6 shadow-2xl">
+        <DialogContent className="bg-[#0A0D14] border border-border/50 text-[#FFF9F5] max-w-2xl sm:max-w-xl max-h-[90vh] overflow-y-auto rounded-2xl p-6 shadow-2xl">
           <DialogHeader className="space-y-1">
             <DialogTitle className="text-lg sm:text-xl font-bold flex items-center gap-2.5 text-foreground">
               <Target className="h-5 w-5 text-[#E01C20]" />

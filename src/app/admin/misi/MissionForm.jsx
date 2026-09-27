@@ -305,7 +305,7 @@ export default function MissionForm({ initial, onSubmit, isLoading, onCancel }) 
             value={form.status}
             onValueChange={(val) => setForm((f) => ({ ...f, status: val }))}
           >
-            <SelectTrigger className="h-10 bg-input/40 border-border/50 rounded-xl text-xs text-foreground">
+            <SelectTrigger className="h-10! bg-input/40 border-border/50 rounded-xl text-xs text-foreground w-full">
               <SelectValue placeholder="Pilih status misi" />
             </SelectTrigger>
             <SelectContent className="bg-[#141824] border-border/50 text-foreground">
