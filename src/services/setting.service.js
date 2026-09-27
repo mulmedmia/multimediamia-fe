@@ -1,7 +1,7 @@
 import api from "@/lib/api";
 
 export const DEFAULT_GUIDEBOOK_URL =
-  "https://drive.google.com/drive/folders/1x34lDmoqSFdOfsxUpxpe2KiAaGT2zk5m?usp=sharing";
+  "https://drive.google.com/drive/folders/1Mg3kSQ5vtlmIkX3-PBO4tjLQivf38wQD?hl=ID";
 
 /**
  * Mengambil link guidebook publik
