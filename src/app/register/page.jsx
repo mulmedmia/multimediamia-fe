@@ -18,7 +18,14 @@ import { useRegister } from "@/hooks/use-auth";
 
 const registerSchema = z
   .object({
-    fullname: z.string().min(3, { message: "Nama lengkap minimal 3 karakter." }),
+    fullname: z
+      .string()
+      .trim()
+      .min(3, { message: "Nama lengkap minimal 3 karakter." })
+      .max(100, { message: "Nama lengkap maksimal 100 karakter." })
+      .regex(/^[a-zA-Z0-9\s'.,-]+$/, {
+        message: "Nama tidak boleh mengandung tag HTML atau simbol khusus.",
+      }),
     email: z.string().email({ message: "Format email tidak valid." }),
     password: z.string().min(6, { message: "Password minimal 6 karakter." }),
     confirmPassword: z.string().min(6, { message: "Konfirmasi password minimal 6 karakter." }),
