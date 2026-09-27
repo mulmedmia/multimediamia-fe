@@ -345,7 +345,7 @@ export default function CategoryForm({
             value={form.team_type}
             onValueChange={(val) => setForm((f) => ({ ...f, team_type: val }))}
           >
-            <SelectTrigger className="h-10 bg-input/40 border-border/50 rounded-xl text-xs text-foreground w-full">
+            <SelectTrigger className="h-10! bg-input/40 border-border/50 rounded-xl text-xs text-foreground w-full">
               <SelectValue placeholder="Pilih tipe tim" />
             </SelectTrigger>
             <SelectContent className="bg-[#141824] border-border/50 text-foreground">
@@ -364,7 +364,7 @@ export default function CategoryForm({
             value={form.status}
             onValueChange={(val) => setForm((f) => ({ ...f, status: val }))}
           >
-            <SelectTrigger className="h-10 bg-input/40 border-border/50 rounded-xl text-xs text-foreground w-full">
+            <SelectTrigger className="h-10! bg-input/40 border-border/50 rounded-xl text-xs text-foreground w-full">
               <SelectValue placeholder="Pilih status kategori" />
             </SelectTrigger>
             <SelectContent className="bg-[#141824] border-border/50 text-foreground">
