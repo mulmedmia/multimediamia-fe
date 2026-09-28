@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { getMyRedemptions, getLeaderboardByCategory, getCategories } from "@/services/user-gamifikasi.service";
 
 /**
@@ -17,11 +17,12 @@ export function useMyRedemptions(filters = {}) {
  * @param {string} categoryId
  * @param {object} options
  */
-export function useLeaderboardByCategory(categoryId, { page = 1, limit = 10 } = {}) {
+export function useLeaderboardByCategory(categoryId, { page = 1, limit = 10, search = "" } = {}) {
   return useQuery({
-    queryKey: ["leaderboard", categoryId, { page, limit }],
-    queryFn: () => getLeaderboardByCategory(categoryId, { page, limit }),
+    queryKey: ["leaderboard", categoryId, { page, limit, search }],
+    queryFn: () => getLeaderboardByCategory(categoryId, { page, limit, search }),
     enabled: !!categoryId,
+    placeholderData: keepPreviousData,
   });
 }
 

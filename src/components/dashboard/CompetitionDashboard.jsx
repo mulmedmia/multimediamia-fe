@@ -19,6 +19,10 @@ import {
   AlertCircle,
   Zap,
   MessageCircle,
+  Gift,
+  Sparkles,
+  Copy,
+  Info,
 } from "lucide-react";
 import { SubmissionForm } from "@/components/forms/SubmissionForm";
 import { toast } from "sonner";
@@ -26,6 +30,7 @@ import { cn } from "@/lib/utils";
 
 import { getMySubmissions } from "@/services/submission.service";
 import { getRegistrationById } from "@/services/competition.service";
+import { useGenerateReferralCode } from "@/hooks/use-referral";
 import { EditTeamModal } from "./EditTeamModal";
 import { EditSubmissionModal } from "./EditSubmissionModal";
 
@@ -34,6 +39,21 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
   const [editingSubmission, setEditingSubmission] = useState(null);
   const [editTeamModalOpen, setEditTeamModalOpen] = useState(false);
   const queryClient = useQueryClient();
+  const generateReferralMutation = useGenerateReferralCode();
+
+  const handleGenerateReferral = (id) => {
+    if (!activeRegistration.is_verified) {
+      toast.error("Pendaftaran tim Anda harus terverifikasi oleh panitia terlebih dahulu");
+      return;
+    }
+    generateReferralMutation.mutate(id);
+  };
+
+  const handleCopyReferral = (code) => {
+    if (!code) return;
+    navigator.clipboard.writeText(code);
+    toast.success(`Kode referral ${code} berhasil disalin ke clipboard!`);
+  };
 
   // Ubah query untuk menggunakan getMySubmissions
   const { data: submissionsData, isLoading: isLoadingSubmissions } = useQuery({
@@ -517,6 +537,126 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                   </p>
                 </div>
               </div>
+            </div>
+
+            {/* Referral Code Card */}
+            <div className="mia-card p-6 sm:p-7 shadow-xl space-y-5 border-amber-500/30 bg-gradient-to-br from-[#0F121A] via-amber-950/10 to-[#0F121A]">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border/40">
+                <div className="flex items-start gap-3">
+                  <div className="p-2.5 bg-amber-500/10 border border-amber-500/25 rounded-2xl text-amber-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Gift className="h-5 w-5" />
+                  </div>
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-lg sm:text-xl font-bold text-foreground tracking-tight">
+                        Program Referral Tim
+                      </h3>
+                      <span className="text-[11px] font-bold text-amber-400 bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 rounded-full">
+                        +250 XP
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Ajak tim atau peserta lomba lain bergabung ke MIA 2026 dan raih bonus XP!
+                    </p>
+                  </div>
+                </div>
+
+                {!activeRegistration.referral_code ? (
+                  !activeRegistration.is_verified ? (
+                    <Button
+                      disabled
+                      className="rounded-full bg-input/40 border border-border/40 text-muted-foreground/60 h-10 px-5 text-xs sm:text-sm font-semibold cursor-not-allowed inline-flex items-center gap-2 flex-shrink-0"
+                      title="Pendaftaran tim harus diverifikasi oleh panitia terlebih dahulu"
+                    >
+                      <Lock className="w-4 h-4 text-amber-400/60" />
+                      <span>Generate Referral Code</span>
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => handleGenerateReferral(activeRegistration.registration_id)}
+                      disabled={generateReferralMutation.isPending}
+                      className="rounded-full mia-btn-primary h-10 px-5 text-xs sm:text-sm font-semibold shadow-md shadow-red-900/30 cursor-pointer inline-flex items-center gap-2 flex-shrink-0"
+                    >
+                      {generateReferralMutation.isPending ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                          <span>Membuat Kode...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-4 h-4" />
+                          <span>Generate Referral Code</span>
+                        </>
+                      )}
+                    </Button>
+                  )
+                ) : (
+                  <Button
+                    onClick={() => handleCopyReferral(activeRegistration.referral_code)}
+                    variant="outline"
+                    className="rounded-full bg-input/50 hover:bg-input border-border/50 text-foreground text-xs sm:text-sm font-semibold h-10 px-5 transition-all inline-flex items-center gap-2 cursor-pointer flex-shrink-0"
+                  >
+                    <Copy className="w-4 h-4 text-amber-400" />
+                    <span>Salin Kode Referral</span>
+                  </Button>
+                )}
+              </div>
+
+              {activeRegistration.referral_code ? (
+                <div className="space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-amber-500/5 border border-amber-500/20">
+                    <div className="space-y-1">
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                        Kode Unik Referral Anda
+                      </p>
+                      <p className="text-2xl sm:text-3xl font-black text-amber-400 tracking-wider font-mono">
+                        {activeRegistration.referral_code}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        onClick={() => handleCopyReferral(activeRegistration.referral_code)}
+                        className="rounded-full bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs px-4 h-9 shadow-md shadow-amber-950/40 inline-flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <Copy className="w-3.5 h-3.5" />
+                        <span>Salin</span>
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl bg-input/30 border border-white/5 text-xs text-muted-foreground space-y-1 leading-relaxed">
+                    <p className="font-semibold text-foreground flex items-center gap-1.5">
+                      <Info className="w-3.5 h-3.5 text-amber-400" />
+                      Cara Kerja Reward Referral:
+                    </p>
+                    <ul className="list-disc pl-5 space-y-0.5 pt-0.5 text-muted-foreground">
+                      <li>Bagikan kode referral unik ini ke teman atau tim yang ingin mendaftar (boleh untuk kategori lomba apa pun).</li>
+                      <li>Saat mereka mendaftar dan memasukkan kode Anda, data referral akan dicatat otomatis.</li>
+                      <li>
+                        Begitu pendaftaran mereka <strong className="text-emerald-400">diverifikasi (ACC) oleh admin</strong>, tim Anda otomatis memperoleh <strong className="text-amber-400">+250 XP</strong> dan tim yang diundang memperoleh <strong className="text-cyan-400">+100 XP</strong>!
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              ) : !activeRegistration.is_verified ? (
+                <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/25 text-xs text-amber-200/90 flex items-center gap-2.5">
+                  <AlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                  <span>
+                    Pendaftaran tim Anda saat ini <strong>belum terverifikasi</strong>. Tombol pembuatan kode referral akan aktif secara otomatis setelah berkas pendaftaran Anda disetujui (ACC) oleh panitia.
+                  </span>
+                </div>
+              ) : (
+                <div className="p-4 rounded-xl bg-input/20 border border-border/40 text-xs text-muted-foreground flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <Info className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                    <span>
+                      Klik tombol <strong>"Generate Referral Code"</strong> di atas untuk memperoleh kode referral unik tim Anda.
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </TabsContent>

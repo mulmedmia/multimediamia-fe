@@ -22,6 +22,7 @@ import {
   Users,
   User,
   Mail,
+  Phone,
   CheckCircle2,
   Clock,
   FileText,
@@ -121,6 +122,27 @@ export default function PendaftarDetailModal({ open, onClose, data }) {
                 <p className="font-medium text-muted-foreground mt-0.5 flex items-center gap-1.5">
                   <Mail className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
                   <span className="break-all">{data.user?.email || "-"}</span>
+                </p>
+              </div>
+
+              <div>
+                <Label className="text-xs text-muted-foreground">Nomor WhatsApp</Label>
+                <p className="font-medium text-muted-foreground mt-0.5 flex items-center gap-1.5">
+                  <Phone className="h-3.5 w-3.5 text-muted-foreground/60" />
+                  {data.user?.whatsapp_number || data.user?.whatsapp ? (
+                    <a
+                      href={`https://wa.me/${(data.user?.whatsapp_number || data.user?.whatsapp).replace(/[^0-9]/g, "").replace(/^0/, "62")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-emerald-400 hover:text-emerald-300 hover:underline inline-flex items-center gap-1"
+                      title="Hubungi via WhatsApp"
+                    >
+                      <span>{data.user?.whatsapp_number || data.user?.whatsapp}</span>
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  ) : (
+                    <span className="italic text-muted-foreground/50">Belum diisi</span>
+                  )}
                 </p>
               </div>
 

@@ -67,10 +67,14 @@ export const updateSubmission = async (submissionId, submissionData) => {
  * @param {string} categoryId - ID dari kategori lomba.
  * @returns {Promise<Array>}
  */
-export const getAllSubmissionsByCategory = async (categoryId) => {
+export const getAllSubmissionsByCategory = async (categoryId, search = "") => {
   try {
     // Menggunakan endpoint submissions global (bukan my/submissions) khusus penayangan Show It
-    const response = await api.get(`/submissions?category_id=${categoryId}&show_it=true`);
+    const params = new URLSearchParams();
+    if (categoryId) params.append("category_id", categoryId);
+    params.append("show_it", "true");
+    if (search && search.trim()) params.append("search", search.trim());
+    const response = await api.get(`/submissions?${params.toString()}`);
     return response.data.data;
   } catch (error) {
     console.error("Gagal mengambil semua submission:", error);
