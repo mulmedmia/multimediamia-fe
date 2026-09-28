@@ -504,7 +504,7 @@ export default function LeaderboardPage() {
                   <div className="mia-pill-badge w-fit">
                     <span>
                       {isSearching
-                        ? `Ditemukan ${remaining.length} Tim`
+                        ? `Ditemukan ${meta.total} Tim`
                         : `Total ${meta.total} Tim Terdaftar`}
                     </span>
                   </div>
@@ -523,10 +523,8 @@ export default function LeaderboardPage() {
                   <div className="divide-y divide-white/5">
                     {remaining.map((item, index) => {
                       const rank =
-                        item.rank ||
-                        (isSearching
-                          ? (page - 1) * limit + index + 1
-                          : page === 1
+                        item.rank ??
+                        (page === 1 && !isSearching
                           ? index + 4
                           : (page - 1) * limit + index + 1);
                       return (
