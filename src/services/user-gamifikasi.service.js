@@ -22,10 +22,11 @@ export const getMyRedemptions = async (filters = {}) => {
  * @param {object} options
  * @returns {Promise<{leaderboard: Array, meta: object}>}
  */
-export const getLeaderboardByCategory = async (categoryId, { page = 1, limit = 10 } = {}) => {
+export const getLeaderboardByCategory = async (categoryId, { page = 1, limit = 10, search = "" } = {}) => {
   const params = new URLSearchParams();
   if (page) params.append("page", page);
   if (limit) params.append("limit", limit);
+  if (search && search.trim()) params.append("search", search.trim());
   const queryString = params.toString() ? `?${params.toString()}` : "";
   const res = await api.get(`/gamification/${categoryId}${queryString}`);
   return res.data.data;
