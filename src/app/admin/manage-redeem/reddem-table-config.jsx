@@ -1,5 +1,6 @@
 import React from "react";
 import { Badge } from "@/components/ui/badge";
+import { Phone, ExternalLink } from "lucide-react";
 
 // Kolom untuk mobile
 export const mobileColumns = [
@@ -48,6 +49,27 @@ export const tabletColumns = [
     accessorKey: "user.email",
     header: "Email",
     cell: ({ row }) => <span>{row.original.user?.email}</span>,
+  },
+  {
+    accessorKey: "user.whatsapp_number",
+    header: "Nomor WhatsApp",
+    cell: ({ row }) => {
+      const wa = row.original.user?.whatsapp_number || row.original.user?.whatsapp;
+      if (!wa) return <span className="text-muted-foreground/40 italic">-</span>;
+      const cleanWa = wa.replace(/[^0-9]/g, "").replace(/^0/, "62");
+      return (
+        <a
+          href={`https://wa.me/${cleanWa}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-emerald-400 hover:text-emerald-300 hover:underline inline-flex items-center gap-1 font-medium text-xs"
+        >
+          <Phone className="h-3 w-3" />
+          <span>{wa}</span>
+          <ExternalLink className="h-2.5 w-2.5 opacity-60" />
+        </a>
+      );
+    },
   },
 ];
 

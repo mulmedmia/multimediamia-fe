@@ -6,12 +6,16 @@ export const getGamifikasiTeams = async ({
   limit = 10,
   search = "",
   category_id = "",
+  sort_by = "",
+  order = "",
 } = {}) => {
   const params = new URLSearchParams();
   params.append("page", page);
   params.append("limit", limit);
   if (search && search.trim()) params.append("search", search.trim());
   if (category_id && category_id !== "ALL") params.append("category_id", category_id);
+  if (sort_by) params.append("sort_by", sort_by);
+  if (order) params.append("order", order);
 
   const res = await api.get(`/registrations?${params.toString()}`);
   return res.data.data;

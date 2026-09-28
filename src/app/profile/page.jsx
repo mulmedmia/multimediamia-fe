@@ -23,6 +23,7 @@ import {
   EyeClosedIcon,
   IdCardIcon,
 } from "@radix-ui/react-icons";
+import { Phone } from "lucide-react";
 
 // Zod Validation Schemas
 const profileSchema = z.object({
@@ -40,6 +41,15 @@ const profileSchema = z.object({
     .max(30, { message: "NIM maksimal 30 karakter" })
     .regex(/^[a-zA-Z0-9.-]*$/, {
       message: "NIM hanya boleh huruf, angka, titik, atau strip",
+    })
+    .optional()
+    .or(z.literal("")),
+  whatsapp_number: z
+    .string()
+    .trim()
+    .max(25, { message: "Nomor WhatsApp maksimal 25 karakter" })
+    .regex(/^(\+?[0-9\s-]{8,25})?$/, {
+      message: "Format nomor WhatsApp tidak valid (contoh: 081234567890 atau +6281234567890)",
     })
     .optional()
     .or(z.literal("")),
@@ -73,6 +83,7 @@ export default function ProfilePage() {
     defaultValues: {
       name: "",
       nim: "",
+      whatsapp_number: "",
     },
   });
 
@@ -91,6 +102,7 @@ export default function ProfilePage() {
       profileForm.reset({
         name: profile.name || "",
         nim: profile.nim || "",
+        whatsapp_number: profile.whatsapp_number || profile.whatsapp || "",
       });
     }
   }, [profile, profileForm]);
@@ -98,7 +110,11 @@ export default function ProfilePage() {
   const onProfileSubmit = (data) => {
     updateMutation.mutate({
       name: data.name.trim(),
-      nim: data.nim,
+      nim: data.nim && data.nim.trim() ? data.nim.trim() : null,
+      whatsapp_number:
+        data.whatsapp_number && data.whatsapp_number.trim()
+          ? data.whatsapp_number.trim()
+          : null,
     });
   };
 
@@ -294,30 +310,74 @@ export default function ProfilePage() {
                     </div>
                   </div>
 
-                  {/* Email Field (Disabled) */}
-                  <div className="space-y-1.5">
-                    <Label
-                      htmlFor="email"
-                      className="block text-sm font-semibold text-foreground"
-                    >
-                      Email
-                    </Label>
-                    <div className="relative">
-                      <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
-                        <EnvelopeClosedIcon className="w-4 h-4" />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    {/* Email Field (Disabled) */}
+                    <div className="space-y-1.5">
+                      <Label
+                        htmlFor="email"
+                        className="block text-sm font-semibold text-foreground"
+                      >
+                        Email
+                      </Label>
+                      <div className="relative">
+                        <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
+                          <EnvelopeClosedIcon className="w-4 h-4" />
+                        </div>
+                        <Input
+                          id="email"
+                          type="email"
+                          value={profile?.email || ""}
+                          disabled
+                          className="h-11 bg-background/80 border-border/50 rounded-xl pl-10 pr-4 text-sm text-mia-muted-2 cursor-not-allowed"
+                          placeholder="Email tidak dapat diubah"
+                        />
                       </div>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={profile?.email || ""}
-                        disabled
-                        className="h-11 bg-background/80 border-border/50 rounded-xl pl-10 pr-4 text-sm text-mia-muted-2 cursor-not-allowed"
-                        placeholder="Email tidak dapat diubah"
-                      />
+                      <p className="text-xs text-mia-muted-2">
+                        Email terikat pada identitas akun dan tidak dapat diubah
+                      </p>
                     </div>
-                    <p className="text-xs text-mia-muted-2">
-                      Email terikat pada identitas akun dan tidak dapat diubah
-                    </p>
+
+                    {/* WhatsApp Field */}
+                    <div className="space-y-1.5">
+                      <Label
+                        htmlFor="whatsapp_number"
+                        className="block text-sm font-semibold text-foreground"
+                      >
+                        Nomor WhatsApp
+                      </Label>
+                      <div className="relative">
+                        <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
+                          <Phone className="w-4 h-4" />
+                        </div>
+                        <Input
+                          id="whatsapp_number"
+                          type="tel"
+                          inputMode="tel"
+                          {...profileForm.register("whatsapp_number", {
+                            onChange: (e) => {
+                              const val = e.target.value.replace(/[^0-9+\s-]/g, "");
+                              profileForm.setValue("whatsapp_number", val);
+                            },
+                          })}
+                          className={cn(
+                            "h-11 bg-input rounded-xl pl-10 pr-4 text-sm text-foreground placeholder:text-mia-muted-2 transition-all",
+                            profileErrors.whatsapp_number
+                              ? "border-destructive focus-visible:ring-destructive"
+                              : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
+                          )}
+                          placeholder="Contoh: 081234567890"
+                        />
+                      </div>
+                      {profileErrors.whatsapp_number ? (
+                        <p className="text-xs text-destructive mt-1 font-medium">
+                          {profileErrors.whatsapp_number.message}
+                        </p>
+                      ) : (
+                        <p className="text-xs text-mia-muted-2">
+                          Nomor aktif untuk koordinasi kegiatan lomba
+                        </p>
+                      )}
+                    </div>
                   </div>
 
                   {/* Action Button */}

@@ -30,6 +30,8 @@ import {
   Clock,
   Zap,
   MessageCircle,
+  Gift,
+  Copy,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -252,6 +254,21 @@ export function MyRegistrationsList({ onSelectRegistration }) {
                       <span>💎</span>
                       {Number(reg.diamond || 0).toLocaleString("id-ID")}
                     </span>
+                    {reg.referral_code && (
+                      <span
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigator.clipboard.writeText(reg.referral_code);
+                          toast.success(`Kode referral ${reg.referral_code} disalin!`);
+                        }}
+                        title="Klik untuk salin kode referral"
+                        className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-400 font-mono text-xs font-semibold cursor-pointer hover:bg-amber-500/20 transition-all"
+                      >
+                        <Gift className="w-3 h-3 text-amber-400" />
+                        <span>{reg.referral_code}</span>
+                        <Copy className="w-2.5 h-2.5 opacity-60 ml-0.5" />
+                      </span>
+                    )}
                   </div>
                 </div>
 
