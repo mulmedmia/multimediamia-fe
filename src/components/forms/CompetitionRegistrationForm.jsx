@@ -29,17 +29,33 @@ import { Info, ExternalLink, FileText, CheckCircle2, AlertCircle, Loader2 } from
 import { Separator } from "../ui/separator";
 import { useGuidebook } from "@/hooks/use-guidebook";
 
+// Karakter nama tim yang diizinkan (sinkron dengan backend):
+// Huruf, angka, spasi, dan simbol umum: ' . , - _ & / ( ) ! # + [ ] "
+const teamNameRegex = /^[a-zA-Z0-9\s'.,_&/()!#+[\]"-]*$/;
+
 const registrationSchema = z
   .object({
-    team_name: z.string().max(25, "Nama tim maksimal 25 karakter").optional(),
+    team_name: z
+      .string()
+      .trim()
+      .max(25, "Nama tim maksimal 25 karakter")
+      .regex(
+        teamNameRegex,
+        "Nama tim hanya boleh mengandung huruf, angka, spasi, dan simbol lazim (&, _, (), /, !, #, +, -, ., ')"
+      )
+      .optional(),
     category_id: z
       .string({ required_error: "Anda harus memilih kategori." })
       .min(1, "Kategori harus dipilih."),
-    file_url: z.url({
-      protocol: /^https?$/,
-      hostname: /^drive\.google\.com$/,
-      message: "Harap masukkan link Google Drive yang valid",
-    }),
+    file_url: z
+      .string()
+      .trim()
+      .min(1, "Harap masukkan link berkas persyaratan")
+      .url("Harap masukkan format URL yang valid")
+      .regex(
+        /^https?:\/\/drive\.google\.com\/.+/,
+        "Harap masukkan link Google Drive yang valid (contoh: https://drive.google.com/...)"
+      ),
     team_lead: z.string(),
     member_1: z.string().optional(),
     member_2: z.string().optional(),
@@ -262,16 +278,61 @@ export function CompetitionRegistrationForm({ defaultCategoryId, onSuccessRegist
       reset();
     },
     onError: (error) => {
-      const msg = error?.message || error?.response?.data?.message || "Terjadi kesalahan";
-      if (msg.includes("Nama tim sudah digunakan")) {
+      const errData = error?.response?.data || error;
+      const validationErrors = errData?.errors || {};
+      let userFriendlyMsg = null;
+
+      if (validationErrors.team_name?._errors?.[0]) {
+        const rawErr = validationErrors.team_name._errors[0];
+        const friendlyMsg = rawErr.includes("invalid characters")
+          ? "Nama tim mengandung karakter yang tidak diizinkan. Gunakan huruf, angka, spasi, atau simbol lazim (&, _, (), /, !, #, +, -, ., ')"
+          : rawErr;
+        setError("team_name", {
+          type: "manual",
+          message: friendlyMsg,
+        });
+        userFriendlyMsg = friendlyMsg;
+      }
+
+      if (validationErrors.file_url?._errors?.[0]) {
+        const rawErr = validationErrors.file_url._errors[0];
+        const friendlyMsg = rawErr.includes("Google Drive link")
+          ? "Link berkas harus berupa link Google Drive yang valid (https://drive.google.com/...)"
+          : rawErr;
+        setError("file_url", {
+          type: "manual",
+          message: friendlyMsg,
+        });
+        if (!userFriendlyMsg) {
+          userFriendlyMsg = friendlyMsg;
+        }
+      }
+
+      // Check other validation fields if any
+      if (!userFriendlyMsg && errData?.errors) {
+        const firstField = Object.keys(errData.errors).find((k) => k !== "_errors");
+        if (firstField && errData.errors[firstField]?._errors?.[0]) {
+          userFriendlyMsg = errData.errors[firstField]._errors[0];
+        }
+      }
+
+      const rawMsg = errData?.message || error?.message || "Terjadi kesalahan";
+      const finalMsg =
+        userFriendlyMsg ||
+        (rawMsg !== "Validation error" && !rawMsg.includes("status code")
+          ? rawMsg
+          : "Data yang dimasukkan tidak valid. Harap periksa kembali isian form Anda.");
+
+      if (finalMsg.includes("Nama tim sudah digunakan")) {
         setError("team_name", {
           type: "duplicate",
-          message: msg,
+          message: finalMsg,
         });
         setTeamNameStatus("taken");
-        setTeamNameMessage(msg);
+        setTeamNameMessage(finalMsg);
       }
-      toast.error(`Gagal: ${msg}`);
+
+      toast.error(`Gagal: ${finalMsg}`);
     },
   });
 
@@ -315,7 +376,7 @@ export function CompetitionRegistrationForm({ defaultCategoryId, onSuccessRegist
     const payload = {
       user_id: user.users_id,
       category_id: data.category_id,
-      file_url: data.file_url,
+      file_url: data.file_url ? data.file_url.trim() : "",
     };
 
     if (selectedCategoryType === "GROUP") {

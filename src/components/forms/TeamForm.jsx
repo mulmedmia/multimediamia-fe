@@ -14,14 +14,30 @@ import { Info, ExternalLink, FileText, CheckCircle2, AlertCircle, Loader2 } from
 import { useGuidebook } from "@/hooks/use-guidebook";
 import { checkTeamNameAvailability } from "@/services/competition.service";
 
+// Karakter nama tim yang diizinkan (sinkron dengan backend):
+// Huruf, angka, spasi, dan simbol umum: ' . , - _ & / ( ) ! # + [ ] "
+const teamNameRegex = /^[a-zA-Z0-9\s'.,_&/()!#+[\]"-]*$/;
+
 const teamFormSchema = z
   .object({
-    team_name: z.string().max(25, "Nama tim maksimal 25 karakter").optional(),
-    file_url: z.url({
-      protocol: /^https?$/,
-      hostname: /^drive\.google\.com$/,
-      message: "Harap masukkan link Google Drive yang valid",
-    }),
+    team_name: z
+      .string()
+      .trim()
+      .max(25, "Nama tim maksimal 25 karakter")
+      .regex(
+        teamNameRegex,
+        "Nama tim hanya boleh mengandung huruf, angka, spasi, dan simbol lazim (&, _, (), /, !, #, +, -, ., ')"
+      )
+      .optional(),
+    file_url: z
+      .string()
+      .trim()
+      .min(1, "Harap masukkan link berkas persyaratan")
+      .url("Harap masukkan format URL yang valid")
+      .regex(
+        /^https?:\/\/drive\.google\.com\/.+/,
+        "Harap masukkan link Google Drive yang valid (contoh: https://drive.google.com/...)"
+      ),
     team_lead: z.string().optional(),
     member_1: z.string().optional(),
     member_2: z.string().optional(),
