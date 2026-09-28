@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import {
   Sparkles,
   Users,
@@ -24,11 +25,15 @@ import {
   User,
   Lightbulb,
   ArrowRight,
+  Search,
+  X,
 } from "lucide-react";
 import YouTubePreview from "@/components/common/YouTubePreview";
 
 export default function ShowItPage() {
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [appliedSearch, setAppliedSearch] = useState("");
   const router = useRouter();
 
   const { data: categories, isLoading: categoriesLoading } = useCategories();
@@ -47,6 +52,19 @@ export default function ShowItPage() {
   const submissions = allSubmissions.filter(
     (submission) => submission.status === "APPROVED" && Boolean(submission.is_verified)
   );
+
+  const isSearching = Boolean(appliedSearch.trim());
+
+  // Filter pencarian berdasarkan judul karya, nama tim, atau deskripsi
+  const filteredSubmissions = submissions.filter((submission) => {
+    if (!isSearching) return true;
+    const q = appliedSearch.toLowerCase().trim();
+    return (
+      submission.project_name?.toLowerCase().includes(q) ||
+      submission.team_name?.toLowerCase().includes(q) ||
+      submission.description?.toLowerCase().includes(q)
+    );
+  });
 
   const getStatusBadge = (status) => {
     switch (status) {
@@ -74,6 +92,18 @@ export default function ShowItPage() {
 
   const handleCategoryChange = (categoryId) => {
     setSelectedCategoryId(categoryId);
+    setSearchInput("");
+    setAppliedSearch("");
+  };
+
+  const handleSearchSubmit = (e) => {
+    e?.preventDefault();
+    setAppliedSearch(searchInput.trim());
+  };
+
+  const handleResetSearch = () => {
+    setSearchInput("");
+    setAppliedSearch("");
   };
 
   const handleSubmissionClick = (submissionId) => {
@@ -104,7 +134,7 @@ export default function ShowItPage() {
               </p>
             </div>
 
-            {/* Category Selection Card */}
+            {/* Category Selection & Search Card */}
             <div className="mia-card p-6 md:p-8 space-y-6">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-[#E01C20]/15 border border-[#E01C20]/30 flex items-center justify-center text-[#E01C20] flex-shrink-0">
@@ -112,49 +142,106 @@ export default function ShowItPage() {
                 </div>
                 <div>
                   <h2 className="text-lg md:text-xl font-bold text-[#FFF9F5]">
-                    Pilih Kategori Lomba
+                    Pilih Kategori & Cari Karya
                   </h2>
                   <p className="text-xs md:text-sm text-[#AAB1BD]">
-                    Pilih kategori untuk melihat karya yang telah dikumpulkan
+                    Pilih kategori untuk memuat karya dan gunakan kotak pencarian untuk mencari karya spesifik
                   </p>
                 </div>
               </div>
 
-              <Select
-                value={selectedCategoryId}
-                onValueChange={handleCategoryChange}
-                disabled={categoriesLoading}
-              >
-                <SelectTrigger className="w-full h-12 bg-[#141824] border border-white/15 hover:border-[#E01C20]/60 rounded-xl text-[#FFF9F5] focus:ring-[#E01C20] transition-colors cursor-pointer">
-                  <SelectValue
-                    placeholder={
-                      categoriesLoading
-                        ? "Memuat kategori..."
-                        : "💡 Pilih kategori lomba..."
-                    }
-                  />
-                </SelectTrigger>
-                <SelectContent className="bg-[#141824] border border-white/15 text-[#FFF9F5] rounded-xl shadow-2xl">
-                  {categories?.map((category) => (
-                    <SelectItem
-                      key={category.category_id}
-                      value={category.category_id}
-                      className="flex flex-col items-start py-2.5 px-3.5 gap-1 text-left text-[#FFF9F5] hover:bg-[#E01C20]/20 focus:bg-[#E01C20]/20 rounded-lg cursor-pointer transition-colors"
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                {/* Select Kategori */}
+                <div className="md:col-span-5">
+                  <Select
+                    value={selectedCategoryId}
+                    onValueChange={handleCategoryChange}
+                    disabled={categoriesLoading}
+                  >
+                    <SelectTrigger className="w-full h-12 bg-[#141824] border border-white/15 hover:border-[#E01C20]/60 rounded-xl text-[#FFF9F5] focus:ring-[#E01C20] transition-colors cursor-pointer">
+                      <SelectValue
+                        placeholder={
+                          categoriesLoading
+                            ? "Memuat kategori..."
+                            : "💡 Pilih kategori lomba..."
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#141824] border border-white/15 text-[#FFF9F5] rounded-xl shadow-2xl">
+                      {categories?.map((category) => (
+                        <SelectItem
+                          key={category.category_id}
+                          value={category.category_id}
+                          className="flex flex-col items-start py-2.5 px-3.5 gap-1 text-left text-[#FFF9F5] hover:bg-[#E01C20]/20 focus:bg-[#E01C20]/20 rounded-lg cursor-pointer transition-colors"
+                        >
+                          <span className="font-semibold text-sm md:text-base">
+                            {category.name}
+                          </span>
+                          <span className="text-xs text-[#AAB1BD]">
+                            {category.category_name}
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Search Form */}
+                <form
+                  onSubmit={handleSearchSubmit}
+                  className="md:col-span-7 flex flex-col sm:flex-row gap-2.5"
+                >
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#AAB1BD] pointer-events-none" />
+                    <input
+                      type="text"
+                      value={searchInput}
+                      onChange={(e) => setSearchInput(e.target.value)}
+                      placeholder={
+                        selectedCategoryId
+                          ? "Ketik nama karya atau nama tim..."
+                          : "Pilih kategori terlebih dahulu..."
+                      }
+                      disabled={!selectedCategoryId}
+                      className="w-full h-12 bg-[#141824] border border-white/15 focus:border-[#E01C20] focus:ring-1 focus:ring-[#E01C20] rounded-xl pl-10 pr-10 text-sm text-[#FFF9F5] placeholder-[#99A1AF] outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    />
+                    {searchInput && (
+                      <button
+                        type="button"
+                        onClick={handleResetSearch}
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#AAB1BD] hover:text-[#FFF9F5] p-1 cursor-pointer transition-colors"
+                        title="Hapus pencarian"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex gap-2 shrink-0">
+                    <Button
+                      type="submit"
+                      disabled={!selectedCategoryId}
+                      className="h-12 px-5 bg-[#E01C20] hover:bg-[#b01417] text-white font-semibold rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-[#E01C20]/20"
                     >
-                      <span className="font-semibold text-sm md:text-base">
-                        {category.name}
-                      </span>
-                      <span className="text-xs text-[#AAB1BD]">
-                        {category.category_name}
-                      </span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                      <Search className="h-4 w-4" />
+                      <span>Cari</span>
+                    </Button>
+                    {isSearching && (
+                      <Button
+                        type="button"
+                        onClick={handleResetSearch}
+                        variant="outline"
+                        className="h-12 px-4 rounded-xl border-white/15 text-xs text-[#FFF9F5] hover:bg-white/10 cursor-pointer"
+                      >
+                        Reset
+                      </Button>
+                    )}
+                  </div>
+                </form>
+              </div>
             </div>
 
             {/* Loading State */}
-            {submissionsLoading && selectedCategoryId && (
+            {submissionsLoading && !submissionsData && selectedCategoryId && (
               <div className="text-center py-12 md:py-16">
                 <div className="inline-flex items-center gap-3 text-[#AAB1BD]">
                   <div className="animate-spin rounded-full h-6 w-6 border-2 border-[#E01C20] border-t-transparent"></div>
@@ -180,7 +267,7 @@ export default function ShowItPage() {
               </div>
             )}
 
-            {/* Empty State jika belum ada karya yang disetujui dan ditampilkan */}
+            {/* Empty State jika belum ada karya sama sekali dalam kategori */}
             {submissions.length === 0 && selectedCategoryId && !submissionsLoading && !isError && (
               <div className="mia-card p-8 md:p-14 text-center space-y-4 border-dashed border-white/15">
                 <div className="w-14 h-14 bg-[#E01C20]/15 border border-[#E01C20]/30 text-[#E01C20] rounded-2xl flex items-center justify-center mx-auto">
@@ -197,8 +284,33 @@ export default function ShowItPage() {
               </div>
             )}
 
+            {/* Empty State jika hasil pencarian tidak ditemukan */}
+            {submissions.length > 0 && isSearching && filteredSubmissions.length === 0 && !submissionsLoading && (
+              <div className="mia-card p-8 md:p-14 text-center space-y-4 border-dashed border-white/15">
+                <div className="w-14 h-14 bg-white/5 border border-white/10 text-[#AAB1BD] rounded-2xl flex items-center justify-center mx-auto">
+                  <Search className="h-7 w-7 text-[#AAB1BD]" />
+                </div>
+                <div className="space-y-1 max-w-md mx-auto">
+                  <h3 className="text-xl font-bold text-[#FFF9F5]">
+                    Karya Tidak Ditemukan
+                  </h3>
+                  <p className="text-sm text-[#AAB1BD]">
+                    Tidak ada karya yang cocok dengan kata kunci &quot;<span className="text-[#FFF9F5] font-semibold">{appliedSearch}</span>&quot;.
+                  </p>
+                </div>
+                <Button
+                  onClick={handleResetSearch}
+                  variant="outline"
+                  size="sm"
+                  className="rounded-full border-white/15 text-xs text-[#FFF9F5] hover:bg-white/10 cursor-pointer"
+                >
+                  Reset Pencarian
+                </Button>
+              </div>
+            )}
+
             {/* Submissions Grid */}
-            {submissions.length > 0 && (
+            {filteredSubmissions.length > 0 && (
               <div className="space-y-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-4">
                   <div>
@@ -206,7 +318,9 @@ export default function ShowItPage() {
                       Daftar Karya Peserta
                     </h2>
                     <p className="text-xs sm:text-sm text-[#AAB1BD]">
-                      Menampilkan {submissions.length} karya inovatif dalam kategori ini
+                      {isSearching
+                        ? `Menampilkan ${filteredSubmissions.length} dari ${submissions.length} karya untuk pencarian "${appliedSearch}"`
+                        : `Menampilkan ${filteredSubmissions.length} karya inovatif dalam kategori ini`}
                     </p>
                   </div>
                   <span className="text-xs text-[#AAB1BD] bg-[#1E2939] border border-white/10 px-3 py-1.5 rounded-full w-fit">
@@ -216,7 +330,7 @@ export default function ShowItPage() {
 
                 {/* Grid Layout */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {submissions.map((submission) => (
+                  {filteredSubmissions.map((submission) => (
                     <div
                       key={submission.submission_id}
                       onClick={() => handleSubmissionClick(submission.submission_id)}

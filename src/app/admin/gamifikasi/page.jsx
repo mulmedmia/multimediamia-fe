@@ -51,6 +51,9 @@ import {
   Zap,
   Clock,
   Trophy,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 
 const PAGE_SIZE = 10;
@@ -61,6 +64,8 @@ export default function AdminGamifikasiPage() {
   const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("ALL");
+  const [sortBy, setSortBy] = useState(""); // "" | "diamond" | "xp"
+  const [sortOrder, setSortOrder] = useState(""); // "" | "asc" | "desc"
 
   // Modal State
   const [editTeam, setEditTeam] = useState(null);
@@ -96,6 +101,8 @@ export default function AdminGamifikasiPage() {
     limit: PAGE_SIZE,
     search: searchTerm || undefined,
     category_id: categoryFilter === "ALL" ? undefined : categoryFilter,
+    sort_by: sortBy || undefined,
+    order: sortOrder || undefined,
   });
 
   // Query Global Stats for top summary cards
@@ -180,14 +187,29 @@ export default function AdminGamifikasiPage() {
     }
   };
 
+  const handleToggleSort = (field) => {
+    setPage(1);
+    if (sortBy !== field) {
+      setSortBy(field);
+      setSortOrder("desc");
+    } else if (sortOrder === "desc") {
+      setSortOrder("asc");
+    } else {
+      setSortBy("");
+      setSortOrder("");
+    }
+  };
+
   const handleClearFilters = () => {
     setSearchInput("");
     setSearchTerm("");
     setCategoryFilter("ALL");
+    setSortBy("");
+    setSortOrder("");
     setPage(1);
   };
 
-  const hasActiveFilters = searchTerm || categoryFilter !== "ALL";
+  const hasActiveFilters = searchTerm || categoryFilter !== "ALL" || Boolean(sortBy);
   const selectedCategoryObj = categories.find(
     (c) => c.category_id === categoryFilter
   );
@@ -302,30 +324,64 @@ export default function AdminGamifikasiPage() {
               )}
             </div>
 
-            {/* Filter Kategori Dropdown */}
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground whitespace-nowrap">
-                Kategori:
-              </span>
-              <Select
-                value={categoryFilter}
-                onValueChange={(val) => {
-                  setCategoryFilter(val);
-                  setPage(1);
-                }}
-              >
-                <SelectTrigger className="h-9 w-44 sm:w-52 bg-input/40 border-border/50 rounded-xl text-xs text-foreground truncate">
-                  <SelectValue placeholder="Semua Kategori" />
-                </SelectTrigger>
-                <SelectContent className="bg-[#141824] border-border/50 text-foreground max-h-64">
-                  <SelectItem value="ALL">Semua Kategori</SelectItem>
-                  {categories.map((c) => (
-                    <SelectItem key={c.category_id} value={c.category_id}>
-                      {c.name || c.category_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="flex flex-wrap items-center gap-2">
+              {/* Filter Kategori Dropdown */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground whitespace-nowrap">
+                  Kategori:
+                </span>
+                <Select
+                  value={categoryFilter}
+                  onValueChange={(val) => {
+                    setCategoryFilter(val);
+                    setPage(1);
+                  }}
+                >
+                  <SelectTrigger className="h-9 w-40 sm:w-48 bg-input/40 border-border/50 rounded-xl text-xs text-foreground truncate">
+                    <SelectValue placeholder="Semua Kategori" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#141824] border-border/50 text-foreground max-h-64">
+                    <SelectItem value="ALL">Semua Kategori</SelectItem>
+                    {categories.map((c) => (
+                      <SelectItem key={c.category_id} value={c.category_id}>
+                        {c.name || c.category_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Filter Urutan Dropdown */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground whitespace-nowrap">
+                  Urutan:
+                </span>
+                <Select
+                  value={sortBy && sortOrder ? `${sortBy}-${sortOrder}` : "DEFAULT"}
+                  onValueChange={(val) => {
+                    setPage(1);
+                    if (val === "DEFAULT") {
+                      setSortBy("");
+                      setSortOrder("");
+                    } else {
+                      const [field, ord] = val.split("-");
+                      setSortBy(field);
+                      setSortOrder(ord);
+                    }
+                  }}
+                >
+                  <SelectTrigger className="h-9 w-48 sm:w-56 bg-input/40 border-border/50 rounded-xl text-xs text-foreground truncate">
+                    <SelectValue placeholder="Default (Waktu Registrasi)" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#141824] border-border/50 text-foreground max-h-64">
+                    <SelectItem value="DEFAULT">Default (Waktu Registrasi)</SelectItem>
+                    <SelectItem value="diamond-desc">💎 Diamond: Tertinggi → Terendah</SelectItem>
+                    <SelectItem value="diamond-asc">💎 Diamond: Terendah → Tertinggi</SelectItem>
+                    <SelectItem value="xp-desc">⚡ Total XP: Tertinggi → Terendah</SelectItem>
+                    <SelectItem value="xp-asc">⚡ Total XP: Terendah → Tertinggi</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
 
@@ -355,6 +411,23 @@ export default function AdminGamifikasiPage() {
                     type="button"
                     onClick={() => setCategoryFilter("ALL")}
                     className="hover:text-purple-200 ml-0.5"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+              {sortBy && (
+                <span className="inline-flex items-center gap-1 text-[11px] px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                  Urutan: {sortBy === "diamond" ? "Diamond" : "Total XP"} (
+                  {sortOrder === "asc" ? "Terendah → Tertinggi" : "Tertinggi → Terendah"})
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSortBy("");
+                      setSortOrder("");
+                    }}
+                    className="hover:text-amber-200 ml-0.5 cursor-pointer"
+                    title="Hapus filter urutan"
                   >
                     ×
                   </button>
@@ -422,10 +495,46 @@ export default function AdminGamifikasiPage() {
                       Kategori
                     </TableHead>
                     <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
-                      Diamond (Poin)
+                      <button
+                        type="button"
+                        onClick={() => handleToggleSort("diamond")}
+                        className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors group select-none cursor-pointer"
+                        title="Urutkan berdasarkan Diamond (Poin)"
+                      >
+                        <span className={sortBy === "diamond" ? "text-foreground font-bold" : ""}>
+                          Diamond (Poin)
+                        </span>
+                        {sortBy === "diamond" ? (
+                          sortOrder === "asc" ? (
+                            <ArrowUp className="h-3.5 w-3.5 text-[#E01C20]" />
+                          ) : (
+                            <ArrowDown className="h-3.5 w-3.5 text-[#E01C20]" />
+                          )
+                        ) : (
+                          <ArrowUpDown className="h-3.5 w-3.5 opacity-40 group-hover:opacity-100 transition-opacity" />
+                        )}
+                      </button>
                     </TableHead>
                     <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
-                      Total XP
+                      <button
+                        type="button"
+                        onClick={() => handleToggleSort("xp")}
+                        className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors group select-none cursor-pointer"
+                        title="Urutkan berdasarkan Total XP"
+                      >
+                        <span className={sortBy === "xp" ? "text-foreground font-bold" : ""}>
+                          Total XP
+                        </span>
+                        {sortBy === "xp" ? (
+                          sortOrder === "asc" ? (
+                            <ArrowUp className="h-3.5 w-3.5 text-[#E01C20]" />
+                          ) : (
+                            <ArrowDown className="h-3.5 w-3.5 text-[#E01C20]" />
+                          )
+                        ) : (
+                          <ArrowUpDown className="h-3.5 w-3.5 opacity-40 group-hover:opacity-100 transition-opacity" />
+                        )}
+                      </button>
                     </TableHead>
                     <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
                       Status Verifikasi

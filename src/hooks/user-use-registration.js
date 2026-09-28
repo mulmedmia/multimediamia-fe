@@ -27,9 +27,28 @@ export function useUpdateRegistration() {
       toast.success(response.message || "Data tim berhasil diperbarui!");
     },
     onError: (error) => {
-      toast.error(
-        error?.response?.data?.message || "Gagal memperbarui data tim!",
-      );
+      const errData = error?.response?.data || error;
+      let msg = errData?.message || error?.message || "Gagal memperbarui data tim!";
+
+      if (errData?.errors) {
+        if (errData.errors.team_name?._errors?.[0]) {
+          const raw = errData.errors.team_name._errors[0];
+          msg = raw.includes("invalid characters")
+            ? "Nama tim mengandung karakter yang tidak diizinkan. Gunakan huruf, angka, spasi, atau simbol lazim (&, _, (), /, !, #, +, -, ., ')"
+            : raw;
+        } else if (errData.errors.file_url?._errors?.[0]) {
+          const raw = errData.errors.file_url._errors[0];
+          msg = raw.includes("Google Drive link")
+            ? "Link berkas harus berupa link Google Drive yang valid"
+            : raw;
+        }
+      }
+
+      if (msg === "Validation error" || msg.includes("status code")) {
+        msg = "Data yang dimasukkan tidak valid. Harap periksa kembali isian form Anda.";
+      }
+
+      toast.error(msg);
     },
   });
 }

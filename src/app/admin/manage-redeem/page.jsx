@@ -51,6 +51,8 @@ import {
   Eye,
   Image as ImageIcon,
   FileSpreadsheet,
+  Phone,
+  ExternalLink,
 } from "lucide-react";
 import { exportToExcel } from "@/lib/export-excel";
 import { useAuthContext } from "@/providers/AuthProvider";
@@ -204,6 +206,7 @@ export default function ManageRedemptionPage() {
         { header: "Waktu Penukaran", key: "created_at", width: 22, align: "center" },
         { header: "Nama Peserta", key: "user_name", width: 25 },
         { header: "Email", key: "user_email", width: 26 },
+        { header: "Nomor WhatsApp", key: "whatsapp_number", width: 20 },
         { header: "Nama Merchandise", key: "product_name", width: 25 },
         { header: "Jumlah", key: "quantity", width: 14, align: "center" },
         { header: "Diamond Digunakan", key: "points_used", width: 20, align: "center" },
@@ -217,6 +220,7 @@ export default function ManageRedemptionPage() {
           created_at: formatDateDisplay(item.created_at),
           user_name: item.user?.name || "-",
           user_email: item.user?.email || "-",
+          whatsapp_number: item.user?.whatsapp_number || item.user?.whatsapp || "-",
           product_name: item.product?.name || "-",
           quantity: `${item.quantity || 1} item`,
           points_used: `${(item.points_used ?? 0).toLocaleString("id-ID")} Diamond`,
@@ -542,6 +546,9 @@ export default function ManageRedemptionPage() {
                       Peserta
                     </TableHead>
                     <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
+                      Nomor WhatsApp
+                    </TableHead>
+                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
                       Produk Merchandise
                     </TableHead>
                     <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
@@ -585,6 +592,25 @@ export default function ManageRedemptionPage() {
                             </p>
                           </div>
                         </div>
+                      </TableCell>
+
+                      {/* Nomor WhatsApp */}
+                      <TableCell className="py-3.5 whitespace-nowrap">
+                        {r.user?.whatsapp_number || r.user?.whatsapp ? (
+                          <a
+                            href={`https://wa.me/${(r.user?.whatsapp_number || r.user?.whatsapp).replace(/[^0-9]/g, "").replace(/^0/, "62")}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/20 transition-all font-medium text-xs group/wa cursor-pointer"
+                            title={`Chat WhatsApp dengan ${r.user?.name || "Peserta"}`}
+                          >
+                            <Phone className="h-3.5 w-3.5 text-emerald-400 group-hover/wa:scale-110 transition-transform" />
+                            <span>{r.user?.whatsapp_number || r.user?.whatsapp}</span>
+                            <ExternalLink className="h-3 w-3 opacity-60 group-hover/wa:opacity-100" />
+                          </a>
+                        ) : (
+                          <span className="text-muted-foreground/40 text-xs italic">-</span>
+                        )}
                       </TableCell>
 
                       {/* Produk Merchandise */}
@@ -762,6 +788,25 @@ export default function ManageRedemptionPage() {
               <span className="text-muted-foreground truncate max-w-[200px]">
                 {detailData?.user?.email || "-"}
               </span>
+            </div>
+
+            <div className="flex justify-between items-center py-0.5 border-b border-border/20">
+              <span className="text-muted-foreground">Nomor WhatsApp:</span>
+              {detailData?.user?.whatsapp_number || detailData?.user?.whatsapp ? (
+                <a
+                  href={`https://wa.me/${(detailData?.user?.whatsapp_number || detailData?.user?.whatsapp).replace(/[^0-9]/g, "").replace(/^0/, "62")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-emerald-400 hover:text-emerald-300 hover:underline inline-flex items-center gap-1 font-medium text-xs"
+                  title="Hubungi via WhatsApp"
+                >
+                  <Phone className="h-3 w-3" />
+                  <span>{detailData?.user?.whatsapp_number || detailData?.user?.whatsapp}</span>
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+              ) : (
+                <span className="text-muted-foreground/40 italic">Belum diisi</span>
+              )}
             </div>
 
             <div className="flex justify-between items-center py-0.5 border-b border-border/20">

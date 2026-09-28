@@ -6,10 +6,17 @@ import {
 import { toast } from "sonner";
 
 // Query untuk ambil semua tim terdaftar dengan pagination, search, dan kategori
-export function useGamifikasiTeams({ page = 1, limit = 10, search = "", category_id = "" } = {}) {
+export function useGamifikasiTeams({
+  page = 1,
+  limit = 10,
+  search = "",
+  category_id = "",
+  sort_by = "",
+  order = "",
+} = {}) {
   return useQuery({
-    queryKey: ["admin-gamifikasi-teams", { page, limit, search, category_id }],
-    queryFn: () => getGamifikasiTeams({ page, limit, search, category_id }),
+    queryKey: ["admin-gamifikasi-teams", { page, limit, search, category_id, sort_by, order }],
+    queryFn: () => getGamifikasiTeams({ page, limit, search, category_id, sort_by, order }),
     placeholderData: keepPreviousData,
     staleTime: 1000 * 60,
   });

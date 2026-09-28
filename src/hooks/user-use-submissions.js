@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import {
   getAllSubmissionsByCategory,
   getSubmissionsByCategoryId,
@@ -6,11 +6,12 @@ import {
 } from "@/services/submission.service.js";
 
 // Hook untuk Think It page (semua submissions public)
-export const useAllSubmissions = (categoryId) => {
+export const useAllSubmissions = (categoryId, search = "") => {
   return useQuery({
-    queryKey: ["allSubmissions", categoryId],
-    queryFn: () => getAllSubmissionsByCategory(categoryId),
+    queryKey: ["allSubmissions", categoryId, search],
+    queryFn: () => getAllSubmissionsByCategory(categoryId, search),
     enabled: !!categoryId, // Only fetch when category is selected
+    placeholderData: keepPreviousData,
   });
 };
 
