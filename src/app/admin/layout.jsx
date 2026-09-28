@@ -24,6 +24,7 @@ import {
   Filter,
   Target,
   BookOpen,
+  Gift,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -83,6 +84,11 @@ const sidebarItems = [
     title: "Manage Redeem",
     href: "/admin/manage-redeem",
     icon: ShoppingBag,
+  },
+  {
+    title: "Manage Referral",
+    href: "/admin/manage-referral",
+    icon: Gift,
   },
 ];
 

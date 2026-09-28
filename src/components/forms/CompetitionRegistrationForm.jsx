@@ -25,9 +25,10 @@ import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Link2Icon, PersonIcon, LayersIcon } from "@radix-ui/react-icons";
-import { Info, ExternalLink, FileText, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import { Info, ExternalLink, FileText, CheckCircle2, AlertCircle, Loader2, Gift, Tag } from "lucide-react";
 import { Separator } from "../ui/separator";
 import { useGuidebook } from "@/hooks/use-guidebook";
+import { validateReferralCode } from "@/services/referral.service.js";
 
 // Karakter nama tim yang diizinkan (sinkron dengan backend):
 // Huruf, angka, spasi, dan simbol umum: ' . , - _ & / ( ) ! # + [ ] "
@@ -59,6 +60,11 @@ const registrationSchema = z
     team_lead: z.string(),
     member_1: z.string().optional(),
     member_2: z.string().optional(),
+    referral_code: z
+      .string()
+      .trim()
+      .max(50, "Kode referral maksimal 50 karakter")
+      .optional(),
     selected_category_type: z.string().optional(),
   })
   .superRefine((data, ctx) => {
@@ -157,6 +163,7 @@ export function CompetitionRegistrationForm({ defaultCategoryId, onSuccessRegist
       team_lead: user?.name || "",
       member_1: "",
       member_2: "",
+      referral_code: "",
       selected_category_type: "",
     },
   });
@@ -164,10 +171,14 @@ export function CompetitionRegistrationForm({ defaultCategoryId, onSuccessRegist
   const [teamNameStatus, setTeamNameStatus] = useState(null); // null | "checking" | "available" | "taken"
   const [teamNameMessage, setTeamNameMessage] = useState("");
 
+  const [referralStatus, setReferralStatus] = useState(null); // null | "checking" | "valid" | "invalid"
+  const [referralMessage, setReferralMessage] = useState("");
+
   const { guidebookUrl: globalGuidebookUrl } = useGuidebook();
   const selectedCategoryType = watch("selected_category_type");
   const currentCategoryId = watch("category_id");
   const teamNameValue = watch("team_name");
+  const referralCodeValue = watch("referral_code");
   const selectedCategory = categories?.find(
     (cat) => String(cat.category_id) === String(currentCategoryId),
   );
@@ -216,6 +227,46 @@ export function CompetitionRegistrationForm({ defaultCategoryId, onSuccessRegist
 
     return () => clearTimeout(timer);
   }, [teamNameValue, currentCategoryId, selectedCategoryType, setError, clearErrors, errors.team_name?.type]);
+
+  // Real-time check validitas kode referral
+  useEffect(() => {
+    const trimmed = (referralCodeValue || "").trim();
+    if (!trimmed) {
+      setReferralStatus(null);
+      setReferralMessage("");
+      return;
+    }
+
+    if (trimmed.length < 3) {
+      setReferralStatus("invalid");
+      setReferralMessage("Kode referral minimal 3 karakter");
+      return;
+    }
+
+    setReferralStatus("checking");
+    const timer = setTimeout(async () => {
+      try {
+        const res = await validateReferralCode(trimmed);
+        if (res?.data?.valid || res?.valid) {
+          const info = res?.data || res;
+          setReferralStatus("valid");
+          setReferralMessage(
+            `Kode valid dari ${info.referrer_team_name || "Tim Peserta"} (${info.referrer_category_name || "Lomba"})`
+          );
+        } else {
+          setReferralStatus("invalid");
+          setReferralMessage(res?.message || "Kode referral tidak valid atau milik sendiri");
+        }
+      } catch (err) {
+        setReferralStatus("invalid");
+        setReferralMessage(
+          err?.response?.data?.message || err?.message || "Kode referral tidak valid"
+        );
+      }
+    }, 450);
+
+    return () => clearTimeout(timer);
+  }, [referralCodeValue]);
 
   // Untuk lomba Grup (1-3 orang) dengan 1 ketua + 2 anggota
   const groupPersonInputs = [
@@ -386,6 +437,14 @@ export function CompetitionRegistrationForm({ defaultCategoryId, onSuccessRegist
         .map((name) => (name ? name.trim() : ""))
         .filter((name) => name !== "");
       payload.team_members = `['${namesArray.join("', '")}']`;
+    }
+
+    if (data.referral_code && data.referral_code.trim()) {
+      if (referralStatus === "invalid") {
+        toast.error("Kode referral tidak valid! Harap periksa atau kosongkan kolom kode referral.");
+        return;
+      }
+      payload.referral_code = data.referral_code.trim().toUpperCase();
     }
 
     mutation.mutate(payload);
@@ -618,6 +677,63 @@ export function CompetitionRegistrationForm({ defaultCategoryId, onSuccessRegist
             </a>
           </div>
         </div>
+      </div>
+
+      {/* Referral Code (Opsional) */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <Label
+            htmlFor="referral_code"
+            className="block text-sm font-semibold text-foreground"
+          >
+            Kode Referral <span className="text-xs text-muted-foreground font-normal">(Opsional)</span>
+          </Label>
+          <span className="text-xs text-amber-400 font-semibold flex items-center gap-1 bg-amber-500/10 border border-amber-500/25 px-2.5 py-0.5 rounded-full">
+            <Gift className="w-3.5 h-3.5" /> Bonus +100 XP
+          </span>
+        </div>
+        <div className="relative">
+          <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
+            <Tag className="w-4 h-4" />
+          </div>
+          <Input
+            id="referral_code"
+            placeholder="Contoh: MIA-7K9PX2"
+            {...register("referral_code")}
+            className={cn(
+              "h-11 bg-input rounded-xl pl-10 pr-10 text-sm uppercase text-foreground placeholder:normal-case placeholder:text-mia-muted-2 transition-all font-mono",
+              referralStatus === "invalid"
+                ? "border-destructive focus-visible:ring-destructive"
+                : referralStatus === "valid"
+                  ? "border-emerald-500/60 focus-visible:border-emerald-500 focus-visible:ring-emerald-500/30"
+                  : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
+            )}
+          />
+          <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
+            {referralStatus === "checking" && (
+              <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />
+            )}
+            {referralStatus === "valid" && (
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+            )}
+            {referralStatus === "invalid" && (
+              <AlertCircle className="w-4 h-4 text-destructive" />
+            )}
+          </div>
+        </div>
+        {referralMessage && (
+          <p
+            className={cn(
+              "text-xs font-medium mt-1",
+              referralStatus === "valid" ? "text-emerald-400" : "text-destructive",
+            )}
+          >
+            {referralMessage}
+          </p>
+        )}
+        <p className="text-[11px] text-muted-foreground leading-relaxed">
+          Punya kode referral dari tim atau peserta lomba lain? Masukkan di sini untuk mendapatkan reward <strong>100 XP</strong> setelah pendaftaran Anda diverifikasi panitia!
+        </p>
       </div>
 
       {/* Submit Button */}
