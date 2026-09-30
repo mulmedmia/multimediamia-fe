@@ -251,20 +251,21 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
               }
               className="mt-0.5"
             />
-            <div className="space-y-0.5 leading-none cursor-pointer" onClick={() => setForm((f) => ({ ...f, is_unlimited_stock: !f.is_unlimited_stock }))}>
-              <label
-                htmlFor="is_unlimited_stock"
-                className="text-xs font-semibold text-foreground cursor-pointer flex items-center gap-1.5"
-              >
+            <label
+              htmlFor="is_unlimited_stock"
+              className="space-y-1 leading-none cursor-pointer"
+            >
+              <div className="text-xs font-semibold text-foreground cursor-pointer flex items-center gap-1.5">
                 <span>Jumlah Stok Tidak Terbatas</span>
                 <span className="text-[10px] text-purple-400 bg-purple-500/10 border border-purple-500/20 px-1.5 py-0.5 rounded font-medium">
                   Unlimited
                 </span>
-              </label>
+              </div>
+              
               <p className="text-[11px] text-muted-foreground">
                 Centang jika produk ini tidak memiliki batasan kuota stok (misal merchandise digital atau stok selalu tersedia).
               </p>
-            </div>
+            </label>
           </div>
 
           <div className="flex items-start gap-3 pt-2.5 border-t border-border/30">
@@ -276,20 +277,21 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
               }
               className="mt-0.5"
             />
-            <div className="space-y-0.5 leading-none cursor-pointer" onClick={() => setForm((f) => ({ ...f, is_single_redeem: !f.is_single_redeem }))}>
-              <label
-                htmlFor="is_single_redeem"
-                className="text-xs font-semibold text-foreground cursor-pointer flex items-center gap-1.5"
-              >
+            <label
+              htmlFor="is_single_redeem"
+              className="space-y-1 leading-none cursor-pointer"
+            >
+              <div className="text-xs font-semibold text-foreground cursor-pointer flex items-center gap-1.5">
                 <span>Hanya Bisa Di-redeem 1 Kali per Pengguna</span>
                 <span className="text-[10px] text-amber-400 bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded font-medium">
                   1x Redeem
                 </span>
-              </label>
+              </div>
+              
               <p className="text-[11px] text-muted-foreground">
                 Jika diaktifkan, setiap peserta/pengguna hanya dapat menukarkan produk ini 1 kali saja (kuantitas otomatis terkunci 1). Jika nonaktif, pengguna dapat menentukan sendiri berapa banyak produk yang ingin di-redeem.
               </p>
-            </div>
+            </label>
           </div>
         </div>
 
