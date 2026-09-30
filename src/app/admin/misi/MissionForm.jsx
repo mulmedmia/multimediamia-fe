@@ -333,19 +333,14 @@ export default function MissionForm({ initial, onSubmit, isLoading, onCancel }) 
         </div>
 
         {/* Opsi Tipe Reward: Fix vs Range */}
-        <div className="space-y-2 sm:col-span-2 pt-1">
+        <div className="sm:col-span-2 pt-1">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
             <Label className="text-xs text-muted-foreground font-semibold flex items-center gap-1.5">
               <span>Tipe Alokasi Hadiah (Reward) <span className="text-[#E01C20]">*</span></span>
             </Label>
-            <span className="text-[11px] text-muted-foreground">
-              {rewardMode === "FIXED"
-                ? "Peserta mendapat nilai pasti saat misi disetujui"
-                : "Admin bebas menentukan nilai saat me-review submission"}
-            </span>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 p-1 bg-[#141824] border border-border/50 rounded-xl">
+          <div className="grid grid-cols-2 gap-2 p-1 bg-[#141824] border border-border/50 rounded-xl mt-2">
             <button
               type="button"
               onClick={() => {
@@ -387,13 +382,18 @@ export default function MissionForm({ initial, onSubmit, isLoading, onCancel }) 
               <span>Rentang Nilai (Range)</span>
             </button>
           </div>
+          <span className="text-[11px] text-muted-foreground">
+            {rewardMode === "FIXED"
+              ? "Peserta mendapat nilai pasti saat misi disetujui"
+              : "Admin bebas menentukan nilai saat me-review submission"}
+          </span>
         </div>
 
         {rewardMode === "FIXED" ? (
           <>
             {/* Input Fixed XP */}
             <div className="space-y-1.5">
-              <Label htmlFor="fixed_xp" className="text-xs text-muted-foreground font-medium flex items-center gap-1.5 text-amber-400">
+              <Label htmlFor="fixed_xp" className="text-xs font-medium flex items-center gap-1.5 text-amber-400">
                 <Zap className="h-3.5 w-3.5 fill-amber-400" />
                 <span>Hadiah XP (Tetap) <span className="text-[#E01C20]">*</span></span>
               </Label>
@@ -414,7 +414,7 @@ export default function MissionForm({ initial, onSubmit, isLoading, onCancel }) 
 
             {/* Input Fixed Diamond */}
             <div className="space-y-1.5">
-              <Label htmlFor="fixed_diamond" className="text-xs text-muted-foreground font-medium flex items-center gap-1.5 text-cyan-400">
+              <Label htmlFor="fixed_diamond" className="text-xs font-medium flex items-center gap-1.5 text-cyan-400">
                 <Gem className="h-3.5 w-3.5 fill-cyan-400" />
                 <span>Hadiah Diamond (Tetap) <span className="text-[#E01C20]">*</span></span>
               </Label>
@@ -437,7 +437,7 @@ export default function MissionForm({ initial, onSubmit, isLoading, onCancel }) 
           <>
             {/* Rentang Hadiah XP */}
             <div className="space-y-1.5">
-              <Label htmlFor="min_xp" className="text-xs text-muted-foreground font-medium flex items-center gap-1.5 text-amber-400">
+              <Label htmlFor="min_xp" className="text-xs font-medium flex items-center gap-1.5 text-amber-400">
                 <Zap className="h-3.5 w-3.5 fill-amber-400" />
                 <span>Min XP <span className="text-[#E01C20]">*</span></span>
               </Label>
@@ -454,7 +454,7 @@ export default function MissionForm({ initial, onSubmit, isLoading, onCancel }) 
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="max_xp" className="text-xs text-muted-foreground font-medium flex items-center gap-1.5 text-amber-400">
+              <Label htmlFor="max_xp" className="text-xs font-medium flex items-center gap-1.5 text-amber-400">
                 <Zap className="h-3.5 w-3.5 fill-amber-400" />
                 <span>Max XP <span className="text-[#E01C20]">*</span></span>
               </Label>
@@ -472,7 +472,7 @@ export default function MissionForm({ initial, onSubmit, isLoading, onCancel }) 
 
             {/* Rentang Hadiah Diamond */}
             <div className="space-y-1.5">
-              <Label htmlFor="min_diamond" className="text-xs text-muted-foreground font-medium flex items-center gap-1.5 text-cyan-400">
+              <Label htmlFor="min_diamond" className="text-xs font-medium flex items-center gap-1.5 text-cyan-400">
                 <Gem className="h-3.5 w-3.5 fill-cyan-400" />
                 <span>Min Diamond <span className="text-[#E01C20]">*</span></span>
               </Label>
@@ -489,7 +489,7 @@ export default function MissionForm({ initial, onSubmit, isLoading, onCancel }) 
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="max_diamond" className="text-xs text-muted-foreground font-medium flex items-center gap-1.5 text-cyan-400">
+              <Label htmlFor="max_diamond" className="text-xs font-medium flex items-center gap-1.5 text-cyan-400">
                 <Gem className="h-3.5 w-3.5 fill-cyan-400" />
                 <span>Max Diamond <span className="text-[#E01C20]">*</span></span>
               </Label>
