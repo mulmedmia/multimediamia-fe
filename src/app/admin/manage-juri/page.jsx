@@ -1,12 +1,26 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+import { z } from "zod";
 import {
   useAdminJuri,
   useCreateJuri,
   useDeleteJuri,
   useUpdateJuriCategory,
 } from "@/hooks/admin-use-juri";
+
+const createJuriSchema = z.object({
+  name: z
+    .string()
+    .min(3, { message: "Nama juri minimal 3 karakter." }),
+  email: z
+    .email({ message: "Format email tidak valid." }),
+  password: z
+    .string()
+    .min(6, { message: "Kata sandi minimal 6 karakter." }),
+  category_id: z
+    .string(),
+});
 import { useAdminCategories } from "@/hooks/admin-use-categories";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -76,13 +90,14 @@ export default function ManageJuriPage() {
   const updateCategoryMutation = useUpdateJuriCategory(() => setEditJuri(null));
   const deleteMutation = useDeleteJuri();
 
-  // Create Form State
+  // Create Form State & Errors
   const [createForm, setCreateForm] = useState({
     name: "",
     email: "",
     password: "",
     category_id: "",
   });
+  const [formErrors, setFormErrors] = useState({});
 
   // Client-side filtering
   const filteredJuries = useMemo(() => {
@@ -125,9 +140,25 @@ export default function ManageJuriPage() {
   // Handle Create Submit
   const handleCreateSubmit = (e) => {
     e.preventDefault();
+    setFormErrors({});
+
+    const validation = createJuriSchema.safeParse(createForm);
+    if (!validation.success) {
+      const fieldErrors = {};
+      validation.error.issues.forEach((issue) => {
+        const fieldName = issue.path[0];
+        if (fieldName && !fieldErrors[fieldName]) {
+          fieldErrors[fieldName] = issue.message;
+        }
+      });
+      setFormErrors(fieldErrors);
+      return;
+    }
+
     createMutation.mutate(createForm, {
       onSuccess: () => {
         setCreateForm({ name: "", email: "", password: "", category_id: "" });
+        setFormErrors({});
       },
     });
   };
@@ -582,6 +613,7 @@ export default function ManageJuriPage() {
         onOpenChange={(val) => {
           if (!val) {
             setCreateForm({ name: "", email: "", password: "", category_id: "" });
+            setFormErrors({});
           }
           setOpenCreate(val);
         }}
@@ -606,12 +638,19 @@ export default function ManageJuriPage() {
                 id="create-name"
                 placeholder="Contoh: Budi Santoso, M.Kom"
                 value={createForm.name}
-                onChange={(e) =>
-                  setCreateForm((f) => ({ ...f, name: e.target.value }))
-                }
-                className="h-10 bg-input/40 border-border/50 rounded-xl text-xs sm:text-sm text-foreground"
-                required
+                onChange={(e) => {
+                  setCreateForm((f) => ({ ...f, name: e.target.value }));
+                  if (formErrors.name) setFormErrors((prev) => ({ ...prev, name: null }));
+                }}
+                className={`h-10 bg-input/40 border-border/50 rounded-xl text-xs sm:text-sm text-foreground ${
+                  formErrors.name ? "border-[#E01C20] focus-visible:ring-[#E01C20]" : ""
+                }`}
               />
+              {formErrors.name && (
+                <p className="text-xs text-[#E01C20] font-medium mt-1">
+                  {formErrors.name}
+                </p>
+              )}
             </div>
 
             <div className="space-y-1.5">
@@ -623,12 +662,19 @@ export default function ManageJuriPage() {
                 type="email"
                 placeholder="juri@mia2026.id"
                 value={createForm.email}
-                onChange={(e) =>
-                  setCreateForm((f) => ({ ...f, email: e.target.value }))
-                }
-                className="h-10 bg-input/40 border-border/50 rounded-xl text-xs sm:text-sm text-foreground"
-                required
+                onChange={(e) => {
+                  setCreateForm((f) => ({ ...f, email: e.target.value }));
+                  if (formErrors.email) setFormErrors((prev) => ({ ...prev, email: null }));
+                }}
+                className={`h-10 bg-input/40 border-border/50 rounded-xl text-xs sm:text-sm text-foreground ${
+                  formErrors.email ? "border-[#E01C20] focus-visible:ring-[#E01C20]" : ""
+                }`}
               />
+              {formErrors.email && (
+                <p className="text-xs text-[#E01C20] font-medium mt-1">
+                  {formErrors.email}
+                </p>
+              )}
             </div>
 
             <div className="space-y-1.5">
@@ -640,12 +686,19 @@ export default function ManageJuriPage() {
                 type="password"
                 placeholder="Minimal 6 karakter..."
                 value={createForm.password}
-                onChange={(e) =>
-                  setCreateForm((f) => ({ ...f, password: e.target.value }))
-                }
-                className="h-10 bg-input/40 border-border/50 rounded-xl text-xs sm:text-sm text-foreground"
-                required
+                onChange={(e) => {
+                  setCreateForm((f) => ({ ...f, password: e.target.value }));
+                  if (formErrors.password) setFormErrors((prev) => ({ ...prev, password: null }));
+                }}
+                className={`h-10 bg-input/40 border-border/50 rounded-xl text-xs sm:text-sm text-foreground ${
+                  formErrors.password ? "border-[#E01C20] focus-visible:ring-[#E01C20]" : ""
+                }`}
               />
+              {formErrors.password && (
+                <p className="text-xs text-[#E01C20] font-medium mt-1">
+                  {formErrors.password}
+                </p>
+              )}
             </div>
 
             <div className="space-y-1.5">
@@ -654,11 +707,14 @@ export default function ManageJuriPage() {
               </Label>
               <Select
                 value={createForm.category_id}
-                onValueChange={(val) =>
-                  setCreateForm((f) => ({ ...f, category_id: val }))
-                }
+                onValueChange={(val) => {
+                  setCreateForm((f) => ({ ...f, category_id: val }));
+                  if (formErrors.category_id) setFormErrors((prev) => ({ ...prev, category_id: null }));
+                }}
               >
-                <SelectTrigger className="h-10 bg-input/40 border-border/50 rounded-xl text-xs text-foreground">
+                <SelectTrigger className={`h-10 bg-input/40 border-border/50 rounded-xl text-xs text-foreground ${
+                  formErrors.category_id ? "border-[#E01C20]" : ""
+                }`}>
                   <SelectValue placeholder="Pilih Kategori Lomba" />
                 </SelectTrigger>
                 <SelectContent className="bg-[#141824] border-border/50 text-foreground">
@@ -669,6 +725,11 @@ export default function ManageJuriPage() {
                   ))}
                 </SelectContent>
               </Select>
+              {formErrors.category_id && (
+                <p className="text-xs text-[#E01C20] font-medium mt-1">
+                  {formErrors.category_id}
+                </p>
+              )}
             </div>
 
             <DialogFooter className="gap-2 sm:gap-2 pt-3">
