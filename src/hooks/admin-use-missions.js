@@ -120,7 +120,7 @@ export function useReviewAdminSubmission(missionId) {
       });
       queryClient.invalidateQueries({ queryKey: ["admin-missions"] });
       toast.success(
-        data?.status === "APPROVED"
+        data?.submission?.status === "APPROVED"
           ? "Pengumpulan berhasil di-ACC dan reward XP/Diamond telah dikreditkan!"
           : "Pengumpulan ditolak."
       );

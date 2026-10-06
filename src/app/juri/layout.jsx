@@ -8,12 +8,13 @@ import {
   SheetTrigger,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Menu, Package, LogOut, User, ChevronLeft } from "lucide-react";
+import { Menu, Package, LogOut, User, ChevronLeft, Bug } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuthContext } from "@/providers/AuthProvider";
 import Image from "next/image";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 const sidebarItems = [
   {
@@ -190,13 +191,62 @@ export default function JuriLayout({ children }) {
                 </Button>
               </Link>
 
-              {/* User Badge */}
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-input/40 border border-border/50 text-xs sm:text-sm text-foreground">
-                <User className="h-4 w-4 text-muted-foreground" />
-                <span className="hidden sm:inline truncate max-w-32 font-medium">
-                  {user?.name || "Juri"}
-                </span>
-              </div>
+              {/* User Badge Dropdown */}
+              <DropdownMenu modal={false}>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-input/40 border border-border/50 text-xs sm:text-sm text-foreground hover:bg-input/60 transition-all cursor-pointer outline-none">
+                    <User className="h-4 w-4 text-muted-foreground" />
+                    <span className="hidden sm:inline truncate max-w-32 font-medium">
+                      {user?.name || "Admin"}
+                    </span>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  className="w-56 bg-[#0F121A] border border-border/40 text-foreground rounded-2xl p-2 shadow-2xl z-50"
+                  align="end"
+                  forceMount
+                >
+                  <DropdownMenuLabel className="font-normal px-3 py-2">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-semibold text-foreground truncate">
+                        {user?.name || "Admin"}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {user?.email || ""}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator className="bg-border/40" />
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/profile"
+                      className="flex items-center px-3 py-2 rounded-xl text-sm text-foreground hover:bg-white/5 cursor-pointer"
+                    >
+                      <User className="mr-2 h-4 w-4 text-foreground" />
+                      <span>Profile</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <a
+                      href="https://forms.gle/L2GTwsMEREkcGxh29"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center px-3 py-2 rounded-xl text-sm text-foreground hover:bg-white/5 cursor-pointer"
+                    >
+                      <Bug className="mr-2 h-4 w-4 text-amber-400" />
+                      <span>Laporkan Bug Web</span>
+                    </a>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="bg-border/40" />
+                  <DropdownMenuItem
+                    onClick={logout}
+                    className="flex items-center px-3 py-2 rounded-xl text-sm text-destructive hover:bg-destructive/10 focus:text-destructive focus:bg-destructive/10 cursor-pointer"
+                  >
+                    <LogOut className="mr-2 h-4 w-4 text-destructive" />
+                    <span>Logout</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </header>
 

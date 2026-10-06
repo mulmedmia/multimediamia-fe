@@ -125,7 +125,7 @@ export default function AdminPendaftarPage() {
   // Global stats query for the top 4 cards
   const { data: statsData } = useQuery({
     queryKey: ["admin-registrations-overall-stats"],
-    queryFn: () => getAllRegistrations({ page: 1, limit: 1000 }),
+    queryFn: () => getAllRegistrations({ page: 1, limit: 500 }),
     staleTime: 1000 * 60 * 2,
   });
 
@@ -563,7 +563,7 @@ export default function AdminPendaftarPage() {
                         {/* Peserta */}
                         <TableCell className="py-3.5 pl-6">
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-xl bg-white/[0.04] border border-border/40 flex items-center justify-center text-foreground font-bold text-xs flex-shrink-0">
+                            <div className="w-9 h-9 rounded-xl bg-white/[0.04] border border-border/40 flex items-center justify-center text-foreground font-bold text-xs flex-shrink-0 select-none">
                               {reg.user?.name ? reg.user.name.charAt(0).toUpperCase() : <User className="h-4 w-4" />}
                             </div>
                             <div className="min-w-0">
@@ -670,7 +670,7 @@ export default function AdminPendaftarPage() {
 
                         {/* Aksi */}
                         <TableCell className="py-3.5 pr-6 text-right sticky right-0 bg-[#0F121A] group-hover:bg-[#141824] z-10 shadow-[-8px_0_12px_-4px_rgba(0,0,0,0.5)] border-l border-border/40 transition-colors">
-                          <div className="flex items-center justify-end gap-1.5">
+                          <div className="flex items-center justify-start gap-1.5">
                             {/* Tombol Detail */}
                             <Button
                               size="sm"

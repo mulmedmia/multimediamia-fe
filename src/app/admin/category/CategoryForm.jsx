@@ -345,7 +345,7 @@ export default function CategoryForm({
             value={form.team_type}
             onValueChange={(val) => setForm((f) => ({ ...f, team_type: val }))}
           >
-            <SelectTrigger className="h-10 bg-input/40 border-border/50 rounded-xl text-xs text-foreground">
+            <SelectTrigger className="h-10! bg-input/40 border-border/50 rounded-xl text-xs text-foreground w-full">
               <SelectValue placeholder="Pilih tipe tim" />
             </SelectTrigger>
             <SelectContent className="bg-[#141824] border-border/50 text-foreground">
@@ -364,7 +364,7 @@ export default function CategoryForm({
             value={form.status}
             onValueChange={(val) => setForm((f) => ({ ...f, status: val }))}
           >
-            <SelectTrigger className="h-10 bg-input/40 border-border/50 rounded-xl text-xs text-foreground">
+            <SelectTrigger className="h-10! bg-input/40 border-border/50 rounded-xl text-xs text-foreground w-full">
               <SelectValue placeholder="Pilih status kategori" />
             </SelectTrigger>
             <SelectContent className="bg-[#141824] border-border/50 text-foreground">
@@ -374,6 +374,10 @@ export default function CategoryForm({
           </Select>
         </div>
 
+        <div className="hidden sm:block"></div>
+      </div>
+      
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
         {/* Batch 1: Mulai & Selesai */}
         <div className="space-y-1.5">
           <Label htmlFor="batch_1_start" className="text-xs text-muted-foreground font-medium flex items-center gap-1.5">
@@ -469,7 +473,9 @@ export default function CategoryForm({
             Batas akhir pengumpulan karya final setelah fase perbaikan.
           </p>
         </div>
+      </div>
 
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
         {/* Deskripsi Kategori */}
         <div className="space-y-1.5 sm:col-span-2">
           <Label htmlFor="description" className="text-xs text-muted-foreground font-medium">

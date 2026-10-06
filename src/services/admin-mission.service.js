@@ -75,6 +75,6 @@ export const getAdminMissionSubmissions = async (missionId, params = {}) => {
  * @param {{ submissionId: string, data: { status: "APPROVED" | "REJECTED", awarded_xp?: number, awarded_diamond?: number, admin_feedback?: string } }} param
  */
 export const reviewAdminSubmission = async ({ submissionId, data }) => {
-  const res = await api.post(`/admin/submissions/${submissionId}/review`, data);
+  const res = await api.post(`/admin/missions/submissions/${submissionId}/review`, data);
   return res.data.data;
 };
