@@ -125,7 +125,7 @@ export default function AdminPendaftarPage() {
   // Global stats query for the top 4 cards
   const { data: statsData } = useQuery({
     queryKey: ["admin-registrations-overall-stats"],
-    queryFn: () => getAllRegistrations({ page: 1, limit: 1000 }),
+    queryFn: () => getAllRegistrations({ page: 1, limit: 500 }),
     staleTime: 1000 * 60 * 2,
   });
 
