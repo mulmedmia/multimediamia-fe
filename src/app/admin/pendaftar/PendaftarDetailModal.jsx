@@ -91,7 +91,7 @@ export default function PendaftarDetailModal({ open, onClose, data }) {
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent
         onOpenAutoFocus={(e) => e.preventDefault()}
-        className="bg-[#0A0D14] border border-border/50 text-[#FFF9F5] max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl p-6 shadow-2xl"
+        className="bg-[#0A0D14] border border-border/50 text-[#FFF9F5] max-w-3xl sm:max-w-[40rem] max-h-[90vh] overflow-y-auto rounded-2xl p-6 shadow-2xl"
       >
         <DialogHeader className="space-y-1">
           <DialogTitle className="text-lg sm:text-xl font-bold flex items-center gap-2.5 text-foreground">
@@ -120,8 +120,8 @@ export default function PendaftarDetailModal({ open, onClose, data }) {
               <div>
                 <Label className="text-xs text-muted-foreground">Email</Label>
                 <p className="font-medium text-muted-foreground mt-0.5 flex items-center gap-1.5">
-                  <Mail className="h-3.5 w-3.5 text-muted-foreground/60" />
-                  <span>{data.user?.email || "-"}</span>
+                  <Mail className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
+                  <span className="break-all">{data.user?.email || "-"}</span>
                 </p>
               </div>
 

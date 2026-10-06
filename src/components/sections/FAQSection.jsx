@@ -107,7 +107,7 @@ const FAQSection = () => {
                     <ChevronDownIcon className="h-5 w-5" />
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className="pt-1 text-sm sm:text-base text-[#AAB1BD] leading-relaxed border-t border-white/5 mt-1 cursor-pointer">
+                <AccordionContent className="pt-1 text-sm sm:text-base text-[#AAB1BD] leading-relaxed border-t border-white/5 mt-1">
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>

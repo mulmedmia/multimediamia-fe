@@ -169,7 +169,7 @@ export default function LeaderboardPage() {
                     onValueChange={handleCategoryChange}
                     disabled={categoriesLoading}
                   >
-                    <SelectTrigger className="w-full h-12 bg-[#141824] border border-white/15 hover:border-[#E01C20]/60 rounded-xl text-[#FFF9F5] focus:ring-[#E01C20] transition-colors cursor-pointer">
+                    <SelectTrigger className="w-full h-12! bg-[#141824] border border-white/15 hover:border-[#E01C20]/60 rounded-xl text-[#FFF9F5] focus:ring-[#E01C20] transition-colors cursor-pointer">
                       <SelectValue
                         placeholder={
                           categoriesLoading
