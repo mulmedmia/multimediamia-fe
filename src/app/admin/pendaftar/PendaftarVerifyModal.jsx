@@ -78,8 +78,20 @@ export default function PendaftarVerifyModal({ open, onClose, data }) {
               <span className="font-medium text-purple-400">{data.team_name}</span>
             </div>
           )}
+          <div className="flex justify-between items-center py-0.5 border-b border-border/20">
+            <span className="text-muted-foreground">Status Finance:</span>
+            <Badge
+              className={`text-[11px] px-2 py-0.5 rounded-full ${
+                data.is_verified_finance
+                  ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                  : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+              }`}
+            >
+              {data.is_verified_finance ? "Pembayaran Valid" : "Belum Dicek"}
+            </Badge>
+          </div>
           <div className="flex justify-between items-center py-0.5">
-            <span className="text-muted-foreground">Status Saat Ini:</span>
+            <span className="text-muted-foreground">Status Tim:</span>
             <Badge
               className={`text-[11px] px-2 py-0.5 rounded-full ${
                 isAlreadyVerified
@@ -91,6 +103,16 @@ export default function PendaftarVerifyModal({ open, onClose, data }) {
             </Badge>
           </div>
         </div>
+
+        {/* Warning if finance has not verified payment yet */}
+        {!isAlreadyVerified && !data.is_verified_finance && (
+          <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-start gap-2.5 text-xs text-amber-300">
+            <AlertCircle className="h-4 w-4 shrink-0 text-amber-400 mt-0.5" />
+            <span>
+              <strong>Perhatian:</strong> Bukti pembayaran tim ini belum diverifikasi oleh tim Finance. Pastikan pembayaran telah terkonfirmasi sebelum memverifikasi tim.
+            </span>
+          </div>
+        )}
 
         <DialogFooter className="gap-2 sm:gap-2 pt-2">
           <Button

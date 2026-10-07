@@ -92,7 +92,7 @@ const cardCell = ({ row, setDetailData, setVerifyData }) => {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-3 text-sm">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
         <div>
           <span className="font-semibold">Email:</span>
           <div className="text-muted-foreground truncate">
@@ -107,6 +107,16 @@ const cardCell = ({ row, setDetailData, setVerifyData }) => {
             }`}
           >
             {row.original.is_verified ? "Terverifikasi" : "Belum Terverifikasi"}
+          </div>
+        </div>
+        <div>
+          <span className="font-semibold">Status Finance:</span>
+          <div
+            className={`font-bold ${
+              row.original.is_verified_finance ? "text-green-600" : "text-orange-600"
+            }`}
+          >
+            {row.original.is_verified_finance ? "Valid" : "Belum Dicek"}
           </div>
         </div>
       </div>
@@ -230,6 +240,22 @@ const desktopColumns = [
         className="text-xs px-2 py-1"
       >
         {row.original.is_verified ? "Terverifikasi" : "Belum Terverifikasi"}
+      </Badge>
+    ),
+  },
+  {
+    header: "Status Finance",
+    accessorKey: "is_verified_finance",
+    cell: ({ row }) => (
+      <Badge
+        variant={row.original.is_verified_finance ? "default" : "secondary"}
+        className={`text-xs px-2 py-1 ${
+          row.original.is_verified_finance
+            ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+            : "bg-amber-600/20 text-amber-500 hover:bg-amber-600/30"
+        }`}
+      >
+        {row.original.is_verified_finance ? "Finance: Valid" : "Belum Dicek"}
       </Badge>
     ),
   },
