@@ -63,7 +63,7 @@ const passwordSchema = z.object({
 });
 
 export default function ProfilePage() {
-  const { user, loading: authLoading } = useAuthContext();
+  const { user, loading: authLoading, editProfile } = useAuthContext();
   const router = useRouter();
   const { data: profile, isLoading } = useUserProfile();
   const updateMutation = useUpdateUserProfile();
@@ -108,14 +108,17 @@ export default function ProfilePage() {
   }, [profile, profileForm]);
 
   const onProfileSubmit = (data) => {
-    updateMutation.mutate({
+    const newProfile = {
       name: data.name.trim(),
       nim: data.nim && data.nim.trim() ? data.nim.trim() : null,
       whatsapp_number:
         data.whatsapp_number && data.whatsapp_number.trim()
           ? data.whatsapp_number.trim()
           : null,
-    });
+    };
+    
+    updateMutation.mutate(newProfile);
+    editProfile(newProfile);
   };
 
   const onPasswordSubmit = (data) => {
