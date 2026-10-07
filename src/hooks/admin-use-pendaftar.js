@@ -4,6 +4,7 @@ import {
   getRegistrationById, 
   getRegistrationStats,
   patchVerifyRegistration, 
+  patchVerifyFinanceRegistration,
   patchRegistrationFeedback 
 } from "@/services/admin-pendaftar.service";
 import { toast } from "sonner";
@@ -17,11 +18,12 @@ export function useAdminRegistrations({
   category_id = "",
   search = "",
   is_verified = "",
+  is_verified_finance = "",
 }) {
   return useQuery({
     queryKey: [
       "admin-registrations",
-      { page, limit, category_id, search, is_verified },
+      { page, limit, category_id, search, is_verified, is_verified_finance },
     ],
     queryFn: () =>
       getAllRegistrations({
@@ -30,6 +32,7 @@ export function useAdminRegistrations({
         category_id,
         search,
         is_verified,
+        is_verified_finance,
       }),
     placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 2,
@@ -60,6 +63,23 @@ export function useVerifyRegistration() {
     },
     onError: (err) => {
       toast.error(err?.response?.data?.message || "Gagal verifikasi!");
+    },
+  });
+}
+
+// Mutation: verifikasi bukti pembayaran oleh Finance
+export function useFinanceVerifyRegistration() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: patchVerifyFinanceRegistration,
+    onSuccess: (data) => {
+      qc.invalidateQueries({ queryKey: ["admin-registrations"] });
+      qc.invalidateQueries({ queryKey: ["admin-registration-detail"] });
+      qc.invalidateQueries({ queryKey: ["registration-summary-stats"] });
+      toast.success(data.message || "Status pembayaran berhasil diperbarui!");
+    },
+    onError: (err) => {
+      toast.error(err?.response?.data?.message || "Gagal memperbarui status pembayaran!");
     },
   });
 }

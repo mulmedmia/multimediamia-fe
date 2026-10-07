@@ -66,6 +66,8 @@ export function AuthProvider({ children }) {
       target = "/admin/dashboard";
     } else if (role === "JURI") {
       target = "/juri/manage-submission";
+    } else if (role === "FINANCE") {
+      target = "/finance/pendaftaran";
     } else if (typeof window !== "undefined") {
       const searchParams = new URLSearchParams(window.location.search);
       target = searchParams.get("redirect") || "/dashboard";

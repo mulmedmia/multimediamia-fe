@@ -27,6 +27,8 @@ import {
   Clock,
   FileText,
   MessageSquare,
+  CreditCard,
+  ShieldCheck,
 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
@@ -247,6 +249,68 @@ export default function PendaftarDetailModal({ open, onClose, data }) {
               ) : (
                 <p className="text-xs text-muted-foreground italic">Tidak ada file berkas yang dilampirkan.</p>
               )}
+            </div>
+          </div>
+
+          {/* Card: Status Verifikasi Finance (Pembayaran) */}
+          <div className="bg-[#0F121A]/90 border border-border/40 rounded-xl p-4 sm:p-5 space-y-4">
+            <h3 className="text-xs sm:text-sm font-semibold text-foreground flex items-center gap-2 pb-2 border-b border-border/30">
+              <CreditCard className="h-4 w-4 text-emerald-400" />
+              <span>Verifikasi Bukti Pembayaran (Finance)</span>
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs sm:text-sm">
+              <div>
+                <Label className="text-xs text-muted-foreground">Status Pembayaran</Label>
+                <div className="mt-1">
+                  <Badge
+                    className={`text-xs px-2.5 py-0.5 rounded-full flex items-center gap-1 w-fit ${
+                      data.is_verified_finance
+                        ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                        : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                    }`}
+                  >
+                    {data.is_verified_finance ? (
+                      <>
+                        <CheckCircle2 className="h-3 w-3" /> Valid (Sudah Dicek Finance)
+                      </>
+                    ) : (
+                      <>
+                        <Clock className="h-3 w-3" /> Belum Dicek / Belum Valid
+                      </>
+                    )}
+                  </Badge>
+                </div>
+              </div>
+
+              <div>
+                <Label className="text-xs text-muted-foreground">Diverifikasi Oleh</Label>
+                <p className="font-medium text-foreground mt-0.5">
+                  {data.verified_finance_by_name || "-"}
+                </p>
+              </div>
+
+              <div>
+                <Label className="text-xs text-muted-foreground">Waktu Verifikasi Finance</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {data.verified_finance_at
+                    ? new Date(data.verified_finance_at).toLocaleDateString("id-ID", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      }) + " WIB"
+                    : "-"}
+                </p>
+              </div>
+
+              <div>
+                <Label className="text-xs text-muted-foreground">Catatan Finance</Label>
+                <p className="text-xs text-foreground mt-0.5 italic">
+                  {data.finance_notes ? `“${data.finance_notes}”` : "-"}
+                </p>
+              </div>
             </div>
           </div>
 

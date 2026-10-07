@@ -207,6 +207,8 @@ export default function AdminPendaftarPage() {
         { header: "Asal Instansi", key: "institution", width: 25 },
         { header: "Anggota Tim", key: "team_members", width: 35 },
         { header: "Status Verifikasi", key: "is_verified", width: 20, align: "center" },
+        { header: "Status Finance", key: "is_verified_finance", width: 18, align: "center" },
+        { header: "Catatan Finance", key: "finance_notes", width: 30 },
         { header: "Bukti Pembayaran", key: "payment_proof", width: 35 },
         { header: "Link KTM / Identitas", key: "ktm_url", width: 35 },
       ];
@@ -223,6 +225,8 @@ export default function AdminPendaftarPage() {
           institution: item.institution || "-",
           team_members: members.length > 0 ? members.join(", ") : "-",
           is_verified: item.is_verified ? "Terverifikasi" : "Belum Diverifikasi",
+          is_verified_finance: item.is_verified_finance ? "Valid" : "Belum Dicek",
+          finance_notes: item.finance_notes || "-",
           payment_proof: item.payment_proof || item.file_url || "-",
           ktm_url: item.ktm_url || item.file_url || "-",
         };
@@ -538,6 +542,9 @@ export default function AdminPendaftarPage() {
                       Status
                     </TableHead>
                     <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
+                      Status Finance
+                    </TableHead>
+                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
                       Berkas
                     </TableHead>
                     <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02] whitespace-nowrap">
@@ -637,6 +644,37 @@ export default function AdminPendaftarPage() {
                               </>
                             )}
                           </Badge>
+                        </TableCell>
+
+                        {/* Status Finance */}
+                        <TableCell className="py-3.5">
+                          <div className="space-y-0.5">
+                            <Badge
+                              className={`text-xs px-2.5 py-0.5 rounded-full flex items-center gap-1 w-fit ${
+                                reg.is_verified_finance
+                                  ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                                  : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                              }`}
+                            >
+                              {reg.is_verified_finance ? (
+                                <>
+                                  <CheckCircle2 className="h-3 w-3" /> Finance: Valid
+                                </>
+                              ) : (
+                                <>
+                                  <Clock className="h-3 w-3" /> Finance: Belum Dicek
+                                </>
+                              )}
+                            </Badge>
+                            {reg.finance_notes && (
+                              <p
+                                className="text-[10px] text-muted-foreground/80 truncate max-w-[140px]"
+                                title={`Catatan Finance: ${reg.finance_notes}`}
+                              >
+                                {reg.finance_notes}
+                              </p>
+                            )}
+                          </div>
                         </TableCell>
 
                         {/* Berkas Dokumen */}

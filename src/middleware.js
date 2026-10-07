@@ -62,7 +62,7 @@ export async function middleware(req) {
   const isMaintenance = process.env.NEXT_PUBLIC_MAINTENANCE_MODE === "true";
   const hasBypassCookie = cookies.get("maintenance_bypass")?.value === "true";
   const hasBypassQuery = nextUrl.searchParams.get("bypass_maintenance") === BYPASS_TOKEN;
-  const isAdminOrJuri = valid && (role === "ADMIN" || role === "JURI");
+  const isAdminOrJuriOrFinance = valid && (role === "ADMIN" || role === "JURI" || role === "FINANCE");
 
   if (isMaintenance) {
     // Penanganan bypass melalui query parameter (?bypass_maintenance=TOKEN)
@@ -83,7 +83,7 @@ export async function middleware(req) {
       return response;
     }
 
-    const isBypassed = hasBypassCookie || isAdminOrJuri;
+    const isBypassed = hasBypassCookie || isAdminOrJuriOrFinance;
 
     // Halaman maintenance itu sendiri selalu diizinkan
     if (nextUrl.pathname === "/maintenance") {
@@ -97,6 +97,8 @@ export async function middleware(req) {
           return NextResponse.redirect(new URL("/admin/dashboard", req.url));
         } else if (role === "JURI") {
           return NextResponse.redirect(new URL("/juri/manage-submission", req.url));
+        } else if (role === "FINANCE") {
+          return NextResponse.redirect(new URL("/finance/pendaftaran", req.url));
         }
       }
       return NextResponse.next();
@@ -127,6 +129,7 @@ export async function middleware(req) {
     nextUrl.pathname.startsWith("/dashboard") ||
     nextUrl.pathname.startsWith("/admin") ||
     nextUrl.pathname.startsWith("/juri") ||
+    nextUrl.pathname.startsWith("/finance") ||
     nextUrl.pathname.startsWith("/history-pesanan") ||
     nextUrl.pathname.startsWith("/misi-harian") ||
     nextUrl.pathname.startsWith("/product") ||
@@ -144,12 +147,20 @@ export async function middleware(req) {
       return NextResponse.redirect(new URL("/dashboard", req.url));
     }
 
+    if (nextUrl.pathname.startsWith("/finance") && role !== "FINANCE" && role !== "ADMIN") {
+      return NextResponse.redirect(new URL("/dashboard", req.url));
+    }
+
     if (nextUrl.pathname.startsWith("/dashboard") && role === "ADMIN") {
       return NextResponse.redirect(new URL("/admin/dashboard", req.url));
     }
 
     if (nextUrl.pathname.startsWith("/dashboard") && role === "JURI") {
       return NextResponse.redirect(new URL("/juri/manage-submission", req.url));
+    }
+
+    if (nextUrl.pathname.startsWith("/dashboard") && role === "FINANCE") {
+      return NextResponse.redirect(new URL("/finance/pendaftaran", req.url));
     }
 
     return NextResponse.next();
@@ -160,6 +171,8 @@ export async function middleware(req) {
       return NextResponse.redirect(new URL("/admin/dashboard", req.url));
     } else if (role === "JURI") {
       return NextResponse.redirect(new URL("/juri/manage-submission", req.url));
+    } else if (role === "FINANCE") {
+      return NextResponse.redirect(new URL("/finance/pendaftaran", req.url));
     } else {
       return NextResponse.redirect(new URL("/dashboard", req.url));
     }
