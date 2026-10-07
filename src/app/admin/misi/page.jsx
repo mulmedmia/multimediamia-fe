@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   useAdminMissions,
   useCreateAdminMission,
@@ -81,6 +81,7 @@ export default function AdminMisiPage() {
     isError,
     refetch,
   } = useAdminMissions({
+    limit: 100,
     search: search || undefined,
     status: statusFilter === "ALL" ? undefined : statusFilter,
     category_id: categoryFilter === "ALL" ? undefined : categoryFilter,
@@ -108,7 +109,18 @@ export default function AdminMisiPage() {
   const [selectedMissionForSubmissions, setSelectedMissionForSubmissions] = useState(null);
   const [submissionStatusFilter, setSubmissionStatusFilter] = useState("ALL");
   const [submissionSearch, setSubmissionSearch] = useState("");
+  const [debouncedSubmissionSearch, setDebouncedSubmissionSearch] = useState("");
   const [submissionCategoryFilter, setSubmissionCategoryFilter] = useState("ALL");
+  const [submissionPage, setSubmissionPage] = useState(1);
+  const [submissionLimit, setSubmissionLimit] = useState(10);
+
+  // Debounce submission search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSubmissionSearch(submissionSearch.trim());
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [submissionSearch]);
 
   // Sub-modal Review State
   const [isReviewOpen, setIsReviewOpen] = useState(false);
@@ -175,6 +187,7 @@ export default function AdminMisiPage() {
       setSubmissionCategoryFilter("ALL");
     }
     setSubmissionStatusFilter("ALL");
+    setSubmissionPage(1);
     setActiveTab("submissions");
   };
 
@@ -194,14 +207,19 @@ export default function AdminMisiPage() {
   } = useAdminMissionSubmissions(
     selectedMissionForSubmissions?.mission_id || "all",
     {
+      page: submissionPage,
+      limit: submissionLimit,
       status: submissionStatusFilter === "ALL" ? undefined : submissionStatusFilter,
-      search: submissionSearch || undefined,
+      search: debouncedSubmissionSearch || undefined,
       category_id: submissionCategoryFilter === "ALL" ? undefined : submissionCategoryFilter,
     }
   );
 
   const submissions =
     submissionsData?.submissions || (Array.isArray(submissionsData) ? submissionsData : []);
+  const totalSubmissions = submissionsData?.meta?.total ?? submissions.length;
+  const totalSubmissionPages =
+    submissionsData?.meta?.totalPages || Math.ceil(totalSubmissions / submissionLimit) || 1;
 
   // Determine which mission limits apply for review modal
   const targetReviewMission = useMemo(() => {
@@ -701,7 +719,10 @@ export default function AdminMisiPage() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setSelectedMissionForSubmissions(null)}
+                    onClick={() => {
+                      setSelectedMissionForSubmissions(null);
+                      setSubmissionPage(1);
+                    }}
                     className="h-8 px-2.5 text-xs text-muted-foreground hover:text-foreground rounded-lg cursor-pointer"
                   >
                     Tampilkan Semua Misi
@@ -722,6 +743,7 @@ export default function AdminMisiPage() {
                       value={submissionCategoryFilter}
                       onValueChange={(val) => {
                         setSubmissionCategoryFilter(val);
+                        setSubmissionPage(1);
                         if (
                           val !== "ALL" &&
                           selectedMissionForSubmissions &&
@@ -753,6 +775,7 @@ export default function AdminMisiPage() {
                     <Select
                       value={selectedMissionForSubmissions?.mission_id || "all"}
                       onValueChange={(val) => {
+                        setSubmissionPage(1);
                         if (val === "all") {
                           setSelectedMissionForSubmissions(null);
                         } else {
@@ -782,7 +805,10 @@ export default function AdminMisiPage() {
                       type="text"
                       placeholder="Cari nama, email, link karya..."
                       value={submissionSearch}
-                      onChange={(e) => setSubmissionSearch(e.target.value)}
+                      onChange={(e) => {
+                        setSubmissionSearch(e.target.value);
+                        setSubmissionPage(1);
+                      }}
                       className="pl-8 h-9 bg-input/40 border-border/50 rounded-xl text-xs text-foreground"
                     />
                   </div>
@@ -795,7 +821,10 @@ export default function AdminMisiPage() {
                       <button
                         key={st}
                         type="button"
-                        onClick={() => setSubmissionStatusFilter(st)}
+                        onClick={() => {
+                          setSubmissionStatusFilter(st);
+                          setSubmissionPage(1);
+                        }}
                         className={`px-3 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer ${
                           submissionStatusFilter === st
                             ? "bg-[#E01C20] text-white shadow-sm font-semibold"
@@ -808,7 +837,7 @@ export default function AdminMisiPage() {
                   </div>
 
                   <span className="text-xs text-muted-foreground whitespace-nowrap pl-1">
-                    Total: <b className="text-foreground">{submissions.length}</b> data
+                    Total: <b className="text-foreground">{totalSubmissions}</b> data
                   </span>
                 </div>
               </div>
@@ -1014,6 +1043,73 @@ export default function AdminMisiPage() {
                 </div>
               )}
             </CardContent>
+
+            {/* Pagination Footer */}
+            {totalSubmissions > 0 && (
+              <div className="p-4 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
+                <div className="flex flex-wrap items-center gap-3">
+                  <div>
+                    Menampilkan{" "}
+                    <span className="text-foreground font-semibold">
+                      {(submissionPage - 1) * submissionLimit + 1}
+                    </span>{" "}
+                    -{" "}
+                    <span className="text-foreground font-semibold">
+                      {Math.min(submissionPage * submissionLimit, totalSubmissions)}
+                    </span>{" "}
+                    dari{" "}
+                    <span className="text-foreground font-semibold">{totalSubmissions}</span> total
+                    pengumpulan
+                  </div>
+
+                  {/* Limit per page selector */}
+                  <div className="flex items-center gap-1.5 pl-2 sm:border-l sm:border-border/40">
+                    <span className="hidden sm:inline">Per hal:</span>
+                    <Select
+                      value={String(submissionLimit)}
+                      onValueChange={(val) => {
+                        setSubmissionLimit(Number(val));
+                        setSubmissionPage(1);
+                      }}
+                    >
+                      <SelectTrigger className="h-7 w-16 bg-input/40 border-border/50 rounded-lg text-xs text-foreground">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-[#141824] border-border/50 text-foreground">
+                        <SelectItem value="10">10</SelectItem>
+                        <SelectItem value="25">25</SelectItem>
+                        <SelectItem value="50">50</SelectItem>
+                        <SelectItem value="100">100</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSubmissionPage((p) => Math.max(1, p - 1))}
+                    disabled={submissionPage <= 1 || isSubmissionsLoading}
+                    className="h-8 px-3 rounded-xl border-border/50 bg-input/20 text-foreground disabled:opacity-30 cursor-pointer"
+                  >
+                    Sebelumnya
+                  </Button>
+                  <div className="text-xs px-2 text-foreground font-medium">
+                    Halaman {submissionPage} dari {totalSubmissionPages}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSubmissionPage((p) => Math.min(totalSubmissionPages, p + 1))}
+                    disabled={submissionPage >= totalSubmissionPages || isSubmissionsLoading}
+                    className="h-8 px-3 rounded-xl border-border/50 bg-input/20 text-foreground disabled:opacity-30 cursor-pointer"
+                  >
+                    Selanjutnya
+                  </Button>
+                </div>
+              </div>
+            )}
           </Card>
         </TabsContent>
       </Tabs>
