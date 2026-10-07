@@ -23,13 +23,24 @@ export const getAllRegistrations = async ({
   return res.data.data; // { registrations: [], meta: { page, limit, totalPages, ... } }
 };
 
+// Ambil statistik agregat pendaftar (Admin & Finance)
+export const getRegistrationStats = async ({ category_id = "" } = {}) => {
+  const params = new URLSearchParams();
+  if (category_id && category_id !== "ALL") {
+    params.append("category_id", category_id);
+  }
+  const url = `/registrations/stats${params.toString() ? `?${params.toString()}` : ""}`;
+  const res = await api.get(url);
+  return res.data.data; // { total, verified, not_verified, team, verified_finance, not_verified_finance }
+};
+
 // Ambil detail pendaftar by id
 export const getRegistrationById = async (id) => {
   const res = await api.get(`/registrations/${id}`);
   return res.data.data;
 };
 
-// Patch verifikasi pendaftar
+// Patch verifikasi pendaftar (keseluruhan oleh Admin)
 export const patchVerifyRegistration = async ({ id, is_verified }) => {
   const res = await api.patch(`/registrations/${id}/verify`, { is_verified });
   return res.data;

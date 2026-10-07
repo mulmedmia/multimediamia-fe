@@ -2,29 +2,52 @@ import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tansta
 import { 
   getAllRegistrations, 
   getRegistrationById, 
+  getRegistrationStats,
   patchVerifyRegistration, 
   patchRegistrationFeedback 
 } from "@/services/admin-pendaftar.service";
 import { toast } from "sonner";
 
 /**
- * Hook untuk mengambil daftar pendaftar dengan pagination, filter kategori, dan search
- * @param {Object} params
- * @param {number} params.page
- * @param {number} params.limit
- * @param {string} params.category_id
- * @param {string} params.search
+ * Hook untuk mengambil daftar pendaftar dengan pagination, filter kategori, search, dan status
  */
-export function useAdminRegistrations({ page = 1, limit = 10, category_id = "", search = "", is_verified = "" }) {
+export function useAdminRegistrations({
+  page = 1,
+  limit = 10,
+  category_id = "",
+  search = "",
+  is_verified = "",
+}) {
   return useQuery({
-    queryKey: ["admin-registrations", { page, limit, category_id, search, is_verified }],
-    queryFn: () => getAllRegistrations({ page, limit, category_id, search, is_verified }),
+    queryKey: [
+      "admin-registrations",
+      { page, limit, category_id, search, is_verified },
+    ],
+    queryFn: () =>
+      getAllRegistrations({
+        page,
+        limit,
+        category_id,
+        search,
+        is_verified,
+      }),
     placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 2,
   });
 }
 
-// Mutation: verifikasi pendaftar
+/**
+ * Hook untuk mengambil statistik agregat pendaftar dari PostgreSQL native (Admin & Finance)
+ */
+export function useRegistrationStats({ category_id = "" } = {}) {
+  return useQuery({
+    queryKey: ["registration-summary-stats", { category_id }],
+    queryFn: () => getRegistrationStats({ category_id }),
+    staleTime: 1000 * 60 * 2,
+  });
+}
+
+// Mutation: verifikasi pendaftar oleh Admin
 export function useVerifyRegistration() {
   const qc = useQueryClient();
   return useMutation({
@@ -32,6 +55,7 @@ export function useVerifyRegistration() {
     onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ["admin-registrations"] });
       qc.invalidateQueries({ queryKey: ["admin-registration-detail"] });
+      qc.invalidateQueries({ queryKey: ["registration-summary-stats"] });
       toast.success(data.message || "Verifikasi berhasil!");
     },
     onError: (err) => {
