@@ -4,41 +4,27 @@ import React, { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuthContext } from "@/providers/AuthProvider";
-import { useMissions, useSubmitMission } from "@/hooks/user-use-missions";
+import { useMissions } from "@/hooks/user-use-missions";
 import { useMyRegistrations } from "@/hooks/user-use-registration";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import Footer from "@/components/layout/Footer";
-import { Button } from "@/components/ui/button";
+import { MissionCard } from "@/components/misi-harian/MissionCard";
+import { MissionDetailModal } from "@/components/misi-harian/MissionDetailModal";
+import { MissionSubmitModal } from "@/components/misi-harian/MissionSubmitModal";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogDescription,
-} from "@/components/ui/dialog";
 import {
   Target,
   Zap,
   Gem,
-  Clock,
-  ExternalLink,
-  UploadCloud,
-  CheckCircle2,
-  Clock3,
-  XCircle,
   Search,
-  FileText,
   AlertCircle,
-  Sparkles,
   ArrowRight,
   Trophy,
   Gift,
   RefreshCw,
 } from "lucide-react";
 import { toast } from "sonner";
+import { isExpired } from "@/lib/utils";
 
 export default function MisiHarianPage() {
   const { user, loading: authLoading } = useAuthContext();
@@ -62,7 +48,8 @@ export default function MisiHarianPage() {
       if (catId && !map.has(catId)) {
         map.set(catId, {
           category_id: catId,
-          name: reg.category?.name || reg.category?.category_name || "Kompetisi",
+          name:
+            reg.category?.name || reg.category?.category_name || "Kompetisi",
           slug: reg.category?.slug,
           team_name: reg.team_name,
           diamond: Number(reg.diamond ?? 0),
@@ -80,7 +67,9 @@ export default function MisiHarianPage() {
     if (participatingCategories.length > 0) {
       if (
         !selectedCategoryId ||
-        !participatingCategories.some((c) => c.category_id === selectedCategoryId)
+        !participatingCategories.some(
+          (c) => c.category_id === selectedCategoryId,
+        )
       ) {
         setSelectedCategoryId(participatingCategories[0].category_id);
       }
@@ -89,7 +78,9 @@ export default function MisiHarianPage() {
 
   const activeCategory = useMemo(() => {
     return (
-      participatingCategories.find((c) => c.category_id === selectedCategoryId) ||
+      participatingCategories.find(
+        (c) => c.category_id === selectedCategoryId,
+      ) ||
       participatingCategories[0] ||
       null
     );
@@ -101,7 +92,6 @@ export default function MisiHarianPage() {
     isError,
     refetch,
   } = useMissions({ category_id: selectedCategoryId || undefined });
-  const submitMutation = useSubmitMission();
 
   const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -109,8 +99,15 @@ export default function MisiHarianPage() {
   // Modal Submit State
   const [selectedMission, setSelectedMission] = useState(null);
   const [isSubmitOpen, setIsSubmitOpen] = useState(false);
-  const [submissionUrl, setSubmissionUrl] = useState("");
-  const [submissionNotes, setSubmissionNotes] = useState("");
+
+  // Modal Detail State
+  const [selectedDetailMission, setSelectedDetailMission] = useState(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+
+  const handleOpenDetail = (mission) => {
+    setSelectedDetailMission(mission);
+    setIsDetailOpen(true);
+  };
 
   const handleOpenSubmit = (mission) => {
     if (!user) {
@@ -118,103 +115,58 @@ export default function MisiHarianPage() {
       return;
     }
     if (!activeCategory) {
-      toast.error("Silakan daftar kompetisi terlebih dahulu untuk mengumpulkan misi!");
+      toast.error(
+        "Silakan daftar kompetisi terlebih dahulu untuk mengumpulkan misi!",
+      );
       return;
     }
     setSelectedMission(mission);
-    setSubmissionUrl(mission?.my_submission?.submission_url || "");
-    setSubmissionNotes(mission?.my_submission?.notes || "");
     setIsSubmitOpen(true);
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!submissionUrl.trim()) {
-      toast.error("Link pengumpulan wajib diisi!");
-      return;
-    }
-
-    try {
-      new URL(submissionUrl);
-    } catch {
-      toast.error(
-        "Format URL pengumpulan tidak valid (harus diawali http:// atau https://)"
-      );
-      return;
-    }
-
-    submitMutation.mutate(
-      {
-        id: selectedMission.mission_id,
-        submission_url: submissionUrl.trim(),
-        notes: submissionNotes.trim() || undefined,
-      },
-      {
-        onSuccess: () => {
-          setIsSubmitOpen(false);
-          setSelectedMission(null);
-          setSubmissionUrl("");
-          setSubmissionNotes("");
-        },
-      }
-    );
-  };
-
-  // Helper formatting deadline
-  const formatDeadline = (dateString) => {
-    try {
-      const date = new Date(dateString);
-      return (
-        date.toLocaleDateString("id-ID", {
-          weekday: "short",
-          day: "numeric",
-          month: "short",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-        }) + " WIB"
-      );
-    } catch {
-      return dateString;
-    }
-  };
-
-  const isExpired = (deadlineString) => {
-    return new Date(deadlineString) < new Date();
   };
 
   // Filtered missions
   const filteredMissions = useMemo(() => {
     if (!missions) return [];
 
-    return missions.filter((mission) => {
-      const matchesSearch =
-        mission.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        mission.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    return missions
+      .filter((mission) => {
+        const matchesSearch =
+          mission.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          mission.description
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase());
 
-      if (!matchesSearch) return false;
+        if (!matchesSearch) return false;
 
-      const subStatus = mission.my_submission?.status;
-      const expired = isExpired(mission.deadline);
+        const subStatus = mission.my_submission?.status;
+        const expired = isExpired(mission.deadline);
 
-      if (activeTab === "available") {
-        return !subStatus && !expired;
-      }
-      if (activeTab === "pending") {
-        return subStatus === "PENDING";
-      }
-      if (activeTab === "approved") {
-        return subStatus === "APPROVED";
-      }
-      if (activeTab === "rejected") {
-        return subStatus === "REJECTED";
-      }
-      if (activeTab === "expired") {
-        return expired && !subStatus;
-      }
+        if (activeTab === "available") {
+          return !subStatus && !expired;
+        }
+        if (activeTab === "pending") {
+          return subStatus === "PENDING";
+        }
+        if (activeTab === "approved") {
+          return subStatus === "APPROVED";
+        }
+        if (activeTab === "rejected") {
+          return subStatus === "REJECTED";
+        }
+        if (activeTab === "expired") {
+          return expired && !subStatus;
+        }
 
-      return true;
-    });
+        return true;
+      })
+      .sort((a, b) => {
+        const dateA = new Date(a.deadline);
+        const dateB = new Date(b.deadline);
+
+        if (dateA > dateB) return -1;
+        if (dateA < dateB) return 1;
+        return 0;
+      });
   }, [missions, searchQuery, activeTab]);
 
   if (authLoading || !user) {
@@ -247,7 +199,10 @@ export default function MisiHarianPage() {
               </h1>
 
               <p className="text-sm sm:text-base md:text-lg text-[#AAB1BD] leading-relaxed">
-                Tuntaskan misi harian, kumpulkan XP untuk menaikkan peringkat di Leaderboard dan raih Diamonds <span className="inline-block">💎</span> untuk ditukarkan dengan hadiah eksklusif MIA 2026.
+                Tuntaskan misi harian, kumpulkan XP untuk menaikkan peringkat di
+                Leaderboard dan raih Diamonds{" "}
+                <span className="inline-block">💎</span> untuk ditukarkan dengan
+                hadiah eksklusif MIA 2026.
               </p>
             </div>
 
@@ -275,15 +230,17 @@ export default function MisiHarianPage() {
                   {activeCategory ? (
                     <div className="flex items-center gap-3 px-4 py-2.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold self-stretch sm:self-auto justify-center">
                       <span className="text-[#AAB1BD]">Tim:</span>
-                      <span className="text-[#FFF9F5] font-bold">{activeCategory.team_name || "-"}</span>
-                      <span className="text-white/20">|</span>
+                      <span className="text-[#FFF9F5] font-bold">
+                        {activeCategory.team_name || "-"}
+                      </span>
+                      <span className="text-border/40 select-none">|</span>
                       <span className="text-amber-400 flex items-center gap-1.5 font-bold">
                         <Zap className="h-3.5 w-3.5 fill-amber-400" />
                         {activeCategory.xp.toLocaleString()} XP
                       </span>
-                      <span className="text-white/20">|</span>
-                      <span className="text-[#FED700] flex items-center gap-1.5 font-bold">
-                        <span>💎</span>
+                      <span className="text-border/40 select-none">|</span>
+                      <span className="text-cyan-400 flex items-center gap-1.5 font-bold">
+                        <Gem className="h-3 w-3 fill-cyan-400" />
                         {activeCategory.diamond.toLocaleString()}
                       </span>
                     </div>
@@ -316,7 +273,9 @@ export default function MisiHarianPage() {
                     Belum Terdaftar di Kompetisi
                   </h3>
                   <p className="text-xs sm:text-sm text-[#AAB1BD] leading-relaxed">
-                    Misi harian terhubung ke masing-masing kategori lomba (WIA, UIA, dll). Silakan daftar kompetisi terlebih dahulu untuk dapat mengakses dan mengumpulkan misi harian.
+                    Misi harian terhubung ke masing-masing kategori lomba (WIA,
+                    UIA, dll). Silakan daftar kompetisi terlebih dahulu untuk
+                    dapat mengakses dan mengumpulkan misi harian.
                   </p>
                 </div>
                 <Link
@@ -458,7 +417,9 @@ export default function MisiHarianPage() {
                     Gagal Memuat Misi Harian
                   </h2>
                   <p className="text-sm text-[#AAB1BD] max-w-md mx-auto leading-relaxed">
-                    Terjadi kendala saat mengambil data misi harian. Silakan periksa koneksi internet atau server backend sedang berjalan.
+                    Terjadi kendala saat mengambil data misi harian. Silakan
+                    periksa koneksi internet atau server backend sedang
+                    berjalan.
                   </p>
                 </div>
                 <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -516,339 +477,34 @@ export default function MisiHarianPage() {
             {/* Missions Grid */}
             {!isLoading && !isError && filteredMissions.length > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredMissions.map((mission) => {
-                  const sub = mission.my_submission;
-                  const expired = isExpired(mission.deadline);
-
-                  return (
-                    <div
-                      key={mission.mission_id}
-                      className="mia-card p-5 sm:p-6 hover:border-[#E01C20]/50 hover:shadow-[0_0_25px_rgba(224,28,32,0.12)] transition-all duration-300 relative flex flex-col justify-between group space-y-4"
-                    >
-                      <div className="space-y-3">
-                        {/* Header Row: Deadline & Status Badge */}
-                        <div className="flex items-center justify-between gap-2 flex-wrap">
-                          <div className="flex items-center gap-1.5 text-xs text-[#AAB1BD]">
-                            <Clock className="h-3.5 w-3.5 text-[#FED700]" />
-                            <span className={expired ? "text-red-400 font-medium" : ""}>
-                              {formatDeadline(mission.deadline)}
-                            </span>
-                          </div>
-
-                          {/* Category and Status Badges */}
-                          <div className="flex items-center gap-1.5 flex-wrap">
-                            {mission.category?.name ? (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-500/15 text-blue-400 border border-blue-500/30">
-                                {mission.category.name}
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                                🌐 Semua Kategori
-                              </span>
-                            )}
-
-                            {sub?.status === "APPROVED" && (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                                <CheckCircle2 className="h-3 w-3" />
-                                <span>Disetujui</span>
-                              </span>
-                            )}
-                            {sub?.status === "PENDING" && (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/30">
-                                <Clock3 className="h-3 w-3" />
-                                <span>Review</span>
-                              </span>
-                            )}
-                            {sub?.status === "REJECTED" && (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#E01C20]/15 text-[#E01C20] border border-[#E01C20]/30">
-                                <XCircle className="h-3 w-3" />
-                                <span>Ditolak</span>
-                              </span>
-                            )}
-                            {!sub && expired && (
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-white/5 border border-white/10 text-[#AAB1BD]">
-                                Kadaluarsa
-                              </span>
-                            )}
-                            {!sub && !expired && (
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-500/15 text-blue-400 border border-blue-500/30">
-                                Tersedia
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Title */}
-                        <h3 className="text-base sm:text-lg font-bold text-[#FFF9F5] group-hover:text-[#E01C20] transition-colors line-clamp-2">
-                          {mission.title}
-                        </h3>
-
-                        {/* Description */}
-                        <p className="text-xs sm:text-sm text-[#AAB1BD] line-clamp-2 leading-relaxed h-10">
-                          {mission.description ||
-                            "Tidak ada deskripsi tersedia untuk misi ini."}
-                        </p>
-                      </div>
-
-                      <div className="space-y-4 mt-auto">
-                        {/* Reward Range Pill */}
-                        <div className="grid grid-cols-2 gap-2 p-2.5 rounded-xl bg-[#141824] border border-white/10">
-                          <div className="flex items-center gap-2">
-                            <div className="w-7 h-7 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 flex-shrink-0">
-                              <Zap className="h-3.5 w-3.5 fill-amber-400" />
-                            </div>
-                            <div className="min-w-0">
-                              <p className="text-[10px] uppercase tracking-wider text-[#AAB1BD]">
-                                Hadiah XP
-                              </p>
-                              <p className="text-xs sm:text-sm font-bold text-[#FED700] truncate">
-                                {mission.min_xp === mission.max_xp
-                                  ? `${mission.min_xp} XP`
-                                  : `${mission.min_xp} - ${mission.max_xp} XP`}
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-2">
-                            <div className="w-7 h-7 rounded-lg bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400 flex-shrink-0">
-                              <Gem className="h-3.5 w-3.5 fill-cyan-400" />
-                            </div>
-                            <div className="min-w-0">
-                              <p className="text-[10px] uppercase tracking-wider text-[#AAB1BD]">
-                                Hadiah Diamond
-                              </p>
-                              <p className="text-xs sm:text-sm font-bold text-[#00D2FF] truncate">
-                                {mission.min_diamond === mission.max_diamond
-                                  ? `${mission.min_diamond} 💎`
-                                  : `${mission.min_diamond} - ${mission.max_diamond} 💎`}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Admin Review Result Box (If Approved / Rejected) */}
-                        {sub?.status === "APPROVED" && (
-                          <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs space-y-1">
-                            <div className="flex items-center justify-between font-semibold text-emerald-400">
-                              <span>Hadiah Diperoleh:</span>
-                              <span>
-                                +{sub.awarded_xp} XP & +{sub.awarded_diamond} 💎
-                              </span>
-                            </div>
-                            {sub.admin_feedback && (
-                              <p className="text-[#AAB1BD] italic text-[11px]">
-                                &quot;{sub.admin_feedback}&quot;
-                              </p>
-                            )}
-                          </div>
-                        )}
-
-                        {sub?.status === "REJECTED" && (
-                          <div className="p-3 rounded-xl bg-[#E01C20]/10 border border-[#E01C20]/20 text-xs space-y-1">
-                            <p className="font-semibold text-red-400">
-                              Pengumpulan Ditolak
-                            </p>
-                            {sub.admin_feedback && (
-                              <p className="text-[#AAB1BD] text-[11px]">
-                                Alasan: {sub.admin_feedback}
-                              </p>
-                            )}
-                          </div>
-                        )}
-
-                        {/* Action Buttons */}
-                        <div className="space-y-2 pt-1 border-t border-white/10">
-                          {/* Google Docs Instructions Button */}
-                          {mission.google_docs_url && (
-                            <a
-                              href={mission.google_docs_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="w-full block"
-                            >
-                              <button
-                                type="button"
-                                className="w-full rounded-full border border-white/15 bg-white/5 hover:bg-white/10 text-xs font-semibold text-[#FFF9F5] flex items-center justify-center gap-1.5 h-9 cursor-pointer transition-all"
-                              >
-                                <FileText className="h-3.5 w-3.5 text-[#FED700]" />
-                                <span>Buka Panduan Google Docs</span>
-                                <ExternalLink className="h-3 w-3 text-[#AAB1BD]" />
-                              </button>
-                            </a>
-                          )}
-
-                          {/* Submit / Status Button */}
-                          {sub?.status === "APPROVED" ? (
-                            <button
-                              disabled
-                              className="w-full rounded-full bg-emerald-600/20 text-emerald-300 border border-emerald-500/30 text-xs font-semibold h-10 flex items-center justify-center gap-1.5 cursor-not-allowed"
-                            >
-                              <CheckCircle2 className="h-4 w-4" />
-                              <span>Misi Selesai</span>
-                            </button>
-                          ) : sub?.status === "PENDING" ? (
-                            <button
-                              onClick={() => handleOpenSubmit(mission)}
-                              className="w-full rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500/30 text-xs font-semibold h-10 flex items-center justify-center gap-1.5 cursor-pointer transition-all"
-                            >
-                              <UploadCloud className="h-4 w-4" />
-                              <span>Edit Pengumpulan</span>
-                            </button>
-                          ) : sub?.status === "REJECTED" && !expired ? (
-                            <button
-                              onClick={() => handleOpenSubmit(mission)}
-                              className="w-full mia-btn-primary text-xs font-semibold h-10 inline-flex items-center justify-center gap-1.5 cursor-pointer"
-                            >
-                              <UploadCloud className="h-4 w-4 text-white" />
-                              <span>Kirim Ulang Tugas</span>
-                            </button>
-                          ) : expired ? (
-                            <button
-                              disabled
-                              className="w-full rounded-full bg-white/5 text-[#AAB1BD]/50 border border-white/10 text-xs font-semibold h-10 flex items-center justify-center gap-1.5 cursor-not-allowed"
-                            >
-                              <span>Misi Telah Berakhir</span>
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => handleOpenSubmit(mission)}
-                              className="w-full mia-btn-primary text-xs font-semibold h-10 inline-flex items-center justify-center gap-1.5 cursor-pointer"
-                            >
-                              <UploadCloud className="h-4 w-4 text-white" />
-                              <span>Kirim Pengumpulan</span>
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+                {filteredMissions.map((mission) => (
+                  <MissionCard
+                    key={mission.mission_id}
+                    mission={mission}
+                    onOpenDetail={handleOpenDetail}
+                    onOpenSubmit={handleOpenSubmit}
+                  />
+                ))}
               </div>
             )}
           </div>
         </main>
       </div>
 
+      {/* Mission Detail Modal Dialog */}
+      <MissionDetailModal
+        isOpen={isDetailOpen}
+        onOpenChange={setIsDetailOpen}
+        mission={selectedDetailMission}
+        onOpenSubmit={handleOpenSubmit}
+      />
+
       {/* Submission Modal Dialog */}
-      <Dialog open={isSubmitOpen} onOpenChange={setIsSubmitOpen}>
-        <DialogContent className="bg-[#0A0D14] border border-white/10 text-[#FFF9F5] max-w-lg rounded-2xl p-6 shadow-2xl">
-          <DialogHeader className="space-y-2">
-            <div className="w-12 h-12 rounded-2xl bg-[#E01C20]/15 border border-[#E01C20]/30 flex items-center justify-center text-[#E01C20] shadow-[0_0_15px_rgba(224,28,32,0.15)]">
-              <UploadCloud className="h-6 w-6" />
-            </div>
-            <DialogTitle className="text-lg font-bold text-[#FFF9F5]">
-              Kirim Pengumpulan Misi
-            </DialogTitle>
-            <DialogDescription className="text-xs text-[#AAB1BD]">
-              Misi:{" "}
-              <span className="text-[#FFF9F5] font-semibold">
-                {selectedMission?.title}
-              </span>
-            </DialogDescription>
-          </DialogHeader>
-
-          <form onSubmit={handleSubmit} className="space-y-4 pt-2">
-            {/* Reward reminder */}
-            <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10 text-xs">
-              <span className="text-[#AAB1BD]">
-                {selectedMission?.min_xp === selectedMission?.max_xp && selectedMission?.min_diamond === selectedMission?.max_diamond
-                  ? "Reward Misi (Pasti):"
-                  : "Perkiraan Reward:"}
-              </span>
-              <div className="flex items-center gap-3 font-semibold">
-                <span className="text-amber-400">
-                  ⚡ {selectedMission?.min_xp === selectedMission?.max_xp
-                    ? `${selectedMission?.min_xp} XP`
-                    : `${selectedMission?.min_xp} - ${selectedMission?.max_xp} XP`}
-                </span>
-                <span className="text-cyan-400">
-                  💎 {selectedMission?.min_diamond === selectedMission?.max_diamond
-                    ? `${selectedMission?.min_diamond}`
-                    : `${selectedMission?.min_diamond} - ${selectedMission?.max_diamond}`}
-                </span>
-              </div>
-            </div>
-
-            {!selectedMission?.category_id && (
-              <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-300 leading-relaxed">
-                🌐 <b>Misi Bersama (Semua Kategori):</b> Anda cukup mengumpulkan misi ini 1 kali. Reward XP dan Diamond akan otomatis diberikan ke seluruh tim lomba aktif yang Anda ikuti!
-              </div>
-            )}
-
-            {/* Instruction Link reminder */}
-            {selectedMission?.google_docs_url && (
-              <div className="p-3 rounded-xl bg-[#141824] border border-white/10 flex items-center justify-between text-xs">
-                <span className="text-[#AAB1BD]">
-                  Belum membaca instruksi lengkap?
-                </span>
-                <a
-                  href={selectedMission.google_docs_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[#FED700] hover:underline font-semibold flex items-center gap-1"
-                >
-                  <span>Buka Docs</span>
-                  <ExternalLink className="h-3 w-3" />
-                </a>
-              </div>
-            )}
-
-            {/* URL Input */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-[#FFF9F5] flex items-center justify-between">
-                <span>Link Karya / Pengumpulan (URL) *</span>
-                <span className="text-[10px] text-[#AAB1BD]">
-                  Google Drive / YouTube / Medsos
-                </span>
-              </label>
-              <Input
-                type="url"
-                required
-                placeholder="https://drive.google.com/file/d/... atau https://..."
-                value={submissionUrl}
-                onChange={(e) => setSubmissionUrl(e.target.value)}
-                className="bg-[#141824] border-white/10 text-[#FFF9F5] placeholder:text-[#AAB1BD]/50 rounded-xl h-10 text-sm focus-visible:ring-[#E01C20]"
-              />
-              <p className="text-[11px] text-[#AAB1BD]">
-                ⚠️ Pastikan link Google Drive atau file yang Anda lampirkan sudah
-                diset ke mode <b>Public (Anyone with link can view)</b>.
-              </p>
-            </div>
-
-            {/* Notes Textarea */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-[#FFF9F5]">
-                Catatan Tambahan (Opsional)
-              </label>
-              <Textarea
-                rows={3}
-                placeholder="Tuliskan catatan tambahan untuk admin (misal: bagian yang dikerjakan, username sosmed, dll)..."
-                value={submissionNotes}
-                onChange={(e) => setSubmissionNotes(e.target.value)}
-                className="bg-[#141824] border-white/10 text-[#FFF9F5] placeholder:text-[#AAB1BD]/50 rounded-xl text-sm focus-visible:ring-[#E01C20] resize-none"
-              />
-            </div>
-
-            <DialogFooter className="gap-2 pt-3">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => setIsSubmitOpen(false)}
-                className="rounded-full border border-white/15 bg-transparent hover:bg-white/5 text-[#FFF9F5] text-xs font-semibold h-10 px-4 cursor-pointer"
-              >
-                Batal
-              </Button>
-              <Button
-                type="submit"
-                disabled={submitMutation.isPending}
-                className="mia-btn-primary text-xs font-semibold h-10 px-5 cursor-pointer"
-              >
-                {submitMutation.isPending ? "Mengirim..." : "Kirim Pengumpulan"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+      <MissionSubmitModal
+        isOpen={isSubmitOpen}
+        onOpenChange={setIsSubmitOpen}
+        mission={selectedMission}
+      />
 
       <Footer />
     </div>
