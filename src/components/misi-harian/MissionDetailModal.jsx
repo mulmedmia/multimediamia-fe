@@ -28,12 +28,34 @@ import {
 import { cn, formatDeadline, isExpired } from "@/lib/utils";
 import { Separator } from "../ui/separator";
 
+const getRemainingTimeStr = (dateString) => {
+  if (!dateString) return "";
+  try {
+    const deadline = new Date(dateString);
+    const now = new Date();
+    const diffMs = deadline - now;
+    if (diffMs <= 0) return "";
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffDays > 0) {
+      return `Sisa Waktu: ${diffDays} hari ${diffHours % 24} jam`;
+    } else if (diffHours > 0) {
+      return `Sisa Waktu: ${diffHours} jam`;
+    } else {
+      const diffMins = Math.floor(diffMs / (1000 * 60));
+      return `Sisa Waktu: ${diffMins} menit`;
+    }
+  } catch {
+    return "";
+  }
+};
+
 export function MissionDetailModal({
   isOpen,
   onOpenChange,
   mission,
   onOpenSubmit,
-  getRemainingTimeText,
 }) {
   if (!mission) return null;
 
@@ -44,30 +66,6 @@ export function MissionDetailModal({
   const isApproved = sub?.status === "APPROVED";
   const isReviewed = sub?.status === "PENDING";
   const isRejected = sub?.status === "REJECTED";
-
-  const getRemainingTimeStr = (dateString) => {
-    if (getRemainingTimeText) return getRemainingTimeText(dateString);
-    if (!dateString) return "";
-    try {
-      const deadline = new Date(dateString);
-      const now = new Date();
-      const diffMs = deadline - now;
-      if (diffMs <= 0) return "";
-      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-      const diffDays = Math.floor(diffHours / 24);
-
-      if (diffDays > 0) {
-        return `Sisa Waktu: ${diffDays} hari ${diffHours % 24} jam`;
-      } else if (diffHours > 0) {
-        return `Sisa Waktu: ${diffHours} jam`;
-      } else {
-        const diffMins = Math.floor(diffMs / (1000 * 60));
-        return `Sisa Waktu: ${diffMins} menit`;
-      }
-    } catch {
-      return "";
-    }
-  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -283,7 +281,7 @@ export function MissionDetailModal({
           )}
         </div>
 
-        <div className="pt-6 pb-20 sm:pb-8"></div>
+        <div className="pt-8 pb-20 sm:pb-8"></div>
 
         <DialogFooter
           className={cn(
@@ -360,7 +358,7 @@ export function MissionDetailModal({
                 type="button"
                 onClick={() => {
                   onOpenChange(false);
-                  if (onOpenSubmit) onOpenSubmit(mission);
+                  if (onOpenSubmit) onOpenSubmit(mission, true);
                 }}
                 className={cn(
                   "mia-btn-primary text-xs font-semibold h-10 px-5 cursor-pointer inline-flex items-center gap-1.5",

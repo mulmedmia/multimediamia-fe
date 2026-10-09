@@ -16,10 +16,17 @@ import { UploadCloud, Zap, Gem, ExternalLink } from "lucide-react";
 import { useSubmitMission } from "@/hooks/user-use-missions";
 import { toast } from "sonner";
 
-export function MissionSubmitModal({ isOpen, onOpenChange, mission }) {
+export function MissionSubmitModal({
+  isOpen,
+  onOpenChange,
+  mission,
+  onOpenDetail,
+  backToDetail,
+}) {
   const [submissionUrl, setSubmissionUrl] = useState("");
   const [submissionNotes, setSubmissionNotes] = useState("");
   const submitMutation = useSubmitMission();
+  const showPreviousButton = onOpenDetail && backToDetail;
 
   useEffect(() => {
     if (isOpen && mission) {
@@ -66,11 +73,10 @@ export function MissionSubmitModal({ isOpen, onOpenChange, mission }) {
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="bg-[#0A0D14] border border-white/10 text-[#FFF9F5] max-w-lg rounded-2xl p-6 shadow-2xl  selection:bg-primary">
         <DialogHeader className="space-y-2">
-          {/* <div className="w-12 h-12 rounded-2xl bg-[#E01C20]/15 border border-[#E01C20]/30 flex items-center justify-center text-[#E01C20] shadow-[0_0_15px_rgba(224,28,32,0.15)]">
-            <UploadCloud className="h-6 w-6" />
-          </div> */}
-          <DialogTitle className="text-lg sm:text-xl font-bold flex items-center gap-2.5 text-foreground">
-            <UploadCloud className="h-5 w-5 text-[#E01C20]" />
+          <DialogTitle className="text-lg sm:text-xl font-bold flex items-center gap-4 text-foreground">
+            <div className="w-10 h-10 rounded-2xl bg-[#E01C20]/15 border border-[#E01C20]/30 flex items-center justify-center text-[#E01C20] shadow-[0_0_15px_rgba(224,28,32,0.15)]">
+              <UploadCloud className="h-5 w-5 text-[#E01C20]" />
+            </div>
             <span>Kirim Pengumpulan Misi</span>
           </DialogTitle>
           <DialogDescription className="text-xs text-[#AAB1BD]">
@@ -116,7 +122,7 @@ export function MissionSubmitModal({ isOpen, onOpenChange, mission }) {
 
           {/* Instruction Link reminder */}
           {mission.google_docs_url && (
-            <div className="p-3 rounded-xl bg-[#141824] border border-white/10 flex items-center justify-between text-xs">
+            <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between text-xs">
               <span className="text-[#AAB1BD]">
                 Belum membaca instruksi lengkap?
               </span>
@@ -136,7 +142,7 @@ export function MissionSubmitModal({ isOpen, onOpenChange, mission }) {
           <div className="space-y-1.5">
             <label
               htmlFor="linkPengumpulan"
-              className="text-xs font-semibold text-[#FFF9F5] flex items-center justify-between"
+              className="text-xs font-medium text-[#FFF9F5] flex items-center justify-between"
             >
               <span>
                 Link Karya / Pengumpulan (URL){" "}
@@ -163,10 +169,14 @@ export function MissionSubmitModal({ isOpen, onOpenChange, mission }) {
 
           {/* Notes Textarea */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-[#FFF9F5]">
+            <label
+              htmlFor="catatan"
+              className="text-xs font-medium text-[#FFF9F5]"
+            >
               Catatan Tambahan (Opsional)
             </label>
             <Textarea
+              id="catatan"
               rows={3}
               placeholder="Tuliskan catatan tambahan untuk admin (misal: bagian yang dikerjakan, username sosmed, dll)..."
               value={submissionNotes}
@@ -179,17 +189,29 @@ export function MissionSubmitModal({ isOpen, onOpenChange, mission }) {
             <Button
               type="button"
               variant="ghost"
-              onClick={() => onOpenChange(false)}
+              onClick={() => {
+                onOpenChange(false);
+                showPreviousButton
+                  ? onOpenDetail(mission)
+                  : onOpenChange(false);
+              }}
               className="rounded-full border border-white/15 bg-transparent hover:bg-white/5 text-[#FFF9F5] text-xs font-semibold h-10 px-4 cursor-pointer"
             >
-              Batal
+              {showPreviousButton ? "Kembali" : "Batal"}
             </Button>
             <Button
               type="submit"
               disabled={submitMutation.isPending}
-              className="mia-btn-primary text-xs font-semibold h-10 px-5 cursor-pointer"
+              className="mia-btn-primary text-xs font-semibold h-10 px-5 cursor-pointer inline-flex items-center gap-1.5"
             >
-              {submitMutation.isPending ? "Mengirim..." : "Kirim Pengumpulan"}
+              {submitMutation.isPending ? (
+                "Mengirim..."
+              ) : (
+                <>
+                  <UploadCloud className="h-4 w-4 text-white" />
+                  <span>Kirim Pengumpulan</span>
+                </>
+              )}
             </Button>
           </DialogFooter>
         </form>

@@ -100,6 +100,8 @@ export default function MisiHarianPage() {
   const [selectedMission, setSelectedMission] = useState(null);
   const [isSubmitOpen, setIsSubmitOpen] = useState(false);
 
+  const [backToDetail, setBackToDetail] = useState(false);
+
   // Modal Detail State
   const [selectedDetailMission, setSelectedDetailMission] = useState(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -109,7 +111,7 @@ export default function MisiHarianPage() {
     setIsDetailOpen(true);
   };
 
-  const handleOpenSubmit = (mission) => {
+  const handleOpenSubmit = (mission, newBackToDetail = false) => {
     if (!user) {
       toast.error("Silakan login terlebih dahulu untuk mengumpulkan misi!");
       return;
@@ -122,6 +124,7 @@ export default function MisiHarianPage() {
     }
     setSelectedMission(mission);
     setIsSubmitOpen(true);
+    setBackToDetail(newBackToDetail);
   };
 
   // Filtered missions
@@ -504,6 +507,8 @@ export default function MisiHarianPage() {
         isOpen={isSubmitOpen}
         onOpenChange={setIsSubmitOpen}
         mission={selectedMission}
+        onOpenDetail={handleOpenDetail}
+        backToDetail={backToDetail}
       />
 
       <Footer />
