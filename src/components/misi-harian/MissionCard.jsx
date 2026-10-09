@@ -154,7 +154,7 @@ export function MissionCard({ mission, onOpenDetail, onOpenSubmit }) {
 
         {sub?.status === "REJECTED" && (
           <div className="p-3 rounded-xl bg-[#E01C20]/10 border border-[#E01C20]/20 text-xs space-y-1">
-            <p className="font-semibold text-red-400">Pengumpulan Ditolak</p>
+            <p className="font-semibold text-red-400">Pengumpulan ditolak</p>
             {sub.admin_feedback && (
               <p className="text-[#AAB1BD] text-[11px]">
                 Alasan: {sub.admin_feedback}

@@ -248,7 +248,7 @@ export function MissionDetailModal({
                 <div
                   className={cn(
                     "p-3.5 border rounded-2xl space-y-1.5 backdrop-blur-xs",
-                    isRejected && "bg-primary/10 border-primary/25",
+                    isRejected && "bg-primary/15 border-primary/25",
                     isApproved && "bg-emerald-600/5 border-emerald-500/15",
                   )}
                 >
@@ -262,15 +262,15 @@ export function MissionDetailModal({
                     <div className="flex-1 min-w-0">
                       <p
                         className={cn(
-                          "text-xs font-semibold text-primary",
+                          "text-xs font-semibold text-red-300",
                           isApproved && "text-emerald-500",
                         )}
                       >
                         {isRejected
-                          ? "Pengumpulan ditolak:"
+                          ? "Pengumpulan ditolak"
                           : "Feedback Panitia:"}
                       </p>
-                      <p className="text-[11px] text-[#AAB1BD] truncate break-words whitespace-pre-line italic">
+                      <p className="text-[11px] text-[#AAB1BD] truncate break-words whitespace-pre-line italic pt-1">
                         {sub.admin_feedback}
                       </p>
                     </div>
