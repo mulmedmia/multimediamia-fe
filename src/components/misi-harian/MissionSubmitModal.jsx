@@ -181,7 +181,7 @@ export function MissionSubmitModal({
               placeholder="Tuliskan catatan tambahan untuk admin (misal: bagian yang dikerjakan, username sosmed, dll)..."
               value={submissionNotes}
               onChange={(e) => setSubmissionNotes(e.target.value)}
-              className="bg-input dark:bg-input/30 border-white/10 text-[#FFF9F5] placeholder:text-[#AAB1BD]/50 rounded-xl text-sm focus-visible:ring-[#E01C20] resize-none"
+              className="bg-input dark:bg-input/30 border-white/10 text-[#FFF9F5] placeholder:text-[#AAB1BD]/50 rounded-xl text-sm focus-visible:ring-[#E01C20] resize-none mt-0.5"
             />
           </div>
 

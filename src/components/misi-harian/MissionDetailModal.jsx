@@ -70,7 +70,7 @@ export function MissionDetailModal({
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent
-        className="bg-[#0A0D14] border border-white/10 text-[#FFF9F5] max-w-lg md:max-w-xl rounded-2xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto selection:bg-primary"
+        className="bg-[#0A0D14] border border-white/10 text-[#FFF9F5] max-w-lg rounded-2xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto selection:bg-primary"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <div className="flex items-center justify-between gap-3">
