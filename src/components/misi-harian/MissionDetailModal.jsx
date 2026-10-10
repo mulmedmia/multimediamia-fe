@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
-  Target,
   Clock,
   Zap,
   Gem,
@@ -22,7 +21,6 @@ import {
   XCircle,
   Link,
   MessageSquare,
-  NotebookTextIcon,
   PenBox,
 } from "lucide-react";
 import { cn, formatDeadline, isExpired } from "@/lib/utils";
@@ -70,7 +68,7 @@ export function MissionDetailModal({
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent
-        className="bg-[#0A0D14] border border-white/10 text-[#FFF9F5] max-w-lg rounded-2xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto selection:bg-primary"
+        className="bg-[#0A0D14] border border-white/10 text-[#FFF9F5] max-w-lg rounded-2xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto selection:bg-primary pb-0 overflow-x-clip"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <div className="flex items-center justify-between gap-3">
@@ -281,11 +279,9 @@ export function MissionDetailModal({
           )}
         </div>
 
-        <div className="pt-8 pb-20 sm:pb-8"></div>
-
         <DialogFooter
           className={cn(
-            "gap-4 flex-col absolute bottom-0 w-full px-6 py-4 border-t border-white/10",
+            "flex-col gap-4 py-4 -mx-6 mt-4 px-6 border-t border-white/10 bg-blue-600/4",
             isApproved && "bg-emerald-600/20 border-emerald-500/30",
           )}
         >
@@ -367,7 +363,13 @@ export function MissionDetailModal({
                 )}
               >
                 <UploadCloud className="h-4 w-4 text-white" />
-                <span>{sub ? "Edit Pengumpulan" : "Kirim Pengumpulan"}</span>
+                <span>
+                  {!sub
+                    ? "Kirim Pengumpulan"
+                    : isReviewed
+                      ? "Edit Pengumpulan"
+                      : "Kirim Ulang Tugas"}
+                </span>
               </Button>
             )
           )}

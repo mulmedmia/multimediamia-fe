@@ -201,7 +201,10 @@ export function MissionCard({ mission, onOpenDetail, onOpenSubmit }) {
                 e.stopPropagation();
                 if (onOpenSubmit) onOpenSubmit(mission);
               }}
-              className="w-full rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500/30 text-xs font-semibold h-10 flex items-center justify-center gap-1.5 cursor-pointer transition-all"
+              className={cn(
+                "w-full mia-btn-primary text-xs font-semibold h-10 inline-flex items-center justify-center gap-1.5 cursor-pointer",
+                "bg-amber-500/20! [&_svg]:text-amber-300! text-amber-300! border! border-amber-500/30! hover:bg-amber-500/30! hover:!shadow-[0_0_20px_oklch(76.9%_0.188_70.08_/_0.4)]",
+              )}
             >
               <UploadCloud className="h-4 w-4" />
               <span>Edit Pengumpulan</span>
