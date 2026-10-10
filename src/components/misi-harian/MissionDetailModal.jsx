@@ -68,7 +68,7 @@ export function MissionDetailModal({
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent
-        className="bg-[#0A0D14] border border-white/10 text-[#FFF9F5] max-w-lg rounded-2xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto selection:bg-primary pb-0 overflow-x-clip"
+        className="bg-[#0A0D14] border border-white/10 text-[#FFF9F5] max-w-lg rounded-2xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto selection:bg-primary pb-0"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <div className="flex items-center justify-between gap-3">
@@ -341,7 +341,7 @@ export function MissionDetailModal({
           </div>
 
           {/* Action button inside Detail Modal, approved already shown at the top */}
-          {expired ? (
+          {expired && !sub ? (
             <Button
               disabled
               className="rounded-full bg-white/5 text-[#AAB1BD]/50 border border-white/10 text-xs font-semibold h-10 px-5 cursor-not-allowed"
@@ -369,6 +369,14 @@ export function MissionDetailModal({
                     : isReviewed
                       ? "Edit Pengumpulan"
                       : "Kirim Ulang Tugas"}
+                  {/* 
+                  if expired and user submission approved: show nothing
+
+                  if expired and user has no submission: misi berakhir
+                  else if not expired and user has no submission: kirim pengumpulan
+                  else if submission reviewed: edit pengumpulan
+
+                  */}
                 </span>
               </Button>
             )

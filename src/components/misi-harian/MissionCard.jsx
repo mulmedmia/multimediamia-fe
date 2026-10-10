@@ -139,7 +139,7 @@ export function MissionCard({ mission, onOpenDetail, onOpenSubmit }) {
         {sub?.status === "APPROVED" && (
           <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs space-y-1">
             <div className="flex items-center justify-between font-semibold text-emerald-400">
-              <span>Hadiah Diperoleh:</span>
+              <span>Hadiah diperoleh:</span>
               <span>
                 +{sub.awarded_xp} XP & +{sub.awarded_diamond} 💎
               </span>
