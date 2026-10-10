@@ -327,7 +327,7 @@ export default function MissionForm({ initial, onSubmit, isLoading, onCancel }) 
             placeholder="Tuliskan instruksi langkah demi langkah, syarat pengerjaan, dan format bukti pengumpulan misi..."
             value={form.description}
             onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-            className="bg-input/40 border-border/50 rounded-xl p-3 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground/60 resize-none"
+            className="bg-input/40 border-border/50 rounded-xl p-3 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground/60 resize-y"
             required
           />
         </div>
@@ -445,6 +445,7 @@ export default function MissionForm({ initial, onSubmit, isLoading, onCancel }) 
                 id="min_xp"
                 type="number"
                 min="0"
+                max={form.max_xp}
                 placeholder="50"
                 value={form.min_xp}
                 onChange={(e) => setForm((f) => ({ ...f, min_xp: e.target.value }))}
@@ -461,7 +462,7 @@ export default function MissionForm({ initial, onSubmit, isLoading, onCancel }) 
               <Input
                 id="max_xp"
                 type="number"
-                min="0"
+                min={form.min_xp || "0"}
                 placeholder="100"
                 value={form.max_xp}
                 onChange={(e) => setForm((f) => ({ ...f, max_xp: e.target.value }))}
@@ -480,6 +481,7 @@ export default function MissionForm({ initial, onSubmit, isLoading, onCancel }) 
                 id="min_diamond"
                 type="number"
                 min="0"
+                max={form.max_diamond}
                 placeholder="10"
                 value={form.min_diamond}
                 onChange={(e) => setForm((f) => ({ ...f, min_diamond: e.target.value }))}
@@ -496,7 +498,7 @@ export default function MissionForm({ initial, onSubmit, isLoading, onCancel }) 
               <Input
                 id="max_diamond"
                 type="number"
-                min="0"
+                min={form.min_diamond || "0"}
                 placeholder="20"
                 value={form.max_diamond}
                 onChange={(e) => setForm((f) => ({ ...f, max_diamond: e.target.value }))}
