@@ -131,45 +131,34 @@ export default function MisiHarianPage() {
   const filteredMissions = useMemo(() => {
     if (!missions) return [];
 
-    return missions
-      .filter((mission) => {
-        const matchesSearch =
-          mission.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          mission.description
-            ?.toLowerCase()
-            .includes(searchQuery.toLowerCase());
+    return missions.filter((mission) => {
+      const matchesSearch =
+        mission.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        mission.description?.toLowerCase().includes(searchQuery.toLowerCase());
 
-        if (!matchesSearch) return false;
+      if (!matchesSearch) return false;
 
-        const subStatus = mission.my_submission?.status;
-        const expired = isExpired(mission.deadline);
+      const subStatus = mission.my_submission?.status;
+      const expired = isExpired(mission.deadline);
 
-        if (activeTab === "available") {
-          return !subStatus && !expired;
-        }
-        if (activeTab === "pending") {
-          return subStatus === "PENDING";
-        }
-        if (activeTab === "approved") {
-          return subStatus === "APPROVED";
-        }
-        if (activeTab === "rejected") {
-          return subStatus === "REJECTED";
-        }
-        if (activeTab === "expired") {
-          return expired && !subStatus;
-        }
+      if (activeTab === "available") {
+        return !subStatus && !expired;
+      }
+      if (activeTab === "pending") {
+        return subStatus === "PENDING";
+      }
+      if (activeTab === "approved") {
+        return subStatus === "APPROVED";
+      }
+      if (activeTab === "rejected") {
+        return subStatus === "REJECTED";
+      }
+      if (activeTab === "expired") {
+        return expired && !subStatus;
+      }
 
-        return true;
-      })
-      .sort((a, b) => {
-        const dateA = new Date(a.deadline);
-        const dateB = new Date(b.deadline);
-
-        if (dateA > dateB) return -1;
-        if (dateA < dateB) return 1;
-        return 0;
-      });
+      return true;
+    });
   }, [missions, searchQuery, activeTab]);
 
   if (authLoading || !user) {
