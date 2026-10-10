@@ -260,7 +260,7 @@ export default function AdminDashboardPage() {
               <Users className="h-5 w-5" />
             </div>
             <div className="min-w-0">
-              <p className="text-xs text-muted-foreground truncate">Total Pendaftar</p>
+              <p className="text-xs text-muted-foreground truncate">Total Tim Terdaftar</p>
               {loadingReg ? (
                 <Skeleton className="h-7 w-14 bg-white/5 rounded-md mt-0.5" />
               ) : (
