@@ -164,7 +164,7 @@ export default function MaintenancePage() {
 
       {/* Footer */}
       <footer className="w-full max-w-6xl mx-auto px-6 py-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#AAB1BD]">
-        <p>© 2026 Multimedia Informatics Award (MIA). All rights reserved.</p>
+        <p>© 2026 Multimedia In Action (MIA). All rights reserved.</p>
         <div className="flex items-center gap-5">
           <a
             href="https://instagram.com/ksm_multimedia"
