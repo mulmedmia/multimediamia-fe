@@ -341,7 +341,7 @@ export function MissionDetailModal({
           </div>
 
           {/* Action button inside Detail Modal, approved already shown at the top */}
-          {expired && !sub ? (
+          {expired && !isApproved ? (
             <Button
               disabled
               className="rounded-full bg-white/5 text-[#AAB1BD]/50 border border-white/10 text-xs font-semibold h-10 px-5 cursor-not-allowed"
@@ -369,14 +369,6 @@ export function MissionDetailModal({
                     : isReviewed
                       ? "Edit Pengumpulan"
                       : "Kirim Ulang Tugas"}
-                  {/* 
-                  if expired and user submission approved: show nothing
-
-                  if expired and user has no submission: misi berakhir
-                  else if not expired and user has no submission: kirim pengumpulan
-                  else if submission reviewed: edit pengumpulan
-
-                  */}
                 </span>
               </Button>
             )

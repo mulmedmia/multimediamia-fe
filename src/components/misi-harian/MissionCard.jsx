@@ -195,7 +195,7 @@ export function MissionCard({ mission, onOpenDetail, onOpenSubmit }) {
               <CheckCircle2 className="h-4 w-4" />
               <span>Misi Selesai</span>
             </button>
-          ) : sub?.status === "PENDING" ? (
+          ) : sub?.status === "PENDING" && !expired ? (
             <button
               onClick={(e) => {
                 e.stopPropagation();
