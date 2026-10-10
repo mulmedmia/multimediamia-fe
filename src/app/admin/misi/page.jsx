@@ -584,8 +584,8 @@ export default function AdminMisiPage() {
                             <span className="text-cyan-400 font-semibold flex items-center gap-1">
                               <Gem className="h-3 w-3 fill-cyan-400" />
                               {mission.min_diamond === mission.max_diamond
-                                ? `${mission.min_diamond} 💎`
-                                : `${mission.min_diamond} - ${mission.max_diamond} 💎`}
+                                ? `${mission.min_diamond}`
+                                : `${mission.min_diamond} - ${mission.max_diamond}`}
                             </span>
                           </div>
                         </TableCell>

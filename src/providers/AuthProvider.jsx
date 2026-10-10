@@ -89,11 +89,16 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const editProfile = (newProfile) => {
+    setUser((prev) => ({ ...prev, ...newProfile }));
+  };
+
   const value = {
     user,
     loading,
     login,
     logout,
+    editProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
