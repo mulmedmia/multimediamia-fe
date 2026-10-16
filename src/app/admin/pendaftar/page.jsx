@@ -150,7 +150,9 @@ export default function AdminPendaftarPage() {
     const verified = allList.filter((r) => r.is_verified).length;
     const notVerified = allList.filter((r) => !r.is_verified).length;
     const team = allList.filter((r) => !!r.team_name).length;
-    return { total, verified, notVerified, team };
+    
+    const uniqueUserTotal = (new Set(allList.map((r) => r.user_id))).size;
+    return { total, verified, notVerified, team, uniqueUserTotal };
   }, [statsData, registrations, totalItems]);
 
   // Helper date display
@@ -301,10 +303,10 @@ export default function AdminPendaftarPage() {
         <Card className="bg-[#0F121A]/80 border-border/40 rounded-2xl">
           <CardContent className="p-4 flex items-center gap-3.5">
             <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
-              <Layers className="h-5 w-5" />
+              <Users className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Total Pendaftar</p>
+              <p className="text-xs text-muted-foreground">Total Tim Terdaftar</p>
               <p className="text-xl font-bold text-foreground">{stats.total}</p>
             </div>
           </CardContent>
@@ -337,11 +339,11 @@ export default function AdminPendaftarPage() {
         <Card className="bg-[#0F121A]/80 border-border/40 rounded-2xl">
           <CardContent className="p-4 flex items-center gap-3.5">
             <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
-              <Users className="h-5 w-5" />
+              <Layers className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Pendaftar Tim</p>
-              <p className="text-xl font-bold text-foreground">{stats.team}</p>
+              <p className="text-xs text-muted-foreground">Akun Unik</p>
+              <p className="text-xl font-bold text-foreground">{stats.uniqueUserTotal}</p>
             </div>
           </CardContent>
         </Card>

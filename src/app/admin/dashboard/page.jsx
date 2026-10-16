@@ -230,7 +230,7 @@ export default function AdminDashboardPage() {
             <span>Dashboard Utama</span>
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-            Pusat komando dan ringkasan metrik kompetisi Multimedia Informatics Award (MIA) 2026.
+            Pusat komando dan ringkasan metrik kompetisi Multimedia In Action (MIA) 2026.
           </p>
         </div>
 
@@ -260,7 +260,7 @@ export default function AdminDashboardPage() {
               <Users className="h-5 w-5" />
             </div>
             <div className="min-w-0">
-              <p className="text-xs text-muted-foreground truncate">Total Pendaftar</p>
+              <p className="text-xs text-muted-foreground truncate">Total Tim Terdaftar</p>
               {loadingReg ? (
                 <Skeleton className="h-7 w-14 bg-white/5 rounded-md mt-0.5" />
               ) : (
@@ -775,7 +775,7 @@ export default function AdminDashboardPage() {
                   Tahapan & Alur Kompetisi MIA 2026
                 </CardTitle>
                 <p className="text-[11px] text-muted-foreground">
-                  Roadmap pelaksanaan kompetisi Multimedia Informatics Award
+                  Roadmap pelaksanaan kompetisi Multimedia In Action
                 </p>
               </div>
             </div>

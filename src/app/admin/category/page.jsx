@@ -336,36 +336,36 @@ export default function AdminCategoryPage() {
           ) : (
             <div className="overflow-x-auto">
               <Table>
-                <TableHeader className="bg-white/5">
+                <TableHeader>
                   <TableRow className="border-border/40 hover:bg-transparent">
-                    <TableHead className="text-xs font-bold text-foreground w-16">
+                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 pl-6 bg-white/[0.02]">
                       Banner
                     </TableHead>
-                    <TableHead className="text-xs font-bold text-foreground">
+                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
                       Kategori & Judul Lomba
                     </TableHead>
-                    <TableHead className="text-xs font-bold text-foreground">
+                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
                       Penyelenggara
                     </TableHead>
-                    <TableHead className="text-xs font-bold text-foreground">
+                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
                       Timeline & Batas Karya
                     </TableHead>
-                    <TableHead className="text-xs font-bold text-foreground">
+                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
                       Status Pengumpulan
                     </TableHead>
-                    <TableHead className="text-xs font-bold text-foreground">
+                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
                       Tipe Tim
                     </TableHead>
-                    <TableHead className="text-xs font-bold text-foreground">
+                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
                       Status
                     </TableHead>
-                    <TableHead className="text-xs font-bold text-foreground whitespace-nowrap">
+                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02] whitespace-nowrap">
                       Created By
                     </TableHead>
-                    <TableHead className="text-xs font-bold text-foreground whitespace-nowrap">
+                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02] whitespace-nowrap">
                       Updated By
                     </TableHead>
-                    <TableHead className="text-xs font-bold text-foreground text-right sticky right-0 bg-[#141824] z-20 shadow-[-8px_0_12px_-4px_rgba(0,0,0,0.5)] border-l border-border/40">
+                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 pr-6 text-right sticky right-0 bg-[#141824] z-20 shadow-[-8px_0_12px_-4px_rgba(0,0,0,0.5)] border-l border-border/40">
                       Aksi
                     </TableHead>
                   </TableRow>
@@ -377,7 +377,7 @@ export default function AdminCategoryPage() {
                       className="group border-border/40 hover:bg-white/5 transition-colors"
                     >
                       {/* Banner Image */}
-                      <TableCell className="w-16">
+                      <TableCell className="py-3.5 pl-6">
                         <div className="relative w-14 h-10 rounded-lg overflow-hidden bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0">
                           {category.image ? (
                             <Image
@@ -493,7 +493,7 @@ export default function AdminCategoryPage() {
                       </TableCell>
 
                       {/* Action Buttons */}
-                      <TableCell className="text-right sticky right-0 bg-[#0F121A] group-hover:bg-[#141824] z-10 shadow-[-8px_0_12px_-4px_rgba(0,0,0,0.5)] border-l border-border/40 transition-colors">
+                      <TableCell className="pr-4.5 text-right sticky right-0 bg-[#0F121A] group-hover:bg-[#141824] z-10 shadow-[-8px_0_12px_-4px_rgba(0,0,0,0.5)] border-l border-border/40 transition-colors">
                         <div className="flex items-center justify-end gap-1.5">
                           {/* Toggle Buka/Tutup Pengumpulan */}
                           <Button

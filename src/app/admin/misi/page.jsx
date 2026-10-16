@@ -523,16 +523,16 @@ export default function AdminMisiPage() {
           ) : (
             <div className="overflow-x-auto">
               <Table>
-                <TableHeader className="bg-white/5">
+                <TableHeader>
                   <TableRow className="border-border/40 hover:bg-transparent">
-                    <TableHead className="text-xs font-bold text-foreground">Judul Misi</TableHead>
-                    <TableHead className="text-xs font-bold text-foreground">Deadline</TableHead>
-                    <TableHead className="text-xs font-bold text-foreground">Hadiah (XP & Diamond)</TableHead>
-                    <TableHead className="text-xs font-bold text-foreground">Panduan Docs</TableHead>
-                    <TableHead className="text-xs font-bold text-foreground">Status</TableHead>
-                    <TableHead className="text-xs font-bold text-foreground whitespace-nowrap">Created By</TableHead>
-                    <TableHead className="text-xs font-bold text-foreground whitespace-nowrap">Updated By</TableHead>
-                    <TableHead className="text-xs font-bold text-foreground text-right sticky right-0 bg-[#141824] z-20 shadow-[-8px_0_12px_-4px_rgba(0,0,0,0.5)] border-l border-border/40">Aksi</TableHead>
+                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 pl-6 bg-white/[0.02]">Judul Misi</TableHead>
+                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">Deadline</TableHead>
+                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">Hadiah (XP & Diamond)</TableHead>
+                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">Panduan Docs</TableHead>
+                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">Status</TableHead>
+                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02] whitespace-nowrap">Created By</TableHead>
+                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02] whitespace-nowrap">Updated By</TableHead>
+                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 pr-6 text-right sticky right-0 bg-[#141824] z-20 shadow-[-8px_0_12px_-4px_rgba(0,0,0,0.5)] border-l border-border/40">Aksi</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -544,7 +544,7 @@ export default function AdminMisiPage() {
                         key={mission.mission_id}
                         className="group border-border/40 hover:bg-white/5 transition-colors"
                       >
-                        <TableCell className="max-w-xs">
+                        <TableCell className="max-w-xs py-3.5 pl-6">
                           <div className="flex items-center gap-1.5 flex-wrap">
                             <p className="text-sm font-semibold text-foreground line-clamp-1">
                               {mission.title}
@@ -564,7 +564,7 @@ export default function AdminMisiPage() {
                           </p>
                         </TableCell>
 
-                        <TableCell className="whitespace-nowrap">
+                        <TableCell className="py-3.5 whitespace-nowrap">
                           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                             <Clock className="h-3.5 w-3.5 text-amber-400" />
                             <span className={isPastDeadline ? "text-red-400 font-medium" : ""}>
@@ -573,7 +573,7 @@ export default function AdminMisiPage() {
                           </div>
                         </TableCell>
 
-                        <TableCell className="whitespace-nowrap">
+                        <TableCell className="py-3.5 whitespace-nowrap">
                           <div className="flex items-center gap-3 text-xs">
                             <span className="text-amber-400 font-semibold flex items-center gap-1">
                               <Zap className="h-3 w-3 fill-amber-400" />
@@ -584,13 +584,13 @@ export default function AdminMisiPage() {
                             <span className="text-cyan-400 font-semibold flex items-center gap-1">
                               <Gem className="h-3 w-3 fill-cyan-400" />
                               {mission.min_diamond === mission.max_diamond
-                                ? `${mission.min_diamond} 💎`
-                                : `${mission.min_diamond} - ${mission.max_diamond} 💎`}
+                                ? `${mission.min_diamond}`
+                                : `${mission.min_diamond} - ${mission.max_diamond}`}
                             </span>
                           </div>
                         </TableCell>
 
-                        <TableCell className="whitespace-nowrap">
+                        <TableCell className="py-3.5 whitespace-nowrap">
                           {mission.google_docs_url ? (
                             <a
                               href={mission.google_docs_url}
@@ -606,7 +606,7 @@ export default function AdminMisiPage() {
                           )}
                         </TableCell>
 
-                        <TableCell className="whitespace-nowrap">
+                        <TableCell className="py-3.5 whitespace-nowrap">
                           {mission.status === "ACTIVE" ? (
                             <Badge className="bg-emerald-500/15 border-emerald-500/30 text-emerald-400 text-xs px-2 py-0.5 rounded-full">
                               ACTIVE
@@ -623,16 +623,16 @@ export default function AdminMisiPage() {
                         </TableCell>
 
                         {/* Created By */}
-                        <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                        <TableCell className="py-3.5 text-xs text-muted-foreground whitespace-nowrap">
                           {mission.created_by_name || "-"}
                         </TableCell>
 
                         {/* Updated By */}
-                        <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                        <TableCell className="py-3.5 text-xs text-muted-foreground whitespace-nowrap">
                           {mission.updated_by_name || "-"}
                         </TableCell>
 
-                        <TableCell className="text-right whitespace-nowrap sticky right-0 bg-[#0F121A] group-hover:bg-[#141824] z-10 shadow-[-8px_0_12px_-4px_rgba(0,0,0,0.5)] border-l border-border/40 transition-colors">
+                        <TableCell className="py-3.5 pr-4.5 text-right sticky right-0 bg-[#0F121A] group-hover:bg-[#141824] z-10 shadow-[-8px_0_12px_-4px_rgba(0,0,0,0.5)] border-l border-border/40 transition-colors">
                           <div className="flex items-center justify-end gap-1.5">
                             {/* Review Submissions Button */}
                             <Button
@@ -869,18 +869,18 @@ export default function AdminMisiPage() {
               ) : (
                 <div className="overflow-x-auto">
                   <Table>
-                    <TableHeader className="bg-white/5">
+                    <TableHeader>
                       <TableRow className="border-border/40 hover:bg-transparent">
-                        <TableHead className="text-xs font-bold text-foreground">Peserta</TableHead>
-                        <TableHead className="text-xs font-bold text-foreground">Misi</TableHead>
-                        <TableHead className="text-xs font-bold text-foreground">Link Karya</TableHead>
-                        <TableHead className="text-xs font-bold text-foreground">Catatan</TableHead>
-                        <TableHead className="text-xs font-bold text-foreground">Waktu Submit</TableHead>
-                        <TableHead className="text-xs font-bold text-foreground">Status</TableHead>
-                        <TableHead className="text-xs font-bold text-foreground">Hasil Nilai</TableHead>
-                        <TableHead className="text-xs font-bold text-foreground whitespace-nowrap">Created By</TableHead>
-                        <TableHead className="text-xs font-bold text-foreground whitespace-nowrap">Updated By</TableHead>
-                        <TableHead className="text-xs font-bold text-foreground text-right sticky right-0 bg-[#141824] z-20 shadow-[-8px_0_12px_-4px_rgba(0,0,0,0.5)] border-l border-border/40">Aksi</TableHead>
+                        <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 pl-6 bg-white/[0.02]">Peserta</TableHead>
+                        <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">Misi</TableHead>
+                        <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">Link Karya</TableHead>
+                        <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">Catatan</TableHead>
+                        <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">Waktu Submit</TableHead>
+                        <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">Status</TableHead>
+                        <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">Hasil Nilai</TableHead>
+                        <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 whitespace-nowrap">Created By</TableHead>
+                        <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 whitespace-nowrap">Updated By</TableHead>
+                        <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 pr-6 text-right sticky right-0 bg-[#141824] z-20 shadow-[-8px_0_12px_-4px_rgba(0,0,0,0.5)] border-l border-border/40">Aksi</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -896,7 +896,7 @@ export default function AdminMisiPage() {
                             key={sub.submission_id}
                             className="group border-border/40 hover:bg-white/5 transition-colors"
                           >
-                            <TableCell className="max-w-[200px]">
+                            <TableCell className="py-3.5 pl-6 max-w-[200px]">
                               <p className="text-xs font-semibold text-foreground truncate">
                                 {sub.user?.name || "Peserta"}
                               </p>
@@ -1006,7 +1006,7 @@ export default function AdminMisiPage() {
                               {sub.updated_by_name || "-"}
                             </TableCell>
 
-                            <TableCell className="text-right whitespace-nowrap sticky right-0 bg-[#0F121A] group-hover:bg-[#141824] z-10 shadow-[-8px_0_12px_-4px_rgba(0,0,0,0.5)] border-l border-border/40 transition-colors">
+                            <TableCell className="py-3.5 pr-5 text-right whitespace-nowrap sticky right-0 bg-[#0F121A] group-hover:bg-[#141824] z-10 shadow-[-8px_0_12px_-4px_rgba(0,0,0,0.5)] border-l border-border/40 transition-colors">
                               {sub.status === "PENDING" ? (
                                 <Button
                                   size="sm"
