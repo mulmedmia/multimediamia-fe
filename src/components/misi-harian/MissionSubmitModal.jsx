@@ -20,6 +20,7 @@ export function MissionSubmitModal({
   isOpen,
   onOpenChange,
   mission,
+  activeCategory,
   onOpenDetail,
   backToDetail,
 }) {
@@ -56,6 +57,8 @@ export function MissionSubmitModal({
         id: mission.mission_id,
         submission_url: submissionUrl.trim(),
         notes: submissionNotes.trim() || undefined,
+        registration_id: activeCategory?.registration_id || undefined,
+        category_id: activeCategory?.category_id || undefined,
       },
       {
         onSuccess: () => {
@@ -88,6 +91,19 @@ export function MissionSubmitModal({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 pt-2">
+          {/* Active Team Info */}
+          {activeCategory && (
+            <div className="flex items-center justify-between p-3 rounded-xl bg-[#E01C20]/10 border border-[#E01C20]/25 text-xs">
+              <span className="text-[#AAB1BD]">Mengumpulkan untuk Tim:</span>
+              <span className="text-[#FFF9F5] font-bold">
+                {activeCategory.team_name || "-"}{" "}
+                <span className="text-[#FED700] font-semibold">
+                  ({activeCategory.name})
+                </span>
+              </span>
+            </div>
+          )}
+
           {/* Reward reminder */}
           <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10 text-xs">
             <span className="text-[#AAB1BD]">
@@ -114,9 +130,10 @@ export function MissionSubmitModal({
 
           {!mission.category_id && (
             <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-300 leading-relaxed">
-              🌐 <b>Misi Bersama (Semua Kategori):</b> Anda cukup mengumpulkan
-              misi ini 1 kali. Reward XP dan Diamond akan otomatis diberikan ke
-              seluruh tim lomba aktif yang Anda ikuti!
+              🌐 <b>Misi Bersama (Semua Kategori):</b> Pengumpulan dan reward XP
+              serta Diamond ini berlaku khusus untuk tim{" "}
+              <b>{activeCategory?.team_name || "aktif Anda"}</b> (
+              {activeCategory?.name || "Kategori terpilih"}).
             </div>
           )}
 

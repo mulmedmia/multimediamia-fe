@@ -130,6 +130,7 @@ export default function AdminMisiPage() {
     awarded_xp: 50,
     awarded_diamond: 10,
     admin_feedback: "",
+    registration_id: "",
   });
 
   const reviewMutation = useReviewAdminSubmission(
@@ -248,6 +249,12 @@ export default function AdminMisiPage() {
       submission.mission ||
       missions.find((m) => m.mission_id === submission.mission_id);
 
+    const defaultRegId =
+      submission.registration_id ||
+      submission.registration?.registration_id ||
+      submission.user_registrations?.[0]?.registration_id ||
+      "";
+
     setReviewData({
       status: "APPROVED",
       awarded_xp:
@@ -261,6 +268,7 @@ export default function AdminMisiPage() {
         missionRef?.min_diamond ||
         10,
       admin_feedback: submission.admin_feedback || "",
+      registration_id: defaultRegId,
     });
     setIsReviewOpen(true);
   };
@@ -301,6 +309,7 @@ export default function AdminMisiPage() {
       awarded_xp: statusToSet === "APPROVED" ? Number(reviewData.awarded_xp) : undefined,
       awarded_diamond: statusToSet === "APPROVED" ? Number(reviewData.awarded_diamond) : undefined,
       admin_feedback: reviewData.admin_feedback?.trim() || undefined,
+      registration_id: reviewData.registration_id || undefined,
     };
 
     reviewMutation.mutate(
@@ -896,7 +905,7 @@ export default function AdminMisiPage() {
                             key={sub.submission_id}
                             className="group border-border/40 hover:bg-white/5 transition-colors"
                           >
-                            <TableCell className="py-3.5 pl-6 max-w-[200px]">
+                            <TableCell className="py-3.5 pl-6 max-w-[220px]">
                               <p className="text-xs font-semibold text-foreground truncate">
                                 {sub.user?.name || "Peserta"}
                               </p>
@@ -908,6 +917,29 @@ export default function AdminMisiPage() {
                                   NIM: {sub.user.nim}
                                 </p>
                               )}
+                              {sub.registration?.team_name ? (
+                                <div className="mt-1 inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-[#E01C20]/15 border border-[#E01C20]/30 text-[10px] font-medium text-[#FFF9F5] max-w-full truncate">
+                                  <span className="truncate">
+                                    Tim: <b>{sub.registration.team_name}</b>
+                                  </span>
+                                  {sub.registration.category_name && (
+                                    <span className="text-[#FED700] flex-shrink-0">
+                                      ({sub.registration.category_name})
+                                    </span>
+                                  )}
+                                </div>
+                              ) : sub.user_registrations?.length > 1 ? (
+                                <div
+                                  className="mt-1 inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/15 border border-amber-500/30 text-[10px] font-medium text-amber-300 max-w-full truncate"
+                                  title={sub.user_registrations
+                                    .map((r) => `${r.team_name} (${r.category_name})`)
+                                    .join(", ")}
+                                >
+                                  <span className="truncate">
+                                    ⚠️ Pilih Tim ({sub.user_registrations.length} tim)
+                                  </span>
+                                </div>
+                              ) : null}
                             </TableCell>
 
                             <TableCell className="max-w-[200px]">
@@ -1224,6 +1256,50 @@ export default function AdminMisiPage() {
           </DialogHeader>
 
           <div className="space-y-4 pt-2">
+            {/* Target Team / Registration Info */}
+            {selectedSubmission?.registration?.registration_id ? (
+              <div className="flex items-center justify-between p-3 rounded-xl bg-[#E01C20]/10 border border-[#E01C20]/25 text-xs">
+                <span className="text-muted-foreground">Tim Pengumpul:</span>
+                <span className="text-foreground font-bold">
+                  {selectedSubmission.registration.team_name || "-"}{" "}
+                  {selectedSubmission.registration.category_name && (
+                    <span className="text-[#FED700] font-semibold">
+                      ({selectedSubmission.registration.category_name})
+                    </span>
+                  )}
+                </span>
+              </div>
+            ) : selectedSubmission?.user_registrations?.length > 1 ? (
+              <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 space-y-2 text-xs">
+                <Label className="text-xs font-semibold text-amber-300">
+                  Pilih Tim Penerima Reward (Peserta Memiliki &gt;1 Tim) *
+                </Label>
+                <Select
+                  value={reviewData.registration_id}
+                  onValueChange={(val) =>
+                    setReviewData({ ...reviewData, registration_id: val })
+                  }
+                >
+                  <SelectTrigger className="h-9 bg-[#141824] border-border/50 rounded-xl text-xs text-foreground">
+                    <SelectValue placeholder="Pilih tim peserta..." />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#141824] border-border/50 text-foreground">
+                    {selectedSubmission.user_registrations.map((reg) => (
+                      <SelectItem
+                        key={reg.registration_id}
+                        value={reg.registration_id}
+                      >
+                        {reg.team_name} ({reg.category_name || "Kompetisi"})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-[11px] text-amber-200/80">
+                  Pengumpulan lama ini belum terikat ke ID tim spesifik. Pilih tim sesuai catatan peserta agar XP &amp; Diamond masuk ke tim yang tepat.
+                </p>
+              </div>
+            ) : null}
+
             {/* Submission Link Review */}
             <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-2 text-xs">
               <div className="flex items-center justify-between">
@@ -1275,7 +1351,17 @@ export default function AdminMisiPage() {
 
             {!targetReviewMission?.category_id && (
               <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-300 flex items-center gap-2">
-                <span>🌐 <b>Misi Global:</b> Reward XP dan Diamond akan otomatis diberikan ke seluruh tim lomba yang diikuti peserta ini.</span>
+                <span>
+                  🌐 <b>Misi Global:</b> Reward XP dan Diamond hanya akan diberikan ke tim{" "}
+                  <b>
+                    {selectedSubmission?.registration?.team_name ||
+                      selectedSubmission?.user_registrations?.find(
+                        (r) => r.registration_id === reviewData.registration_id
+                      )?.team_name ||
+                      "yang dipilih"}
+                  </b>
+                  .
+                </span>
               </div>
             )}
 

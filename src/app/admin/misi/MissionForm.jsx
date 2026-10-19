@@ -260,7 +260,7 @@ export default function MissionForm({ initial, onSubmit, isLoading, onCancel }) 
           </Select>
           <p className="text-[11px] text-muted-foreground">
             {form.category_id === "ALL" || !form.category_id
-              ? "Misi ini akan tampil di seluruh kategori lomba (WIA & UIA). Reward akan diberikan ke seluruh tim yang diikuti peserta."
+              ? "Misi ini akan tampil di seluruh kategori lomba (WIA & UIA). Setiap tim mengumpulkan misi secara mandiri dan reward diberikan ke tim yang mengumpulkan."
               : "Misi ini hanya akan tampil khusus untuk kategori yang dipilih."}
           </p>
         </div>

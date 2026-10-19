@@ -91,7 +91,10 @@ export default function MisiHarianPage() {
     isLoading,
     isError,
     refetch,
-  } = useMissions({ category_id: selectedCategoryId || undefined });
+  } = useMissions({
+    category_id: selectedCategoryId || undefined,
+    registration_id: activeCategory?.registration_id || undefined,
+  });
 
   const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -496,6 +499,7 @@ export default function MisiHarianPage() {
         isOpen={isSubmitOpen}
         onOpenChange={setIsSubmitOpen}
         mission={selectedMission}
+        activeCategory={activeCategory}
         onOpenDetail={handleOpenDetail}
         backToDetail={backToDetail}
       />
