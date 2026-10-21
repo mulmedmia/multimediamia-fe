@@ -28,6 +28,7 @@ import {
   Search,
   X,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function LeaderboardPage() {
   const [selectedCategoryId, setSelectedCategoryId] = useState("all");
@@ -387,6 +388,9 @@ export default function LeaderboardPage() {
                           <p className="text-xs text-[#AAB1BD] truncate">
                             oleh {topThree[1].user?.name || "Peserta"}
                           </p>
+                          <Badge className={getRankBadgeColor(-1)}>
+                            {topThree[1].category?.name}
+                          </Badge>
                         </div>
 
                         <div className="pt-2 border-t border-white/10 flex items-center justify-center gap-3">
@@ -432,6 +436,9 @@ export default function LeaderboardPage() {
                         <p className="text-xs md:text-sm text-[#AAB1BD] truncate">
                           oleh {topThree[0].user?.name || "Peserta"}
                         </p>
+                        <Badge className={getRankBadgeColor(-1)}>
+                          {topThree[0].category?.name}
+                        </Badge>
                       </div>
 
                       <div className="pt-3 border-t border-white/10 flex items-center justify-center gap-3">
@@ -471,6 +478,9 @@ export default function LeaderboardPage() {
                           <p className="text-xs text-[#AAB1BD] truncate">
                             oleh {topThree[2].user?.name || "Peserta"}
                           </p>
+                          <Badge className={getRankBadgeColor(-1)}>
+                            {topThree[2].category?.name}
+                          </Badge>
                         </div>
 
                         <div className="pt-2 border-t border-white/10 flex items-center justify-center gap-3">
@@ -504,16 +514,18 @@ export default function LeaderboardPage() {
                     <h3 className="text-xl md:text-2xl font-bold text-[#FFF9F5]">
                       {isSearching
                         ? "Hasil Pencarian Tim"
-                        : page === 1
-                        ? "Peringkat Lainnya"
-                        : "Daftar Peringkat"}
+                        : isAllCategory
+                          ? page === 1
+                            ? "Peringkat Lainnya"
+                            : "Daftar Peringkat"
+                          : `Peringkat ${remaining[0].category?.name}`}
                     </h3>
                     <p className="text-xs md:text-sm text-[#AAB1BD]">
                       {isSearching
-                        ? `Menampilkan tim yang cocok dengan kata kunci "${appliedSearch}"`
+                        ? `Menampilkan tim ${!isAllCategory ? remaining[0].category?.name : ""} yang cocok dengan kata kunci "${appliedSearch}"`
                         : page === 1
-                        ? "Daftar tim peserta peringkat ke-4 dan seterusnya berdasarkan total XP"
-                        : `Menampilkan tim peringkat ${(page - 1) * limit + 1} sampai ${Math.min(meta.total, page * limit)}`}
+                          ? `Daftar tim peserta ${!isAllCategory ? remaining[0].category?.slug : "peringkat ke-4 dan seterusnya"} berdasarkan total XP dan diamond`
+                          : `Menampilkan tim peringkat ${(page - 1) * limit + 1} sampai ${Math.min(meta.total, page * limit)}`}
                     </p>
                   </div>
                   <div className="mia-pill-badge w-fit">
@@ -529,7 +541,8 @@ export default function LeaderboardPage() {
                   {/* Desktop Table Header */}
                   <div className="hidden md:grid md:grid-cols-12 gap-4 px-6 py-4 bg-[#1E2939]/80 border-b border-white/10 text-xs font-semibold text-[#AAB1BD] uppercase tracking-wider">
                     <div className="col-span-2 text-center">Peringkat</div>
-                    <div className="col-span-6">Tim & Peserta</div>
+                    <div className={cn(isAllCategory ? "col-span-4" : "col-span-6")}>Tim & Peserta</div>
+                    {isAllCategory && (<div className="col-span-2 text-center">Kategori</div>)}
                     <div className="col-span-2 text-center">Perolehan XP</div>
                     <div className="col-span-2 text-center">Diamond</div>
                   </div>
@@ -585,7 +598,7 @@ export default function LeaderboardPage() {
                               {getRankIcon(rank, false)}
                             </div>
 
-                            <div className="col-span-6">
+                            <div className={cn(isAllCategory ? "col-span-4" : "col-span-6")}>
                               <h4 className="font-semibold text-base text-[#FFF9F5]">
                                 {item.team_name}
                               </h4>
@@ -593,6 +606,14 @@ export default function LeaderboardPage() {
                                 oleh {item.user?.name || "Peserta"}
                               </p>
                             </div>
+
+                            {isAllCategory && 
+                              (<div className="col-span-2 flex items-center justify-center">
+                                <Badge className={cn(getRankBadgeColor(-1), "scale-90 bg-[#1E2939]/30")} >
+                                  {item.category?.name}
+                                </Badge>
+                              </div>)
+                            }
 
                             <div className="col-span-2 flex items-center justify-center gap-1.5 font-bold text-amber-400">
                               <Zap className="h-4 w-4 fill-amber-400" />
