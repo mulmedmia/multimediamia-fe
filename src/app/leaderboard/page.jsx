@@ -30,6 +30,184 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+function DefaultRankIcon({ rank }) {
+  return (
+    <div className="h-7 w-7 md:h-8 md:w-8 flex items-center justify-center bg-[#1E2939] border border-white/10 rounded-full text-xs md:text-sm font-bold text-[#AAB1BD] leading-0">
+      {rank}
+    </div>
+  );
+}
+
+function RankIcon({ rank, hallOfFameMode = true }) {
+  if (hallOfFameMode && rank >= 1 && rank <= 3) {
+    switch (rank) {
+      case 1:
+        return (
+          <Crown className="h-6 w-6 md:h-7 md:w-7 text-[#FED700] drop-shadow-[0_0_8px_rgba(254,215,0,0.5)]" />
+        );
+      case 2:
+        return <Medal className="h-5 w-5 md:h-6 md:w-6 text-[#D5D8DE]" />;
+      case 3:
+        return <Award className="h-5 w-5 md:h-6 md:w-6 text-[#FF936B]" />;
+    }
+  }
+
+  return <DefaultRankIcon rank={rank} />;
+}
+
+function getRankBadgeColor(rank) {
+  switch (rank) {
+    case 1:
+      return "bg-[#FED700] text-[#151C28] font-bold shadow-[0_0_12px_rgba(254,215,0,0.4)] border-0";
+    case 2:
+      return "bg-[#D5D8DE] text-[#151C28] font-bold border-0";
+    case 3:
+      return "bg-[#FF936B] text-[#151C28] font-bold border-0";
+    default:
+      return "bg-[#1E2939] text-[#AAB1BD] border border-white/10";
+  }
+}
+
+function PodiumCard({ rank = 1, topThree = [] }) {
+  if (rank < 1 || rank > 3) return <div>Rank valid hanya 1 - 3</div>;
+  if (!Array.isArray(topThree) || topThree.length < rank)
+    return (
+      <div>Array topThree harus lebih dari atau sama dengan {rank} elemen</div>
+    );
+
+  const topThreeIdx = rank - 1;
+
+  const secondRank = rank === 2;
+  const firstRank = rank === 1;
+  const thirdRank = rank === 3;
+
+  return (
+    <div
+      className={cn(
+        secondRank && "order-2 md:order-1",
+        firstRank && "order-1 md:order-2",
+        thirdRank && "order-3",
+      )}
+    >
+      <div
+        className={cn(
+          "bg-gradient-to-b via-[#1E2939]/80 to-[#141824] border rounded-2xl p-6 text-center backdrop-blur-md space-y-4 transition-all",
+          secondRank &&
+            "from-[#D5D8DE]/15 border-[#D5D8DE]/40 shadow-[0_0_25px_rgba(213,216,222,0.08)] hover:border-[#D5D8DE]/80",
+          firstRank &&
+            "from-[#FED700]/20 via-[#1E2939]/90 border-2 border-[#FED700] md:p-8 shadow-[0_0_35px_rgba(254,215,0,0.25)] relative md:-translate-y-4",
+          thirdRank &&
+            "from-[#FF936B]/15 border-[#FF936B]/40 shadow-[0_0_25px_rgba(255,147,107,0.08)] hover:border-[#FF936B]/80",
+        )}
+      >
+        {firstRank && (
+          <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#FED700] text-[#151C28] text-xs font-extrabold px-3 py-0.5 rounded-full uppercase tracking-wider shadow-md">
+            👑 Champion
+          </div>
+        )}
+
+        <div
+          className={cn(
+            "flex flex-col items-center gap-2",
+            firstRank && "pt-2",
+          )}
+        >
+          <div
+            className={cn(
+              "p-3 rounded-full bg-[#1E2939] border",
+              secondRank && "border-[#D5D8DE]/30",
+              firstRank &&
+                "p-3.5 border-[#FED700]/50 shadow-[0_0_15px_rgba(254,215,0,0.3)]",
+              thirdRank && "border-[#FF936B]/30",
+            )}
+          >
+            <RankIcon rank={rank} />
+          </div>
+          <Badge className={getRankBadgeColor(rank)}>Rank #{rank}</Badge>
+        </div>
+
+        <div className="space-y-1">
+          <h3
+            className={cn(
+              "text-lg md:text-xl font-bold text-[#FFF9F5] truncate",
+              firstRank && "text-xl md:text-2xl",
+            )}
+          >
+            {topThree[topThreeIdx].team_name}
+          </h3>
+          <p
+            className={cn(
+              "text-xs text-[#AAB1BD] truncate",
+              firstRank && "md:text-sm",
+            )}
+          >
+            oleh {topThree[topThreeIdx].user?.name || "Peserta"}
+          </p>
+          <Badge className={getRankBadgeColor(-1)}>
+            {topThree[topThreeIdx].category?.name}
+          </Badge>
+        </div>
+
+        <div
+          className={cn(
+            "pt-2 border-t border-white/10 flex items-center justify-center gap-3",
+            firstRank && "pt-3",
+          )}
+        >
+          <div
+            className={cn(
+              "flex items-center gap-1.5 font-bold text-amber-400",
+              firstRank && "text-[#FED700]",
+            )}
+          >
+            <Zap
+              className={cn(
+                "h-5 w-5 fill-amber-400",
+                firstRank && "h-6 w-6 fill-[#FED700]",
+              )}
+            />
+            <span
+              className={cn(
+                "text-2xl font-bold text-[#FFF9F5]",
+                firstRank && "text-3xl font-extrabold",
+              )}
+            >
+              {topThree[topThreeIdx].xp.toLocaleString()}
+            </span>
+            <span
+              className={cn("text-xs text-[#AAB1BD]", firstRank && "text-sm")}
+            >
+              XP
+            </span>
+          </div>
+          <span className="text-white/20 select-none">|</span>
+          <div
+            className={cn(
+              "flex items-center gap-1 text-xs text-[#FED700] font-semibold",
+              firstRank && "text-sm",
+            )}
+          >
+            <span>💎</span>
+            <span>{topThree[topThreeIdx].diamond.toLocaleString()}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LeaderboardSelectItem({ key = "", value = "", content = "" }) {
+  return (
+    <SelectItem
+      key={key}
+      value={value}
+      className="flex flex-col items-start py-2.5 px-3.5 gap-1 text-left text-[#FFF9F5] hover:bg-[#E01C20]/20 focus:bg-[#E01C20]/20 rounded-lg cursor-pointer transition-colors"
+    >
+      <span className="font-semibold text-sm md:text-base">{content}</span>
+    </SelectItem>
+  );
+}
+
 export default function LeaderboardPage() {
   const [selectedCategoryId, setSelectedCategoryId] = useState("all");
   const [searchInput, setSearchInput] = useState("");
@@ -43,7 +221,11 @@ export default function LeaderboardPage() {
     isLoading: leaderboardLoading,
     isFetching: leaderboardFetching,
     isError,
-  } = useLeaderboardByCategory(selectedCategoryId, { page, limit, search: appliedSearch });
+  } = useLeaderboardByCategory(selectedCategoryId, {
+    page,
+    limit,
+    search: appliedSearch,
+  });
 
   const leaderboardData = Array.isArray(apiData)
     ? apiData
@@ -74,44 +256,6 @@ export default function LeaderboardPage() {
     setPage(1);
   };
 
-  function DefaultRankIcon({ rank }) {
-    return (
-      <div className="h-7 w-7 md:h-8 md:w-8 flex items-center justify-center bg-[#1E2939] border border-white/10 rounded-full text-xs md:text-sm font-bold text-[#AAB1BD] leading-0">
-        {rank}
-      </div>
-    );
-  }
-
-  const getRankIcon = (rank, hallOfFameMode = true) => {
-    if (!hallOfFameMode) return <DefaultRankIcon rank={rank} />;
-
-    switch (rank) {
-      case 1:
-        return (
-          <Crown className="h-6 w-6 md:h-7 md:w-7 text-[#FED700] drop-shadow-[0_0_8px_rgba(254,215,0,0.5)]" />
-        );
-      case 2:
-        return <Medal className="h-5 w-5 md:h-6 md:w-6 text-[#D5D8DE]" />;
-      case 3:
-        return <Award className="h-5 w-5 md:h-6 md:w-6 text-[#FF936B]" />;
-      default:
-        return <DefaultRankIcon rank={rank} />;
-    }
-  };
-
-  const getRankBadgeColor = (rank) => {
-    switch (rank) {
-      case 1:
-        return "bg-[#FED700] text-[#151C28] font-bold shadow-[0_0_12px_rgba(254,215,0,0.4)] border-0";
-      case 2:
-        return "bg-[#D5D8DE] text-[#151C28] font-bold border-0";
-      case 3:
-        return "bg-[#FF936B] text-[#151C28] font-bold border-0";
-      default:
-        return "bg-[#1E2939] text-[#AAB1BD] border border-white/10";
-    }
-  };
-
   const isSearching = Boolean(appliedSearch.trim());
 
   // Client-side filtering as fallback/immediate filter for applied search
@@ -125,8 +269,14 @@ export default function LeaderboardPage() {
   });
 
   const isAllCategory = selectedCategoryId === "all";
-  const topThree = page === 1 && isAllCategory && !isSearching ? leaderboardData.slice(0, 3) : [];
-  const remaining = page === 1 && isAllCategory && !isSearching ? leaderboardData.slice(3) : filteredLeaderboard;
+  const topThree =
+    page === 1 && isAllCategory && !isSearching
+      ? leaderboardData.slice(0, 3)
+      : [];
+  const remaining =
+    page === 1 && isAllCategory && !isSearching
+      ? leaderboardData.slice(3)
+      : filteredLeaderboard;
 
   return (
     <div className="min-h-screen bg-[#0A0D14] mia-connected-bg text-[#FFF9F5] flex flex-col justify-between selection:bg-[#E01C20] selection:text-white">
@@ -135,20 +285,20 @@ export default function LeaderboardPage() {
 
         <main className="pt-24 sm:pt-28 pb-16 relative z-10">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl space-y-8 md:space-y-12">
-            
             {/* Header Section */}
             <div className="text-center space-y-3 md:space-y-4 max-w-3xl mx-auto">
               <div className="mia-pill-badge mx-auto">
                 <Trophy className="h-3.5 w-3.5 text-[#FED700]" />
                 <span>Klasemen & Peringkat</span>
               </div>
-              
+
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-[#FFF9F5]">
                 Leaderboard <span className="text-[#E01C20]">Kompetisi</span>
               </h1>
-              
+
               <p className="text-sm sm:text-base md:text-lg text-[#AAB1BD] leading-relaxed">
-                Lihat peringkat tim berdasarkan perolehan XP dan keaktifan misi dari setiap kategori kompetisi MIA 2026!
+                Lihat peringkat tim berdasarkan perolehan XP dan keaktifan misi
+                dari setiap kategori kompetisi MIA 2026!
               </p>
             </div>
 
@@ -163,13 +313,13 @@ export default function LeaderboardPage() {
                     Pilih Kategori & Cari Tim
                   </h2>
                   <p className="text-xs md:text-sm text-[#AAB1BD]">
-                    Pilih salah satu kategori untuk memuat papan skor dan gunakan kotak pencarian untuk mencari nama tim atau peserta
+                    Pilih salah satu kategori untuk memuat papan skor dan
+                    gunakan kotak pencarian untuk mencari nama tim atau peserta
                   </p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-
                 {/* Select Kategori */}
                 <div className="md:col-span-5">
                   <Select
@@ -188,26 +338,18 @@ export default function LeaderboardPage() {
                       />
                     </SelectTrigger>
                     <SelectContent className="bg-[#141824] border border-white/15 text-[#FFF9F5] rounded-xl shadow-2xl">
-                      <SelectItem
+                      <LeaderboardSelectItem
                         key="all"
                         value="all"
-                        className="flex flex-col items-start py-2.5 px-3.5 gap-1 text-left text-[#FFF9F5] hover:bg-[#E01C20]/20 focus:bg-[#E01C20]/20 rounded-lg cursor-pointer transition-colors"
-                      >
-                        <span className="font-semibold text-sm md:text-base">
-                          Semua Kategori
-                        </span>
-                      </SelectItem>
+                        content="Semua Kategori"
+                      />
 
                       {categories?.map((category) => (
-                        <SelectItem
+                        <LeaderboardSelectItem
                           key={category.category_id}
                           value={category.category_id}
-                          className="flex flex-col items-start py-2.5 px-3.5 gap-1 text-left text-[#FFF9F5] hover:bg-[#E01C20]/20 focus:bg-[#E01C20]/20 rounded-lg cursor-pointer transition-colors"
-                        >
-                          <span className="font-semibold text-sm md:text-base">
-                            {category.name}
-                          </span>
-                        </SelectItem>
+                          content={category.name}
+                        />
                       ))}
                     </SelectContent>
                   </Select>
@@ -294,7 +436,8 @@ export default function LeaderboardPage() {
                     Gagal Memuat Data Leaderboard
                   </h3>
                   <p className="text-sm text-[#AAB1BD]">
-                    Terjadi kendala saat mengambil data skor. Silakan periksa koneksi Anda dan coba lagi.
+                    Terjadi kendala saat mengambil data skor. Silakan periksa
+                    koneksi Anda dan coba lagi.
                   </p>
                 </div>
               </div>
@@ -315,7 +458,9 @@ export default function LeaderboardPage() {
                     Belum Ada Tim di Leaderboard
                   </h3>
                   <p className="text-sm md:text-base text-[#AAB1BD] max-w-md mx-auto">
-                    Belum ada tim yang terdaftar atau memiliki perolehan XP untuk kategori ini. Tuntaskan misi harian untuk meraih posisi puncak!
+                    Belum ada tim yang terdaftar atau memiliki perolehan XP
+                    untuk kategori ini. Tuntaskan misi harian untuk meraih
+                    posisi puncak!
                   </p>
                 </div>
               )}
@@ -335,7 +480,12 @@ export default function LeaderboardPage() {
                       Tim Tidak Ditemukan
                     </h3>
                     <p className="text-sm md:text-base text-[#AAB1BD]">
-                      Tidak ada tim atau peserta yang cocok dengan kata kunci &quot;<span className="text-[#FFF9F5] font-semibold">{appliedSearch}</span>&quot;.
+                      Tidak ada tim atau peserta yang cocok dengan kata kunci
+                      &quot;
+                      <span className="text-[#FFF9F5] font-semibold">
+                        {appliedSearch}
+                      </span>
+                      &quot;.
                     </p>
                   </div>
                   <Button
@@ -367,138 +517,19 @@ export default function LeaderboardPage() {
 
                 {/* Podium Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end max-w-5xl mx-auto pt-4">
-                  
                   {/* Rank 2 (Silver) - Positioned Left on Desktop */}
                   {topThree[1] ? (
-                    <div className="order-2 md:order-1">
-                      <div className="bg-gradient-to-b from-[#D5D8DE]/15 via-[#1E2939]/80 to-[#141824] border border-[#D5D8DE]/40 rounded-2xl p-6 text-center shadow-[0_0_25px_rgba(213,216,222,0.08)] backdrop-blur-md space-y-4 hover:border-[#D5D8DE]/80 transition-all">
-                        <div className="flex flex-col items-center gap-2">
-                          <div className="p-3 rounded-full bg-[#1E2939] border border-[#D5D8DE]/30">
-                            {getRankIcon(2)}
-                          </div>
-                          <Badge className={getRankBadgeColor(2)}>
-                            Rank #2
-                          </Badge>
-                        </div>
-
-                        <div className="space-y-1">
-                          <h3 className="text-lg md:text-xl font-bold text-[#FFF9F5] truncate">
-                            {topThree[1].team_name}
-                          </h3>
-                          <p className="text-xs text-[#AAB1BD] truncate">
-                            oleh {topThree[1].user?.name || "Peserta"}
-                          </p>
-                          <Badge className={getRankBadgeColor(-1)}>
-                            {topThree[1].category?.name}
-                          </Badge>
-                        </div>
-
-                        <div className="pt-2 border-t border-white/10 flex items-center justify-center gap-3">
-                          <div className="flex items-center gap-1.5 font-bold text-amber-400">
-                            <Zap className="h-5 w-5 fill-amber-400" />
-                            <span className="text-2xl font-bold text-[#FFF9F5]">
-                              {topThree[1].xp.toLocaleString()}
-                            </span>
-                            <span className="text-xs text-[#AAB1BD]">XP</span>
-                          </div>
-                          <span className="text-white/20 select-none">|</span>
-                          <div className="flex items-center gap-1 text-xs text-[#FED700] font-semibold">
-                            <span>💎</span>
-                            <span>{topThree[1].diamond.toLocaleString()}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    <PodiumCard rank={2} topThree={topThree} />
                   ) : (
                     <div className="hidden md:block order-2 md:order-1" />
                   )}
 
                   {/* Rank 1 (Gold / Champion) - Center & Taller */}
-                  <div className="order-1 md:order-2">
-                    <div className="bg-gradient-to-b from-[#FED700]/20 via-[#1E2939]/90 to-[#141824] border-2 border-[#FED700] rounded-2xl p-6 md:p-8 text-center shadow-[0_0_35px_rgba(254,215,0,0.25)] backdrop-blur-md space-y-4 relative md:-translate-y-4 transition-all">
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#FED700] text-[#151C28] text-xs font-extrabold px-3 py-0.5 rounded-full uppercase tracking-wider shadow-md">
-                        👑 Champion
-                      </div>
-
-                      <div className="flex flex-col items-center gap-2 pt-2">
-                        <div className="p-3.5 rounded-full bg-[#1E2939] border border-[#FED700]/50 shadow-[0_0_15px_rgba(254,215,0,0.3)]">
-                          {getRankIcon(1)}
-                        </div>
-                        <Badge className={getRankBadgeColor(1)}>
-                          Rank #1
-                        </Badge>
-                      </div>
-
-                      <div className="space-y-1">
-                        <h3 className="text-xl md:text-2xl font-bold text-[#FFF9F5] truncate">
-                          {topThree[0].team_name}
-                        </h3>
-                        <p className="text-xs md:text-sm text-[#AAB1BD] truncate">
-                          oleh {topThree[0].user?.name || "Peserta"}
-                        </p>
-                        <Badge className={getRankBadgeColor(-1)}>
-                          {topThree[0].category?.name}
-                        </Badge>
-                      </div>
-
-                      <div className="pt-3 border-t border-white/10 flex items-center justify-center gap-3">
-                        <div className="flex items-center gap-1.5 font-bold text-[#FED700]">
-                          <Zap className="h-6 w-6 fill-[#FED700]" />
-                          <span className="text-3xl font-extrabold text-[#FFF9F5]">
-                            {topThree[0].xp.toLocaleString()}
-                          </span>
-                          <span className="text-sm text-[#AAB1BD]">XP</span>
-                        </div>
-                        <span className="text-white/20 select-none">|</span>
-                        <div className="flex items-center gap-1 text-sm text-[#FED700] font-bold">
-                          <span>💎</span>
-                          <span>{topThree[0].diamond.toLocaleString()}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <PodiumCard rank={1} topThree={topThree} />
 
                   {/* Rank 3 (Bronze) - Positioned Right on Desktop */}
                   {topThree[2] ? (
-                    <div className="order-3">
-                      <div className="bg-gradient-to-b from-[#FF936B]/15 via-[#1E2939]/80 to-[#141824] border border-[#FF936B]/40 rounded-2xl p-6 text-center shadow-[0_0_25px_rgba(255,147,107,0.08)] backdrop-blur-md space-y-4 hover:border-[#FF936B]/80 transition-all">
-                        <div className="flex flex-col items-center gap-2">
-                          <div className="p-3 rounded-full bg-[#1E2939] border border-[#FF936B]/30">
-                            {getRankIcon(3)}
-                          </div>
-                          <Badge className={getRankBadgeColor(3)}>
-                            Rank #3
-                          </Badge>
-                        </div>
-
-                        <div className="space-y-1">
-                          <h3 className="text-lg md:text-xl font-bold text-[#FFF9F5] truncate">
-                            {topThree[2].team_name}
-                          </h3>
-                          <p className="text-xs text-[#AAB1BD] truncate">
-                            oleh {topThree[2].user?.name || "Peserta"}
-                          </p>
-                          <Badge className={getRankBadgeColor(-1)}>
-                            {topThree[2].category?.name}
-                          </Badge>
-                        </div>
-
-                        <div className="pt-2 border-t border-white/10 flex items-center justify-center gap-3">
-                          <div className="flex items-center gap-1.5 font-bold text-amber-400">
-                            <Zap className="h-5 w-5 fill-amber-400" />
-                            <span className="text-2xl font-bold text-[#FFF9F5]">
-                              {topThree[2].xp.toLocaleString()}
-                            </span>
-                            <span className="text-xs text-[#AAB1BD]">XP</span>
-                          </div>
-                          <span className="text-white/20 select-none">|</span>
-                          <div className="flex items-center gap-1 text-xs text-[#FED700] font-semibold">
-                            <span>💎</span>
-                            <span>{topThree[2].diamond.toLocaleString()}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    <PodiumCard rank={3} topThree={topThree} />
                   ) : (
                     <div className="hidden md:block order-3" />
                   )}
@@ -541,8 +572,16 @@ export default function LeaderboardPage() {
                   {/* Desktop Table Header */}
                   <div className="hidden md:grid md:grid-cols-12 gap-4 px-6 py-4 bg-[#1E2939]/80 border-b border-white/10 text-xs font-semibold text-[#AAB1BD] uppercase tracking-wider">
                     <div className="col-span-2 text-center">Peringkat</div>
-                    <div className={cn(isAllCategory ? "col-span-4" : "col-span-6")}>Tim & Peserta</div>
-                    {isAllCategory && (<div className="col-span-2 text-center">Kategori</div>)}
+                    <div
+                      className={cn(
+                        isAllCategory ? "col-span-4" : "col-span-6",
+                      )}
+                    >
+                      Tim & Peserta
+                    </div>
+                    {isAllCategory && (
+                      <div className="col-span-2 text-center">Kategori</div>
+                    )}
                     <div className="col-span-2 text-center">Perolehan XP</div>
                     <div className="col-span-2 text-center">Diamond</div>
                   </div>
@@ -564,7 +603,12 @@ export default function LeaderboardPage() {
                           <div className="md:hidden space-y-3">
                             <div className="flex items-center justify-between gap-2">
                               <div className="flex items-center gap-3">
-                                <div className="self-start mt-2">{getRankIcon(rank, false)}</div>
+                                <div className="self-start mt-2">
+                                  <RankIcon
+                                    rank={rank}
+                                    hallOfFameMode={false}
+                                  />
+                                </div>
                                 <div>
                                   <h4 className="font-semibold text-base text-[#FFF9F5]">
                                     {item.team_name}
@@ -591,7 +635,9 @@ export default function LeaderboardPage() {
                                   <span className="text-lg text-[#FFF9F5]">
                                     {item.xp.toLocaleString()}
                                   </span>
-                                  <span className="text-xs text-[#AAB1BD]">XP</span>
+                                  <span className="text-xs text-[#AAB1BD]">
+                                    XP
+                                  </span>
                                 </div>
 
                                 <span className="flex items-center w-fit self-end gap-1 px-2.5 py-0.5 rounded-full bg-[#FED700]/10 border border-[#FED700]/30 text-[#FED700] text-xs font-semibold">
@@ -605,10 +651,14 @@ export default function LeaderboardPage() {
                           {/* Desktop View */}
                           <div className="hidden md:grid md:grid-cols-12 gap-4 items-center px-2">
                             <div className="col-span-2 flex items-center justify-center gap-2">
-                              {getRankIcon(rank, false)}
+                              <RankIcon rank={rank} hallOfFameMode={false} />
                             </div>
 
-                            <div className={cn(isAllCategory ? "col-span-4" : "col-span-6")}>
+                            <div
+                              className={cn(
+                                isAllCategory ? "col-span-4" : "col-span-6",
+                              )}
+                            >
                               <h4 className="font-semibold text-base text-[#FFF9F5]">
                                 {item.team_name}
                               </h4>
@@ -617,13 +667,18 @@ export default function LeaderboardPage() {
                               </p>
                             </div>
 
-                            {isAllCategory && 
-                              (<div className="col-span-2 flex items-center justify-center">
-                                <Badge className={cn(getRankBadgeColor(-1), "scale-90 bg-[#1E2939]/30")} >
+                            {isAllCategory && (
+                              <div className="col-span-2 flex items-center justify-center">
+                                <Badge
+                                  className={cn(
+                                    getRankBadgeColor(-1),
+                                    "scale-90 bg-[#1E2939]/30",
+                                  )}
+                                >
                                   {item.category?.name}
                                 </Badge>
-                              </div>)
-                            }
+                              </div>
+                            )}
 
                             <div className="col-span-2 flex items-center justify-center gap-1.5 font-bold text-amber-400">
                               <Zap className="h-4 w-4 fill-amber-400" />
@@ -659,15 +714,21 @@ export default function LeaderboardPage() {
                       Sebelumnya
                     </Button>
                     <span className="text-xs text-[#AAB1BD] font-medium">
-                      Halaman <strong className="text-[#FFF9F5]">{meta.page}</strong> dari{" "}
-                      <strong className="text-[#FFF9F5]">{meta.totalPages}</strong>
+                      Halaman{" "}
+                      <strong className="text-[#FFF9F5]">{meta.page}</strong>{" "}
+                      dari{" "}
+                      <strong className="text-[#FFF9F5]">
+                        {meta.totalPages}
+                      </strong>
                     </span>
                     <Button
                       variant="ghost"
                       size="sm"
                       className="rounded-full cursor-pointer hover:bg-white/10 text-xs px-4 text-[#FFF9F5]"
                       disabled={page >= meta.totalPages}
-                      onClick={() => setPage((p) => Math.min(meta.totalPages, p + 1))}
+                      onClick={() =>
+                        setPage((p) => Math.min(meta.totalPages, p + 1))
+                      }
                     >
                       Berikutnya
                     </Button>
@@ -686,11 +747,11 @@ export default function LeaderboardPage() {
                   Pilih Kategori untuk Melihat Leaderboard
                 </h3>
                 <p className="text-sm md:text-base text-[#AAB1BD] max-w-md mx-auto">
-                  Pilih salah satu kategori kompetisi pada dropdown di atas untuk melihat klasemen dan perolehan XP tim terbaik.
+                  Pilih salah satu kategori kompetisi pada dropdown di atas
+                  untuk melihat klasemen dan perolehan XP tim terbaik.
                 </p>
               </div>
             )}
-
           </div>
         </main>
       </div>
