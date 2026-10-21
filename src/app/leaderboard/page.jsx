@@ -524,11 +524,11 @@ export default function LeaderboardPage() {
                       {isSearching
                         ? `Menampilkan tim ${!isAllCategory ? remaining[0].category?.name : ""} yang cocok dengan kata kunci "${appliedSearch}"`
                         : page === 1
-                          ? `Daftar tim peserta ${!isAllCategory ? remaining[0].category?.slug : "peringkat ke-4 dan seterusnya"} berdasarkan total XP dan diamond`
+                          ? `Daftar tim ${!isAllCategory ? remaining[0].category?.slug : "peringkat ke-4 dan seterusnya"} berdasarkan total XP dan diamond`
                           : `Menampilkan tim peringkat ${(page - 1) * limit + 1} sampai ${Math.min(meta.total, page * limit)}`}
                     </p>
                   </div>
-                  <div className="mia-pill-badge w-fit">
+                  <div className="mia-pill-badge w-fit sm:shrink-0 text-end">
                     <span>
                       {isSearching
                         ? `Ditemukan ${meta.total} Tim`
@@ -564,7 +564,7 @@ export default function LeaderboardPage() {
                           <div className="md:hidden space-y-3">
                             <div className="flex items-center justify-between gap-2">
                               <div className="flex items-center gap-3">
-                                {getRankIcon(rank, false)}
+                                <div className="self-start mt-2">{getRankIcon(rank, false)}</div>
                                 <div>
                                   <h4 className="font-semibold text-base text-[#FFF9F5]">
                                     {item.team_name}
@@ -572,23 +572,33 @@ export default function LeaderboardPage() {
                                   <p className="text-xs text-[#AAB1BD]">
                                     oleh {item.user?.name || "Peserta"}
                                   </p>
+                                  {isAllCategory && (
+                                    <Badge
+                                      className={cn(
+                                        getRankBadgeColor(-1),
+                                        "bg-[#1E2939]/30 text-[11px] py-0.5 mt-1",
+                                      )}
+                                    >
+                                      {item.category?.name}
+                                    </Badge>
+                                  )}
                                 </div>
                               </div>
-                            </div>
 
-                            <div className="flex items-center justify-between pt-2 border-t border-white/5">
-                              <div className="flex items-center gap-1.5 font-bold text-amber-400">
-                                <Zap className="h-4 w-4 fill-amber-400" />
-                                <span className="text-lg text-[#FFF9F5]">
-                                  {item.xp.toLocaleString()}
+                              <div className="flex flex-col gap-2">
+                                <div className="flex items-center gap-1.5 font-bold text-amber-400">
+                                  <Zap className="h-4 w-4 fill-amber-400" />
+                                  <span className="text-lg text-[#FFF9F5]">
+                                    {item.xp.toLocaleString()}
+                                  </span>
+                                  <span className="text-xs text-[#AAB1BD]">XP</span>
+                                </div>
+
+                                <span className="flex items-center w-fit self-end gap-1 px-2.5 py-0.5 rounded-full bg-[#FED700]/10 border border-[#FED700]/30 text-[#FED700] text-xs font-semibold">
+                                  <span>💎</span>
+                                  <span>{item.diamond.toLocaleString()}</span>
                                 </span>
-                                <span className="text-xs text-[#AAB1BD]">XP</span>
                               </div>
-
-                              <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#FED700]/10 border border-[#FED700]/30 text-[#FED700] text-xs font-semibold">
-                                <span>💎</span>
-                                <span>{item.diamond.toLocaleString()}</span>
-                              </span>
                             </div>
                           </div>
 
