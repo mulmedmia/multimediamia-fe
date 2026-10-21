@@ -30,7 +30,7 @@ import {
 } from "lucide-react";
 
 export default function LeaderboardPage() {
-  const [selectedCategoryId, setSelectedCategoryId] = useState("");
+  const [selectedCategoryId, setSelectedCategoryId] = useState("all");
   const [searchInput, setSearchInput] = useState("");
   const [appliedSearch, setAppliedSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -73,7 +73,17 @@ export default function LeaderboardPage() {
     setPage(1);
   };
 
-  const getRankIcon = (rank) => {
+  function DefaultRankIcon({ rank }) {
+    return (
+      <div className="h-7 w-7 md:h-8 md:w-8 flex items-center justify-center bg-[#1E2939] border border-white/10 rounded-full text-xs md:text-sm font-bold text-[#AAB1BD] leading-0">
+        {rank}
+      </div>
+    );
+  }
+
+  const getRankIcon = (rank, hallOfFameMode = true) => {
+    if (!hallOfFameMode) return <DefaultRankIcon rank={rank} />;
+
     switch (rank) {
       case 1:
         return (
@@ -84,11 +94,7 @@ export default function LeaderboardPage() {
       case 3:
         return <Award className="h-5 w-5 md:h-6 md:w-6 text-[#FF936B]" />;
       default:
-        return (
-          <div className="h-7 w-7 md:h-8 md:w-8 flex items-center justify-center bg-[#1E2939] border border-white/10 rounded-full text-xs md:text-sm font-bold text-[#AAB1BD]">
-            {rank}
-          </div>
-        );
+        return <DefaultRankIcon rank={rank} />;
     }
   };
 
@@ -117,8 +123,9 @@ export default function LeaderboardPage() {
     );
   });
 
-  const topThree = page === 1 && !isSearching ? leaderboardData.slice(0, 3) : [];
-  const remaining = page === 1 && !isSearching ? leaderboardData.slice(3) : filteredLeaderboard;
+  const isAllCategory = selectedCategoryId === "all";
+  const topThree = page === 1 && isAllCategory && !isSearching ? leaderboardData.slice(0, 3) : [];
+  const remaining = page === 1 && isAllCategory && !isSearching ? leaderboardData.slice(3) : filteredLeaderboard;
 
   return (
     <div className="min-h-screen bg-[#0A0D14] mia-connected-bg text-[#FFF9F5] flex flex-col justify-between selection:bg-[#E01C20] selection:text-white">
@@ -168,6 +175,7 @@ export default function LeaderboardPage() {
                     value={selectedCategoryId}
                     onValueChange={handleCategoryChange}
                     disabled={categoriesLoading}
+                    modal={false}
                   >
                     <SelectTrigger className="w-full h-12! bg-[#141824] border border-white/15 hover:border-[#E01C20]/60 rounded-xl text-[#FFF9F5] focus:ring-[#E01C20] transition-colors cursor-pointer">
                       <SelectValue
@@ -179,6 +187,16 @@ export default function LeaderboardPage() {
                       />
                     </SelectTrigger>
                     <SelectContent className="bg-[#141824] border border-white/15 text-[#FFF9F5] rounded-xl shadow-2xl">
+                      <SelectItem
+                        key="all"
+                        value="all"
+                        className="flex flex-col items-start py-2.5 px-3.5 gap-1 text-left text-[#FFF9F5] hover:bg-[#E01C20]/20 focus:bg-[#E01C20]/20 rounded-lg cursor-pointer transition-colors"
+                      >
+                        <span className="font-semibold text-sm md:text-base">
+                          Semua Kategori
+                        </span>
+                      </SelectItem>
+
                       {categories?.map((category) => (
                         <SelectItem
                           key={category.category_id}
@@ -187,9 +205,6 @@ export default function LeaderboardPage() {
                         >
                           <span className="font-semibold text-sm md:text-base">
                             {category.name}
-                          </span>
-                          <span className="text-xs text-[#AAB1BD]">
-                            {category.category_name}
                           </span>
                         </SelectItem>
                       ))}
@@ -334,7 +349,7 @@ export default function LeaderboardPage() {
               )}
 
             {/* Top 3 Podium (Hall of Fame) - Shown only on page 1 */}
-            {topThree.length > 0 && (
+            {selectedCategoryId == "all" && topThree.length > 0 && (
               <div className="space-y-6 md:space-y-8">
                 <div className="text-center space-y-2">
                   <div className="mia-pill-badge mx-auto">
@@ -382,7 +397,7 @@ export default function LeaderboardPage() {
                             </span>
                             <span className="text-xs text-[#AAB1BD]">XP</span>
                           </div>
-                          <span className="text-white/20">|</span>
+                          <span className="text-white/20 select-none">|</span>
                           <div className="flex items-center gap-1 text-xs text-[#FED700] font-semibold">
                             <span>💎</span>
                             <span>{topThree[1].diamond.toLocaleString()}</span>
@@ -427,7 +442,7 @@ export default function LeaderboardPage() {
                           </span>
                           <span className="text-sm text-[#AAB1BD]">XP</span>
                         </div>
-                        <span className="text-white/20">|</span>
+                        <span className="text-white/20 select-none">|</span>
                         <div className="flex items-center gap-1 text-sm text-[#FED700] font-bold">
                           <span>💎</span>
                           <span>{topThree[0].diamond.toLocaleString()}</span>
@@ -466,7 +481,7 @@ export default function LeaderboardPage() {
                             </span>
                             <span className="text-xs text-[#AAB1BD]">XP</span>
                           </div>
-                          <span className="text-white/20">|</span>
+                          <span className="text-white/20 select-none">|</span>
                           <div className="flex items-center gap-1 text-xs text-[#FED700] font-semibold">
                             <span>💎</span>
                             <span>{topThree[2].diamond.toLocaleString()}</span>
@@ -536,7 +551,7 @@ export default function LeaderboardPage() {
                           <div className="md:hidden space-y-3">
                             <div className="flex items-center justify-between gap-2">
                               <div className="flex items-center gap-3">
-                                {getRankIcon(rank)}
+                                {getRankIcon(rank, false)}
                                 <div>
                                   <h4 className="font-semibold text-base text-[#FFF9F5]">
                                     {item.team_name}
@@ -546,9 +561,6 @@ export default function LeaderboardPage() {
                                   </p>
                                 </div>
                               </div>
-                              <Badge className={getRankBadgeColor(rank)}>
-                                #{rank}
-                              </Badge>
                             </div>
 
                             <div className="flex items-center justify-between pt-2 border-t border-white/5">
@@ -570,10 +582,7 @@ export default function LeaderboardPage() {
                           {/* Desktop View */}
                           <div className="hidden md:grid md:grid-cols-12 gap-4 items-center px-2">
                             <div className="col-span-2 flex items-center justify-center gap-2">
-                              {getRankIcon(rank)}
-                              <Badge className={getRankBadgeColor(rank)}>
-                                #{rank}
-                              </Badge>
+                              {getRankIcon(rank, false)}
                             </div>
 
                             <div className="col-span-6">
