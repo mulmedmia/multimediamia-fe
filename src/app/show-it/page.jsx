@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAllSubmissions } from "@/hooks/user-use-submissions";
 import { useCategories } from "@/hooks/user-use-gamifikasi";
 import Header from "@/components/layout/Header";
@@ -69,14 +69,25 @@ function ShowItSelectItem({ value = "", content = "" }) {
 }
 
 export default function ShowItPage() {
-  const [selectedCategoryId, setSelectedCategoryId] = useState("all");
-  const [searchInput, setSearchInput] = useState("");
-  const [appliedSearch, setAppliedSearch] = useState("");
+  const [mounted, setMounted] = useState(false);
+  const searchParams = useSearchParams();
+
+  const defaultCategoryId = searchParams?.get("category_id") || "all";
+  const defaultSearch = searchParams?.get("search") || "";
+
+  const [selectedCategoryId, setSelectedCategoryId] =
+    useState(defaultCategoryId);
+  const [searchInput, setSearchInput] = useState(defaultSearch);
+  const [appliedSearch, setAppliedSearch] = useState(defaultSearch);
   const router = useRouter();
 
   const { data: categories, isLoading: categoriesLoading } = useCategories();
 
   const isAllCategory = selectedCategoryId === "all";
+  const selectedCategorySlug = isAllCategory
+    ? "seluruh kategori"
+    : categories?.find((c) => c.category_id === selectedCategoryId)
+        .slug;
 
   const {
     data: submissionsData,
@@ -97,7 +108,8 @@ export default function ShowItPage() {
   const filteredSubmissions = submissions.filter((submission) => {
     if (!isSearching) return true;
     const q = appliedSearch.toLowerCase().trim();
-    const teamName = submission.registration?.team_name || submission.team_name || "";
+    const teamName =
+      submission.registration?.team_name || submission.team_name || "";
     return (
       submission.project_name?.toLowerCase().includes(q) ||
       teamName.toLowerCase().includes(q) ||
@@ -105,23 +117,65 @@ export default function ShowItPage() {
     );
   });
 
+  useEffect(() => {
+    if (!mounted && !searchParams.toString()) {
+      setMounted(true);
+      router.replace(`/show-it?category_id=${selectedCategoryId}`);
+    }
+  }, [mounted, searchParams, router, selectedCategoryId]);
+
+  const createQueryString = useCallback(
+    (keyValueObj = {}) => {
+      const params = new URLSearchParams(searchParams?.toString());
+
+      for (const [name = "", value = ""] of Object.entries(keyValueObj)) {
+        if (typeof name === "string" && typeof value === "string") {
+          const trimmedValue = value.trim();
+
+          if (trimmedValue) params.set(name, trimmedValue);
+          else params.delete(name);
+        }
+      }
+
+      return params.toString();
+    },
+    [searchParams],
+  );
+
   const handleCategoryChange = (categoryId) => {
     setSelectedCategoryId(categoryId);
-    setSearchInput("");
-    setAppliedSearch("");
+    router.replace(
+      `/show-it?${createQueryString({ category_id: categoryId })}`,
+      {
+        scroll: false,
+      },
+    );
   };
 
   const handleSearchSubmit = (e) => {
     e?.preventDefault();
     setAppliedSearch(searchInput.trim());
+    router.replace(
+      `/show-it?${createQueryString({ search: searchInput.trim() })}`,
+      {
+        scroll: false,
+      },
+    );
   };
 
   const handleResetSearch = () => {
     setSearchInput("");
     setAppliedSearch("");
+    router.replace(`/show-it?${createQueryString({ search: "" })}`, {
+      scroll: false,
+    });
   };
 
   const handleSubmissionClick = (submissionId) => {
+    sessionStorage.setItem(
+      "previousShowIt",
+      `/show-it?${searchParams.toString()}`,
+    );
     router.push(`/show-it/${submissionId}`);
   };
 
@@ -318,7 +372,8 @@ export default function ShowItPage() {
                       Karya Tidak Ditemukan
                     </h3>
                     <p className="text-sm text-[#AAB1BD]">
-                      Tidak ada karya yang cocok dengan kata kunci &quot;
+                      Tidak ada karya {!isAllCategory && selectedCategorySlug}{" "}
+                      yang cocok dengan kata kunci &quot;
                       <span className="text-[#FFF9F5] font-semibold">
                         {appliedSearch}
                       </span>
@@ -347,7 +402,7 @@ export default function ShowItPage() {
                     <p className="text-xs sm:text-sm text-[#AAB1BD]">
                       {isSearching
                         ? `Menampilkan ${filteredSubmissions.length} dari ${submissions.length} karya untuk pencarian "${appliedSearch}"`
-                        : `Menampilkan ${filteredSubmissions.length} karya inovatif dari ${selectedCategoryId === "all" ? "semua kategori" : `kategori ${submissions[0]?.category.slug}`}`}
+                        : `Menampilkan ${filteredSubmissions.length} karya inovatif dari ${selectedCategoryId === "all" ? "semua kategori" : `kategori ${selectedCategorySlug}`}`}
                     </p>
                   </div>
                   <span className="text-xs text-[#AAB1BD] bg-[#1E2939] border border-white/10 px-3 py-1.5 rounded-full w-fit">
@@ -396,7 +451,11 @@ export default function ShowItPage() {
                             <div className="flex items-center gap-1.5 text-xs text-[#AAB1BD]">
                               <Users className="h-3.5 w-3.5 text-[#FED700]" />
                               <span className="truncate font-medium">
-                                {submission.registration?.team_name || submission.team_name || submission.registration?.user?.name || submission.user?.name || "-"}
+                                {submission.registration?.team_name ||
+                                  submission.team_name ||
+                                  submission.registration?.user?.name ||
+                                  submission.user?.name ||
+                                  "-"}
                               </span>
                             </div>
                             {isAllCategory && (
@@ -455,7 +514,9 @@ export default function ShowItPage() {
                         <div className="flex items-center gap-1.5 truncate max-w-[150px]">
                           <User className="h-3.5 w-3.5 flex-shrink-0" />
                           <span className="truncate">
-                            {submission.registration?.user?.name || submission.user?.name || "Peserta"}
+                            {submission.registration?.user?.name ||
+                              submission.user?.name ||
+                              "Peserta"}
                           </span>
                         </div>
                         <div className="flex items-center gap-1 text-[#E01C20] font-semibold group-hover:translate-x-1 transition-transform">

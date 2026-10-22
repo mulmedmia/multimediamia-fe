@@ -35,6 +35,12 @@ export default function SubmissionDetailPage(props) {
   const [submission, setSubmission] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [returnTo, setReturnTo] = useState("/show-it");
+
+  useEffect(() => {
+    const sessionItem = sessionStorage.getItem("previousShowIt");
+    if (sessionItem?.startsWith("/show-it")) setReturnTo(sessionItem);
+  }, []);
 
   useEffect(() => {
     if (!submissionId) return;
@@ -110,6 +116,10 @@ export default function SubmissionDetailPage(props) {
     });
   };
 
+  const onNavigate = (e) => {
+    sessionStorage.removeItem("previousShowIt");
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-mia-bg mia-connected-bg text-mia-text flex flex-col justify-between">
@@ -117,7 +127,9 @@ export default function SubmissionDetailPage(props) {
         <main className="flex-1 flex items-center justify-center pt-24 sm:pt-28 pb-16 px-4">
           <div className="text-center space-y-4">
             <div className="animate-spin rounded-full h-10 w-10 border-2 border-mia-red border-t-transparent mx-auto"></div>
-            <p className="text-sm md:text-base text-mia-muted">Memuat detail karya...</p>
+            <p className="text-sm md:text-base text-mia-muted">
+              Memuat detail karya...
+            </p>
           </div>
         </main>
         <Footer />
@@ -140,11 +152,13 @@ export default function SubmissionDetailPage(props) {
                   {error ? "Terjadi Kesalahan" : "Karya Tidak Ditemukan"}
                 </h2>
                 <p className="text-sm text-mia-muted">
-                  {error || "Karya yang Anda cari tidak ditemukan atau mungkin belum disetujui."}
+                  {error ||
+                    "Karya yang Anda cari tidak ditemukan atau mungkin belum disetujui."}
                 </p>
               </div>
               <Link
-                href="/show-it"
+                href={returnTo}
+                onNavigate={onNavigate}
                 className="mia-btn-secondary px-6 py-2.5 text-sm inline-flex items-center gap-2 cursor-pointer transition-all"
               >
                 <ArrowLeft className="h-4 w-4" />
@@ -168,7 +182,8 @@ export default function SubmissionDetailPage(props) {
             {/* Back Button */}
             <div>
               <Link
-                href="/show-it"
+                href={returnTo}
+                onNavigate={onNavigate}
                 className="mia-btn-secondary px-4 py-2 text-xs md:text-sm inline-flex items-center gap-2 cursor-pointer transition-all"
               >
                 <ArrowLeft className="h-4 w-4" />
@@ -197,7 +212,16 @@ export default function SubmissionDetailPage(props) {
                         {submission.project_name}
                       </h1>
                       <p className="text-sm text-mia-muted pt-0.5">
-                        oleh Tim <strong className="text-mia-text">{submission.registration?.team_name || submission.team_name || "-"}</strong> • {submission.registration?.user?.name || submission.user?.name || "-"}
+                        oleh Tim{" "}
+                        <strong className="text-mia-text">
+                          {submission.registration?.team_name ||
+                            submission.team_name ||
+                            "-"}
+                        </strong>{" "}
+                        •{" "}
+                        {submission.registration?.user?.name ||
+                          submission.user?.name ||
+                          "-"}
                       </p>
                     </div>
 
@@ -294,7 +318,9 @@ export default function SubmissionDetailPage(props) {
                           Nama Peserta
                         </span>
                         <span className="text-sm font-medium text-mia-text">
-                          {submission.registration?.user?.name || submission.user?.name || "-"}
+                          {submission.registration?.user?.name ||
+                            submission.user?.name ||
+                            "-"}
                         </span>
                       </div>
                       <div>
@@ -302,7 +328,9 @@ export default function SubmissionDetailPage(props) {
                           Nama Tim
                         </span>
                         <span className="text-sm text-mia-muted">
-                          {submission.registration?.team_name || submission.team_name || "-"}
+                          {submission.registration?.team_name ||
+                            submission.team_name ||
+                            "-"}
                         </span>
                       </div>
                     </div>
@@ -345,10 +373,13 @@ export default function SubmissionDetailPage(props) {
                         </span>
                         <span className="text-sm font-medium text-mia-text break-words">
                           {submission.created_at
-                            ? new Date(submission.created_at).toLocaleString("id-ID", {
-                                dateStyle: "medium",
-                                timeStyle: "short",
-                              })
+                            ? new Date(submission.created_at).toLocaleString(
+                                "id-ID",
+                                {
+                                  dateStyle: "medium",
+                                  timeStyle: "short",
+                                },
+                              )
                             : "-"}
                         </span>
                       </div>
@@ -358,10 +389,13 @@ export default function SubmissionDetailPage(props) {
                         </span>
                         <span className="text-sm text-mia-muted break-words">
                           {submission.updated_at
-                            ? new Date(submission.updated_at).toLocaleString("id-ID", {
-                                dateStyle: "medium",
-                                timeStyle: "short",
-                              })
+                            ? new Date(submission.updated_at).toLocaleString(
+                                "id-ID",
+                                {
+                                  dateStyle: "medium",
+                                  timeStyle: "short",
+                                },
+                              )
                             : "-"}
                         </span>
                       </div>
@@ -421,7 +455,11 @@ export default function SubmissionDetailPage(props) {
                   {getNonYouTubeLinks().length > 0 ? (
                     getNonYouTubeLinks().map((link, index) => (
                       <div
-                        key={link.link_id ? `${link.link_id}-${index}` : `link-${index}`}
+                        key={
+                          link.link_id
+                            ? `${link.link_id}-${index}`
+                            : `link-${index}`
+                        }
                         className="bg-mia-surface border border-white/10 rounded-xl p-4 flex flex-col justify-between space-y-3 min-w-0"
                       >
                         <div className="flex items-center gap-2">
@@ -469,4 +507,3 @@ export default function SubmissionDetailPage(props) {
     </div>
   );
 }
-
