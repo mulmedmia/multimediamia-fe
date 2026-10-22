@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { cn } from "@/lib/utils";
+import { cn, formatMediumShortDate } from "@/lib/utils";
 import YouTubePreview from "@/components/common/YouTubePreview";
 
 export default function SubmissionDetailPage(props) {
@@ -373,13 +373,7 @@ export default function SubmissionDetailPage(props) {
                         </span>
                         <span className="text-sm font-medium text-mia-text break-words">
                           {submission.created_at
-                            ? new Date(submission.created_at).toLocaleString(
-                                "id-ID",
-                                {
-                                  dateStyle: "medium",
-                                  timeStyle: "short",
-                                },
-                              )
+                            ? formatMediumShortDate(submission.created_at)
                             : "-"}
                         </span>
                       </div>
@@ -389,13 +383,7 @@ export default function SubmissionDetailPage(props) {
                         </span>
                         <span className="text-sm text-mia-muted break-words">
                           {submission.updated_at
-                            ? new Date(submission.updated_at).toLocaleString(
-                                "id-ID",
-                                {
-                                  dateStyle: "medium",
-                                  timeStyle: "short",
-                                },
-                              )
+                            ? formatMediumShortDate(submission.updated_at)
                             : "-"}
                         </span>
                       </div>

@@ -1,6 +1,7 @@
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Phone, ExternalLink } from "lucide-react";
+import { formatMediumShortDate } from "@/lib/utils";
 
 // Kolom untuk mobile
 export const mobileColumns = [
@@ -81,10 +82,7 @@ export const desktopColumns = [
     header: "Tanggal",
     cell: ({ row }) => (
       <span>
-        {new Date(row.original.created_at).toLocaleString("id-ID", {
-          dateStyle: "medium",
-          timeStyle: "short",
-        })}
+        {formatMediumShortDate(row.original.created_at_at)}
       </span>
     ),
   },

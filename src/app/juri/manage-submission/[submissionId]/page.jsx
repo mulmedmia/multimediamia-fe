@@ -329,13 +329,7 @@ export default function JuriSubmissionDetailPage(props) {
                   </span>
                   <span className="text-sm font-medium text-mia-text break-words">
                     {submission.created_at
-                      ? new Date(submission.created_at).toLocaleString(
-                          "id-ID",
-                          {
-                            dateStyle: "medium",
-                            timeStyle: "short",
-                          },
-                        )
+                      ? formatMediumShortDate(submission.created_at_at)
                       : "-"}
                   </span>
                 </div>
@@ -345,13 +339,7 @@ export default function JuriSubmissionDetailPage(props) {
                   </span>
                   <span className="text-sm text-mia-muted break-words">
                     {submission.updated_at
-                      ? new Date(submission.updated_at).toLocaleString(
-                          "id-ID",
-                          {
-                            dateStyle: "medium",
-                            timeStyle: "short",
-                          },
-                        )
+                      ? formatMediumShortDate(submission.updated_at)
                       : "-"}
                   </span>
                 </div>
