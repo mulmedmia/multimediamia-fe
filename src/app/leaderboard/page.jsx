@@ -28,9 +28,10 @@ import {
   Search,
   X,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function LeaderboardPage() {
-  const [selectedCategoryId, setSelectedCategoryId] = useState("");
+  const [selectedCategoryId, setSelectedCategoryId] = useState("all");
   const [searchInput, setSearchInput] = useState("");
   const [appliedSearch, setAppliedSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -73,7 +74,17 @@ export default function LeaderboardPage() {
     setPage(1);
   };
 
-  const getRankIcon = (rank) => {
+  function DefaultRankIcon({ rank }) {
+    return (
+      <div className="h-7 w-7 md:h-8 md:w-8 flex items-center justify-center bg-[#1E2939] border border-white/10 rounded-full text-xs md:text-sm font-bold text-[#AAB1BD] leading-0">
+        {rank}
+      </div>
+    );
+  }
+
+  const getRankIcon = (rank, hallOfFameMode = true) => {
+    if (!hallOfFameMode) return <DefaultRankIcon rank={rank} />;
+
     switch (rank) {
       case 1:
         return (
@@ -84,11 +95,7 @@ export default function LeaderboardPage() {
       case 3:
         return <Award className="h-5 w-5 md:h-6 md:w-6 text-[#FF936B]" />;
       default:
-        return (
-          <div className="h-7 w-7 md:h-8 md:w-8 flex items-center justify-center bg-[#1E2939] border border-white/10 rounded-full text-xs md:text-sm font-bold text-[#AAB1BD]">
-            {rank}
-          </div>
-        );
+        return <DefaultRankIcon rank={rank} />;
     }
   };
 
@@ -117,8 +124,9 @@ export default function LeaderboardPage() {
     );
   });
 
-  const topThree = page === 1 && !isSearching ? leaderboardData.slice(0, 3) : [];
-  const remaining = page === 1 && !isSearching ? leaderboardData.slice(3) : filteredLeaderboard;
+  const isAllCategory = selectedCategoryId === "all";
+  const topThree = page === 1 && isAllCategory && !isSearching ? leaderboardData.slice(0, 3) : [];
+  const remaining = page === 1 && isAllCategory && !isSearching ? leaderboardData.slice(3) : filteredLeaderboard;
 
   return (
     <div className="min-h-screen bg-[#0A0D14] mia-connected-bg text-[#FFF9F5] flex flex-col justify-between selection:bg-[#E01C20] selection:text-white">
@@ -168,6 +176,7 @@ export default function LeaderboardPage() {
                     value={selectedCategoryId}
                     onValueChange={handleCategoryChange}
                     disabled={categoriesLoading}
+                    modal={false}
                   >
                     <SelectTrigger className="w-full h-12! bg-[#141824] border border-white/15 hover:border-[#E01C20]/60 rounded-xl text-[#FFF9F5] focus:ring-[#E01C20] transition-colors cursor-pointer">
                       <SelectValue
@@ -179,6 +188,16 @@ export default function LeaderboardPage() {
                       />
                     </SelectTrigger>
                     <SelectContent className="bg-[#141824] border border-white/15 text-[#FFF9F5] rounded-xl shadow-2xl">
+                      <SelectItem
+                        key="all"
+                        value="all"
+                        className="flex flex-col items-start py-2.5 px-3.5 gap-1 text-left text-[#FFF9F5] hover:bg-[#E01C20]/20 focus:bg-[#E01C20]/20 rounded-lg cursor-pointer transition-colors"
+                      >
+                        <span className="font-semibold text-sm md:text-base">
+                          Semua Kategori
+                        </span>
+                      </SelectItem>
+
                       {categories?.map((category) => (
                         <SelectItem
                           key={category.category_id}
@@ -187,9 +206,6 @@ export default function LeaderboardPage() {
                         >
                           <span className="font-semibold text-sm md:text-base">
                             {category.name}
-                          </span>
-                          <span className="text-xs text-[#AAB1BD]">
-                            {category.category_name}
                           </span>
                         </SelectItem>
                       ))}
@@ -334,7 +350,7 @@ export default function LeaderboardPage() {
               )}
 
             {/* Top 3 Podium (Hall of Fame) - Shown only on page 1 */}
-            {topThree.length > 0 && (
+            {selectedCategoryId == "all" && topThree.length > 0 && (
               <div className="space-y-6 md:space-y-8">
                 <div className="text-center space-y-2">
                   <div className="mia-pill-badge mx-auto">
@@ -372,6 +388,9 @@ export default function LeaderboardPage() {
                           <p className="text-xs text-[#AAB1BD] truncate">
                             oleh {topThree[1].user?.name || "Peserta"}
                           </p>
+                          <Badge className={getRankBadgeColor(-1)}>
+                            {topThree[1].category?.name}
+                          </Badge>
                         </div>
 
                         <div className="pt-2 border-t border-white/10 flex items-center justify-center gap-3">
@@ -382,7 +401,7 @@ export default function LeaderboardPage() {
                             </span>
                             <span className="text-xs text-[#AAB1BD]">XP</span>
                           </div>
-                          <span className="text-white/20">|</span>
+                          <span className="text-white/20 select-none">|</span>
                           <div className="flex items-center gap-1 text-xs text-[#FED700] font-semibold">
                             <span>💎</span>
                             <span>{topThree[1].diamond.toLocaleString()}</span>
@@ -417,6 +436,9 @@ export default function LeaderboardPage() {
                         <p className="text-xs md:text-sm text-[#AAB1BD] truncate">
                           oleh {topThree[0].user?.name || "Peserta"}
                         </p>
+                        <Badge className={getRankBadgeColor(-1)}>
+                          {topThree[0].category?.name}
+                        </Badge>
                       </div>
 
                       <div className="pt-3 border-t border-white/10 flex items-center justify-center gap-3">
@@ -427,7 +449,7 @@ export default function LeaderboardPage() {
                           </span>
                           <span className="text-sm text-[#AAB1BD]">XP</span>
                         </div>
-                        <span className="text-white/20">|</span>
+                        <span className="text-white/20 select-none">|</span>
                         <div className="flex items-center gap-1 text-sm text-[#FED700] font-bold">
                           <span>💎</span>
                           <span>{topThree[0].diamond.toLocaleString()}</span>
@@ -456,6 +478,9 @@ export default function LeaderboardPage() {
                           <p className="text-xs text-[#AAB1BD] truncate">
                             oleh {topThree[2].user?.name || "Peserta"}
                           </p>
+                          <Badge className={getRankBadgeColor(-1)}>
+                            {topThree[2].category?.name}
+                          </Badge>
                         </div>
 
                         <div className="pt-2 border-t border-white/10 flex items-center justify-center gap-3">
@@ -466,7 +491,7 @@ export default function LeaderboardPage() {
                             </span>
                             <span className="text-xs text-[#AAB1BD]">XP</span>
                           </div>
-                          <span className="text-white/20">|</span>
+                          <span className="text-white/20 select-none">|</span>
                           <div className="flex items-center gap-1 text-xs text-[#FED700] font-semibold">
                             <span>💎</span>
                             <span>{topThree[2].diamond.toLocaleString()}</span>
@@ -489,19 +514,21 @@ export default function LeaderboardPage() {
                     <h3 className="text-xl md:text-2xl font-bold text-[#FFF9F5]">
                       {isSearching
                         ? "Hasil Pencarian Tim"
-                        : page === 1
-                        ? "Peringkat Lainnya"
-                        : "Daftar Peringkat"}
+                        : isAllCategory
+                          ? page === 1
+                            ? "Peringkat Lainnya"
+                            : "Daftar Peringkat"
+                          : `Peringkat ${remaining[0].category?.name}`}
                     </h3>
                     <p className="text-xs md:text-sm text-[#AAB1BD]">
                       {isSearching
-                        ? `Menampilkan tim yang cocok dengan kata kunci "${appliedSearch}"`
+                        ? `Menampilkan tim ${!isAllCategory ? remaining[0].category?.name : ""} yang cocok dengan kata kunci "${appliedSearch}"`
                         : page === 1
-                        ? "Daftar tim peserta peringkat ke-4 dan seterusnya berdasarkan total XP"
-                        : `Menampilkan tim peringkat ${(page - 1) * limit + 1} sampai ${Math.min(meta.total, page * limit)}`}
+                          ? `Daftar tim ${!isAllCategory ? remaining[0].category?.slug : "peringkat ke-4 dan seterusnya"} berdasarkan total XP dan diamond`
+                          : `Menampilkan tim peringkat ${(page - 1) * limit + 1} sampai ${Math.min(meta.total, page * limit)}`}
                     </p>
                   </div>
-                  <div className="mia-pill-badge w-fit">
+                  <div className="mia-pill-badge w-fit sm:shrink-0 text-end">
                     <span>
                       {isSearching
                         ? `Ditemukan ${meta.total} Tim`
@@ -514,7 +541,8 @@ export default function LeaderboardPage() {
                   {/* Desktop Table Header */}
                   <div className="hidden md:grid md:grid-cols-12 gap-4 px-6 py-4 bg-[#1E2939]/80 border-b border-white/10 text-xs font-semibold text-[#AAB1BD] uppercase tracking-wider">
                     <div className="col-span-2 text-center">Peringkat</div>
-                    <div className="col-span-6">Tim & Peserta</div>
+                    <div className={cn(isAllCategory ? "col-span-4" : "col-span-6")}>Tim & Peserta</div>
+                    {isAllCategory && (<div className="col-span-2 text-center">Kategori</div>)}
                     <div className="col-span-2 text-center">Perolehan XP</div>
                     <div className="col-span-2 text-center">Diamond</div>
                   </div>
@@ -536,7 +564,7 @@ export default function LeaderboardPage() {
                           <div className="md:hidden space-y-3">
                             <div className="flex items-center justify-between gap-2">
                               <div className="flex items-center gap-3">
-                                {getRankIcon(rank)}
+                                <div className="self-start mt-2">{getRankIcon(rank, false)}</div>
                                 <div>
                                   <h4 className="font-semibold text-base text-[#FFF9F5]">
                                     {item.team_name}
@@ -544,39 +572,43 @@ export default function LeaderboardPage() {
                                   <p className="text-xs text-[#AAB1BD]">
                                     oleh {item.user?.name || "Peserta"}
                                   </p>
+                                  {isAllCategory && (
+                                    <Badge
+                                      className={cn(
+                                        getRankBadgeColor(-1),
+                                        "bg-[#1E2939]/30 text-[11px] py-0.5 mt-1",
+                                      )}
+                                    >
+                                      {item.category?.name}
+                                    </Badge>
+                                  )}
                                 </div>
                               </div>
-                              <Badge className={getRankBadgeColor(rank)}>
-                                #{rank}
-                              </Badge>
-                            </div>
 
-                            <div className="flex items-center justify-between pt-2 border-t border-white/5">
-                              <div className="flex items-center gap-1.5 font-bold text-amber-400">
-                                <Zap className="h-4 w-4 fill-amber-400" />
-                                <span className="text-lg text-[#FFF9F5]">
-                                  {item.xp.toLocaleString()}
+                              <div className="flex flex-col gap-2">
+                                <div className="flex items-center gap-1.5 font-bold text-amber-400">
+                                  <Zap className="h-4 w-4 fill-amber-400" />
+                                  <span className="text-lg text-[#FFF9F5]">
+                                    {item.xp.toLocaleString()}
+                                  </span>
+                                  <span className="text-xs text-[#AAB1BD]">XP</span>
+                                </div>
+
+                                <span className="flex items-center w-fit self-end gap-1 px-2.5 py-0.5 rounded-full bg-[#FED700]/10 border border-[#FED700]/30 text-[#FED700] text-xs font-semibold">
+                                  <span>💎</span>
+                                  <span>{item.diamond.toLocaleString()}</span>
                                 </span>
-                                <span className="text-xs text-[#AAB1BD]">XP</span>
                               </div>
-
-                              <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#FED700]/10 border border-[#FED700]/30 text-[#FED700] text-xs font-semibold">
-                                <span>💎</span>
-                                <span>{item.diamond.toLocaleString()}</span>
-                              </span>
                             </div>
                           </div>
 
                           {/* Desktop View */}
                           <div className="hidden md:grid md:grid-cols-12 gap-4 items-center px-2">
                             <div className="col-span-2 flex items-center justify-center gap-2">
-                              {getRankIcon(rank)}
-                              <Badge className={getRankBadgeColor(rank)}>
-                                #{rank}
-                              </Badge>
+                              {getRankIcon(rank, false)}
                             </div>
 
-                            <div className="col-span-6">
+                            <div className={cn(isAllCategory ? "col-span-4" : "col-span-6")}>
                               <h4 className="font-semibold text-base text-[#FFF9F5]">
                                 {item.team_name}
                               </h4>
@@ -584,6 +616,14 @@ export default function LeaderboardPage() {
                                 oleh {item.user?.name || "Peserta"}
                               </p>
                             </div>
+
+                            {isAllCategory && 
+                              (<div className="col-span-2 flex items-center justify-center">
+                                <Badge className={cn(getRankBadgeColor(-1), "scale-90 bg-[#1E2939]/30")} >
+                                  {item.category?.name}
+                                </Badge>
+                              </div>)
+                            }
 
                             <div className="col-span-2 flex items-center justify-center gap-1.5 font-bold text-amber-400">
                               <Zap className="h-4 w-4 fill-amber-400" />

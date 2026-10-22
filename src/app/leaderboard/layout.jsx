@@ -1,9 +1,9 @@
 export const metadata = {
-  title: "Leaderboard & Peringkat",
+  title: "Leaderboard XP & Diamond",
   description:
     "Pantau klasemen peringkat tim dan perolehan XP peserta Multimedia in Action 2026 secara langsung.",
   openGraph: {
-    title: "Leaderboard & Peringkat | Multimedia in Action 2026",
+    title: "Leaderboard XP & Diamond | Multimedia in Action 2026",
     description:
       "Pantau klasemen peringkat tim dan perolehan XP peserta Multimedia in Action 2026 secara langsung.",
   },
