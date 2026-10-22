@@ -887,8 +887,8 @@ export default function AdminMisiPage() {
                         <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">Waktu Submit</TableHead>
                         <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">Status</TableHead>
                         <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">Hasil Nilai</TableHead>
-                        <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 whitespace-nowrap">Created By</TableHead>
-                        <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 whitespace-nowrap">Updated By</TableHead>
+                        <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02] whitespace-nowrap">Created By</TableHead>
+                        <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02] whitespace-nowrap">Updated By</TableHead>
                         <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 pr-6 text-right sticky right-0 bg-[#141824] z-20 shadow-[-8px_0_12px_-4px_rgba(0,0,0,0.5)] border-l border-border/40">Aksi</TableHead>
                       </TableRow>
                     </TableHeader>
