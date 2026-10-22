@@ -122,53 +122,57 @@ export default function SubmissionDetailPage(props) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-mia-bg mia-connected-bg text-mia-text flex flex-col justify-between">
-        <Header />
-        <main className="flex-1 flex items-center justify-center pt-24 sm:pt-28 pb-16 px-4">
-          <div className="text-center space-y-4">
-            <div className="animate-spin rounded-full h-10 w-10 border-2 border-mia-red border-t-transparent mx-auto"></div>
-            <p className="text-sm md:text-base text-mia-muted">
-              Memuat detail karya...
-            </p>
-          </div>
-        </main>
+      <>
+        <div className="min-h-screen bg-mia-bg mia-connected-bg text-mia-text flex flex-col justify-between">
+          <Header />
+          <main className="flex-1 flex items-center justify-center pt-24 sm:pt-28 pb-16 px-4">
+            <div className="text-center space-y-4">
+              <div className="animate-spin rounded-full h-10 w-10 border-2 border-mia-red border-t-transparent mx-auto"></div>
+              <p className="text-sm md:text-base text-mia-muted">
+                Memuat detail karya...
+              </p>
+            </div>
+          </main>
+        </div>
         <Footer />
-      </div>
+      </>
     );
   }
 
   if (error || !submission) {
     return (
-      <div className="min-h-screen bg-mia-bg mia-connected-bg text-mia-text flex flex-col justify-between">
-        <Header />
-        <main className="flex-1 flex items-center justify-center pt-24 sm:pt-28 pb-16 px-4">
-          <div className="w-full max-w-2xl">
-            <div className="mia-card p-8 md:p-12 text-center space-y-5">
-              <div className="w-14 h-14 bg-mia-red/15 border border-mia-red/30 text-mia-red rounded-2xl flex items-center justify-center mx-auto">
-                <XCircle className="h-7 w-7" />
+      <>
+        <div className="min-h-screen bg-mia-bg mia-connected-bg text-mia-text flex flex-col justify-between">
+          <Header />
+          <main className="flex-1 flex items-center justify-center pt-24 sm:pt-28 pb-16 px-4">
+            <div className="w-full max-w-2xl">
+              <div className="mia-card p-8 md:p-12 text-center space-y-5">
+                <div className="w-14 h-14 bg-mia-red/15 border border-mia-red/30 text-mia-red rounded-2xl flex items-center justify-center mx-auto">
+                  <XCircle className="h-7 w-7" />
+                </div>
+                <div className="space-y-2">
+                  <h2 className="text-xl sm:text-2xl font-bold text-mia-text">
+                    {error ? "Terjadi Kesalahan" : "Karya Tidak Ditemukan"}
+                  </h2>
+                  <p className="text-sm text-mia-muted">
+                    {error ||
+                      "Karya yang Anda cari tidak ditemukan atau mungkin belum disetujui."}
+                  </p>
+                </div>
+                <Link
+                  href={returnTo}
+                  onNavigate={onNavigate}
+                  className="mia-btn-secondary px-6 py-2.5 text-sm inline-flex items-center gap-2 cursor-pointer transition-all"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  <span>Kembali ke Show It</span>
+                </Link>
               </div>
-              <div className="space-y-2">
-                <h2 className="text-xl sm:text-2xl font-bold text-mia-text">
-                  {error ? "Terjadi Kesalahan" : "Karya Tidak Ditemukan"}
-                </h2>
-                <p className="text-sm text-mia-muted">
-                  {error ||
-                    "Karya yang Anda cari tidak ditemukan atau mungkin belum disetujui."}
-                </p>
-              </div>
-              <Link
-                href={returnTo}
-                onNavigate={onNavigate}
-                className="mia-btn-secondary px-6 py-2.5 text-sm inline-flex items-center gap-2 cursor-pointer transition-all"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                <span>Kembali ke Show It</span>
-              </Link>
             </div>
-          </div>
-        </main>
+          </main>
+        </div>
         <Footer />
-      </div>
+      </>
     );
   }
 
