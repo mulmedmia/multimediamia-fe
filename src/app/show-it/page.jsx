@@ -29,17 +29,54 @@ import {
   X,
 } from "lucide-react";
 import YouTubePreview from "@/components/common/YouTubePreview";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { getRankBadgeColor } from "@/components/leaderboard/RankIcon";
+
+function getStatusBadge({ status }) {
+  switch (status) {
+    case "APPROVED":
+      return "bg-[#00B445]/15 text-[#00B445] border border-[#00B445]/30";
+    case "PENDING":
+      return "bg-[#FED700]/15 text-[#FED700] border border-[#FED700]/30";
+    case "REJECTED":
+      return "bg-[#E01C20]/15 text-[#E01C20] border border-[#E01C20]/30";
+    default:
+      return "bg-[#1E2939] text-[#AAB1BD] border border-white/10";
+  }
+}
+
+function LinkIcon({ linkType }) {
+  switch (linkType?.toUpperCase()) {
+    case "GITHUB":
+      return <Github className="h-3.5 w-3.5" />;
+    case "YOUTUBE":
+      return <Youtube className="h-3.5 w-3.5" />;
+    default:
+      return <ExternalLink className="h-3.5 w-3.5" />;
+  }
+}
+
+function ShowItSelectItem({ value = "", content = "" }) {
+  return (
+    <SelectItem
+      value={value}
+      className="flex flex-col items-start py-2.5 px-3.5 gap-1 text-left text-[#FFF9F5] hover:bg-[#E01C20]/20 focus:bg-[#E01C20]/20 rounded-lg cursor-pointer transition-colors"
+    >
+      <span className="font-semibold text-sm md:text-base">{content}</span>
+    </SelectItem>
+  );
+}
 
 export default function ShowItPage() {
-  const [selectedCategoryId, setSelectedCategoryId] = useState("");
+  const [selectedCategoryId, setSelectedCategoryId] = useState("all");
   const [searchInput, setSearchInput] = useState("");
   const [appliedSearch, setAppliedSearch] = useState("");
   const router = useRouter();
 
   const { data: categories, isLoading: categoriesLoading } = useCategories();
-  const selectedCategory = categories?.find(
-    (c) => c.category_id === selectedCategoryId
-  );
+
+  const isAllCategory = selectedCategoryId === "all";
 
   const {
     data: submissionsData,
@@ -50,7 +87,8 @@ export default function ShowItPage() {
   // Filter hanya submission yang berstatus APPROVED dan diizinkan tampil di Show It
   const allSubmissions = submissionsData?.submissions || [];
   const submissions = allSubmissions.filter(
-    (submission) => submission.status === "APPROVED" && Boolean(submission.is_verified)
+    (submission) =>
+      submission.status === "APPROVED" && Boolean(submission.is_verified),
   );
 
   const isSearching = Boolean(appliedSearch.trim());
@@ -65,30 +103,6 @@ export default function ShowItPage() {
       submission.description?.toLowerCase().includes(q)
     );
   });
-
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case "APPROVED":
-        return "bg-[#00B445]/15 text-[#00B445] border border-[#00B445]/30";
-      case "PENDING":
-        return "bg-[#FED700]/15 text-[#FED700] border border-[#FED700]/30";
-      case "REJECTED":
-        return "bg-[#E01C20]/15 text-[#E01C20] border border-[#E01C20]/30";
-      default:
-        return "bg-[#1E2939] text-[#AAB1BD] border border-white/10";
-    }
-  };
-
-  const getLinkIcon = (linkType) => {
-    switch (linkType?.toUpperCase()) {
-      case "GITHUB":
-        return <Github className="h-3.5 w-3.5" />;
-      case "YOUTUBE":
-        return <Youtube className="h-3.5 w-3.5" />;
-      default:
-        return <ExternalLink className="h-3.5 w-3.5" />;
-    }
-  };
 
   const handleCategoryChange = (categoryId) => {
     setSelectedCategoryId(categoryId);
@@ -129,8 +143,8 @@ export default function ShowItPage() {
               </h1>
 
               <p className="text-sm sm:text-base md:text-lg text-[#AAB1BD] leading-relaxed">
-                Jelajahi dan temukan inspirasi dari karya-karya inovatif dan kreatif
-                peserta kompetisi Multimedia in Action 2026!
+                Jelajahi dan temukan inspirasi dari karya-karya inovatif dan
+                kreatif peserta kompetisi Multimedia in Action 2026!
               </p>
             </div>
 
@@ -145,7 +159,8 @@ export default function ShowItPage() {
                     Pilih Kategori & Cari Karya
                   </h2>
                   <p className="text-xs md:text-sm text-[#AAB1BD]">
-                    Pilih kategori untuk memuat karya dan gunakan kotak pencarian untuk mencari karya spesifik
+                    Pilih kategori untuk memuat karya dan gunakan kotak
+                    pencarian untuk mencari karya spesifik
                   </p>
                 </div>
               </div>
@@ -168,19 +183,18 @@ export default function ShowItPage() {
                       />
                     </SelectTrigger>
                     <SelectContent className="bg-[#141824] border border-white/15 text-[#FFF9F5] rounded-xl shadow-2xl">
+                      <ShowItSelectItem
+                        key="all"
+                        value="all"
+                        content="Semua Kategori"
+                      />
+
                       {categories?.map((category) => (
-                        <SelectItem
+                        <ShowItSelectItem
                           key={category.category_id}
                           value={category.category_id}
-                          className="flex flex-col items-start py-2.5 px-3.5 gap-1 text-left text-[#FFF9F5] hover:bg-[#E01C20]/20 focus:bg-[#E01C20]/20 rounded-lg cursor-pointer transition-colors"
-                        >
-                          <span className="font-semibold text-sm md:text-base">
-                            {category.name}
-                          </span>
-                          <span className="text-xs text-[#AAB1BD]">
-                            {category.category_name}
-                          </span>
-                        </SelectItem>
+                          content={category.name}
+                        />
                       ))}
                     </SelectContent>
                   </Select>
@@ -261,53 +275,65 @@ export default function ShowItPage() {
                     Gagal Memuat Data
                   </h3>
                   <p className="text-xs md:text-sm text-[#AAB1BD]">
-                    Tidak dapat memuat karya untuk kategori ini. Silakan coba beberapa saat lagi.
+                    Tidak dapat memuat karya untuk kategori ini. Silakan coba
+                    beberapa saat lagi.
                   </p>
                 </div>
               </div>
             )}
 
             {/* Empty State jika belum ada karya sama sekali dalam kategori */}
-            {submissions.length === 0 && selectedCategoryId && !submissionsLoading && !isError && (
-              <div className="mia-card p-8 md:p-14 text-center space-y-4 border-dashed border-white/15">
-                <div className="w-14 h-14 bg-[#E01C20]/15 border border-[#E01C20]/30 text-[#E01C20] rounded-2xl flex items-center justify-center mx-auto">
-                  <Lightbulb className="h-7 w-7" />
+            {submissions.length === 0 &&
+              selectedCategoryId &&
+              !submissionsLoading &&
+              !isError && (
+                <div className="mia-card p-8 md:p-14 text-center space-y-4 border-dashed border-white/15">
+                  <div className="w-14 h-14 bg-[#E01C20]/15 border border-[#E01C20]/30 text-[#E01C20] rounded-2xl flex items-center justify-center mx-auto">
+                    <Lightbulb className="h-7 w-7" />
+                  </div>
+                  <div className="space-y-1 max-w-md mx-auto">
+                    <h3 className="text-xl font-bold text-[#FFF9F5]">
+                      Belum Ada Karya
+                    </h3>
+                    <p className="text-sm text-[#AAB1BD]">
+                      Belum ada karya yang disetujui dan ditampilkan untuk
+                      kategori ini.
+                    </p>
+                  </div>
                 </div>
-                <div className="space-y-1 max-w-md mx-auto">
-                  <h3 className="text-xl font-bold text-[#FFF9F5]">
-                    Belum Ada Karya
-                  </h3>
-                  <p className="text-sm text-[#AAB1BD]">
-                    Belum ada karya yang disetujui dan ditampilkan untuk kategori ini.
-                  </p>
-                </div>
-              </div>
-            )}
+              )}
 
             {/* Empty State jika hasil pencarian tidak ditemukan */}
-            {submissions.length > 0 && isSearching && filteredSubmissions.length === 0 && !submissionsLoading && (
-              <div className="mia-card p-8 md:p-14 text-center space-y-4 border-dashed border-white/15">
-                <div className="w-14 h-14 bg-white/5 border border-white/10 text-[#AAB1BD] rounded-2xl flex items-center justify-center mx-auto">
-                  <Search className="h-7 w-7 text-[#AAB1BD]" />
+            {submissions.length > 0 &&
+              isSearching &&
+              filteredSubmissions.length === 0 &&
+              !submissionsLoading && (
+                <div className="mia-card p-8 md:p-14 text-center space-y-4 border-dashed border-white/15">
+                  <div className="w-14 h-14 bg-white/5 border border-white/10 text-[#AAB1BD] rounded-2xl flex items-center justify-center mx-auto">
+                    <Search className="h-7 w-7 text-[#AAB1BD]" />
+                  </div>
+                  <div className="space-y-1 max-w-md mx-auto">
+                    <h3 className="text-xl font-bold text-[#FFF9F5]">
+                      Karya Tidak Ditemukan
+                    </h3>
+                    <p className="text-sm text-[#AAB1BD]">
+                      Tidak ada karya yang cocok dengan kata kunci &quot;
+                      <span className="text-[#FFF9F5] font-semibold">
+                        {appliedSearch}
+                      </span>
+                      &quot;.
+                    </p>
+                  </div>
+                  <Button
+                    onClick={handleResetSearch}
+                    variant="outline"
+                    size="sm"
+                    className="rounded-full border-white/15 text-xs text-[#FFF9F5] hover:bg-white/10 cursor-pointer"
+                  >
+                    Reset Pencarian
+                  </Button>
                 </div>
-                <div className="space-y-1 max-w-md mx-auto">
-                  <h3 className="text-xl font-bold text-[#FFF9F5]">
-                    Karya Tidak Ditemukan
-                  </h3>
-                  <p className="text-sm text-[#AAB1BD]">
-                    Tidak ada karya yang cocok dengan kata kunci &quot;<span className="text-[#FFF9F5] font-semibold">{appliedSearch}</span>&quot;.
-                  </p>
-                </div>
-                <Button
-                  onClick={handleResetSearch}
-                  variant="outline"
-                  size="sm"
-                  className="rounded-full border-white/15 text-xs text-[#FFF9F5] hover:bg-white/10 cursor-pointer"
-                >
-                  Reset Pencarian
-                </Button>
-              </div>
-            )}
+              )}
 
             {/* Submissions Grid */}
             {filteredSubmissions.length > 0 && (
@@ -320,7 +346,7 @@ export default function ShowItPage() {
                     <p className="text-xs sm:text-sm text-[#AAB1BD]">
                       {isSearching
                         ? `Menampilkan ${filteredSubmissions.length} dari ${submissions.length} karya untuk pencarian "${appliedSearch}"`
-                        : `Menampilkan ${filteredSubmissions.length} karya inovatif dalam kategori ini`}
+                        : `Menampilkan ${filteredSubmissions.length} karya inovatif dari ${selectedCategoryId === "all" ? "semua kategori" : `kategori ${submissions[0]?.category.slug}`}`}
                     </p>
                   </div>
                   <span className="text-xs text-[#AAB1BD] bg-[#1E2939] border border-white/10 px-3 py-1.5 rounded-full w-fit">
@@ -333,7 +359,9 @@ export default function ShowItPage() {
                   {filteredSubmissions.map((submission) => (
                     <div
                       key={submission.submission_id}
-                      onClick={() => handleSubmissionClick(submission.submission_id)}
+                      onClick={() =>
+                        handleSubmissionClick(submission.submission_id)
+                      }
                       className="mia-card p-6 flex flex-col justify-between hover:border-[#E01C20]/60 hover:shadow-[0_0_30px_rgba(224,28,32,0.15)] transition-all duration-300 group cursor-pointer"
                     >
                       <div className="space-y-4">
@@ -346,30 +374,47 @@ export default function ShowItPage() {
                         />
 
                         {/* Header & Status */}
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex-1 min-w-0">
+                        <div className="flex flex-col gap-1.5">
+                          <div className="flex items-start justify-between gap-3">
                             <h3 className="text-lg font-bold text-[#FFF9F5] group-hover:text-[#E01C20] transition-colors line-clamp-2">
                               {submission.project_name}
                             </h3>
-                            <div className="flex items-center gap-1.5 text-xs text-[#AAB1BD] mt-1.5">
-                              <Users className="h-3.5 w-3.5 text-[#FED700]" />
-                              <span className="truncate font-medium">{submission.team_name}</span>
-                            </div>
+                            <span
+                              className={cn(
+                                "text-xs font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap",
+                                getStatusBadge(submission.status),
+                              )}
+                            >
+                              {submission.status === "APPROVED"
+                                ? "✓ Disetujui"
+                                : submission.status}
+                            </span>
                           </div>
-                          <span
-                            className={`text-xs font-semibold px-2.5 py-1 rounded-full whitespace-nowrap ${getStatusBadge(
-                              submission.status
-                            )}`}
-                          >
-                            {submission.status === "APPROVED"
-                              ? "✓ Disetujui"
-                              : submission.status}
-                          </span>
+
+                          <div className="flex flex-row items-center gap-2">
+                            <div className="flex items-center gap-1.5 text-xs text-[#AAB1BD]">
+                              <Users className="h-3.5 w-3.5 text-[#FED700]" />
+                              <span className="truncate font-medium">
+                                {submission.team_name}
+                              </span>
+                            </div>
+                            {isAllCategory && (
+                              <Badge
+                                className={cn(
+                                  getRankBadgeColor(-1),
+                                  "scale-90 bg-[#1E2939]/30",
+                                )}
+                              >
+                                {submission.category?.name}
+                              </Badge>
+                            )}
+                          </div>
                         </div>
 
                         {/* Description */}
                         <p className="text-sm text-[#AAB1BD] line-clamp-3 leading-relaxed">
-                          {submission.description || "Tidak ada deskripsi singkat."}
+                          {submission.description ||
+                            "Tidak ada deskripsi singkat."}
                         </p>
 
                         {/* Project Links */}
@@ -388,8 +433,10 @@ export default function ShowItPage() {
                                   onClick={(e) => e.stopPropagation()}
                                   className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#1E2939] hover:bg-[#E01C20]/20 border border-white/10 hover:border-[#E01C20]/40 rounded-md text-xs text-[#FFF9F5] transition-colors"
                                 >
-                                  {getLinkIcon(link.link_type)}
-                                  <span className="capitalize">{link.link_type?.toLowerCase()}</span>
+                                  <LinkIcon linkType={link.link_type} />
+                                  <span className="capitalize">
+                                    {link.link_type?.toLowerCase()}
+                                  </span>
                                 </a>
                               ))}
                               {submission.links.length > 3 && (
@@ -406,7 +453,9 @@ export default function ShowItPage() {
                       <div className="mt-5 pt-4 border-t border-white/10 flex items-center justify-between text-xs text-[#99A1AF]">
                         <div className="flex items-center gap-1.5 truncate max-w-[150px]">
                           <User className="h-3.5 w-3.5 flex-shrink-0" />
-                          <span className="truncate">{submission.user?.name || "Peserta"}</span>
+                          <span className="truncate">
+                            {submission.user?.name || "Peserta"}
+                          </span>
                         </div>
                         <div className="flex items-center gap-1 text-[#E01C20] font-semibold group-hover:translate-x-1 transition-transform">
                           <span>Detail</span>
@@ -430,7 +479,9 @@ export default function ShowItPage() {
                     Pilih Kategori untuk Melihat Galeri Karya
                   </h3>
                   <p className="text-sm sm:text-base text-[#AAB1BD] leading-relaxed">
-                    Pilih salah satu kategori lomba di atas untuk melihat karya-karya terbaik yang telah dipublikasikan oleh para peserta.
+                    Pilih salah satu kategori lomba di atas untuk melihat
+                    karya-karya terbaik yang telah dipublikasikan oleh para
+                    peserta.
                   </p>
                 </div>
               </div>
@@ -443,4 +494,3 @@ export default function ShowItPage() {
     </div>
   );
 }
-
