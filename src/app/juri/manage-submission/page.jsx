@@ -63,11 +63,11 @@ const SubmissionCard = ({ submission }) => {
           </span>
         </div>
         <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-1">
-          <span className="font-semibold text-neutral-800 dark:text-neutral-200">Tim:</span> {submission.team_name}
+          <span className="font-semibold text-neutral-800 dark:text-neutral-200">Tim:</span> {submission.registration?.team_name || submission.team_name || submission.registration?.user?.name || submission.user?.name || "-"}
         </p>
         <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-2.5">
           <span className="font-semibold text-neutral-800 dark:text-neutral-200">Kategori:</span>{" "}
-          {submission.category?.category_name || submission.category?.name || "-"}
+          {submission.registration?.category?.category_name || submission.category?.category_name || submission.category?.name || "-"}
         </p>
 
         <p className="text-xs text-neutral-500 dark:text-neutral-500 line-clamp-3">

@@ -197,7 +197,7 @@ export default function SubmissionDetailPage(props) {
                         {submission.project_name}
                       </h1>
                       <p className="text-sm text-mia-muted pt-0.5">
-                        oleh Tim <strong className="text-mia-text">{submission.team_name}</strong> • {submission.user?.name}
+                        oleh Tim <strong className="text-mia-text">{submission.registration?.team_name || submission.team_name || "-"}</strong> • {submission.registration?.user?.name || submission.user?.name || "-"}
                       </p>
                     </div>
 
@@ -234,7 +234,9 @@ export default function SubmissionDetailPage(props) {
                       <div className="px-3.5 py-1.5 rounded-full bg-purple-900/60 border border-purple-500/50 text-purple-200 inline-flex items-center gap-1.5">
                         <Trophy className="h-3.5 w-3.5 text-purple-300" />
                         <span>
-                          {submission.category?.name ||
+                          {submission.registration?.category?.category_name ||
+                            submission.registration?.category?.name ||
+                            submission.category?.name ||
                             submission.category?.category_name ||
                             "-"}
                         </span>
@@ -292,7 +294,7 @@ export default function SubmissionDetailPage(props) {
                           Nama Peserta
                         </span>
                         <span className="text-sm font-medium text-mia-text">
-                          {submission.user?.name || "-"}
+                          {submission.registration?.user?.name || submission.user?.name || "-"}
                         </span>
                       </div>
                       <div>
@@ -300,7 +302,7 @@ export default function SubmissionDetailPage(props) {
                           Nama Tim
                         </span>
                         <span className="text-sm text-mia-muted">
-                          {submission.team_name || "-"}
+                          {submission.registration?.team_name || submission.team_name || "-"}
                         </span>
                       </div>
                     </div>

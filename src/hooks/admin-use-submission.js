@@ -7,11 +7,10 @@ import {
 } from "@/services/admin-submission.service";
 import { toast } from "sonner";
 
-// Query: ambil semua submission
-export function useAdminSubmissions({ limit = 10, page = 1, category_id = "", status = "", search = "" } = {}) {
+export function useAdminSubmissions({ limit = 10, page = 1, category_id = "", status = "", search = "", registration_id = "" } = {}) {
   return useQuery({
-    queryKey: ["admin-submissions", { limit, page, category_id, status, search }],
-    queryFn: () => getAllSubmissions({ limit, page, category_id, status, search }),
+    queryKey: ["admin-submissions", { limit, page, category_id, status, search, registration_id }],
+    queryFn: () => getAllSubmissions({ limit, page, category_id, status, search, registration_id }),
     placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 2,
   });

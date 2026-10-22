@@ -97,9 +97,10 @@ export default function ShowItPage() {
   const filteredSubmissions = submissions.filter((submission) => {
     if (!isSearching) return true;
     const q = appliedSearch.toLowerCase().trim();
+    const teamName = submission.registration?.team_name || submission.team_name || "";
     return (
       submission.project_name?.toLowerCase().includes(q) ||
-      submission.team_name?.toLowerCase().includes(q) ||
+      teamName.toLowerCase().includes(q) ||
       submission.description?.toLowerCase().includes(q)
     );
   });
@@ -395,7 +396,7 @@ export default function ShowItPage() {
                             <div className="flex items-center gap-1.5 text-xs text-[#AAB1BD]">
                               <Users className="h-3.5 w-3.5 text-[#FED700]" />
                               <span className="truncate font-medium">
-                                {submission.team_name}
+                                {submission.registration?.team_name || submission.team_name || submission.registration?.user?.name || submission.user?.name || "-"}
                               </span>
                             </div>
                             {isAllCategory && (
@@ -454,7 +455,7 @@ export default function ShowItPage() {
                         <div className="flex items-center gap-1.5 truncate max-w-[150px]">
                           <User className="h-3.5 w-3.5 flex-shrink-0" />
                           <span className="truncate">
-                            {submission.user?.name || "Peserta"}
+                            {submission.registration?.user?.name || submission.user?.name || "Peserta"}
                           </span>
                         </div>
                         <div className="flex items-center gap-1 text-[#E01C20] font-semibold group-hover:translate-x-1 transition-transform">

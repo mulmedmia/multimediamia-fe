@@ -148,21 +148,21 @@ export default function SubmissionDetailModal({ open, onClose, data }) {
               <div className="space-y-2 text-xs">
                 <div>
                   <Label className="text-muted-foreground">Nama Peserta</Label>
-                  <p className="font-semibold text-foreground mt-0.5">{data?.user?.name || "-"}</p>
+                  <p className="font-semibold text-foreground mt-0.5">{data?.registration?.user?.name || data?.user?.name || "-"}</p>
                 </div>
                 <div>
                   <Label className="text-muted-foreground">Email</Label>
                   <p className="text-muted-foreground mt-0.5 flex items-center gap-1.5">
                     <Mail className="h-3 w-3 text-muted-foreground/60" />
-                    <span>{data?.user?.email || "-"}</span>
+                    <span>{data?.registration?.user?.email || data?.user?.email || "-"}</span>
                   </p>
                 </div>
                 <div>
                   <Label className="text-muted-foreground">Nama Tim</Label>
                   <p className="font-medium text-purple-400 mt-0.5">
-                    {data?.team_name ? (
+                    {(data?.registration?.team_name || data?.team_name) ? (
                       <span className="flex items-center gap-1">
-                        <Users className="h-3 w-3 inline" /> {data.team_name}
+                        <Users className="h-3 w-3 inline" /> {data?.registration?.team_name || data?.team_name}
                       </span>
                     ) : (
                       <span className="text-muted-foreground italic">Individu</span>
@@ -182,7 +182,7 @@ export default function SubmissionDetailModal({ open, onClose, data }) {
                 <div>
                   <Label className="text-muted-foreground">Kategori Lomba</Label>
                   <p className="font-semibold text-foreground mt-0.5">
-                    {data?.category?.category_name || "-"}
+                    {data?.registration?.category?.category_name || data?.category?.category_name || "-"}
                   </p>
                 </div>
                 <div>

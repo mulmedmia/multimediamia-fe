@@ -7,11 +7,13 @@ import api from "@/lib/api";
  * @param {string} categoryId - ID dari kategori lomba.
  * @returns {Promise<Array>}
  */
-export const getSubmissionsByCategoryId = async (categoryId) => {
+export const getSubmissionsByCategoryId = async (categoryId, registrationId = null) => {
   try {
-    const response = await api.get(
-      `/submissions/my/submissions?category_id=${categoryId}`
-    );
+    let url = `/submissions/my/submissions?category_id=${categoryId}`;
+    if (registrationId) {
+      url += `&registration_id=${registrationId}`;
+    }
+    const response = await api.get(url);
     return response.data.data.submissions;
   } catch (error) {
     console.error("Gagal mengambil data submission:", error);
@@ -37,11 +39,13 @@ export const createSubmission = async (submissionData) => {
   }
 };
 
-export const getMySubmissions = async (page = 1, limit = 10) => {
+export const getMySubmissions = async (page = 1, limit = 10, registrationId = null) => {
   try {
-    const response = await api.get(
-      `/submissions/my/submissions?page=${page}&limit=${limit}`
-    );
+    let url = `/submissions/my/submissions?page=${page}&limit=${limit}`;
+    if (registrationId) {
+      url += `&registration_id=${registrationId}`;
+    }
+    const response = await api.get(url);
     return response.data.data;
   } catch (error) {
     console.error("Gagal mengambil submission user:", error);
@@ -67,11 +71,12 @@ export const updateSubmission = async (submissionId, submissionData) => {
  * @param {string} categoryId - ID dari kategori lomba.
  * @returns {Promise<Array>}
  */
-export const getAllSubmissionsByCategory = async (categoryId, search = "") => {
+export const getAllSubmissionsByCategory = async (categoryId, search = "", registrationId = null) => {
   try {
     // Menggunakan endpoint submissions global (bukan my/submissions) khusus penayangan Show It
     const params = new URLSearchParams();
-    if (categoryId) params.append("category_id", categoryId);
+    if (categoryId && categoryId !== "all" && categoryId !== "ALL") params.append("category_id", categoryId);
+    if (registrationId) params.append("registration_id", registrationId);
     params.append("show_it", "true");
     if (search && search.trim()) params.append("search", search.trim());
     const response = await api.get(`/submissions?${params.toString()}`);
