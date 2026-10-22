@@ -566,7 +566,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                   </div>
                 </div>
 
-                {!activeRegistration.referral_code ? (
+                {!activeRegistration.referral_code && (
                   !activeRegistration.is_verified ? (
                     <Button
                       disabled
@@ -595,15 +595,6 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                       )}
                     </Button>
                   )
-                ) : (
-                  <Button
-                    onClick={() => handleCopyReferral(activeRegistration.referral_code)}
-                    variant="outline"
-                    className="rounded-full bg-input/50 hover:bg-input border-border/50 text-foreground text-xs sm:text-sm font-semibold h-10 px-5 transition-all inline-flex items-center gap-2 cursor-pointer flex-shrink-0"
-                  >
-                    <Copy className="w-4 h-4 text-amber-400" />
-                    <span>Salin Kode Referral</span>
-                  </Button>
                 )}
               </div>
 
