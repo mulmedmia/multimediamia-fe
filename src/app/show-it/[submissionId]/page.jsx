@@ -4,26 +4,22 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
-  User,
   Trophy,
   FileText,
   Link2,
   CheckCircle2,
   XCircle,
-  Github,
-  Globe,
   LinkIcon,
-  Youtube,
   ExternalLink,
   Sparkles,
   Calendar,
-  Play,
-  Users,
+  User,
 } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { cn, formatMediumShortDate } from "@/lib/utils";
 import YouTubePreview from "@/components/common/YouTubePreview";
+import { LinkTypeIcon } from "@/components/LinTypekIcon";
 
 export default function SubmissionDetailPage(props) {
   const params =
@@ -81,25 +77,6 @@ export default function SubmissionDetailPage(props) {
         return "text-mia-red bg-mia-red/15 border-mia-red/30";
       default:
         return "text-mia-muted bg-[#1E2939] border-white/10";
-    }
-  };
-
-  const getLinkIcon = (linkType) => {
-    switch (linkType?.toLowerCase()) {
-      case "github":
-        return <Github className="h-4 w-4" />;
-      case "youtube":
-        return <Youtube className="h-4 w-4" />;
-      case "demo":
-      case "preview":
-      case "live":
-      case "other":
-        return <Globe className="h-4 w-4" />;
-      case "documentation":
-      case "docs":
-        return <FileText className="h-4 w-4" />;
-      default:
-        return <LinkIcon className="h-4 w-4" />;
     }
   };
 
@@ -212,7 +189,7 @@ export default function SubmissionDetailPage(props) {
                       <span className="text-[11px] uppercase tracking-wider text-mia-muted font-semibold block">
                         Karya Peserta MIA 2026
                       </span>
-                      <h1 className="text-2xl sm:text-3xl font-bold text-mia-text leading-tight">
+                      <h1 className="text-2xl sm:text-3xl font-bold text-mia-text leading-tight break-words">
                         {submission.project_name}
                       </h1>
                       <p className="text-sm text-mia-muted pt-0.5">
@@ -260,7 +237,7 @@ export default function SubmissionDetailPage(props) {
 
                       {/* Kategori */}
                       <div className="px-3.5 py-1.5 rounded-full bg-purple-900/60 border border-purple-500/50 text-purple-200 inline-flex items-center gap-1.5">
-                        <Trophy className="h-3.5 w-3.5 text-purple-300" />
+                        <Trophy className="h-3.5 w-3.5 text-purple-300 shrink-0" />
                         <span>
                           {submission.registration?.category?.category_name ||
                             submission.registration?.category?.name ||
@@ -272,13 +249,13 @@ export default function SubmissionDetailPage(props) {
 
                       {/* Tanggal */}
                       <div className="px-3.5 py-1.5 rounded-full bg-[#1E2939]/80 border border-white/10 text-mia-text inline-flex items-center gap-1.5">
-                        <Calendar className="h-3.5 w-3.5 text-mia-muted" />
+                        <Calendar className="h-3.5 w-3.5 text-mia-muted shrink-0" />
                         <span>
                           {new Date(submission.created_at).toLocaleDateString(
                             "id-ID",
                             {
                               day: "numeric",
-                              month: "short",
+                              month: "long",
                               year: "numeric",
                             },
                           )}
@@ -302,101 +279,8 @@ export default function SubmissionDetailPage(props) {
             </div>
 
             {/* Main Content Layout (Aligned with Top Row: 5 cols & 7 cols) */}
-            <div className="space-y-6 md:space-y-8">
-              {/* Row 1: Identitas Peserta (5 cols) & Info Lomba (7 cols) */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-                {/* Identitas Peserta - Col span 5 (sama dengan card judul di atas) */}
-                <div className="lg:col-span-5 mia-card p-6 space-y-4 flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center gap-3 pb-2 border-b border-white/10 mb-4">
-                      <div className="p-2 bg-mia-red/15 border border-mia-red/30 rounded-lg text-mia-red">
-                        <User className="h-5 w-5" />
-                      </div>
-                      <h3 className="font-bold text-lg text-mia-text">
-                        Identitas Peserta
-                      </h3>
-                    </div>
-                    <div className="space-y-3.5">
-                      <div>
-                        <span className="text-xs font-semibold text-mia-muted-2 uppercase tracking-wide block mb-0.5">
-                          Nama Peserta
-                        </span>
-                        <span className="text-sm font-medium text-mia-text">
-                          {submission.registration?.user?.name ||
-                            submission.user?.name ||
-                            "-"}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-xs font-semibold text-mia-muted-2 uppercase tracking-wide block mb-0.5">
-                          Nama Tim
-                        </span>
-                        <span className="text-sm text-mia-muted">
-                          {submission.registration?.team_name ||
-                            submission.team_name ||
-                            "-"}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Status & Detail Pendaftaran - Col span 7 (sama dengan card video di atas) */}
-                <div className="lg:col-span-7 mia-card p-6 space-y-4 flex flex-col justify-between min-w-0">
-                  <div>
-                    <div className="flex items-center gap-3 pb-2 border-b border-white/10 mb-4">
-                      <div className="p-2 bg-purple-500/15 border border-purple-500/30 rounded-lg text-purple-400">
-                        <CheckCircle2 className="h-5 w-5" />
-                      </div>
-                      <h3 className="font-bold text-lg text-mia-text">
-                        Status & Detail Pendaftaran
-                      </h3>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="sm:col-span-2">
-                        <span className="text-xs font-semibold text-mia-muted-2 uppercase tracking-wide block mb-1">
-                          Status Verifikasi Pendaftaran
-                        </span>
-                        <div className="flex items-center gap-2">
-                          {submission.is_verified ? (
-                            <div className="flex items-center gap-1.5 text-mia-success text-sm font-medium">
-                              <CheckCircle2 className="h-4 w-4" />
-                              <span>Terverifikasi</span>
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-1.5 text-mia-muted text-sm font-medium">
-                              <XCircle className="h-4 w-4 opacity-50" />
-                              <span>Belum Terverifikasi Khusus</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <div>
-                        <span className="text-xs font-semibold text-mia-muted-2 uppercase tracking-wide block mb-0.5">
-                          Waktu Diunggah
-                        </span>
-                        <span className="text-sm font-medium text-mia-text break-words">
-                          {submission.created_at
-                            ? formatMediumShortDate(submission.created_at)
-                            : "-"}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-xs font-semibold text-mia-muted-2 uppercase tracking-wide block mb-0.5">
-                          Terakhir Diperbarui
-                        </span>
-                        <span className="text-sm text-mia-muted break-words">
-                          {submission.updated_at
-                            ? formatMediumShortDate(submission.updated_at)
-                            : "-"}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Row 2: Deskripsi Proyek (Full Width) */}
+            <div className="space-y-6 md:space-y-8">           
+              {/* Row 1: Deskripsi Proyek (Full Width) */}
               <div className="mia-card p-6 md:p-8 space-y-4">
                 <div className="flex items-center gap-2.5 pb-2 border-b border-white/10">
                   <FileText className="h-5 w-5 text-mia-red" />
@@ -415,7 +299,7 @@ export default function SubmissionDetailPage(props) {
                 </div>
               </div>
 
-              {/* Row 3: Flow Aplikasi (Full Width, jika ada) */}
+              {/* Row 2: Flow Aplikasi (Full Width, jika ada) */}
               <div className="mia-card p-6 md:p-8 space-y-4">
                 <div className="flex items-center gap-2.5 pb-2 border-b border-white/10">
                   <Sparkles className="h-5 w-5 text-mia-yellow" />
@@ -434,7 +318,7 @@ export default function SubmissionDetailPage(props) {
                 </div>
               </div>
 
-              {/* Row 4: Link Project (Full Width, dengan margin bawah lega terhadap footer) */}
+              {/* Row 3: Link Project (Full Width, dengan margin bawah lega terhadap footer) */}
               <div className="mia-card p-6 md:p-8 space-y-4 mb-12 md:mb-16">
                 <div className="flex items-center gap-2.5 pb-2 border-b border-white/10">
                   <Link2 className="h-5 w-5 text-mia-red" />
@@ -452,11 +336,11 @@ export default function SubmissionDetailPage(props) {
                             ? `${link.link_id}-${index}`
                             : `link-${index}`
                         }
-                        className="bg-mia-surface border border-white/10 rounded-xl p-4 flex flex-col justify-between space-y-3 min-w-0"
+                        className="bg-mia-surface/60 border border-white/10 rounded-xl p-4 flex flex-col justify-between space-y-3 min-w-0"
                       >
                         <div className="flex items-center gap-2">
                           <span className="p-2 rounded-lg bg-[#1E2939] text-mia-red">
-                            {getLinkIcon(link.link_type)}
+                            <LinkTypeIcon linkType={link.link_type} />
                           </span>
                           <span className="font-semibold text-sm text-mia-text capitalize break-words">
                             {link.link_type}
@@ -467,10 +351,10 @@ export default function SubmissionDetailPage(props) {
                           href={link.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center justify-between gap-2 px-3 py-2 bg-[#1E2939] hover:bg-mia-red/15 border border-white/10 hover:border-mia-red/40 rounded-lg text-xs text-mia-text hover:text-mia-red transition-colors w-full group"
+                          className="inline-flex items-center justify-between gap-2 px-3 py-2 bg-[#1E2939] hover:bg-mia-red/15 border border-white/10 hover:border-mia-red/40 rounded-lg text-xs text-mia-text transition-colors w-full group"
                         >
                           <span className="truncate">{link.url}</span>
-                          <ExternalLink className="h-3.5 w-3.5 flex-shrink-0 text-mia-muted group-hover:text-mia-red transition-colors" />
+                          <ExternalLink className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground transition-colors" />
                         </a>
 
                         {link.description && (
