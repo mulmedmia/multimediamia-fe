@@ -20,6 +20,7 @@ import Footer from "@/components/layout/Footer";
 import { cn, formatMediumShortDate } from "@/lib/utils";
 import YouTubePreview from "@/components/common/YouTubePreview";
 import { LinkTypeIcon, normalizeLinkType } from "@/components/LinTypekIcon";
+import { useSubmissionDetail } from "@/hooks/user-use-submissions";
 
 export default function SubmissionDetailPage(props) {
   const params =
@@ -28,41 +29,29 @@ export default function SubmissionDetailPage(props) {
       : props.params;
   const submissionId = params?.submissionId;
 
-  const [submission, setSubmission] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const {
+    data: submissionRaw,
+    isLoading: loading,
+    error: error,
+  } = useSubmissionDetail(submissionId);
+
+  const submission = submissionRaw?.data;
+  const [errorMsg, setErrorMsg] = useState(null);
+
+  useEffect(() => {
+    if (error) {
+      setErrorMsg(
+        error.response?.data?.message || "Gagal mengambil data submission",
+      );
+    } else setErrorMsg(null);
+  }, [error]);
+
   const [returnTo, setReturnTo] = useState("/show-it");
 
   useEffect(() => {
     const sessionItem = sessionStorage.getItem("previousShowIt");
     if (sessionItem?.startsWith("/show-it")) setReturnTo(sessionItem);
   }, []);
-
-  useEffect(() => {
-    if (!submissionId) return;
-
-    const fetchSubmissionById = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-        const response = await fetch(`${BASE_URL}/submissions/${submissionId}`);
-
-        if (!response.ok) {
-          throw new Error("Gagal mengambil data submission");
-        }
-
-        const result = await response.json();
-        setSubmission(result.data || null);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSubmissionById();
-  }, [submissionId]);
 
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
@@ -116,7 +105,7 @@ export default function SubmissionDetailPage(props) {
     );
   }
 
-  if (error || !submission) {
+  if (errorMsg || !submission) {
     return (
       <>
         <div className="min-h-screen bg-mia-bg mia-connected-bg text-mia-text flex flex-col justify-between">
@@ -129,10 +118,10 @@ export default function SubmissionDetailPage(props) {
                 </div>
                 <div className="space-y-2">
                   <h2 className="text-xl sm:text-2xl font-bold text-mia-text">
-                    {error ? "Terjadi Kesalahan" : "Karya Tidak Ditemukan"}
+                    {errorMsg ? "Terjadi Kesalahan" : "Karya Tidak Ditemukan"}
                   </h2>
                   <p className="text-sm text-mia-muted">
-                    {error ||
+                    {errorMsg ||
                       "Karya yang Anda cari tidak ditemukan atau mungkin belum disetujui."}
                   </p>
                 </div>
@@ -279,7 +268,7 @@ export default function SubmissionDetailPage(props) {
             </div>
 
             {/* Main Content Layout (Aligned with Top Row: 5 cols & 7 cols) */}
-            <div className="space-y-6 md:space-y-8">           
+            <div className="space-y-6 md:space-y-8">
               {/* Row 1: Deskripsi Proyek (Full Width) */}
               <div className="mia-card p-6 md:p-8 space-y-4">
                 <div className="flex items-center gap-2.5 pb-2 border-b border-white/10">
