@@ -36,15 +36,9 @@ export default function SubmissionDetailPage(props) {
   } = useSubmissionDetail(submissionId);
 
   const submission = submissionRaw?.data;
-  const [errorMsg, setErrorMsg] = useState(null);
-
-  useEffect(() => {
-    if (error) {
-      setErrorMsg(
-        error.response?.data?.message || "Gagal mengambil data submission",
-      );
-    } else setErrorMsg(null);
-  }, [error]);
+  const errorMsg = error
+    ? error.response?.data?.message || "Gagal mengambil data submission"
+    : null;
 
   const [returnTo, setReturnTo] = useState("/show-it");
 

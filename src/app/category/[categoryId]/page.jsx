@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { useCategoryById } from "@/hooks/user-use-category";
-import { Button } from "@/components/ui/button";
 import {
   Calendar,
   User,
@@ -173,6 +172,9 @@ export default function CategoryDetailPage(props) {
     isError,
     error,
   } = useCategoryById(categoryId);
+  const errorMsg = error
+    ? error.response?.data?.message || "Gagal mengambil data kategori"
+    : null;
 
   const formatDate = (dateString) => {
     if (!dateString) return "-";
@@ -198,32 +200,37 @@ export default function CategoryDetailPage(props) {
 
   if (isError) {
     return (
-      <div className="min-h-screen bg-[#0A0D14] mia-connected-bg text-[#FFF9F5] flex flex-col justify-between">
-        <div>
+      <>
+        <div className="min-h-screen bg-[#0A0D14] mia-connected-bg text-[#FFF9F5] flex flex-col justify-between">
           <Header />
-          <main className="pt-28 pb-16 px-4 max-w-lg mx-auto text-center">
-            <div className="mia-card p-8 md:p-10 space-y-4">
-              <div className="w-14 h-14 bg-red-500/10 border border-red-500/20 text-[#E01C20] rounded-2xl flex items-center justify-center mx-auto">
-                <AlertCircle className="h-7 w-7" />
-              </div>
-              <h2 className="text-xl font-bold text-[#FFF9F5]">Gagal Memuat Kategori</h2>
-              <p className="text-xs text-[#AAB1BD]">
-                {error?.message || "Terjadi kesalahan saat memuat detail kategori lomba."}
-              </p>
-              <div className="pt-2">
-                <Button
-                  onClick={() => router.back()}
-                  className="mia-btn-secondary px-6 text-xs font-semibold cursor-pointer"
+          <main className="flex-1 flex items-center justify-center pt-24 sm:pt-28 pb-16 px-4">
+            <div className="w-full max-w-2xl">
+              <div className="mia-card p-8 md:p-12 text-center space-y-5">
+                <div className="w-14 h-14 bg-mia-red/15 border border-mia-red/30 text-mia-red rounded-2xl flex items-center justify-center mx-auto">
+                  <XCircle className="h-7 w-7" />
+                </div>
+                <div className="space-y-2">
+                  <h2 className="text-xl sm:text-2xl font-bold text-mia-text">
+                    Gagal Memuat Kategori
+                  </h2>
+                  <p className="text-sm text-mia-muted">
+                    {errorMsg ||
+                      "Terjadi kesalahan saat memuat detail kategori lomba."}
+                  </p>
+                </div>
+                <Link
+                  href="/#lomba"
+                  className="mia-btn-secondary px-6 py-2.5 text-sm inline-flex items-center gap-2 cursor-pointer transition-all"
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Kembali
-                </Button>
+                </Link>
               </div>
             </div>
           </main>
         </div>
         <Footer />
-      </div>
+      </>
     );
   }
 
@@ -237,9 +244,12 @@ export default function CategoryDetailPage(props) {
               <div className="w-14 h-14 bg-[#E01C20]/15 border border-[#E01C20]/30 text-[#E01C20] rounded-2xl flex items-center justify-center mx-auto">
                 <Trophy className="h-7 w-7" />
               </div>
-              <h2 className="text-xl font-bold text-[#FFF9F5]">Kategori Tidak Ditemukan</h2>
+              <h2 className="text-xl font-bold text-[#FFF9F5]">
+                Kategori Tidak Ditemukan
+              </h2>
               <p className="text-xs text-[#AAB1BD]">
-                Kategori yang Anda cari tidak ditemukan atau telah dinonaktifkan.
+                Kategori yang Anda cari tidak ditemukan atau telah
+                dinonaktifkan.
               </p>
               <div className="pt-2">
                 <Link href="/category">
@@ -333,7 +343,9 @@ export default function CategoryDetailPage(props) {
                         <User className="h-5 w-5 text-[#E01C20]" />
                       </div>
                       <div>
-                        <p className="text-xs text-[#99A1AF]">Diselenggarakan oleh</p>
+                        <p className="text-xs text-[#99A1AF]">
+                          Diselenggarakan oleh
+                        </p>
                         <p className="text-sm font-semibold text-[#FFF9F5]">
                           {category.organizer || "Panitia MIA 2026"}
                         </p>
@@ -373,7 +385,8 @@ export default function CategoryDetailPage(props) {
                           <span>Pendaftaran Batch 1</span>
                         </div>
                         <div className="text-sm sm:text-base font-bold text-[#FFF9F5]">
-                          {formatDate(category.batch_1_start)} – {formatDate(category.batch_1_end)}
+                          {formatDate(category.batch_1_start)} –{" "}
+                          {formatDate(category.batch_1_end)}
                         </div>
                       </div>
                     )}
@@ -386,7 +399,8 @@ export default function CategoryDetailPage(props) {
                           <span>Pendaftaran Batch 2</span>
                         </div>
                         <div className="text-sm sm:text-base font-bold text-[#FFF9F5]">
-                          {formatDate(category.batch_2_start)} – {formatDate(category.batch_2_end)}
+                          {formatDate(category.batch_2_start)} –{" "}
+                          {formatDate(category.batch_2_end)}
                         </div>
                       </div>
                     )}
@@ -424,7 +438,9 @@ export default function CategoryDetailPage(props) {
                         <span>Batas Akhir Pendaftaran</span>
                       </div>
                       <div className="text-sm sm:text-base font-bold text-[#FFF9F5]">
-                        {formatDate(category.batch_2_end || registrationDeadline)}
+                        {formatDate(
+                          category.batch_2_end || registrationDeadline,
+                        )}
                       </div>
                     </div>
                   </div>
@@ -436,7 +452,10 @@ export default function CategoryDetailPage(props) {
                 {/* Image Preview Card */}
                 <div className="mia-card overflow-hidden relative aspect-video w-full shadow-xl">
                   <Image
-                    src={getSafeImageUrl(category.image) || "/placeholder-image.png"}
+                    src={
+                      getSafeImageUrl(category.image) ||
+                      "/placeholder-image.png"
+                    }
                     alt={category.name || category.slug || "Category"}
                     fill={true}
                     className="object-cover"
@@ -445,7 +464,9 @@ export default function CategoryDetailPage(props) {
                 </div>
 
                 {/* Countdown Timer */}
-                <CountdownTimer targetDate={category?.batch_2_end || registrationDeadline} />
+                <CountdownTimer
+                  targetDate={category?.batch_2_end || registrationDeadline}
+                />
 
                 {/* Registration Actions Card */}
                 <div className="mia-card p-6 space-y-3.5 shadow-xl">
@@ -496,7 +517,8 @@ export default function CategoryDetailPage(props) {
                         Kategori Belum Terverifikasi
                       </p>
                       <p className="text-xs text-amber-300/80 mt-1">
-                        Pendaftaran akan dibuka setelah kategori ini diverifikasi oleh panitia.
+                        Pendaftaran akan dibuka setelah kategori ini
+                        diverifikasi oleh panitia.
                       </p>
                     </div>
                   )}
