@@ -17,10 +17,6 @@ function CompetitionRegistrationPageInner() {
   const { data: registrations } = useMyRegistrations(user?.users_id);
 
   useEffect(() => {
-    if (!isLoading && !user) {
-      router.replace("/login");
-    }
-
     if (
       !successRegistration &&
       Array.isArray(registrations) &&
@@ -28,7 +24,7 @@ function CompetitionRegistrationPageInner() {
     ) {
       router.replace("/dashboard");
     }
-  }, [isLoading, user, router, registrations, categoryId, successRegistration]);
+  }, [router, registrations, categoryId, successRegistration]);
 
   if (isLoading) {
     return (
