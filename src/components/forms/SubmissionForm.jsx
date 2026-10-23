@@ -25,6 +25,7 @@ import {
 } from "@radix-ui/react-icons";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "../ui/textarea";
+import { Github } from "lucide-react";
 
 // !!! Asumsikan zod object punya `keys` yang sama dengan yang dilempar oleh Backend
 // Schema dinamis berdasarkan team type, kategori, dan fase deadline
@@ -361,8 +362,8 @@ export function SubmissionForm({
               descField: "github_description",
               descPlaceholder: "Repository GitHub Utama",
               label: "Link Repo GitHub (Utama)",
-              helperText: "Wajib. Repository source code utama aplikasi.",
-              Icon: CodeIcon,
+              helperText: "Repository source code utama aplikasi.",
+              Icon: Github,
               type: "GITHUB",
               required: true,
             },
@@ -373,8 +374,8 @@ export function SubmissionForm({
               descPlaceholder: "Repository GitHub Tambahan (FE/BE dipisah)",
               label: "Link Repo GitHub (Opsional - FE/BE Terpisah)",
               helperText:
-                "Opsional jika Anda memisahkan repositori Frontend dan Backend.",
-              Icon: CodeIcon,
+                "Opsional jika Anda memisahkan repository Frontend dan Backend.",
+              Icon: Github,
               type: "GITHUB_SECONDARY",
               required: false,
             },
@@ -438,7 +439,7 @@ export function SubmissionForm({
         descField: "github_description",
         descPlaceholder: "Repository source code",
         label: "Link GitHub",
-        helperText: "Tautan repositori kode sumber proyek Anda.",
+        helperText: "Tautan repository kode sumber proyek Anda.",
         Icon: CodeIcon,
         type: "GITHUB",
         required: false,
@@ -734,7 +735,7 @@ export function SubmissionForm({
           <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider flex items-center flex-wrap gap-2">
             <span>
               {isWIA
-                ? "Link Berkas & Repositori Web In Action"
+                ? "Link Berkas & Repository Web In Action"
                 : isUIA
                   ? "Link Berkas & Desain UI/UX In Action"
                   : "Link Project & Berkas"}

@@ -33,6 +33,7 @@ import { getRegistrationById } from "@/services/competition.service";
 import { useGenerateReferralCode } from "@/hooks/use-referral";
 import { EditTeamModal } from "./EditTeamModal";
 import { EditSubmissionModal } from "./EditSubmissionModal";
+import { LinkTypeIcon } from "../LinTypekIcon";
 
 export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -969,21 +970,11 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                     {submissions.map((sub) => (
                       <div
                         key={sub.submission_id}
-                        onClick={() => {
-                          if (!canEditSubmission) {
-                            toast.warning("Pengumpulan Ditutup!", {
-                              description: editLockReason,
-                              duration: 4000,
-                            });
-                            return;
-                          }
-                          handleEditSubmission(sub);
-                        }}
                         className={cn(
                           "mia-card !bg-input/30 !border-border/50 !rounded-2xl p-5 sm:p-6 transition-all space-y-4 shadow-md",
                           canEditSubmission
-                            ? "hover:!border-primary/25 cursor-pointer"
-                            : "cursor-default opacity-95",
+                            ? "hover:!border-primary/25"
+                            : "opacity-95",
                         )}
                       >
                         <div className="space-y-4">
@@ -1124,7 +1115,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                                       target="_blank"
                                       rel="noopener noreferrer"
                                     >
-                                      <ExternalLink className="h-3 w-3" />
+                                      <LinkTypeIcon linkType={link.link_type} className="h-3 w-3" />
                                       <span>
                                         {getLinkTypeBadgeLabel(link.link_type)}
                                       </span>

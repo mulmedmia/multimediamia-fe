@@ -19,9 +19,6 @@ import {
   Users,
   AlertCircle,
   Target,
-  Github,
-  Youtube,
-  ExternalLink,
   User,
   Lightbulb,
   ArrowRight,
@@ -32,6 +29,7 @@ import YouTubePreview from "@/components/common/YouTubePreview";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { getRankBadgeColor } from "@/components/leaderboard/RankIcon";
+import { LinkTypeIcon } from "@/components/LinTypekIcon";
 
 function getStatusBadge({ status }) {
   switch (status) {
@@ -43,17 +41,6 @@ function getStatusBadge({ status }) {
       return "bg-[#E01C20]/15 text-[#E01C20] border border-[#E01C20]/30";
     default:
       return "bg-[#1E2939] text-[#AAB1BD] border border-white/10";
-  }
-}
-
-function LinkIcon({ linkType }) {
-  switch (linkType?.toUpperCase()) {
-    case "GITHUB":
-      return <Github className="h-3.5 w-3.5" />;
-    case "YOUTUBE":
-      return <Youtube className="h-3.5 w-3.5" />;
-    default:
-      return <ExternalLink className="h-3.5 w-3.5" />;
   }
 }
 
@@ -493,7 +480,7 @@ export default function ShowItPage() {
                                   onClick={(e) => e.stopPropagation()}
                                   className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#1E2939] hover:bg-[#E01C20]/20 border border-white/10 hover:border-[#E01C20]/40 rounded-md text-xs text-[#FFF9F5] transition-colors"
                                 >
-                                  <LinkIcon linkType={link.link_type} />
+                                  <LinkTypeIcon linkType={link.link_type} />
                                   <span className="capitalize">
                                     {link.link_type?.toLowerCase()}
                                   </span>
