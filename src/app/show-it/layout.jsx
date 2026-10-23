@@ -1,3 +1,5 @@
+import PublicLayout from "@/components/layout/PublicLayout";
+
 export const metadata = {
   title: "Show It - Galeri Karya Peserta",
   description:
@@ -10,5 +12,5 @@ export const metadata = {
 };
 
 export default function ShowItLayout({ children }) {
-  return children;
+  return <PublicLayout>{children}</PublicLayout>;
 }
