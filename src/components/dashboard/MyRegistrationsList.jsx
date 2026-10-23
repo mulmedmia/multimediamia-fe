@@ -259,7 +259,9 @@ export function MyRegistrationsList({ onSelectRegistration }) {
                         onClick={(e) => {
                           e.stopPropagation();
                           navigator.clipboard.writeText(reg.referral_code);
-                          toast.success(`Kode referral ${reg.referral_code} disalin!`);
+                          toast.success(
+                            `Kode referral ${reg.referral_code} disalin!`,
+                          );
                         }}
                         title="Klik untuk salin kode referral"
                         className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-400 font-mono text-xs font-semibold cursor-pointer hover:bg-amber-500/20 transition-all"
@@ -342,26 +344,28 @@ export function MyRegistrationsList({ onSelectRegistration }) {
                 </div>
 
                 {/* Feedback Box - MIA Red Theme */}
-                <div className="p-4 sm:p-5 bg-primary/10 border border-primary/25 rounded-2xl space-y-1.5 backdrop-blur-xs">
-                  <div className="flex items-start gap-2.5">
-                    <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5 text-primary mt-0.5 flex-shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs sm:text-sm font-semibold text-primary">
-                        Feedback Panitia:
-                      </p>
-                      {reg.feedback ? (
-                        <p className="text-xs sm:text-sm text-foreground/90 leading-relaxed mt-1 font-normal break-words">
-                          {reg.feedback}
+                {!(reg.is_verified && reg.is_verified_finance) && (
+                  <div className="p-4 sm:p-5 bg-primary/10 border border-primary/25 rounded-2xl space-y-1.5 backdrop-blur-xs">
+                    <div className="flex items-start gap-2.5">
+                      <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs sm:text-sm font-semibold text-primary">
+                          Feedback Panitia:
                         </p>
-                      ) : (
-                        <p className="text-xs sm:text-sm text-muted-foreground italic leading-relaxed mt-1">
-                          Belum ada feedback. Feedback akan muncul setelah
-                          pendaftaran Anda direview oleh panitia.
-                        </p>
-                      )}
+                        {reg.feedback ? (
+                          <p className="text-xs sm:text-sm text-foreground/90 leading-relaxed mt-1 font-normal break-words">
+                            {reg.feedback}
+                          </p>
+                        ) : (
+                          <p className="text-xs sm:text-sm text-muted-foreground italic leading-relaxed mt-1">
+                            Belum ada feedback. Feedback akan muncul setelah
+                            pendaftaran Anda direview oleh panitia.
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
 
               {/* Action Buttons */}
