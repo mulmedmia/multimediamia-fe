@@ -17,12 +17,11 @@ import {
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Image from "next/image";
 import { getSafeImageUrl } from "@/lib/image-loader";
-import { useGuidebook } from "@/hooks/use-guidebook";
 
 // Loading Skeleton Component matching MIA 2026 design system
 function CategoryDetailSkeleton() {
@@ -158,12 +157,7 @@ function CountdownTimer({ targetDate }) {
 }
 
 export default function CategoryDetailPage(props) {
-  const router = useRouter();
-  const { guidebookUrl: globalGuidebookUrl } = useGuidebook();
-  const params =
-    typeof props.params?.then === "function"
-      ? React.use(props.params)
-      : props.params;
+  const params = useParams();
   const categoryId = params?.categoryId;
 
   const {

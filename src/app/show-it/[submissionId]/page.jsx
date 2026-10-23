@@ -13,20 +13,17 @@ import {
   ExternalLink,
   Sparkles,
   Calendar,
-  User,
 } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { cn, formatMediumShortDate } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import YouTubePreview from "@/components/common/YouTubePreview";
 import { LinkTypeIcon, normalizeLinkType } from "@/components/LinTypekIcon";
 import { useSubmissionDetail } from "@/hooks/user-use-submissions";
+import { useParams } from "next/navigation";
 
 export default function SubmissionDetailPage(props) {
-  const params =
-    typeof props.params?.then === "function"
-      ? React.use(props.params)
-      : props.params;
+  const params = useParams();
   const submissionId = params?.submissionId;
 
   const {
@@ -83,7 +80,7 @@ export default function SubmissionDetailPage(props) {
   if (loading) {
     return (
       <>
-        <div className="min-h-screen bg-mia-bg mia-connected-bg text-mia-text flex flex-col justify-between">
+        <div className="min-h-screen bg-mia-bg mia-connected-bg text-mia-text flex flex-col justify-between selection:bg-mia-red selection:text-white">
           <Header />
           <main className="flex-1 flex items-center justify-center pt-24 sm:pt-28 pb-16 px-4">
             <div className="text-center space-y-4">
@@ -102,7 +99,7 @@ export default function SubmissionDetailPage(props) {
   if (errorMsg || !submission) {
     return (
       <>
-        <div className="min-h-screen bg-mia-bg mia-connected-bg text-mia-text flex flex-col justify-between">
+        <div className="min-h-screen bg-mia-bg mia-connected-bg text-mia-text flex flex-col justify-between selection:bg-mia-red selection:text-white">
           <Header />
           <main className="flex-1 flex items-center justify-center pt-24 sm:pt-28 pb-16 px-4">
             <div className="w-full max-w-2xl">

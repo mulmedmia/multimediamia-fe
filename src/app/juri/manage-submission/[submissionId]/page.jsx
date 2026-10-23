@@ -21,12 +21,10 @@ import {
 } from "lucide-react";
 import api from "@/lib/api";
 import YouTubePreview from "@/components/common/YouTubePreview";
+import { useParams } from "next/navigation";
 
 export default function JuriSubmissionDetailPage(props) {
-  const params =
-    typeof props.params?.then === "function"
-      ? React.use(props.params)
-      : props.params;
+  const params = useParams();
   const submissionId = params?.submissionId;
 
   const [submission, setSubmission] = useState(null);
