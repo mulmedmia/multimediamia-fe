@@ -29,7 +29,11 @@ import YouTubePreview from "@/components/common/YouTubePreview";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { getRankBadgeColor } from "@/components/leaderboard/RankIcon";
-import { LinkTypeIcon } from "@/components/LinTypekIcon";
+import {
+  getTopSubmissionLinks,
+  LinkTypeIcon,
+  normalizeLinkType,
+} from "@/components/LinTypekIcon";
 
 function getStatusBadge({ status }) {
   switch (status) {
@@ -73,8 +77,7 @@ export default function ShowItPage() {
   const isAllCategory = selectedCategoryId === "all";
   const selectedCategorySlug = isAllCategory
     ? "seluruh kategori"
-    : categories?.find((c) => c.category_id === selectedCategoryId)
-        .slug;
+    : categories?.find((c) => c.category_id === selectedCategoryId).slug;
 
   const {
     data: submissionsData,
@@ -471,21 +474,23 @@ export default function ShowItPage() {
                               Tautan Karya:
                             </span>
                             <div className="flex flex-wrap gap-2">
-                              {submission.links.slice(0, 3).map((link) => (
-                                <a
-                                  key={link.link_id}
-                                  href={link.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  onClick={(e) => e.stopPropagation()}
-                                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#1E2939] hover:bg-[#E01C20]/20 border border-white/10 hover:border-[#E01C20]/40 rounded-md text-xs text-[#FFF9F5] transition-colors"
-                                >
-                                  <LinkTypeIcon linkType={link.link_type} />
-                                  <span className="capitalize">
-                                    {link.link_type?.toLowerCase()}
-                                  </span>
-                                </a>
-                              ))}
+                              {getTopSubmissionLinks(3, submission.links).map(
+                                (link) => (
+                                  <a
+                                    key={link.link_id}
+                                    href={link.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#1E2939] hover:bg-[#E01C20]/20 border border-white/10 hover:border-[#E01C20]/40 rounded-md text-xs text-[#FFF9F5] transition-colors"
+                                  >
+                                    <LinkTypeIcon linkType={link.link_type} />
+                                    <span className="capitalize">
+                                      {normalizeLinkType(link.link_type)}
+                                    </span>
+                                  </a>
+                                ),
+                              )}
                               {submission.links.length > 3 && (
                                 <span className="text-xs text-[#AAB1BD] self-center px-1">
                                   +{submission.links.length - 3} lainnya

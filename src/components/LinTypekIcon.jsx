@@ -9,8 +9,19 @@ import {
   Youtube,
 } from "lucide-react";
 
+export const linkTypes = [
+  "PROPOSAL",
+  "GITHUB",
+  "GITHUB_SECONDARY",
+  "FIGMA",
+  "FIGMA_PROTOTYPE",
+  "DEPLOYMENT",
+  "YOUTUBE",
+  "OTHER",
+];
+
 export function normalizeLinkType(linkType = "") {
-    return linkType?.replaceAll("_", "") || "";
+    return linkType?.toLowerCase().replaceAll("_", " ") || "";
 }
 
 export function LinkTypeIcon({ linkType = "", className = "" }) {
@@ -32,4 +43,19 @@ export function LinkTypeIcon({ linkType = "", className = "" }) {
   return (
     <Icon className={cn("h-3.5 w-3.5 text-muted-foreground", className)} />
   );
+}
+
+export function getTopSubmissionLinks(n = 10, submissionLinks = []) {
+  let topN = [];
+
+  if (Array.isArray(submissionLinks)) {
+    const subLinkMap = new Map(submissionLinks.map((l) => [l.link_type, l]));
+
+    for (const linkType of linkTypes) {
+      if (topN.length === n) break;
+      if (subLinkMap.has(linkType)) topN.push(subLinkMap.get(linkType));
+    }
+  }
+
+  return topN;
 }

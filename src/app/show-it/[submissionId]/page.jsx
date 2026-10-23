@@ -19,7 +19,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { cn, formatMediumShortDate } from "@/lib/utils";
 import YouTubePreview from "@/components/common/YouTubePreview";
-import { LinkTypeIcon } from "@/components/LinTypekIcon";
+import { LinkTypeIcon, normalizeLinkType } from "@/components/LinTypekIcon";
 
 export default function SubmissionDetailPage(props) {
   const params =
@@ -343,7 +343,7 @@ export default function SubmissionDetailPage(props) {
                             <LinkTypeIcon linkType={link.link_type} />
                           </span>
                           <span className="font-semibold text-sm text-mia-text capitalize break-words">
-                            {link.link_type}
+                            {normalizeLinkType(link.link_type)}
                           </span>
                         </div>
 
