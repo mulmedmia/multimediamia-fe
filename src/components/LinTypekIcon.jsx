@@ -3,14 +3,18 @@ import { InfoCircledIcon } from "@radix-ui/react-icons";
 import {
   ExternalLink,
   Figma,
+  FileCheck,
   FileText,
   Github,
   Globe,
+  Presentation,
   Youtube,
 } from "lucide-react";
 
 export const linkTypes = [
   "PROPOSAL",
+  "PRESENTATION",
+  "ORIGINALITY_STATEMENT",
   "GITHUB",
   "GITHUB_SECONDARY",
   "FIGMA",
@@ -27,6 +31,8 @@ export function normalizeLinkType(linkType = "") {
 export function LinkTypeIcon({ linkType = "", className = "" }) {
   const iconMaps = {
     PROPOSAL: FileText,
+    PRESENTATION: Presentation,
+    ORIGINALITY_STATEMENT: FileCheck,
     GITHUB: Github,
     GITHUB_SECONDARY: Github,
     FIGMA: Figma,

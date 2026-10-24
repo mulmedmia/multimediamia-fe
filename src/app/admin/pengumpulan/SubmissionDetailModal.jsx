@@ -85,6 +85,10 @@ export default function SubmissionDetailModal({ open, onClose, data }) {
     switch (type?.toUpperCase()) {
       case "PROPOSAL":
         return "Draft Proposal (GDocs)";
+      case "PRESENTATION":
+        return "File Presentasi (Slides/Canva)";
+      case "ORIGINALITY_STATEMENT":
+        return "Surat Keterangan Orisinil (Materai 10k)";
       case "GITHUB":
         return "GitHub Utama";
       case "GITHUB_SECONDARY":
