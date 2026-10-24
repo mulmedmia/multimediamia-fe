@@ -7,11 +7,13 @@ export const getAllSubmissions = async ({
   category_id = "",
   status = "",
   search = "",
+  registration_id = "",
 } = {}) => {
   const params = { limit, page };
   if (category_id && category_id !== "ALL") params.category_id = category_id;
   if (status && status !== "ALL" && status !== "all") params.status = status;
   if (search && search.trim()) params.search = search.trim();
+  if (registration_id && registration_id.trim()) params.registration_id = registration_id.trim();
 
   const res = await api.get("/submissions", { params });
   return res.data.data;

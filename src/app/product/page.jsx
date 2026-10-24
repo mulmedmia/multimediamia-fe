@@ -214,7 +214,7 @@ export default function ProductPage() {
             <div className="text-center space-y-3 md:space-y-4 max-w-3xl mx-auto">
               <div className="mia-pill-badge mx-auto">
                 <Gift className="h-3.5 w-3.5 text-amber-400" />
-                <span>Katalog Hadiah & Merchandise</span>
+                <span>Katalog Hadiah</span>
               </div>
 
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-[#FFF9F5]">
@@ -222,7 +222,7 @@ export default function ProductPage() {
               </h1>
 
               <p className="text-sm sm:text-base md:text-lg text-[#AAB1BD] leading-relaxed">
-                Tukarkan Diamonds <span className="inline-block">💎</span> yang telah Anda kumpulkan dengan berbagai merchandise dan hadiah eksklusif MIA 2026.
+                Tukarkan Diamonds <span className="inline-block">💎</span> yang telah Anda kumpulkan dengan berbagai hadiah eksklusif MIA 2026.
               </p>
             </div>
 
@@ -441,7 +441,7 @@ export default function ProductPage() {
                         <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 flex-wrap">
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#141824]/90 text-[#FFF9F5] border border-white/10 backdrop-blur-md">
                             <Gift className="h-3.5 w-3.5 text-[#E01C20]" />
-                            {hasXpReward ? "Konversi EXP" : "Merchandise"}
+                            {hasXpReward ? "Konversi EXP" : "Produk"}
                           </span>
                           {!product.category_id && (
                             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 backdrop-blur-md">

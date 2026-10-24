@@ -60,13 +60,13 @@ export default function SubmissionStatusModal({
           <div className="flex justify-between items-center py-0.5 border-b border-border/20">
             <span className="text-muted-foreground">Peserta / Tim:</span>
             <span className="font-medium text-foreground truncate max-w-[200px]">
-              {data.team_name ? data.team_name : data.user?.name || "-"}
+              {data.registration?.team_name || data.team_name || data.registration?.user?.name || data.user?.name || "-"}
             </span>
           </div>
           <div className="flex justify-between items-center py-0.5">
             <span className="text-muted-foreground">Kategori:</span>
             <span className="text-muted-foreground">
-              {data.category?.category_name || "-"}
+              {data.registration?.category?.category_name || data.category?.category_name || "-"}
             </span>
           </div>
         </div>

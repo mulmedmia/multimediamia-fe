@@ -133,7 +133,8 @@ export async function middleware(req) {
     nextUrl.pathname.startsWith("/history-pesanan") ||
     nextUrl.pathname.startsWith("/misi-harian") ||
     nextUrl.pathname.startsWith("/product") ||
-    nextUrl.pathname.startsWith("/profile")
+    nextUrl.pathname.startsWith("/profile") ||
+    nextUrl.pathname.startsWith("/competition-registration")
   ) {
     if (!token || !valid) {
       return NextResponse.redirect(new URL("/login", req.url));

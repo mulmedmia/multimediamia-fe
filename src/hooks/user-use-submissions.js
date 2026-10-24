@@ -6,20 +6,20 @@ import {
 } from "@/services/submission.service.js";
 
 // Hook untuk Think It page (semua submissions public)
-export const useAllSubmissions = (categoryId, search = "") => {
+export const useAllSubmissions = (categoryId, search = "", registrationId = null) => {
   return useQuery({
-    queryKey: ["allSubmissions", categoryId, search],
-    queryFn: () => getAllSubmissionsByCategory(categoryId, search),
+    queryKey: ["allSubmissions", categoryId, search, registrationId],
+    queryFn: () => getAllSubmissionsByCategory(categoryId, search, registrationId),
     enabled: !!categoryId, // Only fetch when category is selected
     placeholderData: keepPreviousData,
   });
 };
 
 // Hook untuk user's own submissions
-export const useMySubmissions = (categoryId) => {
+export const useMySubmissions = (categoryId, registrationId = null) => {
   return useQuery({
-    queryKey: ["mySubmissions", categoryId],
-    queryFn: () => getSubmissionsByCategoryId(categoryId),
+    queryKey: ["mySubmissions", categoryId, registrationId],
+    queryFn: () => getSubmissionsByCategoryId(categoryId, registrationId),
     enabled: !!categoryId,
   });
 };

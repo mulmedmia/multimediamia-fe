@@ -1,3 +1,5 @@
+import PublicLayout from "@/components/layout/PublicLayout";
+
 export const metadata = {
   title: "Kategori Perlombaan",
   description:
@@ -10,5 +12,5 @@ export const metadata = {
 };
 
 export default function CategoryLayout({ children }) {
-  return children;
+  return <PublicLayout>{children}</PublicLayout>;
 }

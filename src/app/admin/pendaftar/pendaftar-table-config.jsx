@@ -40,10 +40,7 @@ const cardCell = ({ row, setDetailData, setVerifyData }) => {
           )}
           <div className="text-xs text-muted-foreground mt-1">
             Terdaftar:{" "}
-            {new Date(row.original.created_at).toLocaleDateString("id-ID", {
-              dateStyle: "medium",
-              timeStyle: "short",
-            })}
+            {formatMediumShortDate(row.original.created_at_at)}
           </div>
         </div>
         <div className="flex gap-2 ml-2">

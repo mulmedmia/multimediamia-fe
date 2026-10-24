@@ -24,8 +24,6 @@ import {
   Sparkles,
   AlertCircle,
 } from "lucide-react";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
 import Link from "next/link";
 
 const PAGE_SIZE = 6;
@@ -272,174 +270,166 @@ export default function CategoryListPage() {
   }, [categories, status]);
 
   return (
-    <div className="min-h-screen bg-[#0A0D14] mia-connected-bg text-[#FFF9F5] flex flex-col justify-between selection:bg-[#E01C20] selection:text-white">
-      <div>
-        <Header />
+    <main className="pt-24 sm:pt-28 pb-16 relative z-10">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl space-y-8 md:space-y-12">
+        {/* Eyebrow & Page Header */}
+        <div className="text-center space-y-3 md:space-y-4 max-w-3xl mx-auto">
+          <div className="mia-pill-badge mx-auto">
+            <Trophy className="h-3.5 w-3.5 text-[#FED700]" />
+            <span>Katalog Kompetisi MIA 2026</span>
+          </div>
 
-        <main className="pt-24 sm:pt-28 pb-16 relative z-10">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl space-y-8 md:space-y-12">
-            {/* Eyebrow & Page Header */}
-            <div className="text-center space-y-3 md:space-y-4 max-w-3xl mx-auto">
-              <div className="mia-pill-badge mx-auto">
-                <Trophy className="h-3.5 w-3.5 text-[#FED700]" />
-                <span>Katalog Kompetisi MIA 2026</span>
-              </div>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-[#FFF9F5]">
+            Pilihan <span className="text-[#E01C20]">Kompetisi</span>
+          </h1>
 
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-[#FFF9F5]">
-                Pilihan <span className="text-[#E01C20]">Kompetisi</span>
-              </h1>
+          <p className="text-sm sm:text-base md:text-lg text-[#AAB1BD] leading-relaxed">
+            Temukan berbagai cabang kompetisi digital kreatif, tunjukkan karya
+            terbaikmu, dan raih kesempatan memenangkan hadiah bergengsi di
+            Multimedia in Action 2026.
+          </p>
+        </div>
 
-              <p className="text-sm sm:text-base md:text-lg text-[#AAB1BD] leading-relaxed">
-                Temukan berbagai cabang kompetisi digital kreatif, tunjukkan karya
-                terbaikmu, dan raih kesempatan memenangkan hadiah bergengsi di
-                Multimedia in Action 2026.
+        {/* Search Bar Card */}
+        <div className="mia-card p-3 sm:p-4 max-w-2xl mx-auto shadow-lg">
+          <div className="flex flex-col sm:flex-row items-center gap-3">
+            <div className="relative flex-1 w-full flex items-center">
+              <Search className="absolute left-3.5 h-4 w-4 text-[#AAB1BD]" />
+              <Input
+                placeholder="Cari kategori lomba (misal: UI/UX, Web Dev...)"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyPress}
+                className="pl-10 h-11 bg-[#1E2939]/60 border-white/10 rounded-xl text-sm text-[#FFF9F5] placeholder:text-[#AAB1BD] focus-visible:ring-1 focus-visible:ring-[#E01C20]"
+              />
+            </div>
+
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <Button
+                onClick={handleSearch}
+                className="mia-btn-primary h-11 px-6 text-sm font-semibold flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto"
+              >
+                <Search className="h-4 w-4" />
+                <span>Cari</span>
+              </Button>
+              {search && (
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    setInput("");
+                    setSearch("");
+                    setPage(1);
+                  }}
+                  className="h-11 px-3 text-xs text-[#AAB1BD] hover:text-[#FFF9F5] rounded-xl cursor-pointer"
+                >
+                  Reset
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Content Section */}
+        {isLoading ? (
+          <CategorySkeleton />
+        ) : isError ? (
+          <div className="mia-card p-8 md:p-12 text-center space-y-4 max-w-lg mx-auto">
+            <div className="w-14 h-14 bg-red-500/10 border border-red-500/20 text-[#E01C20] rounded-2xl flex items-center justify-center mx-auto">
+              <AlertCircle className="h-7 w-7" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-lg font-bold text-[#FFF9F5]">Gagal Memuat Data</h3>
+              <p className="text-xs text-[#AAB1BD]">
+                {error?.message || "Terjadi kesalahan saat memuat kategori lomba. Silakan coba kembali."}
               </p>
             </div>
-
-            {/* Search Bar Card */}
-            <div className="mia-card p-3 sm:p-4 max-w-2xl mx-auto shadow-lg">
-              <div className="flex flex-col sm:flex-row items-center gap-3">
-                <div className="relative flex-1 w-full flex items-center">
-                  <Search className="absolute left-3.5 h-4 w-4 text-[#AAB1BD]" />
-                  <Input
-                    placeholder="Cari kategori lomba (misal: UI/UX, Web Dev...)"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={handleKeyPress}
-                    className="pl-10 h-11 bg-[#1E2939]/60 border-white/10 rounded-xl text-sm text-[#FFF9F5] placeholder:text-[#AAB1BD] focus-visible:ring-1 focus-visible:ring-[#E01C20]"
-                  />
-                </div>
-
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                  <Button
-                    onClick={handleSearch}
-                    className="mia-btn-primary h-11 px-6 text-sm font-semibold flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto"
-                  >
-                    <Search className="h-4 w-4" />
-                    <span>Cari</span>
-                  </Button>
-                  {search && (
-                    <Button
-                      variant="ghost"
-                      onClick={() => {
-                        setInput("");
-                        setSearch("");
-                        setPage(1);
-                      }}
-                      className="h-11 px-3 text-xs text-[#AAB1BD] hover:text-[#FFF9F5] rounded-xl cursor-pointer"
-                    >
-                      Reset
-                    </Button>
-                  )}
-                </div>
-              </div>
+          </div>
+        ) : filteredCategories.length === 0 ? (
+          <div className="mia-card p-10 sm:p-14 text-center space-y-4 max-w-lg mx-auto">
+            <div className="w-16 h-16 bg-[#E01C20]/15 border border-[#E01C20]/30 text-[#E01C20] rounded-2xl flex items-center justify-center mx-auto shadow-[0_0_20px_rgba(224,28,32,0.2)]">
+              <Trophy className="h-8 w-8 text-[#E01C20]" />
             </div>
-
-            {/* Content Section */}
-            {isLoading ? (
-              <CategorySkeleton />
-            ) : isError ? (
-              <div className="mia-card p-8 md:p-12 text-center space-y-4 max-w-lg mx-auto">
-                <div className="w-14 h-14 bg-red-500/10 border border-red-500/20 text-[#E01C20] rounded-2xl flex items-center justify-center mx-auto">
-                  <AlertCircle className="h-7 w-7" />
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-lg font-bold text-[#FFF9F5]">Gagal Memuat Data</h3>
-                  <p className="text-xs text-[#AAB1BD]">
-                    {error?.message || "Terjadi kesalahan saat memuat kategori lomba. Silakan coba kembali."}
-                  </p>
-                </div>
-              </div>
-            ) : filteredCategories.length === 0 ? (
-              <div className="mia-card p-10 sm:p-14 text-center space-y-4 max-w-lg mx-auto">
-                <div className="w-16 h-16 bg-[#E01C20]/15 border border-[#E01C20]/30 text-[#E01C20] rounded-2xl flex items-center justify-center mx-auto shadow-[0_0_20px_rgba(224,28,32,0.2)]">
-                  <Trophy className="h-8 w-8 text-[#E01C20]" />
-                </div>
-                <div className="space-y-1.5">
-                  <h3 className="text-xl sm:text-2xl font-bold text-[#FFF9F5]">
-                    Kategori Tidak Ditemukan
-                  </h3>
-                  <p className="text-sm text-[#AAB1BD] leading-relaxed">
-                    {search
-                      ? `Tidak ada kategori lomba yang cocok dengan kata kunci "${search}".`
-                      : "Belum ada kategori lomba yang tersedia saat ini."}
-                  </p>
-                </div>
-                {search && (
-                  <Button
-                    onClick={() => {
-                      setInput("");
-                      setSearch("");
-                      setPage(1);
-                    }}
-                    className="mia-btn-secondary px-5 py-2 text-xs font-semibold cursor-pointer"
-                  >
-                    Bersihkan Pencarian
-                  </Button>
-                )}
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                {filteredCategories.map((category) => (
-                  <CategoryCard key={category.category_id} category={category} />
-                ))}
-              </div>
-            )}
-
-            {/* Pagination */}
-            {!isLoading && !isError && totalPages > 1 && (
-              <div className="flex justify-center pt-4">
-                <Pagination>
-                  <PaginationContent className="mia-card p-1.5 rounded-full border border-white/10 flex items-center gap-1">
-                    <PaginationItem>
-                      <PaginationPrevious
-                        onClick={() => setPage((p) => Math.max(1, p - 1))}
-                        className={
-                          page === 1
-                            ? "pointer-events-none opacity-40 rounded-full text-[#AAB1BD]"
-                            : "cursor-pointer rounded-full text-[#FFF9F5] hover:bg-white/10"
-                        }
-                      />
-                    </PaginationItem>
-                    <PaginationItem>
-                      <PaginationLink className="bg-[#E01C20] text-[#FFF9F5] hover:bg-[#c4181c] rounded-full font-bold shadow-md shadow-red-900/30">
-                        {page}
-                      </PaginationLink>
-                    </PaginationItem>
-                    {totalPages > 1 && page < totalPages && (
-                      <PaginationItem>
-                        <span className="px-2 text-[#99A1AF]">...</span>
-                      </PaginationItem>
-                    )}
-                    {totalPages > 1 && (
-                      <PaginationItem>
-                        <PaginationLink
-                          onClick={() => setPage(totalPages)}
-                          className="rounded-full text-[#AAB1BD] hover:text-[#FFF9F5] hover:bg-white/10 cursor-pointer"
-                        >
-                          {totalPages}
-                        </PaginationLink>
-                      </PaginationItem>
-                    )}
-                    <PaginationItem>
-                      <PaginationNext
-                        onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                        className={
-                          page === totalPages
-                            ? "pointer-events-none opacity-40 rounded-full text-[#AAB1BD]"
-                            : "cursor-pointer rounded-full text-[#FFF9F5] hover:bg-white/10"
-                      }
-                      />
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
-              </div>
+            <div className="space-y-1.5">
+              <h3 className="text-xl sm:text-2xl font-bold text-[#FFF9F5]">
+                Kategori Tidak Ditemukan
+              </h3>
+              <p className="text-sm text-[#AAB1BD] leading-relaxed">
+                {search
+                  ? `Tidak ada kategori lomba yang cocok dengan kata kunci "${search}".`
+                  : "Belum ada kategori lomba yang tersedia saat ini."}
+              </p>
+            </div>
+            {search && (
+              <Button
+                onClick={() => {
+                  setInput("");
+                  setSearch("");
+                  setPage(1);
+                }}
+                className="mia-btn-secondary px-5 py-2 text-xs font-semibold cursor-pointer"
+              >
+                Bersihkan Pencarian
+              </Button>
             )}
           </div>
-        </main>
-      </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            {filteredCategories.map((category) => (
+              <CategoryCard key={category.category_id} category={category} />
+            ))}
+          </div>
+        )}
 
-      <Footer />
-    </div>
+        {/* Pagination */}
+        {!isLoading && !isError && totalPages > 1 && (
+          <div className="flex justify-center pt-4">
+            <Pagination>
+              <PaginationContent className="mia-card p-1.5 rounded-full border border-white/10 flex items-center gap-1">
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    className={
+                      page === 1
+                        ? "pointer-events-none opacity-40 rounded-full text-[#AAB1BD]"
+                        : "cursor-pointer rounded-full text-[#FFF9F5] hover:bg-white/10"
+                    }
+                  />
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationLink className="bg-[#E01C20] text-[#FFF9F5] hover:bg-[#c4181c] rounded-full font-bold shadow-md shadow-red-900/30">
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+                {totalPages > 1 && page < totalPages && (
+                  <PaginationItem>
+                    <span className="px-2 text-[#99A1AF]">...</span>
+                  </PaginationItem>
+                )}
+                {totalPages > 1 && (
+                  <PaginationItem>
+                    <PaginationLink
+                      onClick={() => setPage(totalPages)}
+                      className="rounded-full text-[#AAB1BD] hover:text-[#FFF9F5] hover:bg-white/10 cursor-pointer"
+                    >
+                      {totalPages}
+                    </PaginationLink>
+                  </PaginationItem>
+                )}
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    className={
+                      page === totalPages
+                        ? "pointer-events-none opacity-40 rounded-full text-[#AAB1BD]"
+                        : "cursor-pointer rounded-full text-[#FFF9F5] hover:bg-white/10"
+                  }
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        )}
+      </div>
+    </main>
   );
 }
