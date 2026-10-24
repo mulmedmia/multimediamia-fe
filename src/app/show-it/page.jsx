@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAllSubmissions } from "@/hooks/user-use-submissions";
 import { useCategories } from "@/hooks/user-use-gamifikasi";
@@ -59,7 +59,7 @@ function ShowItSelectItem({ value = "", content = "" }) {
   );
 }
 
-export default function ShowItPage() {
+function ShowItContent() {
   const [mounted, setMounted] = useState(false);
   const searchParams = useSearchParams();
 
@@ -538,5 +538,22 @@ export default function ShowItPage() {
         )}
       </div>
     </main>
+  );
+}
+
+export default function ShowItPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-screen bg-[#06080C] text-[#FFF9F5]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+            <p className="text-xs text-[#AAB1BD]">Memuat galeri Show It...</p>
+          </div>
+        </div>
+      }
+    >
+      <ShowItContent />
+    </Suspense>
   );
 }
