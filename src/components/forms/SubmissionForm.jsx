@@ -25,6 +25,7 @@ import {
 } from "@radix-ui/react-icons";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "../ui/textarea";
+import { Github } from "lucide-react";
 
 // !!! Asumsikan zod object punya `keys` yang sama dengan yang dilempar oleh Backend
 // Schema dinamis berdasarkan team type, kategori, dan fase deadline
@@ -34,7 +35,6 @@ const createSubmissionSchema = (teamType, categorySlug, isFinalPhase) => {
 
   if (isWIA) {
     return z.object({
-      team_name: teamType === "GROUP" ? z.string() : z.string().optional(),
       project_name: z
         .string()
         .min(1, { message: "Nama project wajib diisi." })
@@ -73,7 +73,10 @@ const createSubmissionSchema = (teamType, categorySlug, isFinalPhase) => {
       deployment_url: isFinalPhase
         ? z
             .string()
-            .min(1, { message: "Link deployment / live website wajib diisi pada fase final." })
+            .min(1, {
+              message:
+                "Link deployment / live website wajib diisi pada fase final.",
+            })
             .url({ message: "Harap masukkan URL deployment yang valid." })
         : z
             .string()
@@ -84,7 +87,9 @@ const createSubmissionSchema = (teamType, categorySlug, isFinalPhase) => {
       youtube_url: isFinalPhase
         ? z
             .string()
-            .min(1, { message: "Link video demo YouTube wajib diisi pada fase final." })
+            .min(1, {
+              message: "Link video demo YouTube wajib diisi pada fase final.",
+            })
             .url({ message: "Harap masukkan URL YouTube yang valid." })
         : z
             .string()
@@ -103,7 +108,6 @@ const createSubmissionSchema = (teamType, categorySlug, isFinalPhase) => {
 
   if (isUIA) {
     return z.object({
-      team_name: teamType === "GROUP" ? z.string() : z.string().optional(),
       project_name: z
         .string()
         .min(1, { message: "Nama project wajib diisi." })
@@ -134,17 +138,25 @@ const createSubmissionSchema = (teamType, categorySlug, isFinalPhase) => {
       figma_prototype_url: isFinalPhase
         ? z
             .string()
-            .min(1, { message: "Link prototipe Figma wajib diisi pada fase final." })
-            .url({ message: "Harap masukkan format URL prototipe Figma yang valid." })
+            .min(1, {
+              message: "Link prototipe Figma wajib diisi pada fase final.",
+            })
+            .url({
+              message: "Harap masukkan format URL prototipe Figma yang valid.",
+            })
         : z
             .string()
-            .url({ message: "Harap masukkan format URL prototipe Figma yang valid." })
+            .url({
+              message: "Harap masukkan format URL prototipe Figma yang valid.",
+            })
             .optional()
             .or(z.literal("")),
       youtube_url: isFinalPhase
         ? z
             .string()
-            .min(1, { message: "Link video demo YouTube wajib diisi pada fase final." })
+            .min(1, {
+              message: "Link video demo YouTube wajib diisi pada fase final.",
+            })
             .url({ message: "Harap masukkan URL YouTube yang valid." })
         : z
             .string()
@@ -162,8 +174,6 @@ const createSubmissionSchema = (teamType, categorySlug, isFinalPhase) => {
   // Fallback untuk kategori Non-WIA / Non-UIA
   return z
     .object({
-      // team_name hanya required untuk GROUP
-      team_name: teamType === "GROUP" ? z.string() : z.string().optional(),
       project_name: z
         .string()
         .min(1, { message: "Nama project wajib diisi." })
@@ -233,6 +243,7 @@ function LinkInput({
   label = "",
   helperText = "",
   required = false,
+  overrideInfo = "",
   Icon,
   register,
   errors,
@@ -246,14 +257,16 @@ function LinkInput({
         >
           {label}{" "}
           {required ? (
-            <span className="text-red-500 font-bold">*</span>
+            <span className="text-red-500 font-bold"> *</span>
           ) : (
-            <span className="text-xs font-normal text-muted-foreground">(Opsional)</span>
+            <span className="text-xs font-normal text-muted-foreground">
+              ({overrideInfo || "Opsional"})
+            </span>
           )}
         </Label>
         {required && (
           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500/15 border border-red-500/30 text-red-400">
-            Wajib
+            {overrideInfo || "Wajib"}
           </span>
         )}
       </div>
@@ -324,192 +337,149 @@ export function SubmissionForm({
   }, [registration?.category]);
 
   const activeLinkConfigs = useMemo(() => {
-    if (isWIA) {
-      return [
-        {
-          field: "proposal_url",
-          placeholder: "https://docs.google.com/document/d/...",
-          descField: "proposal_description",
-          descPlaceholder: "Draft Proposal (Google Docs)",
-          label: "Link Draft Proposal (Google Docs)",
-          helperText:
-            "Wajib. Pastikan hak akses link Google Docs diatur ke publik / Siapa saja yang memiliki link (Viewer).",
-          Icon: FileTextIcon,
-          type: "PROPOSAL",
-          required: true,
-        },
-        {
-          field: "github_url",
-          placeholder: "https://github.com/username/repository",
-          descField: "github_description",
-          descPlaceholder: "Repository GitHub Utama",
-          label: "Link Repo GitHub (Utama)",
-          helperText: "Wajib. Repository source code utama aplikasi.",
-          Icon: CodeIcon,
-          type: "GITHUB",
-          required: true,
-        },
-        {
-          field: "github_secondary_url",
-          placeholder: "https://github.com/username/repository-backend",
-          descField: "github_secondary_description",
-          descPlaceholder: "Repository GitHub Tambahan (FE/BE dipisah)",
-          label: "Link Repo GitHub (Opsional - FE/BE Terpisah)",
-          helperText: "Opsional jika Anda memisahkan repo Frontend dan Backend.",
-          Icon: CodeIcon,
-          type: "GITHUB_SECONDARY",
-          required: false,
-        },
-        {
-          field: "deployment_url",
-          placeholder: "https://my-app.vercel.app",
-          descField: "deployment_description",
-          descPlaceholder: "Deployment / Live Website",
-          label: `Link Deployment / Live Website ${
-            isFinalPhase ? "(Wajib Saat Final)" : "(Opsional Sementara)"
-          }`,
-          helperText: isFinalPhase
-            ? "Wajib diisi pada tahap pengumpulan karya final."
-            : "Opsional pada pengumpulan sementara, wajib saat pengumpulan karya final.",
-          Icon: Link2Icon,
-          type: "DEPLOYMENT",
-          required: isFinalPhase,
-        },
-        {
-          field: "youtube_url",
-          placeholder: "https://youtube.com/watch?v=... atau https://youtu.be/...",
-          descField: "youtube_description",
-          descPlaceholder: "Video Demo Aplikasi YouTube",
-          label: `Link Video Demo YouTube ${
-            isFinalPhase ? "(Wajib Saat Final)" : "(Opsional Sementara)"
-          }`,
-          helperText: isFinalPhase
-            ? "Wajib diisi pada tahap pengumpulan karya final."
-            : "Opsional pada pengumpulan sementara, wajib saat pengumpulan karya final.",
-          Icon: VideoIcon,
-          type: "YOUTUBE",
-          required: isFinalPhase,
-        },
-        {
-          field: "other_url",
-          placeholder: "https://...",
-          descField: "other_description",
-          descPlaceholder: "Panduan, kredensial akun uji coba juri, dsb.",
-          label: "Link Lainnya (Opsional)",
-          helperText:
-            "Opsional (misal panduan instalasi, kredensial akun uji coba juri, dll.)",
-          Icon: InfoCircledIcon,
-          type: "OTHER",
-          required: false,
-        },
-      ];
-    }
+    const configs = [];
 
-    if (isUIA) {
-      return [
-        {
-          field: "proposal_url",
-          placeholder: "https://docs.google.com/document/d/...",
-          descField: "proposal_description",
-          descPlaceholder: "Draft Proposal (Google Docs)",
-          label: "Link Draft Proposal (Google Docs)",
-          helperText:
-            "Wajib. Pastikan hak akses link Google Docs diatur ke publik / Siapa saja yang memiliki link (Viewer).",
-          Icon: FileTextIcon,
-          type: "PROPOSAL",
-          required: true,
-        },
-        {
-          field: "figma_url",
-          placeholder: "https://www.figma.com/design/...",
-          descField: "figma_description",
-          descPlaceholder: "Desain Figma",
-          label: "Link Desain Figma",
-          helperText: "Wajib. Tautan file desain Figma proyek Anda.",
-          Icon: LayersIcon,
-          type: "FIGMA",
-          required: true,
-        },
-        {
-          field: "figma_prototype_url",
-          placeholder: "https://www.figma.com/proto/...",
-          descField: "figma_prototype_description",
-          descPlaceholder: "Prototipe Figma",
-          label: `Link Prototipe Figma ${
-            isFinalPhase ? "(Wajib Saat Final)" : "(Opsional Sementara)"
-          }`,
-          helperText: isFinalPhase
-            ? "Wajib diisi pada tahap pengumpulan karya final."
-            : "Opsional pada pengumpulan sementara, wajib saat pengumpulan karya final.",
-          Icon: LayersIcon,
-          type: "FIGMA_PROTOTYPE",
-          required: isFinalPhase,
-        },
-        {
-          field: "youtube_url",
-          placeholder: "https://youtube.com/watch?v=... atau https://youtu.be/...",
-          descField: "youtube_description",
-          descPlaceholder: "Video Demo Aplikasi YouTube",
-          label: `Link Video Demo YouTube ${
-            isFinalPhase ? "(Wajib Saat Final)" : "(Opsional Sementara)"
-          }`,
-          helperText: isFinalPhase
-            ? "Wajib diisi pada tahap pengumpulan karya final."
-            : "Opsional pada pengumpulan sementara, wajib saat pengumpulan karya final.",
-          Icon: VideoIcon,
-          type: "YOUTUBE",
-          required: isFinalPhase,
-        },
-        {
-          field: "other_url",
-          placeholder: "https://...",
-          descField: "other_description",
-          descPlaceholder: "Panduan, kredensial akun uji coba juri, dsb.",
-          label: "Link Lainnya (Opsional)",
-          helperText:
-            "Opsional (misal panduan pengujian, aset pendukung, dll.)",
-          Icon: InfoCircledIcon,
-          type: "OTHER",
-          required: false,
-        },
-      ];
-    }
+    if (isWIA || isUIA) {
+      configs.push({
+        field: "proposal_url",
+        placeholder: "https://docs.google.com/document/d/...",
+        descField: "proposal_description",
+        descPlaceholder: "Draft Proposal (Google Docs)",
+        label: "Link Draft Proposal (Google Docs)",
+        helperText:
+          "Pastikan hak akses link Google Docs diatur ke publik / Siapa saja yang memiliki link (Viewer).",
+        Icon: FileTextIcon,
+        type: "PROPOSAL",
+        required: true,
+      });
 
-    return [
-      {
+      if (isWIA) {
+        configs.push(
+          ...[
+            {
+              field: "github_url",
+              placeholder: "https://github.com/username/repository",
+              descField: "github_description",
+              descPlaceholder: "Repository GitHub Utama",
+              label: "Link Repo GitHub (Utama)",
+              helperText: "Repository source code utama aplikasi.",
+              Icon: Github,
+              type: "GITHUB",
+              required: true,
+            },
+            {
+              field: "github_secondary_url",
+              placeholder: "https://github.com/username/repository-backend",
+              descField: "github_secondary_description",
+              descPlaceholder: "Repository GitHub Tambahan (FE/BE dipisah)",
+              label: "Link Repo GitHub (Opsional - FE/BE Terpisah)",
+              helperText:
+                "Opsional jika Anda memisahkan repository Frontend dan Backend.",
+              Icon: Github,
+              type: "GITHUB_SECONDARY",
+              required: false,
+            },
+            {
+              field: "deployment_url",
+              placeholder: "https://my-app.vercel.app",
+              descField: "deployment_description",
+              descPlaceholder: "Deployment / Live Website",
+              label: "Link Deployment / Live Website",
+              helperText: isFinalPhase
+                ? "Wajib diisi pada tahap pengumpulan karya final."
+                : "Opsional pada pengumpulan sementara, wajib saat pengumpulan karya final.",
+              Icon: Link2Icon,
+              type: "DEPLOYMENT",
+              required: isFinalPhase,
+              overrideInfo: isFinalPhase
+                ? "Wajib Saat Final"
+                : "Opsional Sementara",
+            },
+          ],
+        );
+      }
+
+      if (isUIA) {
+        configs.push(
+          ...[
+            {
+              field: "figma_url",
+              placeholder: "https://www.figma.com/design/...",
+              descField: "figma_description",
+              descPlaceholder: "Desain Figma",
+              label: "Link Desain Figma",
+              helperText: "Tautan file desain Figma proyek Anda.",
+              Icon: LayersIcon,
+              type: "FIGMA",
+              required: true,
+            },
+            {
+              field: "figma_prototype_url",
+              placeholder: "https://www.figma.com/proto/...",
+              descField: "figma_prototype_description",
+              descPlaceholder: "Prototipe Figma",
+              label: "Link Prototipe Figma",
+              helperText: isFinalPhase
+                ? "Wajib diisi pada tahap pengumpulan karya final."
+                : "Opsional pada pengumpulan sementara, wajib saat pengumpulan karya final.",
+              Icon: LayersIcon,
+              type: "FIGMA_PROTOTYPE",
+              required: isFinalPhase,
+              overrideInfo: isFinalPhase
+                ? "Wajib Saat Final"
+                : "Opsional Sementara",
+            },
+          ],
+        );
+      }
+    } else {
+      configs.push({
         field: "github_url",
         placeholder: "https://github.com/username/repository",
         descField: "github_description",
         descPlaceholder: "Repository source code",
         label: "Link GitHub",
-        helperText: "Tautan repositori kode sumber proyek Anda.",
+        helperText: "Tautan repository kode sumber proyek Anda.",
         Icon: CodeIcon,
         type: "GITHUB",
         required: false,
-      },
-      {
-        field: "youtube_url",
-        placeholder: "https://youtube.com/watch?v=...",
-        descField: "youtube_description",
-        descPlaceholder: "Video demo project",
-        label: "Link YouTube",
-        helperText: "Tautan video presentasi atau demo proyek.",
-        Icon: VideoIcon,
-        type: "YOUTUBE",
-        required: false,
-      },
-      {
-        field: "other_url",
-        placeholder: "https://example.com/live-demo",
-        descField: "other_description",
-        descPlaceholder: "Live demo website",
-        label: "Link Lainnya",
-        helperText: "Tautan pendukung lain seperti live demo atau panduan.",
-        Icon: Link2Icon,
-        type: "OTHER",
-        required: false,
-      },
-    ];
+      });
+    }
+
+    configs.push(
+      ...[
+        {
+          field: "youtube_url",
+          placeholder:
+            "https://youtube.com/watch?v=... atau https://youtu.be/...",
+          descField: "youtube_description",
+          descPlaceholder: "Video Demo Aplikasi YouTube",
+          label: "Link Video Demo YouTube",
+          helperText: isFinalPhase
+            ? "Wajib diisi pada tahap pengumpulan karya final."
+            : "Opsional pada pengumpulan sementara, wajib saat pengumpulan karya final.",
+          Icon: VideoIcon,
+          type: "YOUTUBE",
+          required: isFinalPhase,
+          overrideInfo: isFinalPhase
+            ? "Wajib Saat Final"
+            : "Opsional Sementara",
+        },
+        {
+          field: "other_url",
+          placeholder: "https://...",
+          descField: "other_description",
+          descPlaceholder: "Panduan, kredensial akun uji coba juri, dsb.",
+          label: "Link Lainnya",
+          helperText: "Misal: panduan pengujian, aset pendukung, dll.",
+          Icon: InfoCircledIcon,
+          type: "OTHER",
+          required: false,
+        },
+      ],
+    );
+
+    return configs;
   }, [isWIA, isUIA, isFinalPhase]);
 
   // Memoized schema berdasarkan teamType, categorySlug, dan isFinalPhase
@@ -532,7 +502,6 @@ export function SubmissionForm({
     );
 
     return {
-      team_name: teamType === "GROUP" ? registration?.team_name || "" : "",
       project_name: editingSubmission?.project_name || "",
       description: editingSubmission?.description || "",
       flow_application:
@@ -619,33 +588,17 @@ export function SubmissionForm({
     }
 
     // Prepare submission payload
-    // SELALU kirim team_name dan flow_application tapi gunakan dummy values jika INDIVIDUAL
+    // Sesuai schema backend baru: category_id dan team_name dihapus, registration_id wajib
     const submissionPayload = {
       registration_id: registrationId,
-      category_id:
-        registration.category_id || registration.category?.category_id,
       project_name: data.project_name,
       description: data.description,
+      flow_application:
+        teamType === "GROUP"
+          ? data.flow_application || ""
+          : "N/A - Individual Participant",
       links: links,
     };
-
-    // PERBAIKAN: Selalu sediakan nilai untuk team_name & flow_application
-    if (teamType === "GROUP") {
-      // Untuk GROUP: kirim team_name dan flow_application
-      submissionPayload.team_name =
-        data.team_name || registration.team_name || "";
-      submissionPayload.flow_application = data.flow_application || "";
-    } else {
-      // Untuk INDIVIDUAL: gunakan nama user sebagai team_name, tanpa flow_application
-      submissionPayload.team_name =
-        registration.user?.name ||
-        registration.user?.full_name ||
-        registration.user?.username ||
-        "Individual Participant";
-
-      // TIDAK mengirim flow_application untuk INDIVIDUAL
-      submissionPayload.flow_application = "N/A - Individual Participant";
-    }
 
     mutation.mutate(submissionPayload);
   };
@@ -663,29 +616,24 @@ export function SubmissionForm({
       {/* Basic Information */}
       <div className="space-y-4">
         {/* Team Name - Hanya tampil untuk GROUP */}
+        {/* Team Name - Read-only display from registration */}
         {teamType === "GROUP" && (
           <div className="space-y-2">
-            <Label
-              htmlFor="team_name"
-              className="block text-sm font-semibold text-foreground"
-            >
+            <Label className="block text-sm font-semibold text-foreground">
               Nama Tim
             </Label>
-            <div className="relative cursor-not-allowed">
+            <div className="relative cursor-default">
               <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mia-muted-2 z-10 pointer-events-none">
                 <LayersIcon className="w-4 h-4" />
               </div>
-              <Input
-                id="team_name"
-                placeholder="Masukkan nama tim Anda"
-                {...register("team_name")}
-                disabled
-                className="h-11 bg-input rounded-xl pl-10 pr-4 text-sm text-foreground placeholder:text-mia-muted-2 border-border cursor-not-allowed pointer-events-auto opacity-75"
-              />
+              <div className="h-11 bg-input rounded-xl pl-10 pr-4 text-sm text-foreground border border-border flex items-center opacity-75">
+                {registration?.team_name || "-"}
+              </div>
             </div>
             <p className="text-xs text-mia-muted-2">
-              Nama tim dapat diperbarui melalui opsi Edit Tim pada halaman
-              Beranda.
+              {registration?.is_verified
+                ? "Tim yang telah diverifikasi tidak bisa mengubah nama tim"
+                : "Nama tim dapat diperbarui melalui opsi Edit Tim pada halaman Beranda."}
             </p>
           </div>
         )}
@@ -787,7 +735,7 @@ export function SubmissionForm({
           <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider flex items-center flex-wrap gap-2">
             <span>
               {isWIA
-                ? "Link Berkas & Repositori Web In Action"
+                ? "Link Berkas & Repository Web In Action"
                 : isUIA
                   ? "Link Berkas & Desain UI/UX In Action"
                   : "Link Project & Berkas"}

@@ -1,8 +1,8 @@
-import { clsx } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 export function isExpired(deadlineString) {
@@ -11,7 +11,7 @@ export function isExpired(deadlineString) {
 }
 
 // Helper formatting deadline
-export const formatDeadline = (dateString, weekday = "short") => {
+export function formatDeadline(dateString, weekday = "short") {
   try {
     const date = new Date(dateString);
     return (
@@ -27,4 +27,16 @@ export const formatDeadline = (dateString, weekday = "short") => {
   } catch {
     return dateString;
   }
-};
+}
+
+export function formatMediumShortDate(date) {
+  if (!date) return "-";
+  try {
+    return new Date(date).toLocaleString("id-ID", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
+  } catch {
+    return dateString;
+  }
+}

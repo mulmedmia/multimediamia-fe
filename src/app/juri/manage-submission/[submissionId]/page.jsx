@@ -21,12 +21,10 @@ import {
 } from "lucide-react";
 import api from "@/lib/api";
 import YouTubePreview from "@/components/common/YouTubePreview";
+import { useParams } from "next/navigation";
 
 export default function JuriSubmissionDetailPage(props) {
-  const params =
-    typeof props.params?.then === "function"
-      ? React.use(props.params)
-      : props.params;
+  const params = useParams();
   const submissionId = params?.submissionId;
 
   const [submission, setSubmission] = useState(null);
@@ -200,7 +198,7 @@ export default function JuriSubmissionDetailPage(props) {
           <div className="space-y-4">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-mia-red/10 border border-mia-red/20 text-mia-red">
               <Trophy className="h-3.5 w-3.5" />
-              <span>{submission.category?.name || submission.category?.category_name || "Kompetisi"}</span>
+              <span>{submission.registration?.category?.category_name || submission.registration?.category?.name || submission.category?.name || submission.category?.category_name || "Kompetisi"}</span>
             </div>
 
             <h1 className="text-2xl sm:text-3xl font-black text-mia-text tracking-tight leading-snug">
@@ -211,13 +209,13 @@ export default function JuriSubmissionDetailPage(props) {
           <div className="pt-4 border-t border-white/10 space-y-3">
             <div className="flex items-center justify-between text-xs sm:text-sm">
               <span className="text-mia-muted">Nama Tim:</span>
-              <span className="font-bold text-mia-text">{submission.team_name || "-"}</span>
+              <span className="font-bold text-mia-text">{submission.registration?.team_name || submission.team_name || "-"}</span>
             </div>
 
             <div className="flex items-center justify-between text-xs sm:text-sm">
               <span className="text-mia-muted">Kategori Lomba:</span>
               <span className="font-semibold text-mia-yellow">
-                {submission.category?.name || submission.category?.category_name || "-"}
+                {submission.registration?.category?.category_name || submission.registration?.category?.name || submission.category?.name || submission.category?.category_name || "-"}
               </span>
             </div>
 
@@ -270,7 +268,7 @@ export default function JuriSubmissionDetailPage(props) {
                     Nama Peserta
                   </span>
                   <span className="text-sm font-medium text-mia-text break-words">
-                    {submission.user?.name || "-"}
+                    {submission.registration?.user?.name || submission.user?.name || "-"}
                   </span>
                 </div>
                 <div>
@@ -278,7 +276,7 @@ export default function JuriSubmissionDetailPage(props) {
                     Email Kontak
                   </span>
                   <span className="text-sm text-mia-muted break-words">
-                    {submission.user?.email || "-"}
+                    {submission.registration?.user?.email || submission.user?.email || "-"}
                   </span>
                 </div>
                 <div>
@@ -286,7 +284,7 @@ export default function JuriSubmissionDetailPage(props) {
                     Nama Tim
                   </span>
                   <span className="text-sm text-mia-muted break-words">
-                    {submission.team_name || "-"}
+                    {submission.registration?.team_name || submission.team_name || "-"}
                   </span>
                 </div>
               </div>
@@ -329,13 +327,7 @@ export default function JuriSubmissionDetailPage(props) {
                   </span>
                   <span className="text-sm font-medium text-mia-text break-words">
                     {submission.created_at
-                      ? new Date(submission.created_at).toLocaleString(
-                          "id-ID",
-                          {
-                            dateStyle: "medium",
-                            timeStyle: "short",
-                          },
-                        )
+                      ? formatMediumShortDate(submission.created_at_at)
                       : "-"}
                   </span>
                 </div>
@@ -345,13 +337,7 @@ export default function JuriSubmissionDetailPage(props) {
                   </span>
                   <span className="text-sm text-mia-muted break-words">
                     {submission.updated_at
-                      ? new Date(submission.updated_at).toLocaleString(
-                          "id-ID",
-                          {
-                            dateStyle: "medium",
-                            timeStyle: "short",
-                          },
-                        )
+                      ? formatMediumShortDate(submission.updated_at)
                       : "-"}
                   </span>
                 </div>

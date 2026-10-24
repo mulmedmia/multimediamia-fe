@@ -12,21 +12,21 @@ const GamificationSection = () => {
     {
       icon: <span className="text-2xl select-none">💎</span>,
       iconBg: "bg-cyan-500/15 border-cyan-500/30",
-      title: "💎 Kumpulkan XP & Diamond",
+      title: "Kumpulkan XP & Diamond",
       description:
         "Dapatkan XP dan Diamond dari setiap aktivitas di dalam platform, mulai dari tahap pendaftaran, pengerjaan misi harian dan mingguan, kuis, hingga pengumpulan karya secara tepat waktu. Semakin aktif dan konsisten timmu, semakin besar reward yang menanti!",
     },
     {
       icon: <span className="text-2xl select-none">🏆</span>,
       iconBg: "bg-amber-500/15 border-amber-500/30",
-      title: "🏆 Leaderboard Kompetitif",
+      title: "Leaderboard Kompetitif",
       description:
         "Pantau peringkat posisi tim kamu secara real-time di leaderboard publik. Bersainglah secara sportif dengan ratusan tim dari seluruh Indonesia untuk membuktikan siapa Architects of Change yang paling produktif!",
     },
     {
       icon: <span className="text-2xl select-none">🎁</span>,
       iconBg: "bg-rose-500/15 border-rose-500/30",
-      title: "🎁 Tukar dengan Hadiah",
+      title: "Tukar dengan Hadiah",
       description:
         "Tukarkan Diamonds yang terkumpul dengan berbagai reward eksklusif, mulai dari token kelas dicoding, hingga tiket spesial untuk mendapatkan akses konsultasi 1-on-1 secara langsung bersama mentor profesional.",
     },

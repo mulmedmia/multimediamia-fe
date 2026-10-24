@@ -33,6 +33,7 @@ import { getRegistrationById } from "@/services/competition.service";
 import { useGenerateReferralCode } from "@/hooks/use-referral";
 import { EditTeamModal } from "./EditTeamModal";
 import { EditSubmissionModal } from "./EditSubmissionModal";
+import { LinkTypeIcon } from "../LinTypekIcon";
 
 export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -55,13 +56,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
     toast.success(`Kode referral ${code} berhasil disalin ke clipboard!`);
   };
 
-  // Ubah query untuk menggunakan getMySubmissions
-  const { data: submissionsData, isLoading: isLoadingSubmissions } = useQuery({
-    queryKey: ["mySubmissions"],
-    queryFn: () => getMySubmissions(1, 10),
-  });
-
-  // Tambahkan query untuk memantau perubahan registration data
+  // Pantau perubahan registration data
   const { data: currentRegistration } = useQuery({
     queryKey: ["registration", registration.registration_id],
     queryFn: () => getRegistrationById(registration.registration_id),
@@ -71,10 +66,21 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
 
   const activeRegistration = currentRegistration || registration;
 
-  // Filter submissions berdasarkan kategori registration
+  // Query untuk mengambil submission milik registration aktif
+  const { data: submissionsData, isLoading: isLoadingSubmissions } = useQuery({
+    queryKey: ["mySubmissions", activeRegistration?.registration_id],
+    queryFn: () => getMySubmissions(1, 10, activeRegistration?.registration_id),
+    enabled: !!activeRegistration?.registration_id,
+  });
+
+  // Filter submissions berdasarkan registration_id
   const submissions =
     submissionsData?.submissions?.filter(
-      (sub) => sub.category_id === activeRegistration.category_id,
+      (sub) =>
+        sub.registration_id === activeRegistration.registration_id ||
+        sub.registration?.registration_id === activeRegistration.registration_id ||
+        sub.registration?.category_id === activeRegistration.category_id ||
+        sub.category_id === activeRegistration.category_id,
     ) || [];
 
   // Check apakah user sudah punya submission
@@ -561,7 +567,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                   </div>
                 </div>
 
-                {!activeRegistration.referral_code ? (
+                {!activeRegistration.referral_code && (
                   !activeRegistration.is_verified ? (
                     <Button
                       disabled
@@ -590,15 +596,6 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                       )}
                     </Button>
                   )
-                ) : (
-                  <Button
-                    onClick={() => handleCopyReferral(activeRegistration.referral_code)}
-                    variant="outline"
-                    className="rounded-full bg-input/50 hover:bg-input border-border/50 text-foreground text-xs sm:text-sm font-semibold h-10 px-5 transition-all inline-flex items-center gap-2 cursor-pointer flex-shrink-0"
-                  >
-                    <Copy className="w-4 h-4 text-amber-400" />
-                    <span>Salin Kode Referral</span>
-                  </Button>
                 )}
               </div>
 
@@ -973,21 +970,11 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                     {submissions.map((sub) => (
                       <div
                         key={sub.submission_id}
-                        onClick={() => {
-                          if (!canEditSubmission) {
-                            toast.warning("Pengumpulan Ditutup!", {
-                              description: editLockReason,
-                              duration: 4000,
-                            });
-                            return;
-                          }
-                          handleEditSubmission(sub);
-                        }}
                         className={cn(
                           "mia-card !bg-input/30 !border-border/50 !rounded-2xl p-5 sm:p-6 transition-all space-y-4 shadow-md",
                           canEditSubmission
-                            ? "hover:!border-primary/25 cursor-pointer"
-                            : "cursor-default opacity-95",
+                            ? "hover:!border-primary/25"
+                            : "opacity-95",
                         )}
                       >
                         <div className="space-y-4">
@@ -1022,7 +1009,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                               </div>
                               <div className="flex flex-wrap items-center gap-y-1 gap-x-2.5 text-xs sm:text-sm text-muted-foreground">
                                 <p className="font-medium">
-                                  Tim: <span className="text-foreground">{sub.team_name}</span>
+                                  Tim: <span className="text-foreground">{sub.registration?.team_name || sub.team_name || activeRegistration?.team_name || "-"}</span>
                                 </p>
                                 <span>&bull;</span>
                                 <p className="text-muted-foreground/80">
@@ -1128,7 +1115,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                                       target="_blank"
                                       rel="noopener noreferrer"
                                     >
-                                      <ExternalLink className="h-3 w-3" />
+                                      <LinkTypeIcon linkType={link.link_type} className="h-3 w-3" />
                                       <span>
                                         {getLinkTypeBadgeLabel(link.link_type)}
                                       </span>

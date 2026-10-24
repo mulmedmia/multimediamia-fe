@@ -268,10 +268,10 @@ export default function AdminPengumpulanPage() {
         return {
           no: index + 1,
           created_at: formatDateDisplay(item.created_at),
-          user_name: item.user?.name || "-",
-          user_email: item.user?.email || "-",
-          team_name: item.team_name || "Individu",
-          category: item.category?.category_name || item.category?.name || "-",
+          user_name: item.registration?.user?.name || item.user?.name || "-",
+          user_email: item.registration?.user?.email || item.user?.email || "-",
+          team_name: item.registration?.team_name || item.team_name || "Individu",
+          category: item.registration?.category?.category_name || item.category?.category_name || item.category?.name || "-",
           project_name: item.project_name || item.title || "-",
           status: item.status || "PENDING",
           is_verified: item.is_verified ? "Ya" : "Tidak",
@@ -618,23 +618,23 @@ export default function AdminPengumpulanPage() {
                       <TableCell className="py-3.5 pl-6">
                         <div className="flex items-center gap-3">
                           <div className="w-9 h-9 rounded-xl bg-white/[0.04] border border-border/40 flex items-center justify-center text-foreground font-bold text-xs flex-shrink-0 select-none">
-                            {sub.user?.name ? (
-                              sub.user.name.charAt(0).toUpperCase()
+                            {(sub.registration?.user?.name || sub.user?.name) ? (
+                              (sub.registration?.user?.name || sub.user?.name).charAt(0).toUpperCase()
                             ) : (
                               <User className="h-4 w-4" />
                             )}
                           </div>
                           <div className="min-w-0">
                             <p className="font-semibold text-foreground text-xs sm:text-sm truncate max-w-[150px] sm:max-w-[200px]">
-                              {sub.user?.name || "Tanpa Nama"}
+                              {sub.registration?.user?.name || sub.user?.name || "Tanpa Nama"}
                             </p>
                             <p className="text-[11px] text-muted-foreground truncate max-w-[150px] sm:max-w-[200px]">
-                              {sub.user?.email || "-"}
+                              {sub.registration?.user?.email || sub.user?.email || "-"}
                             </p>
-                            {sub.team_name && (
+                            {(sub.registration?.team_name || sub.team_name) && (
                               <p className="text-[11px] text-purple-400 font-medium truncate max-w-[150px] sm:max-w-[200px] flex items-center gap-1 mt-0.5">
                                 <Users className="h-3 w-3 inline flex-shrink-0" />
-                                <span>{sub.team_name}</span>
+                                <span>{sub.registration?.team_name || sub.team_name}</span>
                               </p>
                             )}
                           </div>
@@ -647,9 +647,10 @@ export default function AdminPengumpulanPage() {
                           variant="outline"
                           className="text-xs px-2.5 py-0.5 rounded-lg border-border/50 bg-white/[0.02] text-foreground"
                         >
-                          {sub.category?.category_name || "-"}
+                          {sub.registration?.category?.category_name || sub.category?.category_name || "-"}
                         </Badge>
                       </TableCell>
+
 
                       {/* Judul Karya / Proyek */}
                       <TableCell className="py-3.5 max-w-[220px]">
