@@ -501,7 +501,6 @@ export function SubmissionForm({
           },
         ],
       );
-      }
     } else {
       configs.push({
         field: "github_url",
