@@ -147,6 +147,10 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
     switch (linkType) {
       case "PROPOSAL":
         return "Draft Proposal";
+      case "PRESENTATION":
+        return "File Presentasi";
+      case "ORIGINALITY_STATEMENT":
+        return "Surat Orisinil Karya";
       case "GITHUB":
         return "GitHub Utama";
       case "GITHUB_SECONDARY":

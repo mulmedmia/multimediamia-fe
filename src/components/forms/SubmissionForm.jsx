@@ -25,7 +25,7 @@ import {
 } from "@radix-ui/react-icons";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "../ui/textarea";
-import { Github } from "lucide-react";
+import { Github, Presentation, FileCheck } from "lucide-react";
 
 // !!! Asumsikan zod object punya `keys` yang sama dengan yang dilempar oleh Backend
 // Schema dinamis berdasarkan team type, kategori, dan fase deadline
@@ -54,16 +54,32 @@ const createSubmissionSchema = (teamType, categorySlug, isFinalPhase) => {
                 message: "Flow aplikasi maksimal 400 karakter.",
               })
           : z.string().optional(),
-      proposal_url: z
+      presentation_url: z
         .string()
-        .min(1, { message: "Link draft proposal (Google Docs) wajib diisi." })
-        .url({ message: "Harap masukkan format URL proposal yang valid." }),
-      proposal_description: z.string().optional(),
+        .min(1, { message: "Link file presentasi (PowerPoint/Google Slides/Canva) wajib diisi." })
+        .url({ message: "Harap masukkan format URL file presentasi yang valid." }),
+      presentation_description: z.string().optional(),
       github_url: z
         .string()
         .min(1, { message: "Link repository GitHub utama wajib diisi." })
         .url({ message: "Harap masukkan format URL GitHub yang valid." }),
       github_description: z.string().optional(),
+      originality_statement_url: z
+        .string()
+        .min(1, { message: "Link drive surat keterangan orisinil karya bermaterai 10.000 wajib diisi." })
+        .url({ message: "Harap masukkan format URL surat keterangan orisinil yang valid." }),
+      originality_statement_description: z.string().optional(),
+      proposal_url: isFinalPhase
+        ? z
+            .string()
+            .min(1, { message: "Link draft proposal (Google Docs) wajib diisi pada fase final." })
+            .url({ message: "Harap masukkan format URL proposal yang valid." })
+        : z
+            .string()
+            .url({ message: "Harap masukkan format URL proposal yang valid." })
+            .optional()
+            .or(z.literal("")),
+      proposal_description: z.string().optional(),
       github_secondary_url: z
         .string()
         .url({ message: "Harap masukkan URL GitHub kedua yang valid." })
@@ -135,6 +151,12 @@ const createSubmissionSchema = (teamType, categorySlug, isFinalPhase) => {
         .string()
         .min(1, { message: "Link desain Figma wajib diisi." })
         .url({ message: "Harap masukkan format URL Figma yang valid." }),
+      figma_description: z.string().optional(),
+      originality_statement_url: z
+        .string()
+        .min(1, { message: "Link drive surat keterangan orisinil karya bermaterai 10.000 wajib diisi." })
+        .url({ message: "Harap masukkan format URL surat keterangan orisinil yang valid." }),
+      originality_statement_description: z.string().optional(),
       figma_prototype_url: isFinalPhase
         ? z
             .string()
@@ -339,98 +361,146 @@ export function SubmissionForm({
   const activeLinkConfigs = useMemo(() => {
     const configs = [];
 
-    if (isWIA || isUIA) {
-      configs.push({
-        field: "proposal_url",
-        placeholder: "https://docs.google.com/document/d/...",
-        descField: "proposal_description",
-        descPlaceholder: "Draft Proposal (Google Docs)",
-        label: "Link Draft Proposal (Google Docs)",
-        helperText:
-          "Pastikan hak akses link Google Docs diatur ke publik / Siapa saja yang memiliki link (Viewer).",
-        Icon: FileTextIcon,
-        type: "PROPOSAL",
-        required: true,
-      });
-
-      if (isWIA) {
-        configs.push(
-          ...[
-            {
-              field: "github_url",
-              placeholder: "https://github.com/username/repository",
-              descField: "github_description",
-              descPlaceholder: "Repository GitHub Utama",
-              label: "Link Repo GitHub (Utama)",
-              helperText: "Repository source code utama aplikasi.",
-              Icon: Github,
-              type: "GITHUB",
-              required: true,
-            },
-            {
-              field: "github_secondary_url",
-              placeholder: "https://github.com/username/repository-backend",
-              descField: "github_secondary_description",
-              descPlaceholder: "Repository GitHub Tambahan (FE/BE dipisah)",
-              label: "Link Repo GitHub (Opsional - FE/BE Terpisah)",
-              helperText:
-                "Opsional jika Anda memisahkan repository Frontend dan Backend.",
-              Icon: Github,
-              type: "GITHUB_SECONDARY",
-              required: false,
-            },
-            {
-              field: "deployment_url",
-              placeholder: "https://my-app.vercel.app",
-              descField: "deployment_description",
-              descPlaceholder: "Deployment / Live Website",
-              label: "Link Deployment / Live Website",
-              helperText: isFinalPhase
-                ? "Wajib diisi pada tahap pengumpulan karya final."
-                : "Opsional pada pengumpulan sementara, wajib saat pengumpulan karya final.",
-              Icon: Link2Icon,
-              type: "DEPLOYMENT",
-              required: isFinalPhase,
-              overrideInfo: isFinalPhase
-                ? "Wajib Saat Final"
-                : "Opsional Sementara",
-            },
-          ],
-        );
-      }
-
-      if (isUIA) {
-        configs.push(
-          ...[
-            {
-              field: "figma_url",
-              placeholder: "https://www.figma.com/design/...",
-              descField: "figma_description",
-              descPlaceholder: "Desain Figma",
-              label: "Link Desain Figma",
-              helperText: "Tautan file desain Figma proyek Anda.",
-              Icon: LayersIcon,
-              type: "FIGMA",
-              required: true,
-            },
-            {
-              field: "figma_prototype_url",
-              placeholder: "https://www.figma.com/proto/...",
-              descField: "figma_prototype_description",
-              descPlaceholder: "Prototipe Figma",
-              label: "Link Prototipe Figma",
-              helperText: isFinalPhase
-                ? "Wajib diisi pada tahap pengumpulan karya final."
-                : "Opsional pada pengumpulan sementara, wajib saat pengumpulan karya final.",
-              Icon: LayersIcon,
-              type: "FIGMA_PROTOTYPE",
-              required: isFinalPhase,
-              overrideInfo: isFinalPhase
-                ? "Wajib Saat Final"
-                : "Opsional Sementara",
-            },
-          ],
-        );
+    if (isWIA) {
+      configs.push(
+        ...[
+          {
+            field: "presentation_url",
+            placeholder: "https://docs.google.com/presentation/d/... atau link Canva/Drive",
+            descField: "presentation_description",
+            descPlaceholder: "File Presentasi (Slides/Canva)",
+            label: "Link File Presentasi (PowerPoint/Google Slides/Canva)",
+            helperText:
+              "Tautan slide presentasi karya. Pastikan hak akses diatur publik (Viewer) agar dapat diakses dewan juri.",
+            Icon: Presentation,
+            type: "PRESENTATION",
+            required: true,
+          },
+          {
+            field: "github_url",
+            placeholder: "https://github.com/username/repository",
+            descField: "github_description",
+            descPlaceholder: "Repository GitHub Utama",
+            label: "Link Repo GitHub (Utama)",
+            helperText: "Repository source code utama aplikasi.",
+            Icon: Github,
+            type: "GITHUB",
+            required: true,
+          },
+          {
+            field: "originality_statement_url",
+            placeholder: "https://drive.google.com/file/d/.../view",
+            descField: "originality_statement_description",
+            descPlaceholder: "Surat Keterangan Orisinil Karya Bermaterai 10.000",
+            label: "Link Surat Keterangan Orisinil Karya (Materai 10.000)",
+            helperText:
+              "Tautan Google Drive surat pernyataan orisinalitas karya bermaterai Rp 10.000 (Pastikan akses publik Viewer).",
+            Icon: FileCheck,
+            type: "ORIGINALITY_STATEMENT",
+            required: true,
+          },
+          {
+            field: "proposal_url",
+            placeholder: "https://docs.google.com/document/d/...",
+            descField: "proposal_description",
+            descPlaceholder: "Draft Proposal (Google Docs)",
+            label: "Link Draft Proposal (Google Docs)",
+            helperText: isFinalPhase
+              ? "Wajib diisi pada tahap pengumpulan karya final."
+              : "Opsional pada pengumpulan sementara, wajib saat pengumpulan karya final.",
+            Icon: FileTextIcon,
+            type: "PROPOSAL",
+            required: isFinalPhase,
+            overrideInfo: isFinalPhase
+              ? "Wajib Saat Final"
+              : "Opsional Sementara",
+          },
+          {
+            field: "github_secondary_url",
+            placeholder: "https://github.com/username/repository-backend",
+            descField: "github_secondary_description",
+            descPlaceholder: "Repository GitHub Tambahan (FE/BE dipisah)",
+            label: "Link Repo GitHub (Opsional - FE/BE Terpisah)",
+            helperText:
+              "Opsional jika Anda memisahkan repository Frontend dan Backend.",
+            Icon: Github,
+            type: "GITHUB_SECONDARY",
+            required: false,
+          },
+          {
+            field: "deployment_url",
+            placeholder: "https://my-app.vercel.app",
+            descField: "deployment_description",
+            descPlaceholder: "Deployment / Live Website",
+            label: "Link Deployment / Live Website",
+            helperText: isFinalPhase
+              ? "Wajib diisi pada tahap pengumpulan karya final."
+              : "Opsional pada pengumpulan sementara, wajib saat pengumpulan karya final.",
+            Icon: Link2Icon,
+            type: "DEPLOYMENT",
+            required: isFinalPhase,
+            overrideInfo: isFinalPhase
+              ? "Wajib Saat Final"
+              : "Opsional Sementara",
+          },
+        ],
+      );
+    } else if (isUIA) {
+      configs.push(
+        ...[
+          {
+            field: "proposal_url",
+            placeholder: "https://docs.google.com/document/d/...",
+            descField: "proposal_description",
+            descPlaceholder: "Draft Proposal (Google Docs)",
+            label: "Link Draft Proposal (Google Docs)",
+            helperText:
+              "Pastikan hak akses link Google Docs diatur ke publik / Siapa saja yang memiliki link (Viewer).",
+            Icon: FileTextIcon,
+            type: "PROPOSAL",
+            required: true,
+          },
+          {
+            field: "figma_url",
+            placeholder: "https://www.figma.com/design/...",
+            descField: "figma_description",
+            descPlaceholder: "Desain Figma",
+            label: "Link Desain Figma",
+            helperText: "Tautan file desain Figma proyek Anda.",
+            Icon: LayersIcon,
+            type: "FIGMA",
+            required: true,
+          },
+          {
+            field: "originality_statement_url",
+            placeholder: "https://drive.google.com/file/d/.../view",
+            descField: "originality_statement_description",
+            descPlaceholder: "Surat Keterangan Orisinil Karya Bermaterai 10.000",
+            label: "Link Surat Keterangan Orisinil Karya (Materai 10.000)",
+            helperText:
+              "Tautan Google Drive surat pernyataan orisinalitas karya bermaterai Rp 10.000 (Pastikan akses publik Viewer).",
+            Icon: FileCheck,
+            type: "ORIGINALITY_STATEMENT",
+            required: true,
+          },
+          {
+            field: "figma_prototype_url",
+            placeholder: "https://www.figma.com/proto/...",
+            descField: "figma_prototype_description",
+            descPlaceholder: "Prototipe Figma",
+            label: "Link Prototipe Figma",
+            helperText: isFinalPhase
+              ? "Wajib diisi pada tahap pengumpulan karya final."
+              : "Opsional pada pengumpulan sementara, wajib saat pengumpulan karya final.",
+            Icon: LayersIcon,
+            type: "FIGMA_PROTOTYPE",
+            required: isFinalPhase,
+            overrideInfo: isFinalPhase
+              ? "Wajib Saat Final"
+              : "Opsional Sementara",
+          },
+        ],
+      );
       }
     } else {
       configs.push({
@@ -751,12 +821,12 @@ export function SubmissionForm({
           <p className="text-xs text-mia-muted-2 mt-1 leading-relaxed">
             {isWIA
               ? isFinalPhase
-                ? "Pada fase final, Draft Proposal, Repo GitHub Utama, Deployment, dan Video YouTube wajib diisi."
-                : "Pada pengumpulan sementara, Draft Proposal dan Repo GitHub Utama wajib diisi. Deployment dan Video YouTube bersifat opsional dan wajib saat pengumpulan final."
+                ? "Pada fase final, File Presentasi, Repo GitHub Utama, Surat Orisinil (Materai 10k), Draft Proposal, Deployment, dan Video YouTube wajib diisi."
+                : "Pada pengumpulan sementara, File Presentasi, Repo GitHub Utama, dan Surat Keterangan Orisinil bermaterai wajib diisi. Draft Proposal, Deployment, dan Video YouTube wajib saat pengumpulan final."
               : isUIA
                 ? isFinalPhase
-                  ? "Pada fase final, Draft Proposal, Desain Figma, Prototipe Figma, dan Video YouTube wajib diisi."
-                  : "Pada pengumpulan sementara, Draft Proposal dan Desain Figma wajib diisi. Prototipe Figma dan Video YouTube bersifat opsional dan wajib saat pengumpulan final."
+                  ? "Pada fase final, Draft Proposal, Desain Figma, Surat Orisinil (Materai 10k), Prototipe Figma, dan Video YouTube wajib diisi."
+                  : "Pada pengumpulan sementara, Draft Proposal, Desain Figma, dan Surat Keterangan Orisinil bermaterai wajib diisi. Prototipe Figma dan Video YouTube wajib saat pengumpulan final."
                 : "Isi minimal satu link project (GitHub, YouTube, atau Link Lainnya)."}
           </p>
           {errors.links_required && (
