@@ -40,3 +40,20 @@ export function formatMediumShortDate(date) {
     return dateString;
   }
 }
+
+export function getMissionSubmissionStatus(mission) {
+  if (mission) {
+    const misStatusExpired = mission.status === "EXPIRED";
+    const subStatus = mission.my_submission?.status;
+    const dateExpired = isExpired(mission.deadline);
+
+    if (!subStatus && (misStatusExpired || dateExpired)) return "expired";
+    else if (!subStatus && !misStatusExpired && !dateExpired) return "available";
+    else if (subStatus === "PENDING") return "pending";
+    else if (subStatus === "APPROVED") return "approved";
+    else if (subStatus === "REJECTED") return "rejected";
+    else return "error";
+  }
+
+  return "error";
+}

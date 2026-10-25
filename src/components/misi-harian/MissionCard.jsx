@@ -12,11 +12,67 @@ import {
   ExternalLink,
   UploadCloud,
 } from "lucide-react";
-import { cn, formatDeadline, isExpired } from "@/lib/utils";
+import {
+  cn,
+  formatDeadline,
+  getMissionSubmissionStatus,
+  isExpired,
+} from "@/lib/utils";
+
+const missionStatusConfig = {
+  approved: {
+    style: "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30",
+    icon: CheckCircle2,
+    text: "Disetujui",
+  },
+  pending: {
+    style: "bg-amber-500/15 text-amber-400 border border-amber-500/30",
+    icon: Clock3,
+    text: "Review",
+  },
+  rejected: {
+    style: "bg-[#E01C20]/15 text-[#E01C20] border border-[#E01C20]/30",
+    icon: XCircle,
+    text: "Ditolak",
+  },
+  available: {
+    style: "bg-blue-500/15 text-blue-400 border border-blue-500/30 font-medium",
+    icon: null,
+    text: "Tersedia",
+  },
+  expired: {
+    style: "bg-white/5 border border-white/10 text-[#AAB1BD] font-medium",
+    icon: null,
+    text: "Kadaluarsa",
+  },
+  error: {
+    style: "bg-black/15 text-white border border-white/30",
+    icon: XCircle,
+    text: "ERROR",
+  },
+};
+
+function MissionSubmissionTag({ status }) {
+  const { style, icon: Icon, text } = missionStatusConfig[status] ?? missionStatusConfig["error"];
+
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold",
+        style,
+      )}
+    >
+      {Icon && <Icon className="h-3 w-3" />}
+
+      {text}
+    </span>
+  );
+}
 
 export function MissionCard({ mission, onOpenDetail, onOpenSubmit }) {
   const sub = mission.my_submission;
-  const expired = isExpired(mission.deadline);
+  const dateExpired = isExpired(mission.deadline);
+  const subStatus = getMissionSubmissionStatus(mission);
 
   return (
     <div
@@ -30,10 +86,10 @@ export function MissionCard({ mission, onOpenDetail, onOpenSubmit }) {
             <Clock
               className={cn(
                 "h-3.5 w-3.5 text-[#FED700]",
-                expired && "text-red-500",
+                dateExpired && "text-red-500",
               )}
             />
-            <span className={cn(expired && "text-red-400")}>
+            <span className={cn(dateExpired && "text-red-400")}>
               Deadline: {formatDeadline(mission.deadline, "short")}
             </span>
           </div>
@@ -50,34 +106,7 @@ export function MissionCard({ mission, onOpenDetail, onOpenSubmit }) {
               </span>
             )}
 
-            {sub?.status === "APPROVED" && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                <CheckCircle2 className="h-3 w-3" />
-                <span>Disetujui</span>
-              </span>
-            )}
-            {sub?.status === "PENDING" && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/30">
-                <Clock3 className="h-3 w-3" />
-                <span>Review</span>
-              </span>
-            )}
-            {sub?.status === "REJECTED" && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#E01C20]/15 text-[#E01C20] border border-[#E01C20]/30">
-                <XCircle className="h-3 w-3" />
-                <span>Ditolak</span>
-              </span>
-            )}
-            {!sub && expired && (
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-white/5 border border-white/10 text-[#AAB1BD]">
-                Kadaluarsa
-              </span>
-            )}
-            {!sub && !expired && (
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-500/15 text-blue-400 border border-blue-500/30">
-                Tersedia
-              </span>
-            )}
+            <MissionSubmissionTag status={subStatus} />
           </div>
         </div>
 
@@ -136,7 +165,7 @@ export function MissionCard({ mission, onOpenDetail, onOpenSubmit }) {
         </div>
 
         {/* Admin Review Result Box (If Approved / Rejected) */}
-        {sub?.status === "APPROVED" && (
+        {subStatus === "approved" && (
           <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs space-y-1">
             <div className="flex items-center justify-between font-semibold text-emerald-400">
               <span>Hadiah diperoleh:</span>
@@ -152,7 +181,7 @@ export function MissionCard({ mission, onOpenDetail, onOpenSubmit }) {
           </div>
         )}
 
-        {sub?.status === "REJECTED" && (
+        {subStatus === "rejected" && (
           <div className="p-3 rounded-xl bg-[#E01C20]/10 border border-[#E01C20]/20 text-xs space-y-1">
             <p className="font-semibold text-red-400">Pengumpulan ditolak</p>
             {sub.admin_feedback && (
@@ -186,7 +215,7 @@ export function MissionCard({ mission, onOpenDetail, onOpenSubmit }) {
           )}
 
           {/* Submit / Status Button */}
-          {sub?.status === "APPROVED" ? (
+          {subStatus === "approved" ? (
             <button
               disabled
               onClick={(e) => e.stopPropagation()}
@@ -195,7 +224,7 @@ export function MissionCard({ mission, onOpenDetail, onOpenSubmit }) {
               <CheckCircle2 className="h-4 w-4" />
               <span>Misi Selesai</span>
             </button>
-          ) : sub?.status === "PENDING" && !expired ? (
+          ) : subStatus === "pending" && !dateExpired ? (
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -209,7 +238,7 @@ export function MissionCard({ mission, onOpenDetail, onOpenSubmit }) {
               <UploadCloud className="h-4 w-4" />
               <span>Edit Pengumpulan</span>
             </button>
-          ) : sub?.status === "REJECTED" && !expired ? (
+          ) : subStatus === "rejected" && !dateExpired ? (
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -220,7 +249,7 @@ export function MissionCard({ mission, onOpenDetail, onOpenSubmit }) {
               <UploadCloud className="h-4 w-4 text-white" />
               <span>Kirim Ulang Tugas</span>
             </button>
-          ) : expired ? (
+          ) : dateExpired ? (
             <button
               disabled
               onClick={(e) => e.stopPropagation()}
