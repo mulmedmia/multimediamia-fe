@@ -23,10 +23,12 @@ import {
   Sparkles,
   Copy,
   Info,
+  ImageIcon,
 } from "lucide-react";
 import { SubmissionForm } from "@/components/forms/SubmissionForm";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { getSafeImageUrl } from "@/lib/image-loader";
 
 import { getMySubmissions } from "@/services/submission.service";
 import { getRegistrationById } from "@/services/competition.service";
@@ -1074,6 +1076,24 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                               )}
                             </div>
                           </div>
+
+                          {/* Thumbnail Karya jika ada */}
+                          {(sub.thumbnail_url || sub.thumbnail) && (
+                            <div className="p-4 bg-input/20 border border-border/30 rounded-xl space-y-2 text-xs sm:text-sm">
+                              <span className="font-semibold text-muted-foreground flex items-center gap-1.5">
+                                <ImageIcon className="h-4 w-4 text-[#FED700]" />
+                                <span>Thumbnail Karya:</span>
+                              </span>
+                              <div className="relative aspect-video max-w-xs sm:max-w-sm w-full rounded-xl overflow-hidden border border-border/40 bg-black/40 shadow-inner group">
+                                <img
+                                  src={getSafeImageUrl(sub.thumbnail_url || sub.thumbnail)}
+                                  alt={`Thumbnail Karya ${sub.project_name}`}
+                                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                  loading="lazy"
+                                />
+                              </div>
+                            </div>
+                          )}
 
                           {/* Description & Flow Application */}
                           <div className="p-4 bg-input/20 border border-border/30 rounded-xl space-y-3 text-xs sm:text-sm min-w-0">

@@ -51,7 +51,7 @@ export function LinkTypeIcon({ linkType = "", className = "" }) {
   );
 }
 
-export function getTopSubmissionLinks(n = 10, submissionLinks = []) {
+export function getTopSubmissionLinks(n = 15, submissionLinks = []) {
   let topN = [];
 
   if (Array.isArray(submissionLinks)) {

@@ -24,8 +24,10 @@ import {
   ArrowRight,
   Search,
   X,
+  ImageIcon,
 } from "lucide-react";
-import YouTubePreview from "@/components/common/YouTubePreview";
+import { getSafeImageUrl } from "@/lib/image-loader";
+import { getYouTubeVideoId } from "@/lib/youtube";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { getRankBadgeColor } from "@/components/leaderboard/RankIcon";
@@ -46,6 +48,22 @@ function getStatusBadge({ status }) {
     default:
       return "bg-[#1E2939] text-[#AAB1BD] border border-white/10";
   }
+}
+
+function getSubmissionThumbnail(submission) {
+  const directThumbnail = submission?.thumbnail_url || submission?.thumbnail;
+  if (directThumbnail) return getSafeImageUrl(directThumbnail);
+
+  // Fallback ke thumbnail YouTube jika ada link video
+  const ytLink =
+    submission?.links?.find((l) => l?.link_type?.toUpperCase() === "YOUTUBE")?.url ||
+    submission?.links?.find((l) => l?.url?.includes("youtu"))?.url;
+  if (ytLink) {
+    const videoId = getYouTubeVideoId(ytLink);
+    if (videoId) return `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+  }
+
+  return null;
 }
 
 function ShowItSelectItem({ value = "", content = "" }) {
@@ -162,10 +180,6 @@ function ShowItContent() {
   };
 
   const handleSubmissionClick = (submissionId) => {
-    sessionStorage.setItem(
-      "previousShowIt",
-      `/show-it?${searchParams.toString()}`,
-    );
     router.push(`/show-it/${submissionId}`);
   };
 
@@ -407,13 +421,29 @@ function ShowItContent() {
                   className="mia-card p-6 flex flex-col justify-between hover:border-[#E01C20]/60 hover:shadow-[0_0_30px_rgba(224,28,32,0.15)] transition-all duration-300 group cursor-pointer"
                 >
                   <div className="space-y-4">
-                    {/* Preview YouTube (Dapat di-play langsung) */}
-                    <YouTubePreview
-                      submission={submission}
-                      title={`Video Karya ${submission.project_name}`}
-                      showFallback={false}
-                      className="rounded-xl border border-white/10"
-                    />
+                    {/* Thumbnail Karya */}
+                    {(() => {
+                      const thumbUrl = getSubmissionThumbnail(submission);
+                      return (
+                        <div className="relative aspect-video w-full rounded-xl overflow-hidden bg-[#141824] border border-white/10 group-hover:border-[#E01C20]/40 transition-all duration-300 shadow-inner flex items-center justify-center">
+                          {thumbUrl ? (
+                            <img
+                              src={thumbUrl}
+                              alt={submission.project_name || "Thumbnail Karya"}
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex flex-col items-center justify-center text-[#AAB1BD] p-4 bg-gradient-to-br from-[#1E2939]/40 to-[#0F131E]/60 group-hover:bg-[#1E2939]/60 transition-colors">
+                              <ImageIcon className="w-10 h-10 text-[#FED700]/50 mb-2 group-hover:scale-110 transition-transform" />
+                              <span className="text-xs text-[#99A1AF] font-medium text-center line-clamp-1">
+                                {submission.project_name}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
 
                     {/* Header & Status */}
                     <div className="flex flex-col gap-1.5">
