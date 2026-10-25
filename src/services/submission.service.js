@@ -28,10 +28,11 @@ export const getSubmissionsByCategoryId = async (categoryId, registrationId = nu
  */
 export const createSubmission = async (submissionData) => {
   try {
+    const isFormData = submissionData instanceof FormData;
     const response = await api.post("/submissions", submissionData, {
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: isFormData
+        ? { "Content-Type": "multipart/form-data" }
+        : { "Content-Type": "application/json" },
     });
     return response.data;
   } catch (error) {
@@ -55,14 +56,16 @@ export const getMySubmissions = async (page = 1, limit = 10, registrationId = nu
 
 export const updateSubmission = async (submissionId, submissionData) => {
   try {
+    const isFormData = submissionData instanceof FormData;
     const response = await api.patch(
       `/submissions/${submissionId}`,
-      submissionData
+      submissionData,
+      isFormData ? { headers: { "Content-Type": "multipart/form-data" } } : {}
     );
     return response.data.data;
   } catch (error) {
     console.error("Gagal mengupdate submission:", error);
-    throw error;
+    throw error.response?.data || error;
   }
 };
 

@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
   Link2Icon,
@@ -25,7 +25,7 @@ import {
 } from "@radix-ui/react-icons";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "../ui/textarea";
-import { Github, Presentation, FileCheck } from "lucide-react";
+import { Github, Presentation, FileCheck, Upload, ImageIcon } from "lucide-react";
 
 // !!! Asumsikan zod object punya `keys` yang sama dengan yang dilempar oleh Backend
 // Schema dinamis berdasarkan team type, kategori, dan fase deadline
@@ -67,7 +67,9 @@ const createSubmissionSchema = (teamType, categorySlug, isFinalPhase) => {
       originality_statement_url: z
         .string()
         .min(1, { message: "Link drive surat keterangan orisinil karya bermaterai 10.000 wajib diisi." })
-        .url({ message: "Harap masukkan format URL surat keterangan orisinil yang valid." }),
+        .url({ message: "Harap masukkan format URL surat keterangan orisinil yang valid." })
+        .optional()
+        .or(z.literal("")),
       originality_statement_description: z.string().optional(),
       proposal_url: isFinalPhase
         ? z
@@ -104,7 +106,7 @@ const createSubmissionSchema = (teamType, categorySlug, isFinalPhase) => {
         ? z
             .string()
             .min(1, {
-              message: "Link video demo YouTube wajib diisi pada fase final.",
+              message: "Link video pitching YouTube wajib diisi pada fase final.",
             })
             .url({ message: "Harap masukkan URL YouTube yang valid." })
         : z
@@ -155,7 +157,9 @@ const createSubmissionSchema = (teamType, categorySlug, isFinalPhase) => {
       originality_statement_url: z
         .string()
         .min(1, { message: "Link drive surat keterangan orisinil karya bermaterai 10.000 wajib diisi." })
-        .url({ message: "Harap masukkan format URL surat keterangan orisinil yang valid." }),
+        .url({ message: "Harap masukkan format URL surat keterangan orisinil yang valid." })
+        .optional()
+        .or(z.literal("")),
       originality_statement_description: z.string().optional(),
       figma_prototype_url: isFinalPhase
         ? z
@@ -177,7 +181,7 @@ const createSubmissionSchema = (teamType, categorySlug, isFinalPhase) => {
         ? z
             .string()
             .min(1, {
-              message: "Link video demo YouTube wajib diisi pada fase final.",
+              message: "Link video pitching YouTube wajib diisi pada fase final.",
             })
             .url({ message: "Harap masukkan URL YouTube yang valid." })
         : z
@@ -397,7 +401,10 @@ export function SubmissionForm({
               "Tautan Google Drive surat pernyataan orisinalitas karya bermaterai Rp 10.000 (Pastikan akses publik Viewer).",
             Icon: FileCheck,
             type: "ORIGINALITY_STATEMENT",
-            required: true,
+            required: isFinalPhase,
+            overrideInfo: isFinalPhase
+              ? "Wajib Saat Final"
+              : "Opsional Sementara",
           },
           {
             field: "proposal_url",
@@ -420,12 +427,13 @@ export function SubmissionForm({
             placeholder: "https://github.com/username/repository-backend",
             descField: "github_secondary_description",
             descPlaceholder: "Repository GitHub Tambahan (FE/BE dipisah)",
-            label: "Link Repo GitHub (Opsional - FE/BE Terpisah)",
+            label: "Link Repo GitHub",
             helperText:
               "Opsional jika Anda memisahkan repository Frontend dan Backend.",
             Icon: Github,
             type: "GITHUB_SECONDARY",
             required: false,
+            overrideInfo: "Opsional - FE/BE Terpisah",
           },
           {
             field: "deployment_url",
@@ -481,7 +489,9 @@ export function SubmissionForm({
               "Tautan Google Drive surat pernyataan orisinalitas karya bermaterai Rp 10.000 (Pastikan akses publik Viewer).",
             Icon: FileCheck,
             type: "ORIGINALITY_STATEMENT",
-            required: true,
+            overrideInfo: isFinalPhase
+              ? "Wajib Saat Final"
+              : "Opsional Sementara",
           },
           {
             field: "figma_prototype_url",
@@ -522,8 +532,8 @@ export function SubmissionForm({
           placeholder:
             "https://youtube.com/watch?v=... atau https://youtu.be/...",
           descField: "youtube_description",
-          descPlaceholder: "Video Demo Aplikasi YouTube",
-          label: "Link Video Demo YouTube",
+          descPlaceholder: "Video Pitching Aplikasi YouTube",
+          label: "Link Video Pitching YouTube",
           helperText: isFinalPhase
             ? "Wajib diisi pada tahap pengumpulan karya final."
             : "Opsional pada pengumpulan sementara, wajib saat pengumpulan karya final.",
@@ -593,6 +603,41 @@ export function SubmissionForm({
     mode: "onChange",
   });
 
+  const [thumbnailFile, setThumbnailFile] = useState(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState(
+    editingSubmission?.thumbnail_url || editingSubmission?.thumbnail || null,
+  );
+  const [thumbnailError, setThumbnailError] = useState("");
+
+  useEffect(() => {
+    if (editingSubmission) {
+      setThumbnailPreview(
+        editingSubmission.thumbnail_url || editingSubmission.thumbnail || null,
+      );
+      setThumbnailFile(null);
+      setThumbnailError("");
+    }
+  }, [editingSubmission]);
+
+  const handleThumbnailChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith("image/")) {
+        setThumbnailError("File harus berupa gambar (JPG, PNG, atau WEBP)");
+        toast.error("File harus berupa gambar (JPG, PNG, atau WEBP)");
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        setThumbnailError("Ukuran file gambar maksimal 5MB");
+        toast.error("Ukuran file gambar maksimal 5MB");
+        return;
+      }
+      setThumbnailError("");
+      setThumbnailFile(file);
+      setThumbnailPreview(URL.createObjectURL(file));
+    }
+  };
+
   // Effect untuk reset form ketika data atau teamType berubah
   useEffect(() => {
     if (registration) {
@@ -656,20 +701,55 @@ export function SubmissionForm({
       }
     }
 
+    // Validasi thumbnail karya wajib diunggah
+    const hasThumbnail =
+      thumbnailFile ||
+      editingSubmission?.thumbnail_url ||
+      editingSubmission?.thumbnail;
+
+    if (!hasThumbnail) {
+      setThumbnailError("Thumbnail karya wajib diunggah.");
+      toast.error("Thumbnail karya wajib diunggah.");
+      const thumbEl = document.getElementById("thumbnail-upload-container");
+      if (thumbEl) {
+        thumbEl.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      return;
+    }
+
     // Prepare submission payload
-    // Sesuai schema backend baru: category_id dan team_name dihapus, registration_id wajib
-    const submissionPayload = {
-      registration_id: registrationId,
-      project_name: data.project_name,
-      description: data.description,
-      flow_application:
+    // Sesuai schema backend: category_id dan team_name dihapus, registration_id wajib
+    if (thumbnailFile) {
+      const formData = new FormData();
+      formData.append("registration_id", registrationId);
+      formData.append("project_name", data.project_name);
+      formData.append("description", data.description);
+      formData.append(
+        "flow_application",
         teamType === "GROUP"
           ? data.flow_application || ""
           : "N/A - Individual Participant",
-      links: links,
-    };
-
-    mutation.mutate(submissionPayload);
+      );
+      formData.append("links", JSON.stringify(links));
+      formData.append("thumbnail", thumbnailFile);
+      mutation.mutate(formData);
+    } else {
+      const submissionPayload = {
+        registration_id: registrationId,
+        project_name: data.project_name,
+        description: data.description,
+        flow_application:
+          teamType === "GROUP"
+            ? data.flow_application || ""
+            : "N/A - Individual Participant",
+        links: links,
+      };
+      if (editingSubmission?.thumbnail_url || editingSubmission?.thumbnail) {
+        submissionPayload.thumbnail_url =
+          editingSubmission.thumbnail_url || editingSubmission.thumbnail;
+      }
+      mutation.mutate(submissionPayload);
+    }
   };
 
   if (isLoadingRegistration) {
@@ -757,6 +837,88 @@ export function SubmissionForm({
             )}
           />
           <InputError fieldError={errors.description} />
+        </div>
+
+        {/* Thumbnail Karya (Gambar Pratinjau Show It) */}
+        <div id="thumbnail-upload-container" className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label
+              htmlFor="thumbnail-upload"
+              className="block text-sm font-semibold text-foreground"
+            >
+              Thumbnail Karya
+            </Label>
+          </div>
+
+          <div
+            className={cn(
+              "flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 rounded-xl border bg-input/20 transition-all",
+              thumbnailError
+                ? "border-destructive bg-destructive/5"
+                : "border-border/40",
+            )}
+          >
+            {thumbnailPreview ? (
+              <div className="relative aspect-video w-full sm:w-44 rounded-lg overflow-hidden border border-white/10 bg-black/50 flex-shrink-0 group">
+                <img
+                  src={thumbnailPreview}
+                  alt="Thumbnail Karya Preview"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            ) : (
+              <div
+                className={cn(
+                  "aspect-video w-full sm:w-44 rounded-lg border border-dashed flex flex-col items-center justify-center text-muted-foreground flex-shrink-0 gap-1.5 p-3",
+                  thumbnailError
+                    ? "border-destructive/60 bg-destructive/10"
+                    : "border-border/60 bg-white/[0.02]",
+                )}
+              >
+                <ImageIcon
+                  className={cn(
+                    "h-6 w-6 opacity-40",
+                    thumbnailError ? "text-destructive" : "text-[#FED700]",
+                  )}
+                />
+                <span className="text-[10px] opacity-60">16 : 9 Ratio</span>
+              </div>
+            )}
+
+            <div className="flex-1 min-w-0 space-y-2">
+              <input
+                id="thumbnail-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleThumbnailChange}
+                className="hidden"
+              />
+              <label
+                htmlFor="thumbnail-upload"
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-border/50 bg-input/40 hover:bg-input/60 text-xs font-semibold text-foreground cursor-pointer transition-colors shadow-sm"
+              >
+                <Upload className="h-4 w-4 text-[#FED700]" />
+                <span>
+                  {thumbnailPreview
+                    ? "Ganti Thumbnail Karya"
+                    : "Unggah Thumbnail Karya *"}
+                </span>
+              </label>
+              <div className="space-y-0.5">
+                <p className="text-[11px] text-muted-foreground">
+                  Format JPG, PNG, atau WEBP. Maksimal file 5MB. Rasio 16:9 disarankan.
+                </p>
+                <p className="text-[10px] text-muted-foreground/70">
+                  Thumbnail karya akan ditampilkan pada galeri Show It saat masa Final Submission Babak Penyisihan.
+                </p>
+              </div>
+            </div>
+          </div>
+          {thumbnailError && (
+            <p className="text-xs text-destructive mt-1 font-medium">
+              {thumbnailError}
+            </p>
+          )}
         </div>
 
         {/* Flow Aplikasi - Hanya tampil untuk GROUP */}
