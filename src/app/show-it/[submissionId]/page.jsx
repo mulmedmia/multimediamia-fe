@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
 import {
   ArrowLeft,
   Trophy,
@@ -9,19 +8,22 @@ import {
   Link2,
   CheckCircle2,
   XCircle,
-  LinkIcon,
   ExternalLink,
   Sparkles,
   Calendar,
+  ImageIcon,
+  Video,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getSafeImageUrl } from "@/lib/image-loader";
 import YouTubePreview from "@/components/common/YouTubePreview";
 import { LinkTypeIcon, normalizeLinkType } from "@/components/LinTypekIcon";
 import { useSubmissionDetail } from "@/hooks/user-use-submissions";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 export default function SubmissionDetailPage(props) {
   const params = useParams();
+  const router = useRouter();
   const submissionId = params?.submissionId;
 
   const {
@@ -35,12 +37,16 @@ export default function SubmissionDetailPage(props) {
     ? error.response?.data?.message || "Gagal mengambil data submission"
     : null;
 
-  const [returnTo, setReturnTo] = useState("/show-it");
+  const [activeMedia, setActiveMedia] = useState("video");
 
-  useEffect(() => {
-    const sessionItem = sessionStorage.getItem("previousShowIt");
-    if (sessionItem?.startsWith("/show-it")) setReturnTo(sessionItem);
-  }, []);
+  const thumbnailUrl = submission?.thumbnail_url || submission?.thumbnail;
+  const hasYouTube = Boolean(
+    submission?.links?.some(
+      (l) =>
+        l?.link_type?.toUpperCase() === "YOUTUBE" ||
+        l?.url?.includes("youtu"),
+    ),
+  );
 
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
@@ -105,14 +111,13 @@ export default function SubmissionDetailPage(props) {
                   "Karya yang Anda cari tidak ditemukan atau mungkin belum disetujui."}
               </p>
             </div>
-            <Link
-              href={returnTo}
-              onNavigate={onNavigate}
+            <button
+              onClick={() => router.back()}
               className="mia-btn-secondary px-6 py-2.5 text-sm inline-flex items-center gap-2 cursor-pointer transition-all"
             >
               <ArrowLeft className="h-4 w-4" />
               <span>Kembali ke Show It</span>
-            </Link>
+            </button>
           </div>
         </div>
       </main>
@@ -124,14 +129,13 @@ export default function SubmissionDetailPage(props) {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl space-y-6 md:space-y-8">
         {/* Back Button */}
         <div>
-          <Link
-            href={returnTo}
-            onNavigate={onNavigate}
+          <button
+            onClick={() => router.back()}
             className="mia-btn-secondary px-4 py-2 text-xs md:text-sm inline-flex items-center gap-2 cursor-pointer transition-all"
           >
             <ArrowLeft className="h-4 w-4" />
             <span>Kembali ke Galeri</span>
-          </Link>
+          </button>
         </div>
 
         {/* Header Section - Split into 2 Cards with Larger Video (5:7 ratio on desktop) */}
@@ -228,15 +232,81 @@ export default function SubmissionDetailPage(props) {
             </div>
           </div>
 
-          {/* Right Card - Larger Video Preview */}
+          {/* Right Card - Larger Video Preview / Artwork Media */}
           <div className="lg:col-span-7 mia-card p-3 sm:p-4 md:p-5 flex flex-col justify-center overflow-hidden shadow-2xl">
-            <YouTubePreview
-              submission={submission}
-              title={`Video Karya ${submission.project_name}`}
-              showFallback={true}
-              fallbackText="Video presentasi tidak disematkan oleh peserta"
-              className="rounded-xl border border-white/10"
-            />
+            {thumbnailUrl && hasYouTube ? (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b border-white/10">
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setActiveMedia("video")}
+                      className={cn(
+                        "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all inline-flex items-center gap-1.5 cursor-pointer",
+                        activeMedia === "video"
+                          ? "bg-mia-red text-white shadow-md shadow-red-950/40"
+                          : "bg-white/5 text-mia-muted hover:text-white hover:bg-white/10",
+                      )}
+                    >
+                      <Video className="h-3.5 w-3.5" />
+                      <span>Video Pitching</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveMedia("thumbnail")}
+                      className={cn(
+                        "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all inline-flex items-center gap-1.5 cursor-pointer",
+                        activeMedia === "thumbnail"
+                          ? "bg-mia-red text-white shadow-md shadow-red-950/40"
+                          : "bg-white/5 text-mia-muted hover:text-white hover:bg-white/10",
+                      )}
+                    >
+                      <ImageIcon className="h-3.5 w-3.5" />
+                      <span>Thumbnail Karya</span>
+                    </button>
+                  </div>
+                </div>
+
+                {activeMedia === "video" ? (
+                  <YouTubePreview
+                    submission={submission}
+                    title={`Video Karya ${submission.project_name}`}
+                    showFallback={true}
+                    fallbackText="Video presentasi tidak disematkan oleh peserta"
+                    className="rounded-xl border border-white/10"
+                    overrideThumbnailUrl={getSafeImageUrl(thumbnailUrl)}
+                  />
+                ) : (
+                  <div className="relative aspect-video w-full rounded-xl overflow-hidden bg-black/90 border border-white/10 shadow-inner group">
+                    <img
+                      src={getSafeImageUrl(thumbnailUrl)}
+                      alt={`Thumbnail Karya ${submission.project_name}`}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                  </div>
+                )}
+              </div>
+            ) : thumbnailUrl ? (
+              <div className="space-y-2">
+                <div className="relative aspect-video w-full rounded-xl overflow-hidden bg-black/90 border border-white/10 shadow-inner group">
+                  <img
+                    src={getSafeImageUrl(thumbnailUrl)}
+                    alt={`Thumbnail Karya ${submission.project_name}`}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+            ) : (
+              <YouTubePreview
+                submission={submission}
+                title={`Video Karya ${submission.project_name}`}
+                showFallback={true}
+                fallbackText="Video presentasi tidak disematkan oleh peserta"
+                className="rounded-xl border border-white/10"
+              />
+            )}
           </div>
         </div>
 

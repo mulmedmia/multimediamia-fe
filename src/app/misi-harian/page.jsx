@@ -24,7 +24,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { toast } from "sonner";
-import { isExpired } from "@/lib/utils";
+import { getMissionSubmissionStatus } from "@/lib/utils";
 
 export default function MisiHarianPage() {
   const { user, loading: authLoading } = useAuthContext();
@@ -141,26 +141,9 @@ export default function MisiHarianPage() {
 
       if (!matchesSearch) return false;
 
-      const subStatus = mission.my_submission?.status;
-      const expired = isExpired(mission.deadline);
-
-      if (activeTab === "available") {
-        return !subStatus && !expired;
-      }
-      if (activeTab === "pending") {
-        return subStatus === "PENDING";
-      }
-      if (activeTab === "approved") {
-        return subStatus === "APPROVED";
-      }
-      if (activeTab === "rejected") {
-        return subStatus === "REJECTED";
-      }
-      if (activeTab === "expired") {
-        return expired && !subStatus;
-      }
-
-      return true;
+      return activeTab === "all"
+        ? true
+        : activeTab === getMissionSubmissionStatus(mission);
     });
   }, [missions, searchQuery, activeTab]);
 
