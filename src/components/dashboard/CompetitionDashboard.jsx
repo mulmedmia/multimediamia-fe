@@ -31,7 +31,6 @@ import { cn } from "@/lib/utils";
 import { getSafeImageUrl } from "@/lib/image-loader";
 
 import { getMySubmissions } from "@/services/submission.service";
-import { getRegistrationById } from "@/services/competition.service";
 import { useGenerateReferralCode } from "@/hooks/use-referral";
 import { EditTeamModal } from "./EditTeamModal";
 import { EditSubmissionModal } from "./EditSubmissionModal";
@@ -1151,7 +1150,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                           )}
 
                           {/* Feedback Panitia / Admin */}
-                          {sub.status === "pending" && sub.admin_feedback && (
+                          {sub.status !== "approved" && sub.admin_feedback && (
                             <div className="p-4 bg-amber-500/10 border border-amber-500/25 rounded-2xl space-y-1">
                               <p className="text-xs font-bold text-amber-400 flex items-center gap-1.5 uppercase tracking-wider">
                                 Feedback Panitia:
