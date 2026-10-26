@@ -37,7 +37,7 @@ export function formatMediumShortDate(date) {
       timeStyle: "short",
     });
   } catch {
-    return dateString;
+    return String(date);
   }
 }
 
