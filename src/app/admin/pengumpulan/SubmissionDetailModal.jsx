@@ -112,7 +112,7 @@ export default function SubmissionDetailModal({ open, onClose, data }) {
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent
         onOpenAutoFocus={(e) => e.preventDefault()}
-        className="bg-[#0A0D14] border border-border/50 text-[#FFF9F5] max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl p-6 shadow-2xl"
+        className="bg-[#0A0D14] border border-border/50 text-[#FFF9F5] sm:max-w-xl max-h-[90vh] overflow-y-auto rounded-2xl p-6 shadow-2xl"
       >
         <DialogHeader className="space-y-1">
           <DialogTitle className="text-lg sm:text-xl font-bold flex items-center gap-2.5 text-foreground">
@@ -242,7 +242,7 @@ export default function SubmissionDetailModal({ open, onClose, data }) {
           <div className="bg-[#0F121A]/90 border border-border/40 rounded-xl p-4 space-y-3">
             <h3 className="text-xs sm:text-sm font-semibold text-foreground flex items-center gap-2 pb-1 border-b border-border/30">
               <Link2 className="h-4 w-4 text-[#E01C20]" />
-              <span>Tautan Lampiran & Berkas Karya</span>
+              <span>Tautan Lampiran & Berkas</span>
             </h3>
             {data?.links && data.links.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -251,7 +251,7 @@ export default function SubmissionDetailModal({ open, onClose, data }) {
                     key={link.id || link.link_id || link.url}
                     className="p-3 bg-white/[0.03] border border-border/30 rounded-xl text-xs space-y-1"
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2">
                       <span className="font-semibold text-foreground uppercase tracking-wider text-[10px] bg-white/[0.06] px-2 py-0.5 rounded-md">
                         {getLinkTypeLabel(link.link_type || link.type)}
                       </span>
