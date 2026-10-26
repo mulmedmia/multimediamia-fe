@@ -85,11 +85,11 @@ export default function SubmissionStatusModal({
                 setStatus(val);
                 if (val !== "APPROVED") {
                   setIsVerified(false);
-                }
-                if (val !== "PENDING") {
+                  if (data?.admin_feedback && !admin_feedback) {
+                    setAdminFeedback(data.admin_feedback);
+                  }
+                } else {
                   setAdminFeedback("");
-                } else if (data?.admin_feedback) {
-                  setAdminFeedback(data.admin_feedback);
                 }
               }}
             >
@@ -146,7 +146,7 @@ export default function SubmissionStatusModal({
           {/* Feedback Admin / Panitia */}
           <div
             className={`space-y-2 p-3.5 rounded-xl border transition-colors ${
-              status === "PENDING"
+              status !== "APPROVED"
                 ? "bg-white/[0.02] border-border/30"
                 : "bg-white/[0.01] border-border/20 opacity-60"
             }`}
@@ -155,37 +155,37 @@ export default function SubmissionStatusModal({
               <Label
                 htmlFor="admin_feedback"
                 className={`text-xs font-medium ${
-                  status === "PENDING" ? "text-foreground" : "text-muted-foreground cursor-not-allowed"
+                  status !== "APPROVED" ? "text-foreground" : "text-muted-foreground cursor-not-allowed"
                 }`}
               >
                 Feedback Panitia
               </Label>
-              {status === "PENDING" ? (
+              {status !== "APPROVED" ? (
                 <span className="text-[10px] text-muted-foreground">Opsional</span>
               ) : (
-                <span className="text-[10px] text-amber-400 font-medium">Khusus PENDING</span>
+                <span className="text-[10px] text-amber-400 font-medium">Khusus Non-APPROVED</span>
               )}
             </div>
             <Textarea
               id="admin_feedback"
               placeholder={
-                status === "PENDING"
-                  ? "Berikan catatan evaluasi atau instruksi perbaikan untuk peserta... Misal: link repository belum public / tidak dapat diakses"
-                  : "Feedback panitia hanya dapat diisi jika status evaluasi karya adalah PENDING."
+                status !== "APPROVED"
+                  ? "Berikan catatan evaluasi, instruksi perbaikan, atau alasan jika ditolak/revisi... Misal: link yang dikumpulkan tidak dapat dibuka"
+                  : "Feedback panitia tidak dapat diisi jika status evaluasi karya adalah APPROVED."
               }
-              value={status === "PENDING" ? admin_feedback || "" : ""}
+              value={status !== "APPROVED" ? admin_feedback || "" : ""}
               onChange={(e) => {
-                if (status === "PENDING") {
+                if (status !== "APPROVED") {
                   setAdminFeedback(e.target.value);
                 }
               }}
-              disabled={status !== "PENDING"}
+              disabled={status === "APPROVED"}
               rows={3}
               className="bg-input/40 border-border/50 rounded-xl text-xs text-foreground placeholder:text-muted-foreground/60 resize-none focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50"
             />
-            {status !== "PENDING" && (
+            {status === "APPROVED" && (
               <p className="text-[11px] text-amber-400 font-medium">
-                * Feedback panitia hanya dapat diberikan jika status evaluasi karya adalah PENDING.
+                * Feedback panitia hanya dapat diberikan jika status evaluasi karya bukan APPROVED (PENDING, REVISION, atau REJECTED).
               </p>
             )}
           </div>

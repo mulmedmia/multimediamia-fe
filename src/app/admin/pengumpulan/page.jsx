@@ -207,7 +207,7 @@ export default function AdminPengumpulanPage() {
     const initialStatus = sub.status || "PENDING";
     setCurrentStatus(initialStatus);
     setCurrentIsVerified(initialStatus === "APPROVED" ? Boolean(sub.is_verified) : false);
-    setCurrentAdminFeedback(initialStatus === "PENDING" ? sub.admin_feedback || "" : "");
+    setCurrentAdminFeedback(initialStatus !== "APPROVED" ? sub.admin_feedback || "" : "");
   };
 
   const handleClearFilters = () => {
@@ -835,7 +835,7 @@ export default function AdminPengumpulanPage() {
               id: statusData.submission_id,
               status: currentStatus,
               is_verified: currentIsVerified,
-              ...(currentStatus === "PENDING" && currentAdminFeedback?.trim()
+              ...(currentStatus !== "APPROVED" && currentAdminFeedback?.trim()
                 ? { admin_feedback: currentAdminFeedback.trim() }
                 : {}),
             },
