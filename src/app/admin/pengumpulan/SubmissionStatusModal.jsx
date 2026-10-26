@@ -10,6 +10,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -29,6 +30,8 @@ export default function SubmissionStatusModal({
   setStatus,
   is_verified,
   setIsVerified,
+  admin_feedback,
+  setAdminFeedback,
   onSubmit,
   isLoading,
 }) {
@@ -36,7 +39,7 @@ export default function SubmissionStatusModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="bg-[#0A0D14] border border-border/50 text-[#FFF9F5] max-w-md rounded-2xl p-6 shadow-2xl">
+      <DialogContent className="bg-[#0A0D14] border border-border/50 text-[#FFF9F5] max-w-md rounded-2xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader className="space-y-2">
           <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 mx-auto">
             <ShieldCheck className="h-6 w-6" />
@@ -82,6 +85,11 @@ export default function SubmissionStatusModal({
                 setStatus(val);
                 if (val !== "APPROVED") {
                   setIsVerified(false);
+                }
+                if (val !== "PENDING") {
+                  setAdminFeedback("");
+                } else if (data?.admin_feedback) {
+                  setAdminFeedback(data.admin_feedback);
                 }
               }}
             >
@@ -133,6 +141,53 @@ export default function SubmissionStatusModal({
                 </p>
               )}
             </div>
+          </div>
+
+          {/* Feedback Admin / Panitia */}
+          <div
+            className={`space-y-2 p-3.5 rounded-xl border transition-colors ${
+              status === "PENDING"
+                ? "bg-white/[0.02] border-border/30"
+                : "bg-white/[0.01] border-border/20 opacity-60"
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <Label
+                htmlFor="admin_feedback"
+                className={`text-xs font-medium ${
+                  status === "PENDING" ? "text-foreground" : "text-muted-foreground cursor-not-allowed"
+                }`}
+              >
+                Feedback Panitia
+              </Label>
+              {status === "PENDING" ? (
+                <span className="text-[10px] text-muted-foreground">Opsional</span>
+              ) : (
+                <span className="text-[10px] text-amber-400 font-medium">Khusus PENDING</span>
+              )}
+            </div>
+            <Textarea
+              id="admin_feedback"
+              placeholder={
+                status === "PENDING"
+                  ? "Berikan catatan evaluasi atau instruksi perbaikan untuk peserta... Misal: link repository belum public / tidak dapat diakses"
+                  : "Feedback panitia hanya dapat diisi jika status evaluasi karya adalah PENDING."
+              }
+              value={status === "PENDING" ? admin_feedback || "" : ""}
+              onChange={(e) => {
+                if (status === "PENDING") {
+                  setAdminFeedback(e.target.value);
+                }
+              }}
+              disabled={status !== "PENDING"}
+              rows={3}
+              className="bg-input/40 border-border/50 rounded-xl text-xs text-foreground placeholder:text-muted-foreground/60 resize-none focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50"
+            />
+            {status !== "PENDING" && (
+              <p className="text-[11px] text-amber-400 font-medium">
+                * Feedback panitia hanya dapat diberikan jika status evaluasi karya adalah PENDING.
+              </p>
+            )}
           </div>
         </div>
 

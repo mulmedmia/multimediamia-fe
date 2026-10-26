@@ -25,6 +25,7 @@ import {
   Mail,
   GitBranch,
   PlayCircle,
+  MessageSquare,
 } from "lucide-react";
 import YouTubePreview from "@/components/common/YouTubePreview";
 
@@ -224,6 +225,19 @@ export default function SubmissionDetailModal({ open, onClose, data }) {
               {data?.description || <span className="text-muted-foreground italic">Tidak ada deskripsi.</span>}
             </div>
           </div>
+
+          {/* Feedback Panitia (jika ada) */}
+          {data?.admin_feedback && (
+            <div className="bg-[#0F121A]/90 border border-amber-500/30 rounded-xl p-4 space-y-2">
+              <h3 className="text-xs sm:text-sm font-semibold text-amber-400 flex items-center gap-2 pb-1 border-b border-border/30">
+                <MessageSquare className="h-4 w-4 text-amber-400" />
+                <span>Feedback Panitia</span>
+              </h3>
+              <div className="p-3 bg-amber-500/5 border border-amber-500/20 rounded-xl text-xs sm:text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed">
+                {data.admin_feedback}
+              </div>
+            </div>
+          )}
 
           {/* Flow Aplikasi (jika ada) */}
           {data?.flow_application && (

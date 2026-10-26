@@ -1121,7 +1121,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                           {sub.links && sub.links.length > 0 && (
                             <div className="space-y-2 pt-1">
                               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                                Berkas & Links:
+                                Berkas & Tautan:
                               </p>
                               <div className="flex flex-wrap gap-2">
                                 {sub.links.map((link) => (
@@ -1147,6 +1147,18 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                                   </Button>
                                 ))}
                               </div>
+                            </div>
+                          )}
+
+                          {/* Feedback Panitia / Admin */}
+                          {sub.status === "pending" && sub.admin_feedback && (
+                            <div className="p-4 bg-amber-500/10 border border-amber-500/25 rounded-2xl space-y-1">
+                              <p className="text-xs font-bold text-amber-400 flex items-center gap-1.5 uppercase tracking-wider">
+                                Feedback Panitia:
+                              </p>
+                              <p className="text-xs sm:text-sm text-foreground/90 leading-relaxed break-words">
+                                {sub.admin_feedback}
+                              </p>
                             </div>
                           )}
 
