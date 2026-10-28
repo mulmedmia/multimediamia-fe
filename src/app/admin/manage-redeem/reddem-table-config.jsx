@@ -82,7 +82,7 @@ export const desktopColumns = [
     header: "Tanggal",
     cell: ({ row }) => (
       <span>
-        {formatMediumShortDate(row.original.created_at_at)}
+        {formatMediumShortDate(row.original.created_at)}
       </span>
     ),
   },

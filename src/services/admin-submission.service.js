@@ -26,11 +26,13 @@ export const getSubmissionById = async (id) => {
 };
 
 // Update submission status
-export const patchSubmissionStatus = async ({ id, status, is_verified }) => {
-  const res = await api.patch(`/submissions/${id}/status`, {
-    status,
-    is_verified,
-  });
+// Update submission status
+export const patchSubmissionStatus = async ({ id, status, is_verified, admin_feedback }) => {
+  const payload = { status, is_verified };
+  if (admin_feedback !== undefined) {
+    payload.admin_feedback = admin_feedback;
+  }
+  const res = await api.patch(`/submissions/${id}/status`, payload);
   return res.data;
 };
 

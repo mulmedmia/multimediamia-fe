@@ -73,6 +73,7 @@ export default function AdminPengumpulanPage() {
 
   const [currentStatus, setCurrentStatus] = useState("PENDING");
   const [currentIsVerified, setCurrentIsVerified] = useState(false);
+  const [currentAdminFeedback, setCurrentAdminFeedback] = useState("");
 
   // Debounce search input
   useEffect(() => {
@@ -206,6 +207,7 @@ export default function AdminPengumpulanPage() {
     const initialStatus = sub.status || "PENDING";
     setCurrentStatus(initialStatus);
     setCurrentIsVerified(initialStatus === "APPROVED" ? Boolean(sub.is_verified) : false);
+    setCurrentAdminFeedback(initialStatus !== "APPROVED" ? sub.admin_feedback || "" : "");
   };
 
   const handleClearFilters = () => {
@@ -245,6 +247,7 @@ export default function AdminPengumpulanPage() {
         { header: "Kategori Lomba", key: "category", width: 22 },
         { header: "Judul Karya / Proyek", key: "project_name", width: 32 },
         { header: "Status Karya", key: "status", width: 16, align: "center" },
+        { header: "Feedback Panitia", key: "admin_feedback", width: 30 },
         { header: "Tampil di Show It", key: "is_verified", width: 18, align: "center" },
         { header: "Draft Proposal (Docs)", key: "proposal_url", width: 35 },
         { header: "File Presentasi", key: "presentation_url", width: 35 },
@@ -276,6 +279,9 @@ export default function AdminPengumpulanPage() {
           category: item.registration?.category?.category_name || item.category?.category_name || item.category?.name || "-",
           project_name: item.project_name || item.title || "-",
           status: item.status || "PENDING",
+          admin_feedback: item.admin_feedback || "-",
+          created_by_name: item.created_by_name || "-",
+          updated_by_name: item.updated_by_name || "-",
           is_verified: item.is_verified ? "Ya" : "Tidak",
           proposal_url: getLinkUrl("PROPOSAL"),
           presentation_url: getLinkUrl("PRESENTATION"),
@@ -325,7 +331,7 @@ export default function AdminPengumpulanPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+        <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap justify-end">
           <Button
             variant="outline"
             onClick={() => refetch()}
@@ -598,6 +604,9 @@ export default function AdminPengumpulanPage() {
                     <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
                       Tampilkan di Show It
                     </TableHead>
+                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02] max-w-[200px]">
+                      Admin Feedback
+                    </TableHead>
                     <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
                       Waktu Submit
                     </TableHead>
@@ -686,6 +695,20 @@ export default function AdminPengumpulanPage() {
                           <Badge className="bg-zinc-500/10 text-zinc-400 border border-zinc-500/20 text-[11px] px-2 py-0.5 rounded-full flex items-center gap-1 w-fit">
                             Tidak
                           </Badge>
+                        )}
+                      </TableCell>
+
+                      {/* Admin Feedback */}
+                      <TableCell className="py-3.5 max-w-[200px]">
+                        {sub.admin_feedback ? (
+                          <p
+                            className="text-xs text-foreground/90 truncate max-w-[180px]"
+                            title={sub.admin_feedback}
+                          >
+                            {sub.admin_feedback}
+                          </p>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">-</span>
                         )}
                       </TableCell>
 
@@ -801,8 +824,10 @@ export default function AdminPengumpulanPage() {
         data={statusData}
         status={currentStatus}
         setStatus={setCurrentStatus}
-        is_verified={currentIsVerified}
+                is_verified={currentIsVerified}
         setIsVerified={setCurrentIsVerified}
+        admin_feedback={currentAdminFeedback}
+        setAdminFeedback={setCurrentAdminFeedback}
         isLoading={patchStatus.isPending}
         onSubmit={() =>
           patchStatus.mutate(
@@ -810,6 +835,9 @@ export default function AdminPengumpulanPage() {
               id: statusData.submission_id,
               status: currentStatus,
               is_verified: currentIsVerified,
+              ...(currentStatus !== "APPROVED" && currentAdminFeedback?.trim()
+                ? { admin_feedback: currentAdminFeedback.trim() }
+                : {}),
             },
             { onSuccess: () => setStatusData(null) }
           )

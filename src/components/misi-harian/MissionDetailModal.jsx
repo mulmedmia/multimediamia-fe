@@ -37,12 +37,12 @@ const getRemainingTimeStr = (dateString) => {
     const diffDays = Math.floor(diffHours / 24);
 
     if (diffDays > 0) {
-      return `Sisa Waktu: ${diffDays} hari ${diffHours % 24} jam`;
+      return `${diffDays} hari ${diffHours % 24} jam`;
     } else if (diffHours > 0) {
-      return `Sisa Waktu: ${diffHours} jam`;
+      return `${diffHours} jam`;
     } else {
       const diffMins = Math.floor(diffMs / (1000 * 60));
-      return `Sisa Waktu: ${diffMins} menit`;
+      return `${diffMins} menit`;
     }
   } catch {
     return "";
@@ -128,13 +128,22 @@ export function MissionDetailModal({
                   expired && "text-red-500",
                 )}
               />
-              <span className={cn(expired && "text-red-400")}>
-                Deadline: {formatDeadline(mission.deadline, "long")}
-              </span>
+              <div
+                className={cn(
+                  "flex flex-col sm:inline-block",
+                  expired && "text-red-400",
+                )}
+              >
+                <span>Deadline: </span>
+                <span>{formatDeadline(mission.deadline, "long")}</span>
+              </div>
             </div>
 
             {!expired && (
-              <span className="text-xs">{getRemainingTimeStr(targetDate)}</span>
+              <div className="flex flex-col sm:inline-block text-xs text-right">
+                <span>Sisa Waktu: </span>
+                <span>{getRemainingTimeStr(targetDate)}</span>
+              </div>
             )}
           </div>
         </DialogHeader>

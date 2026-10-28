@@ -22,6 +22,7 @@ import {
 import api from "@/lib/api";
 import YouTubePreview from "@/components/common/YouTubePreview";
 import { useParams } from "next/navigation";
+import { formatMediumShortDate } from "@/lib/utils";
 
 export default function JuriSubmissionDetailPage(props) {
   const params = useParams();
@@ -331,7 +332,7 @@ export default function JuriSubmissionDetailPage(props) {
                   </span>
                   <span className="text-sm font-medium text-mia-text break-words">
                     {submission.created_at
-                      ? formatMediumShortDate(submission.created_at_at)
+                      ? formatMediumShortDate(submission.created_at)
                       : "-"}
                   </span>
                 </div>

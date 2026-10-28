@@ -35,6 +35,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { FeedbackBox } from "./FeedbackBox";
 
 const formatDeadline = (date) => {
   if (!date) return "-";
@@ -71,10 +72,16 @@ export function MyRegistrationsList({ onSelectRegistration }) {
     enabled: !!user?.users_id,
   });
 
-  const hasSubmissionForCategory = (categoryId) => {
-    if (!submissionsData?.submissions) return false;
-    return submissionsData.submissions.some(
-      (submission) => submission.category_id === categoryId,
+  const getSubmissionForRegistration = (reg) => {
+    if (!submissionsData?.submissions || !reg) return null;
+    return (
+      submissionsData.submissions.find(
+        (submission) =>
+          submission.registration_id === reg.registration_id ||
+          submission.registration?.registration_id === reg.registration_id ||
+          (submission.category_id &&
+            submission.category_id === reg.category_id),
+      ) || null
     );
   };
 
@@ -161,7 +168,7 @@ export function MyRegistrationsList({ onSelectRegistration }) {
     <>
       <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 w-full">
         {registrations?.map((reg) => {
-          const hasSubmission = hasSubmissionForCategory(reg.category_id);
+          const submission = getSubmissionForRegistration(reg);
           const now = new Date();
           const prelimDate = reg.category?.preliminary_deadline
             ? new Date(reg.category.preliminary_deadline)
@@ -210,7 +217,7 @@ export function MyRegistrationsList({ onSelectRegistration }) {
                         ? "Terverifikasi"
                         : "Belum Terverifikasi"}
                     </span>
-                    {hasSubmission && (
+                    {submission && (
                       <span className="text-xs sm:text-sm px-3 py-1 rounded-full font-semibold bg-sky-500/15 border border-sky-500/30 text-sky-400">
                         Karya Terupload
                       </span>
@@ -343,29 +350,25 @@ export function MyRegistrationsList({ onSelectRegistration }) {
                   </div>
                 </div>
 
-                {/* Feedback Box - MIA Red Theme */}
-                {!(reg.is_verified && reg.is_verified_finance) && (
-                  <div className="p-4 sm:p-5 bg-primary/10 border border-primary/25 rounded-2xl space-y-1.5 backdrop-blur-xs">
-                    <div className="flex items-start gap-2.5">
-                      <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5 text-primary mt-0.5 flex-shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs sm:text-sm font-semibold text-primary">
-                          Feedback Panitia:
-                        </p>
-                        {reg.feedback ? (
-                          <p className="text-xs sm:text-sm text-foreground/90 leading-relaxed mt-1 font-normal break-words">
-                            {reg.feedback}
-                          </p>
-                        ) : (
-                          <p className="text-xs sm:text-sm text-muted-foreground italic leading-relaxed mt-1">
-                            Belum ada feedback. Feedback akan muncul setelah
-                            pendaftaran Anda direview oleh panitia.
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
+                {/* Feedback Box Pendaftaran - MIA Red Theme */}
+                {!(reg.is_verified && reg.is_verified_finance) &&
+                  reg.feedback && (
+                    <FeedbackBox
+                      title="Feedback Panitia:"
+                      feedback={reg.feedback}
+                      fallback="Belum ada feedback. Feedback akan muncul setelah pendaftaran Anda direview oleh panitia."
+                    />
+                  )}
+
+                {/* Feedback Box Submission - MIA Red Theme */}
+                {submission &&
+                  submission.status?.toUpperCase() !== "APPROVED" && (
+                    <FeedbackBox
+                      title="Feedback Panitia:"
+                      feedback={submission.admin_feedback}
+                      fallback="Belum ada feedback. Feedback akan diberikan oleh panitia jika terdapat berkas yang bermasalah pada karya Anda."
+                    />
+                  )}
               </div>
 
               {/* Action Buttons */}
@@ -395,7 +398,7 @@ export function MyRegistrationsList({ onSelectRegistration }) {
                 </Button>
 
                 {/* Primary CTA Action */}
-                {hasSubmission ? (
+                {submission ? (
                   <Button
                     onClick={(e) => {
                       e.stopPropagation();
