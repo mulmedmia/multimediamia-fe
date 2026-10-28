@@ -1097,6 +1097,23 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
 
                           {/* Description & Flow Application */}
                           <div className="p-4 bg-input/20 border border-border/30 rounded-xl space-y-3 text-xs sm:text-sm min-w-0">
+                            {sub.sub_theme && (
+                              <div className="flex flex-col sm:grid sm:grid-cols-[120px_1fr] gap-1.5 sm:gap-4 items-start min-w-0 pb-2.5 border-b border-border/20">
+                                <span className="font-semibold text-muted-foreground pt-0.5">
+                                  Sub-Tema:
+                                </span>
+                                <div className="flex flex-wrap gap-1.5 min-w-0 max-w-full">
+                                  {sub.sub_theme.split(',').map((themeItem, idx) => (
+                                    <span
+                                      key={idx}
+                                      className="inline-flex items-center text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300"
+                                    >
+                                      {themeItem.trim()}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
                             <div className="flex flex-col sm:grid sm:grid-cols-[120px_1fr] gap-1 sm:gap-4 items-start min-w-0">
                               <span className="font-semibold text-muted-foreground">
                                 Deskripsi:
