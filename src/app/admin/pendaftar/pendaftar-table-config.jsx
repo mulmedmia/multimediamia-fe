@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Eye, CheckCircle } from "lucide-react";
+import { formatMediumShortDate } from "@/lib/utils";
 
 // Helper function untuk parse team members
 const parseTeamMembers = (teamMembersString) => {
@@ -40,7 +41,7 @@ const cardCell = ({ row, setDetailData, setVerifyData }) => {
           )}
           <div className="text-xs text-muted-foreground mt-1">
             Terdaftar:{" "}
-            {formatMediumShortDate(row.original.created_at_at)}
+            {formatMediumShortDate(row.original.created_at)}
           </div>
         </div>
         <div className="flex gap-2 ml-2">
