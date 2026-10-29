@@ -13,6 +13,7 @@ import {
   Calendar,
   ImageIcon,
   Video,
+  BookmarkCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getSafeImageUrl } from "@/lib/image-loader";
@@ -212,6 +213,18 @@ export default function SubmissionDetailPage(props) {
                         "-"}
                     </span>
                   </div>
+
+                  {/* Sub-Tema */}
+                  {submission.sub_theme &&
+                    submission.sub_theme.split(",").map((st, idx) => (
+                      <div
+                        key={idx}
+                        className="px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/40 text-amber-300 inline-flex items-center gap-1.5"
+                      >
+                        <BookmarkCheck className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+                        <span>{st.trim()}</span>
+                      </div>
+                    ))}
 
                   {/* Tanggal */}
                   <div className="px-3.5 py-1.5 rounded-full bg-[#1E2939]/80 border border-white/10 text-mia-text inline-flex items-center gap-1.5">

@@ -45,12 +45,14 @@ import {
   ShieldCheck,
   Link2,
   FileSpreadsheet,
+  BookmarkCheck,
 } from "lucide-react";
 import SubmissionDetailModal from "./SubmissionDetailModal";
 import SubmissionStatusModal from "./SubmissionStatusModal";
 import { exportToExcel } from "@/lib/export-excel";
 import { useAuthContext } from "@/providers/AuthProvider";
 import { toast } from "sonner";
+import { SUB_THEMES } from "@/lib/constants";
 
 const PAGE_SIZE = 10;
 
@@ -62,6 +64,7 @@ export default function AdminPengumpulanPage() {
   const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryId, setCategoryId] = useState("ALL");
+  const [subThemeFilter, setSubThemeFilter] = useState("ALL");
   const [statusFilter, setStatusFilter] = useState("ALL");
 
   // Export State
@@ -98,6 +101,19 @@ export default function AdminPengumpulanPage() {
     staleTime: 1000 * 60 * 10,
   });
 
+  // Cek apakah kategori yang dipilih adalah Web In Action atau UI/UX In Action
+  const selectedCategoryObj = useMemo(() => {
+    if (categoryId === "ALL") return null;
+    return categories.find((c) => String(c.category_id) === String(categoryId));
+  }, [categories, categoryId]);
+
+  const selectedCatSlug = selectedCategoryObj?.slug?.toUpperCase() || "";
+  const selectedCatName = (selectedCategoryObj?.category_name || selectedCategoryObj?.name || "").toUpperCase();
+  const isSelectedWIA = selectedCatSlug === "WIA" || selectedCatSlug === "WEB DEVELOPMENT" || selectedCatName.includes("WEB IN ACTION");
+  const isSelectedUIA = selectedCatSlug === "UIA" || selectedCatSlug === "UI/UX DESIGN" || selectedCatName.includes("UI/UX");
+  const isSubThemeAvailable = isSelectedWIA || isSelectedUIA;
+  const availableSubThemes = isSelectedWIA ? SUB_THEMES.WIA : isSelectedUIA ? SUB_THEMES.UIA : [];
+
   // Query Submissions
   const {
     data,
@@ -109,6 +125,7 @@ export default function AdminPengumpulanPage() {
     page,
     limit: PAGE_SIZE,
     category_id: categoryId === "ALL" ? undefined : categoryId,
+    sub_theme: isSubThemeAvailable && subThemeFilter !== "ALL" ? subThemeFilter : undefined,
     status: statusFilter === "ALL" ? undefined : statusFilter,
     search: searchTerm || undefined,
   });
@@ -214,6 +231,7 @@ export default function AdminPengumpulanPage() {
     setSearchInput("");
     setSearchTerm("");
     setCategoryId("ALL");
+    setSubThemeFilter("ALL");
     setStatusFilter("ALL");
     setPage(1);
   };
@@ -227,6 +245,7 @@ export default function AdminPengumpulanPage() {
         page: 1,
         limit: 1000,
         category_id: categoryId === "ALL" ? undefined : categoryId,
+        sub_theme: isSubThemeAvailable && subThemeFilter !== "ALL" ? subThemeFilter : undefined,
         status: statusFilter === "ALL" ? undefined : statusFilter,
         search: searchTerm || undefined,
       });
@@ -245,6 +264,7 @@ export default function AdminPengumpulanPage() {
         { header: "Email", key: "user_email", width: 26 },
         { header: "Nama Tim", key: "team_name", width: 20 },
         { header: "Kategori Lomba", key: "category", width: 22 },
+        { header: "Sub-Tema", key: "sub_theme", width: 28 },
         { header: "Judul Karya / Proyek", key: "project_name", width: 32 },
         { header: "Status Karya", key: "status", width: 16, align: "center" },
         { header: "Feedback Panitia", key: "admin_feedback", width: 30 },
@@ -277,6 +297,7 @@ export default function AdminPengumpulanPage() {
           user_email: item.registration?.user?.email || item.user?.email || "-",
           team_name: item.registration?.team_name || item.team_name || "Individu",
           category: item.registration?.category?.category_name || item.category?.category_name || item.category?.name || "-",
+          sub_theme: item.sub_theme || "-",
           project_name: item.project_name || item.title || "-",
           status: item.status || "PENDING",
           admin_feedback: item.admin_feedback || "-",
@@ -310,7 +331,11 @@ export default function AdminPengumpulanPage() {
     }
   };
 
-  const hasActiveFilters = searchTerm || categoryId !== "ALL" || statusFilter !== "ALL";
+  const hasActiveFilters =
+    searchTerm ||
+    categoryId !== "ALL" ||
+    (isSubThemeAvailable && subThemeFilter !== "ALL") ||
+    statusFilter !== "ALL";
 
   return (
     <div className="space-y-6">
@@ -435,6 +460,34 @@ export default function AdminPengumpulanPage() {
 
             {/* Filter Group */}
             <div className="flex flex-wrap items-center gap-2">
+              {/* Filter Sub-Tema - Dinamis muncul jika kategori WIA atau UIA dipilih */}
+              {isSubThemeAvailable && (
+                <div className="flex items-center gap-1.5 animate-in fade-in slide-in-from-left-2 duration-200">
+                  <span className="text-xs text-muted-foreground whitespace-nowrap hidden lg:inline">
+                    Sub-Tema:
+                  </span>
+                  <Select
+                    value={subThemeFilter}
+                    onValueChange={(val) => {
+                      setSubThemeFilter(val);
+                      setPage(1);
+                    }}
+                  >
+                    <SelectTrigger className="h-9 w-44 sm:w-52 bg-input/40 border-amber-500/30 ring-1 ring-amber-500/20 rounded-xl text-xs text-foreground">
+                      <SelectValue placeholder="Semua Sub-Tema" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#141824] border-border/50 text-foreground max-h-72">
+                      <SelectItem value="ALL">Semua Sub-Tema</SelectItem>
+                      {availableSubThemes.map((theme) => (
+                        <SelectItem key={theme.id} value={theme.name}>
+                          {theme.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
               {/* Filter Kategori */}
               <div className="flex items-center gap-1.5">
                 <span className="text-xs text-muted-foreground whitespace-nowrap hidden md:inline">
@@ -444,6 +497,7 @@ export default function AdminPengumpulanPage() {
                   value={categoryId}
                   onValueChange={(val) => {
                     setCategoryId(val);
+                    setSubThemeFilter("ALL");
                     setPage(1);
                   }}
                   disabled={loadingCategories}
@@ -667,10 +721,23 @@ export default function AdminPengumpulanPage() {
 
                       {/* Judul Karya / Proyek */}
                       <TableCell className="py-3.5 max-w-[220px]">
-                        <div className="space-y-0.5">
+                        <div className="space-y-1">
                           <p className="font-semibold text-foreground text-xs sm:text-sm truncate" title={sub.project_name || sub.title}>
                             {sub.project_name || sub.title || "-"}
                           </p>
+                          {sub.sub_theme && (
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {sub.sub_theme.split(',').map((themeItem, idx) => (
+                                <span
+                                  key={idx}
+                                  className="inline-block text-[10px] font-medium text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded px-1.5 py-0.5 truncate max-w-full"
+                                  title={themeItem.trim()}
+                                >
+                                  {themeItem.trim()}
+                                </span>
+                              ))}
+                            </div>
+                          )}
                           {sub.links && sub.links.length > 0 && (
                             <span className="inline-flex items-center gap-1 text-[11px] text-blue-400">
                               <Link2 className="h-3 w-3" />
