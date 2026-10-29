@@ -190,6 +190,21 @@ export default function SubmissionDetailModal({ open, onClose, data }) {
                     {data?.registration?.category?.category_name || data?.category?.category_name || "-"}
                   </p>
                 </div>
+                {data?.sub_theme && (
+                  <div>
+                    <Label className="text-muted-foreground">Sub-Tema</Label>
+                    <div className="flex flex-wrap gap-1.5 mt-1">
+                      {data.sub_theme.split(',').map((st, idx) => (
+                        <span
+                          key={idx}
+                          className="inline-flex items-center text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300"
+                        >
+                          {st.trim()}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <div>
                   <Label className="text-muted-foreground">Judul Karya / Proyek</Label>
                   <p className="font-bold text-foreground text-sm mt-0.5">

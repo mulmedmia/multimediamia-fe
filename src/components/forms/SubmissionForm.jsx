@@ -25,13 +25,16 @@ import {
 } from "@radix-ui/react-icons";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "../ui/textarea";
-import { Github, Presentation, FileCheck, Upload, ImageIcon } from "lucide-react";
+import { Github, Presentation, FileCheck, Upload, ImageIcon, BookmarkCheck, Check } from "lucide-react";
+import { SUB_THEMES } from "@/lib/constants";
 
 // !!! Asumsikan zod object punya `keys` yang sama dengan yang dilempar oleh Backend
 // Schema dinamis berdasarkan team type, kategori, dan fase deadline
-const createSubmissionSchema = (teamType, categorySlug, isFinalPhase) => {
-  const isWIA = categorySlug === "WIA";
-  const isUIA = categorySlug === "UIA";
+const createSubmissionSchema = (teamType, categorySlug, isFinalPhase, categoryName = "") => {
+  const normSlug = (categorySlug || "").toUpperCase();
+  const normName = (categoryName || "").toUpperCase();
+  const isWIA = normSlug === "WIA" || normSlug === "WEB DEVELOPMENT" || normName.includes("WEB");
+  const isUIA = normSlug === "UIA" || normSlug === "UI/UX DESIGN" || normName.includes("UI/UX");
 
   if (isWIA) {
     return z.object({
@@ -39,6 +42,11 @@ const createSubmissionSchema = (teamType, categorySlug, isFinalPhase) => {
         .string()
         .min(1, { message: "Nama project wajib diisi." })
         .max(80, { message: "Nama project maksimal 80 karakter." }),
+      sub_theme: z
+        .union([
+          z.array(z.string()).min(1, { message: "Harap pilih minimal satu sub-tema untuk Web In Action." }),
+          z.string().min(1, { message: "Harap pilih minimal satu sub-tema untuk Web In Action." }),
+        ]),
       description: z
         .string()
         .min(10, { message: "Deskripsi minimal 10 karakter." })
@@ -130,6 +138,11 @@ const createSubmissionSchema = (teamType, categorySlug, isFinalPhase) => {
         .string()
         .min(1, { message: "Nama project wajib diisi." })
         .max(80, { message: "Nama project maksimal 80 karakter." }),
+      sub_theme: z
+        .union([
+          z.array(z.string()).min(1, { message: "Harap pilih minimal satu sub-tema untuk UI/UX In Action." }),
+          z.string().min(1, { message: "Harap pilih minimal satu sub-tema untuk UI/UX In Action." }),
+        ]),
       description: z
         .string()
         .min(10, { message: "Deskripsi minimal 10 karakter." })
@@ -204,6 +217,13 @@ const createSubmissionSchema = (teamType, categorySlug, isFinalPhase) => {
         .string()
         .min(1, { message: "Nama project wajib diisi." })
         .max(80, { message: "Nama project maksimal 80 karakter." }),
+      sub_theme: z
+        .union([
+          z.array(z.string()),
+          z.string(),
+        ])
+        .optional()
+        .or(z.literal("")),
       description: z
         .string()
         .min(10, { message: "Deskripsi minimal 10 karakter." })
@@ -350,8 +370,9 @@ export function SubmissionForm({
   // Tentukan team type dari registration
   const teamType = registration?.category?.team_type || "GROUP";
   const categorySlug = registration?.category?.slug?.toUpperCase();
-  const isWIA = categorySlug === "WIA";
-  const isUIA = categorySlug === "UIA";
+  const categoryName = (registration?.category?.name || registration?.category?.category_name || "").toUpperCase();
+  const isWIA = categorySlug === "WIA" || categorySlug === "WEB DEVELOPMENT" || categoryName.includes("WEB");
+  const isUIA = categorySlug === "UIA" || categorySlug === "UI/UX DESIGN" || categoryName.includes("UI/UX");
 
   const isFinalPhase = useMemo(() => {
     if (!registration?.category) return false;
@@ -563,8 +584,18 @@ export function SubmissionForm({
 
   // Memoized schema berdasarkan teamType, categorySlug, dan isFinalPhase
   const submissionSchema = useMemo(() => {
-    return createSubmissionSchema(teamType, categorySlug, isFinalPhase);
-  }, [teamType, categorySlug, isFinalPhase]);
+    return createSubmissionSchema(teamType, categorySlug, isFinalPhase, categoryName);
+  }, [teamType, categorySlug, isFinalPhase, categoryName]);
+
+  // Helper untuk parsing sub_theme menjadi array of string
+  const parseSubThemesToArray = (val) => {
+    if (!val) return [];
+    if (Array.isArray(val)) return val;
+    if (typeof val === "string") {
+      return val.split(",").map((s) => s.trim()).filter(Boolean);
+    }
+    return [];
+  };
 
   // Default values berdasarkan team type dan activeLinkConfigs
   const getDefaultValues = useMemo(() => {
@@ -582,12 +613,19 @@ export function SubmissionForm({
 
     return {
       project_name: editingSubmission?.project_name || "",
+      sub_theme: parseSubThemesToArray(editingSubmission?.sub_theme),
       description: editingSubmission?.description || "",
       flow_application:
         teamType === "GROUP" ? editingSubmission?.flow_application || "" : "",
       ...linksInfo,
     };
   }, [registration, editingSubmission, teamType, activeLinkConfigs]);
+
+  const currentSubThemes = useMemo(() => {
+    if (isWIA) return SUB_THEMES.WIA || [];
+    if (isUIA) return SUB_THEMES.UIA || [];
+    return [];
+  }, [isWIA, isUIA]);
 
   const {
     register,
@@ -602,6 +640,27 @@ export function SubmissionForm({
     defaultValues: getDefaultValues,
     mode: "onChange",
   });
+
+  const selectedSubThemesValue = watch("sub_theme");
+  const selectedSubThemes = useMemo(() => {
+    if (Array.isArray(selectedSubThemesValue)) return selectedSubThemesValue;
+    if (typeof selectedSubThemesValue === "string" && selectedSubThemesValue.trim()) {
+      return selectedSubThemesValue.split(",").map((s) => s.trim()).filter(Boolean);
+    }
+    return [];
+  }, [selectedSubThemesValue]);
+
+  const handleToggleSubTheme = (themeName) => {
+    const current = Array.isArray(selectedSubThemes) ? selectedSubThemes : [];
+    const next = current.includes(themeName)
+      ? current.filter((t) => t !== themeName)
+      : [...current, themeName];
+
+    setValue("sub_theme", next, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  };
 
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [thumbnailPreview, setThumbnailPreview] = useState(
@@ -717,12 +776,20 @@ export function SubmissionForm({
       return;
     }
 
+    // Format sub_theme: jika array gabungkan menjadi comma-separated string
+    const formattedSubTheme = Array.isArray(data.sub_theme)
+      ? data.sub_theme.join(", ")
+      : (data.sub_theme || "");
+
     // Prepare submission payload
     // Sesuai schema backend: category_id dan team_name dihapus, registration_id wajib
     if (thumbnailFile) {
       const formData = new FormData();
       formData.append("registration_id", registrationId);
       formData.append("project_name", data.project_name);
+      if (formattedSubTheme) {
+        formData.append("sub_theme", formattedSubTheme);
+      }
       formData.append("description", data.description);
       formData.append(
         "flow_application",
@@ -737,6 +804,7 @@ export function SubmissionForm({
       const submissionPayload = {
         registration_id: registrationId,
         project_name: data.project_name,
+        sub_theme: formattedSubTheme || null,
         description: data.description,
         flow_application:
           teamType === "GROUP"
@@ -814,6 +882,84 @@ export function SubmissionForm({
           </div>
           <InputError fieldError={errors.project_name} />
         </div>
+
+        {/* Sub-Tema Karya */}
+        {currentSubThemes.length > 0 && (
+          <div className="space-y-2.5 pt-1">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+              <Label className="block text-sm font-semibold text-foreground">
+                Pilihan Sub-Tema <span className="text-destructive">*</span>
+              </Label>
+              <span className="text-xs text-mia-muted-2">
+                Pilih satu atau lebih sub-tema fokus karya Anda (bisa pilih lebih dari satu)
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 gap-2.5">
+              {currentSubThemes.map((theme) => {
+                const isSelected = selectedSubThemes.includes(theme.name);
+                return (
+                  <button
+                    key={theme.id}
+                    type="button"
+                    role="checkbox"
+                    aria-checked={isSelected}
+                    onClick={() => handleToggleSubTheme(theme.name)}
+                    className={cn(
+                      "text-left p-3.5 sm:p-4 rounded-xl border transition-all flex items-start gap-3.5 cursor-pointer group text-foreground relative overflow-hidden select-none",
+                      isSelected
+                        ? "border-[#E01C20] bg-[#E01C20]/10 shadow-[0_0_15px_rgba(224,28,32,0.12)] ring-1 ring-[#E01C20]/40"
+                        : "border-border/50 bg-input/20 hover:border-border hover:bg-input/40"
+                    )}
+                  >
+                    {/* Kotak Centang Checkbox */}
+                    <div className="pt-0.5 shrink-0">
+                      <div
+                        className={cn(
+                          "w-4 h-4 rounded-md border flex items-center justify-center transition-all",
+                          isSelected
+                            ? "border-[#E01C20] bg-[#E01C20] text-white"
+                            : "border-muted-foreground/40 group-hover:border-muted-foreground bg-transparent"
+                        )}
+                      >
+                        {isSelected && (
+                          <Check className="w-3 h-3 stroke-[3]" />
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="space-y-1 min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <span
+                          className={cn(
+                            "text-sm font-semibold transition-colors",
+                            isSelected
+                              ? "text-[#E01C20] dark:text-red-400"
+                              : "text-foreground"
+                          )}
+                        >
+                          {theme.name}
+                        </span>
+                        {isSelected && (
+                          <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#E01C20]/20 text-[#E01C20] border border-[#E01C20]/30 shrink-0 flex items-center gap-1">
+                            <Check className="w-2.5 h-2.5 stroke-[2.5]" />
+                            Terpilih
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        {theme.description}
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            <input type="hidden" {...register("sub_theme")} />
+            <InputError fieldError={errors.sub_theme} />
+          </div>
+        )}
 
         {/* Project Description */}
         <div className="space-y-2">

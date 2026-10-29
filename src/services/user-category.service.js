@@ -52,7 +52,7 @@ export const getCategoryById = async (categoryId) => {
 export const getAllUserCategories = async () => {
   try {
     const response = await api.get("/categories?limit=100&page=1");
-    return response.data.data.categories;
+    return response.data?.data?.categories || response.data?.data || [];
   } catch (error) {
     console.error("Gagal mengambil semua kategori:", error);
     return [];
