@@ -43,6 +43,23 @@ import { useAuthContext } from "@/providers/AuthProvider";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import Footer from "@/components/layout/Footer";
 import { cn } from "@/lib/utils";
+import { useHoldPress } from "@/hooks/use-hold-press";
+
+function HoldButton({ children, onAction, disabled, className, title }) {
+  const holdProps = useHoldPress(onAction, { disabled });
+
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      className={cn("select-none touch-none", className)}
+      title={title}
+      {...holdProps}
+    >
+      {children}
+    </button>
+  );
+}
 
 // Fallback sample data for previewing UI when backend is offline
 const SAMPLE_PRODUCTS_FALLBACK = [
@@ -597,16 +614,16 @@ export default function ProductPage() {
                                   </p>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <button
-                                    type="button"
+                                  <HoldButton
                                     disabled={redeemQuantity <= 1}
-                                    onClick={() =>
+                                    onAction={() =>
                                       setRedeemQuantity((q) => Math.max(1, q - 1))
                                     }
-                                    className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-[#FFF9F5] transition-colors cursor-pointer"
+                                    className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 active:bg-white/30 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-[#FFF9F5] transition-colors cursor-pointer select-none touch-manipulation"
+                                    title="Kurangi jumlah (klik atau tahan untuk mengurangi)"
                                   >
                                     <Minus className="h-3.5 w-3.5" />
-                                  </button>
+                                  </HoldButton>
                                   <input
                                     type="number"
                                     min="1"
@@ -627,13 +644,12 @@ export default function ProductPage() {
                                     }}
                                     className="w-14 h-8 rounded-lg bg-black/50 border border-white/20 text-center text-xs font-bold text-[#FFF9F5] focus:outline-none focus:border-[#E01C20]"
                                   />
-                                  <button
-                                    type="button"
+                                  <HoldButton
                                     disabled={
                                       !isUnlimited &&
                                       redeemQuantity >= product.stock
                                     }
-                                    onClick={() => {
+                                    onAction={() => {
                                       const maxVal = isUnlimited
                                         ? 999
                                         : product.stock;
@@ -641,10 +657,11 @@ export default function ProductPage() {
                                         Math.min(maxVal, q + 1)
                                       );
                                     }}
-                                    className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-[#FFF9F5] transition-colors cursor-pointer"
+                                    className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 active:bg-white/30 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-[#FFF9F5] transition-colors cursor-pointer select-none touch-manipulation"
+                                    title="Tambah jumlah (klik atau tahan untuk menambah)"
                                   >
                                     <Plus className="h-3.5 w-3.5" />
-                                  </button>
+                                  </HoldButton>
                                 </div>
                               </div>
                             )}
