@@ -189,43 +189,6 @@ export default function ProductPage() {
   const products = data?.products || [];
   const meta = data?.meta || { page: 1, totalPages: 1 };
 
-  useEffect(() => {
-    if (redeemMutation.isSuccess) {
-      const earnedXp = redeemMutation.data?.earned_xp;
-      toast.success(
-        earnedXp > 0
-          ? `Produk berhasil ditukar! Selamat, Anda mendapatkan +${earnedXp.toLocaleString()} XP! ⚡`
-          : "Produk berhasil ditukar!",
-        {
-          style: { background: "#e6ffed", color: "#1a7f37" },
-        }
-      );
-      setSelectedProduct(null);
-      setRedeemQuantity(1);
-    }
-    if (redeemMutation.isError) {
-      const errMsg =
-        redeemMutation.error?.response?.data?.message ||
-        redeemMutation.error?.message ||
-        "Gagal menukar produk!";
-
-      if (
-        typeof errMsg === "string" &&
-        errMsg.toLowerCase().includes("out of stock") &&
-        selectedProduct
-      ) {
-        setOutOfStockProductIds((prev) => new Set(prev).add(selectedProduct));
-      }
-
-      toast.error(
-        errMsg,
-        { style: { background: "#ffeaea", color: "#c00" } },
-      );
-      setSelectedProduct(null);
-      setRedeemQuantity(1);
-    }
-  }, [redeemMutation.isSuccess, redeemMutation.isError, redeemMutation.data, selectedProduct]);
-
   if (authLoading || !user) {
     return (
       <div className="min-h-screen w-full bg-[#0A0D14] flex items-center justify-center text-[#FFF9F5]">
@@ -771,12 +734,52 @@ export default function ProductPage() {
                                   !activeCategory
                                 }
                                 onClick={() =>
-                                  redeemMutation.mutate({
-                                    productId: product.product_id,
-                                    quantity: currentQty,
-                                    categoryId: selectedCategoryId || activeCategory?.category_id,
-                                    registrationId: activeCategory?.registration_id,
-                                  })
+                                  redeemMutation.mutate(
+                                    {
+                                      productId: product.product_id,
+                                      quantity: currentQty,
+                                      categoryId: selectedCategoryId || activeCategory?.category_id,
+                                      registrationId: activeCategory?.registration_id,
+                                    },
+                                    {
+                                      onSuccess: (resData) => {
+                                        const earnedXp = resData?.earned_xp;
+                                        toast.success(
+                                          earnedXp > 0
+                                            ? `Produk berhasil ditukar! Selamat, Anda mendapatkan +${earnedXp.toLocaleString()} XP! ⚡`
+                                            : "Produk berhasil ditukar!",
+                                          {
+                                            style: { background: "#e6ffed", color: "#1a7f37" },
+                                          }
+                                        );
+                                        setSelectedProduct(null);
+                                        setRedeemQuantity(1);
+                                        redeemMutation.reset();
+                                      },
+                                      onError: (error) => {
+                                        const errMsg =
+                                          error?.response?.data?.message ||
+                                          error?.message ||
+                                          "Gagal menukar produk!";
+
+                                        if (
+                                          typeof errMsg === "string" &&
+                                          errMsg.toLowerCase().includes("out of stock")
+                                        ) {
+                                          setOutOfStockProductIds((prev) =>
+                                            new Set(prev).add(product.product_id)
+                                          );
+                                        }
+
+                                        toast.error(errMsg, {
+                                          style: { background: "#ffeaea", color: "#c00" },
+                                        });
+                                        setSelectedProduct(null);
+                                        setRedeemQuantity(1);
+                                        redeemMutation.reset();
+                                      },
+                                    }
+                                  )
                                 }
                               >
                                 {redeemMutation.isPending &&
