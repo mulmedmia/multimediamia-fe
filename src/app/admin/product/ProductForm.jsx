@@ -230,7 +230,7 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
             id="reward_xp"
             type="number"
             min="0"
-            placeholder="Contoh: 10 (Isi nilai > 0 jika penukaran produk ini menambah EXP peserta)"
+            placeholder="Contoh: 10 (Isi nilai > 0 jika penukaran produk ini menambah XP peserta)"
             value={form.reward_xp}
             onChange={(e) => setForm((f) => ({ ...f, reward_xp: e.target.value }))}
             className="h-10 bg-input/40 border-border/50 rounded-xl text-xs sm:text-sm text-foreground placeholder:text-muted-foreground/60"

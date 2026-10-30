@@ -21,5 +21,42 @@ export function useRedeemProduct() {
       qc.invalidateQueries({ queryKey: ["my-redemptions"] });
       qc.invalidateQueries({ queryKey: ["myRegistrations"] });
     },
+    onError: (error, variables) => {
+      const errMsg =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        error?.message ||
+        "";
+
+      if (
+        typeof errMsg === "string" &&
+        errMsg.toLowerCase().includes("out of stock")
+      ) {
+        const targetProductId =
+          typeof variables === "object" && variables !== null
+            ? variables.productId || variables.product_id
+            : variables;
+
+        if (targetProductId) {
+          qc.setQueriesData({ queryKey: ["products"] }, (oldData) => {
+            if (!oldData) return oldData;
+            if (Array.isArray(oldData)) {
+              return oldData.map((p) =>
+                p.product_id === targetProductId ? { ...p, stock: 0 } : p
+              );
+            }
+            if (oldData.products && Array.isArray(oldData.products)) {
+              return {
+                ...oldData,
+                products: oldData.products.map((p) =>
+                  p.product_id === targetProductId ? { ...p, stock: 0 } : p
+                ),
+              };
+            }
+            return oldData;
+          });
+        }
+      }
+    },
   });
 }

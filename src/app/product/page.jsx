@@ -102,6 +102,7 @@ export default function ProductPage() {
   const [page, setPage] = useState(1);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [redeemQuantity, setRedeemQuantity] = useState(1);
+  const [outOfStockProductIds, setOutOfStockProductIds] = useState(() => new Set());
 
   const userId = user?.users_id || user?.userId;
   const { data: myRegistrations, isLoading: registrationsLoading } =
@@ -203,15 +204,27 @@ export default function ProductPage() {
       setRedeemQuantity(1);
     }
     if (redeemMutation.isError) {
-      toast.error(
+      const errMsg =
         redeemMutation.error?.response?.data?.message ||
-          "Gagal menukar produk!",
+        redeemMutation.error?.message ||
+        "Gagal menukar produk!";
+
+      if (
+        typeof errMsg === "string" &&
+        errMsg.toLowerCase().includes("out of stock") &&
+        selectedProduct
+      ) {
+        setOutOfStockProductIds((prev) => new Set(prev).add(selectedProduct));
+      }
+
+      toast.error(
+        errMsg,
         { style: { background: "#ffeaea", color: "#c00" } },
       );
       setSelectedProduct(null);
       setRedeemQuantity(1);
     }
-  }, [redeemMutation.isSuccess, redeemMutation.isError, redeemMutation.data]);
+  }, [redeemMutation.isSuccess, redeemMutation.isError, redeemMutation.data, selectedProduct]);
 
   if (authLoading || !user) {
     return (
@@ -433,13 +446,16 @@ export default function ProductPage() {
             {!isLoading && products.length > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {products.map((product) => {
+                  const isZeroStock = outOfStockProductIds.has(product.product_id);
+                  const currentStock = isZeroStock ? 0 : Number(product.stock);
+
                   const isSingle = Boolean(product.is_single_redeem);
                   const isUnlimited = Boolean(product.is_unlimited_stock);
                   const hasXpReward = Number(product.reward_xp) > 0;
                   const alreadyClaimed =
                     isSingle &&
                     myRedemptions.some((r) => r.product_id === product.product_id);
-                  const isOutOfStock = !isUnlimited && Number(product.stock) < 1;
+                  const isOutOfStock = !isUnlimited && (currentStock < 1 || isZeroStock);
                   const canRedeem = product.is_active && !isOutOfStock && !alreadyClaimed;
 
                   const currentQty = isSingle ? 1 : Math.max(1, redeemQuantity);
@@ -468,7 +484,7 @@ export default function ProductPage() {
                         <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 flex-wrap">
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#141824]/90 text-[#FFF9F5] border border-white/10 backdrop-blur-md">
                             <Gift className="h-3.5 w-3.5 text-[#E01C20]" />
-                            {hasXpReward ? "Konversi EXP" : "Produk"}
+                            {hasXpReward ? "Konversi XP" : "Produk"}
                           </span>
                           {!product.category_id && (
                             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 backdrop-blur-md">
@@ -518,18 +534,17 @@ export default function ProductPage() {
                               <span>Stok: </span>
                               <InfinityIcon className="h-3 w-3" />
                             </span>
-                          ) : (
-                            product.stock > 0 && (<span
-                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                product.stock > 5
-                                  ? "bg-[#00B445]/15 text-[#00B445] border border-[#00B445]/30"
-                                  : product.stock > 0
-                                  ? "bg-[#E01C20]/15 text-[#E01C20] border border-[#E01C20]/30"
-                                  : "bg-zinc-500/15 text-zinc-400 border border-zinc-500/30"
-                              }`}
+                          ) : currentStock > 0 && (
+                            <span
+                              className={cn(
+                                "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
+                                "bg-zinc-500/15 text-zinc-400 border border-zinc-500/30",
+                                currentStock > 0 && "bg-[#E01C20]/15 text-[#E01C20] border border-[#E01C20]/30",
+                                currentStock > 5 && "bg-[#00B445]/15 text-[#00B445] border border-[#00B445]/30",
+                              )}
                             >
-                              Stok: {product.stock}
-                            </span>)
+                              Stok: {currentStock}
+                            </span>
                           )}
                         </div>
 
@@ -610,7 +625,7 @@ export default function ProductPage() {
                                   <p className="text-[11px] text-[#AAB1BD]">
                                     {isUnlimited
                                       ? "Stok tidak terbatas"
-                                      : `Tersedia: ${product.stock} item`}
+                                      : `Tersedia: ${currentStock} item`}
                                   </p>
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -619,7 +634,7 @@ export default function ProductPage() {
                                     onAction={() =>
                                       setRedeemQuantity((q) => Math.max(1, q - 1))
                                     }
-                                    className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 active:bg-white/30 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-[#FFF9F5] transition-colors cursor-pointer select-none touch-manipulation"
+                                    className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 active:bg-white/30 disabled:opacity-30 disabled:cursor-default flex items-center justify-center text-[#FFF9F5] transition-colors cursor-pointer select-none touch-manipulation"
                                     title="Kurangi jumlah (klik atau tahan untuk mengurangi)"
                                   >
                                     <Minus className="h-3.5 w-3.5" />
@@ -627,7 +642,7 @@ export default function ProductPage() {
                                   <input
                                     type="number"
                                     min="1"
-                                    max={isUnlimited ? 999 : product.stock}
+                                    max={isUnlimited ? 999 : currentStock}
                                     value={redeemQuantity}
                                     onChange={(e) => {
                                       const val = parseInt(e.target.value, 10);
@@ -636,7 +651,7 @@ export default function ProductPage() {
                                       } else {
                                         const maxVal = isUnlimited
                                           ? 999
-                                          : product.stock;
+                                          : currentStock;
                                         setRedeemQuantity(
                                           Math.min(maxVal, Math.max(1, val))
                                         );
@@ -647,12 +662,12 @@ export default function ProductPage() {
                                   <HoldButton
                                     disabled={
                                       !isUnlimited &&
-                                      redeemQuantity >= product.stock
+                                      redeemQuantity >= currentStock
                                     }
                                     onAction={() => {
                                       const maxVal = isUnlimited
                                         ? 999
-                                        : product.stock;
+                                        : currentStock;
                                       setRedeemQuantity((q) =>
                                         Math.min(maxVal, q + 1)
                                       );
@@ -674,7 +689,7 @@ export default function ProductPage() {
                                     <Zap className="h-4 w-4" />
                                   </div>
                                   <div>
-                                    <p className="text-[11px] text-[#AAB1BD]">Reward EXP Diperoleh</p>
+                                    <p className="text-[11px] text-[#AAB1BD]">Reward XP Diperoleh</p>
                                     <p className="text-sm font-bold text-emerald-400">
                                       +{earnedXp.toLocaleString()} XP
                                     </p>
