@@ -41,6 +41,7 @@ import {
 import { useAuthContext } from "@/providers/AuthProvider";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import Footer from "@/components/layout/Footer";
+import { cn } from "@/lib/utils";
 
 // Fallback sample data for previewing UI when backend is offline
 const SAMPLE_PRODUCTS_FALLBACK = [
@@ -424,6 +425,11 @@ export default function ProductPage() {
                   const earnedXp = hasXpReward ? Number(product.reward_xp) * currentQty : 0;
                   const remainingDiamonds = userDiamonds - totalCost;
 
+                  const notClaimable = !canRedeem ||
+                                      !activeCategory ||
+                                      (redeemMutation.isPending &&
+                                        selectedProduct === product.product_id)
+
                   return (
                     <div
                       key={product.product_id}
@@ -468,7 +474,7 @@ export default function ProductPage() {
                           <h3 className="text-base sm:text-lg font-bold text-[#FFF9F5] group-hover:text-[#E01C20] transition-colors line-clamp-1">
                             {product.name}
                           </h3>
-                          <p className="text-xs sm:text-sm text-[#AAB1BD] line-clamp-2 leading-relaxed h-10">
+                          <p className="text-xs sm:text-sm text-[#AAB1BD] line-clamp-2 leading-relaxed  ">
                             {product.description ||
                               "Tidak ada deskripsi tersedia untuk produk hadiah ini."}
                           </p>
@@ -489,7 +495,7 @@ export default function ProductPage() {
                           {isUnlimited ? (
                             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-500/15 text-purple-400 border border-purple-500/30">
                               <InfinityIcon className="h-3 w-3" />
-                              <span>Stok: ∞</span>
+                              <span>Stok: <span className="font-semibold">∞</span></span>
                             </span>
                           ) : (
                             <span
@@ -518,13 +524,11 @@ export default function ProductPage() {
                         >
                           <AlertDialogTrigger asChild>
                             <button
-                              className="w-full mt-2 mia-btn-primary h-10 text-xs font-semibold inline-flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                              disabled={
-                                !canRedeem ||
-                                !activeCategory ||
-                                (redeemMutation.isPending &&
-                                  selectedProduct === product.product_id)
-                              }
+                              className={cn(
+                                "w-full mt-2 mia-btn-primary h-10 text-xs text-white font-semibold inline-flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed",
+                                notClaimable && "bg-emerald-600/20! text-emerald-300! border border-emerald-500/30 hover:shadow-none! hover:transform-none! cursor-default! opacity-100!"
+                              )}
+                              disabled={notClaimable}
                               onClick={() => {
                                 setSelectedProduct(product.product_id);
                                 setRedeemQuantity(1);
@@ -532,9 +536,9 @@ export default function ProductPage() {
                             >
                               {redeemMutation.isPending &&
                               selectedProduct === product.product_id ? (
-                                <Loader2 className="h-4 w-4 animate-spin text-white" />
+                                <Loader2 className="h-4 w-4 animate-spin" />
                               ) : (
-                                <CheckCircle2 className="h-4 w-4 text-white" />
+                                <CheckCircle2 className="h-4 w-4  " />
                               )}
                               <span>
                                 {!activeCategory
