@@ -7,11 +7,13 @@ export const getAllRedemptions = async ({
   search = "",
   product_id = "",
   category_id = "",
+  registration_id = "",
 } = {}) => {
   const params = new URLSearchParams({ page, limit });
   if (search && search.trim()) params.append("search", search.trim());
   if (product_id && product_id !== "ALL") params.append("product_id", product_id);
   if (category_id && category_id !== "ALL") params.append("category_id", category_id);
+  if (registration_id && registration_id !== "ALL") params.append("registration_id", registration_id);
 
   const res = await api.get(`/gamification/admin/redeem/all?${params.toString()}`);
   return {

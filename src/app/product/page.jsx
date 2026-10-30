@@ -138,6 +138,8 @@ export default function ProductPage() {
 
   const { data: redemptionsData } = useMyRedemptions({
     category_id: selectedCategoryId || undefined,
+    registration_id: activeCategory?.registration_id || undefined,
+    limit: 50,
   });
   const myRedemptions = Array.isArray(redemptionsData?.redemptions)
     ? redemptionsData.redemptions
@@ -215,7 +217,7 @@ export default function ProductPage() {
             {/* Eyebrow & Page Header */}
             <div className="text-center space-y-3 md:space-y-4 max-w-3xl mx-auto">
               <div className="mia-pill-badge mx-auto">
-                <Gift className="h-3.5 w-3.5 text-amber-400" />
+                <Gift className="h-3.5 w-3.5 text-[#FED700]" />
                 <span>Katalog Hadiah</span>
               </div>
 
@@ -428,10 +430,9 @@ export default function ProductPage() {
                   const earnedXp = hasXpReward ? Number(product.reward_xp) * currentQty : 0;
                   const remainingDiamonds = userDiamonds - totalCost;
 
-                  const notClaimable = !canRedeem ||
-                                      !activeCategory ||
-                                      (redeemMutation.isPending &&
-                                        selectedProduct === product.product_id)
+                  const notClaimable = !canRedeem || !activeCategory ||
+                                       (redeemMutation.isPending &&
+                                         selectedProduct === product.product_id)
 
                   return (
                     <div
@@ -501,7 +502,7 @@ export default function ProductPage() {
                               <InfinityIcon className="h-3 w-3" />
                             </span>
                           ) : (
-                            <span
+                            product.stock > 0 && (<span
                               className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                                 product.stock > 5
                                   ? "bg-[#00B445]/15 text-[#00B445] border border-[#00B445]/30"
@@ -510,8 +511,8 @@ export default function ProductPage() {
                                   : "bg-zinc-500/15 text-zinc-400 border border-zinc-500/30"
                               }`}
                             >
-                              {product.stock > 0 ? `Stok: ${product.stock}` : "Stok Habis"}
-                            </span>
+                              Stok: {product.stock}
+                            </span>)
                           )}
                         </div>
 
@@ -529,7 +530,9 @@ export default function ProductPage() {
                             <button
                               className={cn(
                                 "w-full mt-2 mia-btn-primary h-10 text-xs text-white font-semibold inline-flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed",
-                                notClaimable && "bg-emerald-600/20! text-emerald-300! border border-emerald-500/30 hover:shadow-none! hover:transform-none! cursor-default! opacity-100!"
+                                (alreadyClaimed || isOutOfStock) && "border hover:shadow-none! hover:transform-none! cursor-default! opacity-100!",
+                                isOutOfStock && "bg-white/5! text-[#AAB1BD]/50! border-white/10!",
+                                alreadyClaimed && "bg-emerald-600/20! text-emerald-300! border-emerald-500/30!",
                               )}
                               disabled={notClaimable}
                               onClick={() => {
@@ -541,7 +544,9 @@ export default function ProductPage() {
                               selectedProduct === product.product_id ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />
                               ) : (
-                                <CheckCircle2 className="h-4 w-4  " />
+                                (alreadyClaimed || !isOutOfStock) && (
+                                  <CheckCircle2 className="h-4 w-4  " />
+                                )
                               )}
                               <span>
                                 {!activeCategory
@@ -549,14 +554,14 @@ export default function ProductPage() {
                                   : alreadyClaimed
                                   ? "Sudah Ditukar (1x)"
                                   : isOutOfStock
-                                  ? "Stok Habis"
+                                  ? "Hadiah Telah Habis"
                                   : hasXpReward
                                   ? "Tukar ke XP"
                                   : "Tukar Produk"}
                               </span>
                             </button>
                           </AlertDialogTrigger>
-                          <AlertDialogContent className="rounded-2xl border border-white/10 bg-[#0A0D14] text-[#FFF9F5] p-6 shadow-2xl max-w-md">
+                          <AlertDialogContent className="rounded-2xl border border-white/10 bg-[#0A0D14] text-[#FFF9F5] p-6 shadow-2xl max-w-md selection:bg-primary selection:text-white">
                             <AlertDialogHeader>
                               <AlertDialogTitle className="text-lg font-bold text-[#FFF9F5]">
                                 {hasXpReward ? "Konfirmasi Penukaran Diamond ke XP" : "Konfirmasi Penukaran Hadiah"}
@@ -575,7 +580,7 @@ export default function ProductPage() {
                               <div className="my-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs flex items-center gap-2">
                                 <AlertCircle className="h-4 w-4 shrink-0 text-amber-400" />
                                 <span>
-                                  Produk ini hanya dapat ditukarkan 1 kali per peserta (kuantitas terkunci 1 item).
+                                  Produk ini hanya dapat ditukarkan 1 kali per tim (kuantitas terkunci 1 item).
                                 </span>
                               </div>
                             ) : (
@@ -670,7 +675,7 @@ export default function ProductPage() {
                             <div className="my-3 p-4 rounded-xl bg-white/[0.04] border border-white/10 space-y-2.5 text-xs">
                               <div className="flex items-center justify-between">
                                 <span className="text-[#AAB1BD]">
-                                  Stok Diamond Anda:
+                                  Diamond Anda:
                                 </span>
                                 <span className="font-bold text-[#FED700] flex items-center gap-1 text-sm">
                                   <span>💎</span> {userDiamonds.toLocaleString()}
@@ -715,9 +720,9 @@ export default function ProductPage() {
                               <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-2">
                                 <AlertCircle className="h-4 w-4 shrink-0 text-red-400" />
                                 <span>
-                                  Stok Diamond Anda tidak mencukupi untuk menukar{" "}
+                                  Diamond Anda tidak mencukupi untuk menukar{" "}
                                   {currentQty > 1 ? `${currentQty} item ` : ""}
-                                  produk ini.
+                                  produk ini. Jumlah maksimal penukaran adalah {Math.floor(userDiamonds / product.price)}.
                                 </span>
                               </div>
                             )}

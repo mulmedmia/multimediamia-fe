@@ -19,6 +19,7 @@ import {
   CheckCircle2,
   RefreshCw,
   Zap,
+  Gem,
 } from "lucide-react";
 
 export default function HistoryPesananPage() {
@@ -78,6 +79,8 @@ export default function HistoryPesananPage() {
 
   const { data, isLoading, isError, refetch } = useMyRedemptions({
     category_id: selectedCategoryId || undefined,
+    registration_id: activeCategory?.registration_id || undefined,
+    limit: 50,
   });
 
   return (
@@ -100,7 +103,7 @@ export default function HistoryPesananPage() {
               </h1>
 
               <p className="text-sm sm:text-base md:text-lg text-[#AAB1BD] leading-relaxed">
-                Pantau seluruh riwayat penukaran Diamonds <span className="inline-block">💎</span> Anda dengan berbagai produk dan hadiah eksklusif MIA 2026.
+                Pantau seluruh riwayat penukaran XP dan Diamonds <span className="inline-block">💎</span> Anda dengan berbagai produk dan hadiah eksklusif MIA 2026.
               </p>
             </div>
 
@@ -203,10 +206,18 @@ export default function HistoryPesananPage() {
                       {activeCategory && (
                         <div className="flex items-center gap-3 px-4 py-2.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold self-stretch sm:self-auto justify-center">
                           <span className="text-[#AAB1BD]">Tim:</span>
-                          <span className="text-[#FFF9F5] font-bold">{activeCategory.team_name || "-"}</span>
-                          <span className="text-white/20">|</span>
-                          <span className="text-[#FED700] font-bold flex items-center gap-1">
-                            <span>💎</span> {activeCategory.diamond.toLocaleString()}
+                          <span className="text-[#FFF9F5] font-bold">
+                            {activeCategory.team_name || "-"}
+                          </span>
+                          <span className="text-border/40 select-none">|</span>
+                          <span className="text-amber-400 flex items-center gap-1.5 font-bold">
+                            <Zap className="h-3.5 w-3.5 fill-amber-400" />
+                            {activeCategory.xp.toLocaleString()} XP
+                          </span>
+                          <span className="text-border/40 select-none">|</span>
+                          <span className="text-cyan-400 flex items-center gap-1.5 font-bold">
+                            <Gem className="h-3 w-3 fill-cyan-400" />
+                            {activeCategory.diamond.toLocaleString()}
                           </span>
                         </div>
                       )}
@@ -354,12 +365,6 @@ export default function HistoryPesananPage() {
                                 <h3 className="font-bold text-base sm:text-lg text-[#FFF9F5] group-hover:text-[#E01C20] transition-colors truncate">
                                   {item.product?.name || "Produk Hadiah"}
                                 </h3>
-                                {(item.product?.category?.name || item.category?.name) && (
-                                  <span className="inline-flex items-center gap-1 bg-white/5 border border-white/10 text-[#AAB1BD] text-[11px] font-medium px-2.5 py-0.5 rounded-full">
-                                    <Trophy className="h-3 w-3 text-amber-400" />
-                                    <span>{item.product?.category?.name || item.category?.name}</span>
-                                  </span>
-                                )}
                                 <span className="inline-flex items-center gap-1 bg-[#00B445]/15 text-[#00B445] border border-[#00B445]/30 text-[11px] font-semibold px-2.5 py-0.5 rounded-full">
                                   <CheckCircle2 className="h-3 w-3" />
                                   <span>Berhasil</span>

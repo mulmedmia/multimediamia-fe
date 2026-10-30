@@ -22,6 +22,7 @@ import {
   Trophy,
   Gift,
   RefreshCw,
+  Package,
 } from "lucide-react";
 import { toast } from "sonner";
 import { getMissionSubmissionStatus } from "@/lib/utils";

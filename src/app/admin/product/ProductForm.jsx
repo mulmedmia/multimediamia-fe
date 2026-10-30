@@ -159,7 +159,7 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
         {/* Nama Produk */}
         <div className="space-y-1.5 sm:col-span-2">
           <Label htmlFor="name" className="text-xs text-muted-foreground font-medium">
-            Nama Produk / Merchandise <span className="text-[#E01C20]">*</span>
+            Nama Produk <span className="text-[#E01C20]">*</span>
           </Label>
           <Input
             id="name"
@@ -263,7 +263,7 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
               </div>
               
               <p className="text-[11px] text-muted-foreground">
-                Centang jika produk ini tidak memiliki batasan kuota stok (misal merchandise digital atau stok selalu tersedia).
+                Centang jika produk ini tidak memiliki batasan kuota stok (misal produk digital atau stok selalu tersedia).
               </p>
             </label>
           </div>
@@ -282,14 +282,14 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
               className="space-y-1 leading-none cursor-pointer"
             >
               <div className="text-xs font-semibold text-foreground cursor-pointer flex items-center gap-1.5">
-                <span>Hanya Bisa Di-redeem 1 Kali per Pengguna</span>
+                <span>Hanya Bisa Di-redeem 1 Kali per Tim</span>
                 <span className="text-[10px] text-amber-400 bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded font-medium">
                   1x Redeem
                 </span>
               </div>
               
               <p className="text-[11px] text-muted-foreground">
-                Jika diaktifkan, setiap peserta/pengguna hanya dapat menukarkan produk ini 1 kali saja (kuantitas otomatis terkunci 1). Jika nonaktif, pengguna dapat menentukan sendiri berapa banyak produk yang ingin di-redeem.
+                Jika diaktifkan, setiap tim hanya dapat menukarkan produk ini 1 kali saja (kuantitas otomatis terkunci 1). Jika nonaktif, tim dapat menentukan sendiri berapa banyak produk yang ingin di-redeem.
               </p>
             </label>
           </div>

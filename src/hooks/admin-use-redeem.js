@@ -8,11 +8,12 @@ export function useAdminRedemptions({
   search = "",
   product_id = "",
   category_id = "",
+  registration_id = "",
 } = {}) {
   return useQuery({
-    queryKey: ["admin-redeem", { page, limit, search, product_id, category_id }],
+    queryKey: ["admin-redeem", { page, limit, search, product_id, category_id, registration_id }],
     queryFn: () =>
-      getAllRedemptions({ page, limit, search, product_id, category_id }),
+      getAllRedemptions({ page, limit, search, product_id, category_id, registration_id }),
     placeholderData: keepPreviousData,
     staleTime: 1000 * 60,
   });
