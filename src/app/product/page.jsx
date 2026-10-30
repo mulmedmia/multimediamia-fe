@@ -494,8 +494,8 @@ export default function ProductPage() {
 
                           {isUnlimited ? (
                             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-500/15 text-purple-400 border border-purple-500/30">
+                              <span>Stok: </span>
                               <InfinityIcon className="h-3 w-3" />
-                              <span>Stok: <span className="font-semibold">∞</span></span>
                             </span>
                           ) : (
                             <span
