@@ -26,6 +26,7 @@ import {
   Zap,
   Trophy,
   ArrowRight,
+  Gem,
 } from "lucide-react";
 import { useUserProfile } from "@/hooks/user-use-profile";
 import {
@@ -223,7 +224,7 @@ export default function ProductPage() {
               </h1>
 
               <p className="text-sm sm:text-base md:text-lg text-[#AAB1BD] leading-relaxed">
-                Tukarkan Diamonds <span className="inline-block">💎</span> yang telah Anda kumpulkan dengan berbagai hadiah eksklusif MIA 2026.
+                Tukarkan XP dan Diamonds <span className="inline-block">💎</span> yang telah tim Anda kumpulkan dengan berbagai hadiah eksklusif MIA 2026.
               </p>
             </div>
 
@@ -251,16 +252,18 @@ export default function ProductPage() {
                   {activeCategory ? (
                     <div className="flex items-center gap-3 px-4 py-2.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold self-stretch sm:self-auto justify-center">
                       <span className="text-[#AAB1BD]">Tim:</span>
-                      <span className="text-[#FFF9F5] font-bold">{activeCategory.team_name || "-"}</span>
-                      <span className="text-white/20">|</span>
-                      <span className="text-[#FED700] font-bold flex items-center gap-1">
-                        <span>💎</span>
-                        {userDiamonds.toLocaleString()}
+                      <span className="text-[#FFF9F5] font-bold">
+                        {activeCategory.team_name || "-"}
                       </span>
-                      <span className="text-white/20">|</span>
-                      <span className="text-amber-400 font-bold flex items-center gap-1">
+                      <span className="text-border/40 select-none">|</span>
+                      <span className="text-amber-400 flex items-center gap-1.5 font-bold">
                         <Zap className="h-3.5 w-3.5 fill-amber-400" />
                         {userXp.toLocaleString()} XP
+                      </span>
+                      <span className="text-border/40 select-none">|</span>
+                      <span className="text-cyan-400 flex items-center gap-1.5 font-bold">
+                        <Gem className="h-3 w-3 fill-cyan-400" />
+                        {userDiamonds.toLocaleString()}
                       </span>
                     </div>
                   ) : (
