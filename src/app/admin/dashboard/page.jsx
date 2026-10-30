@@ -8,7 +8,7 @@ import { useAdminCategories } from "@/hooks/admin-use-categories";
 import { useAdminProducts } from "@/hooks/admin-use.product";
 import { useAdminMissions } from "@/hooks/admin-use-missions";
 import { useAdminJuri } from "@/hooks/admin-use-juri";
-import { useAdminRedemptions } from "@/hooks/admin-use-reddem";
+import { useAdminRedemptions } from "@/hooks/admin-use-redeem";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";

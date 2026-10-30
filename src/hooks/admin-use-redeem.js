@@ -1,5 +1,5 @@
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { getAllRedemptions } from "@/services/admin-reddem.service";
+import { getAllRedemptions } from "@/services/admin-redeem.service";
 
 // Query untuk ambil semua data redeem user (admin)
 export function useAdminRedemptions({
@@ -10,7 +10,7 @@ export function useAdminRedemptions({
   category_id = "",
 } = {}) {
   return useQuery({
-    queryKey: ["admin-reddem", { page, limit, search, product_id, category_id }],
+    queryKey: ["admin-redeem", { page, limit, search, product_id, category_id }],
     queryFn: () =>
       getAllRedemptions({ page, limit, search, product_id, category_id }),
     placeholderData: keepPreviousData,

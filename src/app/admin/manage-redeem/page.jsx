@@ -4,8 +4,8 @@ import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import { getSafeImageUrl } from "@/lib/image-loader";
 import { useQuery } from "@tanstack/react-query";
-import { useAdminRedemptions } from "@/hooks/admin-use-reddem";
-import { getAllRedemptions } from "@/services/admin-reddem.service";
+import { useAdminRedemptions } from "@/hooks/admin-use-redeem";
+import { getAllRedemptions } from "@/services/admin-redeem.service";
 import { useAdminProducts } from "@/hooks/admin-use.product";
 import { useAdminCategories } from "@/hooks/admin-use-categories";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
@@ -120,7 +120,7 @@ export default function ManageRedemptionPage() {
 
   // Global Stats Query for top cards
   const { data: allStatsData } = useQuery({
-    queryKey: ["admin-reddem-overall-stats"],
+    queryKey: ["admin-redeem-overall-stats"],
     queryFn: () => getAllRedemptions({ page: 1, limit: 1000 }),
     staleTime: 1000 * 60,
   });
