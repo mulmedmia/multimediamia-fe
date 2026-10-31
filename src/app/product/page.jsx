@@ -422,7 +422,32 @@ export default function ProductPage() {
                   const isOutOfStock = !isUnlimited && (currentStock < 1 || isZeroStock);
                   const canRedeem = product.is_active && !isOutOfStock && !alreadyClaimed;
 
-                  const currentQty = isSingle ? 1 : Math.max(1, redeemQuantity);
+                  // Hitung kuantitas maksimal yang mampu dibeli berdasarkan saldo Diamond & XP
+                  const maxAffordableDiamonds =
+                    Number(product.price_diamond) > 0
+                      ? Math.floor(userDiamonds / Number(product.price_diamond))
+                      : Infinity;
+
+                  const maxAffordableXp =
+                    hasXpPrice
+                      ? Math.floor(userXp / Number(product.price_xp))
+                      : Infinity;
+
+                  const maxAffordable = Math.min(maxAffordableDiamonds, maxAffordableXp);
+                  const maxStock = isUnlimited ? 999 : Math.max(0, currentStock);
+
+                  // Kuantitas maksimal yang diizinkan untuk diinput (dibatasi oleh stok & saldo, min 1)
+                  const maxRedeemable = isSingle
+                    ? 1
+                    : Math.max(
+                        1,
+                        Math.min(
+                          maxStock,
+                          maxAffordable === Infinity ? maxStock : maxAffordable
+                        )
+                      );
+
+                  const currentQty = isSingle ? 1 : Math.min(maxRedeemable, Math.max(1, redeemQuantity));
                   const totalCost = Number(product.price_diamond ?? 0) * currentQty;
                   const totalXpCost = hasXpPrice ? Number(product.price_xp) * currentQty : 0;
                   const earnedXp = hasXpReward ? Number(product.reward_xp) * currentQty : 0;
@@ -450,7 +475,7 @@ export default function ProductPage() {
                         <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 flex-wrap">
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#141824]/90 text-[#FFF9F5] border border-white/10 backdrop-blur-md">
                             <Gift className="h-3.5 w-3.5 text-[#E01C20]" />
-                            {hasXpPrice ? "Hadiah XP" : hasXpReward ? "Konversi XP" : "Produk"}
+                            {hasXpReward ? "Konversi XP" : "Produk"}
                           </span>
                           {!product.category_id && (
                             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 backdrop-blur-md">
@@ -460,12 +485,6 @@ export default function ProductPage() {
                           {isSingle && (
                             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/40 backdrop-blur-md">
                               1x Redeem
-                            </span>
-                          )}
-                          {hasXpPrice && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/40 backdrop-blur-md">
-                              <Zap className="h-3 w-3 text-amber-400" />
-                              {Number(product.price_xp).toLocaleString()} XP
                             </span>
                           )}
                           {hasXpReward && (
@@ -579,8 +598,6 @@ export default function ProductPage() {
                                   ? "Hadiah Telah Habis"
                                   : hasXpReward
                                   ? "Tukar ke XP"
-                                  : hasXpPrice
-                                  ? "Tukar Hadiah (XP)"
                                   : "Tukar Produk"}
                               </span>
                             </button>
@@ -590,8 +607,6 @@ export default function ProductPage() {
                               <AlertDialogTitle className="text-lg font-bold text-[#FFF9F5]">
                                 {hasXpReward
                                   ? "Konfirmasi Penukaran Diamond ke XP"
-                                  : hasXpPrice
-                                  ? "Konfirmasi Penukaran Hadiah (XP)"
                                   : "Konfirmasi Penukaran Hadiah"}
                               </AlertDialogTitle>
                               <p className="text-sm text-[#AAB1BD] mt-2 leading-relaxed">
@@ -618,15 +633,15 @@ export default function ProductPage() {
                                   <p className="text-xs font-semibold text-[#FFF9F5]">
                                     Jumlah Penukaran
                                   </p>
-                                  <p className="text-[11px] text-[#AAB1BD]">
+                                  <p className="text-[11px] text-[#AAB1BD] whitespace-pre-line">
                                     {isUnlimited
-                                      ? "Stok tidak terbatas"
-                                      : `Tersedia: ${currentStock} item`}
+                                      ? (maxAffordable !== Infinity) && "Stok tidak terbatas"
+                                      : (maxAffordable < maxStock) && `Tersedia: ${currentStock} item`}
                                   </p>
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <HoldButton
-                                    disabled={redeemQuantity <= 1}
+                                    disabled={currentQty <= 1}
                                     onAction={() =>
                                       setRedeemQuantity((q) => Math.max(1, q - 1))
                                     }
@@ -638,34 +653,25 @@ export default function ProductPage() {
                                   <input
                                     type="number"
                                     min="1"
-                                    max={isUnlimited ? 999 : currentStock}
-                                    value={redeemQuantity}
+                                    max={maxRedeemable}
+                                    value={currentQty}
                                     onChange={(e) => {
                                       const val = parseInt(e.target.value, 10);
                                       if (isNaN(val) || val < 1) {
                                         setRedeemQuantity(1);
                                       } else {
-                                        const maxVal = isUnlimited
-                                          ? 999
-                                          : currentStock;
                                         setRedeemQuantity(
-                                          Math.min(maxVal, Math.max(1, val))
+                                          Math.min(maxRedeemable, Math.max(1, val))
                                         );
                                       }
                                     }}
                                     className="w-14 h-8 rounded-lg bg-black/50 border border-white/20 text-center text-xs font-bold text-[#FFF9F5] focus:outline-none focus:border-[#E01C20]"
                                   />
                                   <HoldButton
-                                    disabled={
-                                      !isUnlimited &&
-                                      redeemQuantity >= currentStock
-                                    }
+                                    disabled={currentQty >= maxRedeemable}
                                     onAction={() => {
-                                      const maxVal = isUnlimited
-                                        ? 999
-                                        : currentStock;
                                       setRedeemQuantity((q) =>
-                                        Math.min(maxVal, q + 1)
+                                        Math.min(maxRedeemable, q + 1)
                                       );
                                     }}
                                     className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 active:bg-white/30 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-[#FFF9F5] transition-colors cursor-pointer select-none touch-manipulation"
@@ -705,8 +711,9 @@ export default function ProductPage() {
                                 <span className="text-[#AAB1BD]">
                                   Diamond Anda:
                                 </span>
-                                <span className="font-bold text-[#FED700] flex items-center gap-1 text-sm">
-                                  <span>💎</span> {userDiamonds.toLocaleString()}
+                                <span className="font-bold text-cyan-400 flex items-center gap-1 text-sm">
+                                  <Gem className="h-3.5 w-3.5" /> 
+                                  <span>{userDiamonds.toLocaleString()}</span>
                                 </span>
                               </div>
                               {hasXpPrice && (
@@ -715,7 +722,8 @@ export default function ProductPage() {
                                     XP Anda:
                                   </span>
                                   <span className="font-bold text-amber-400 flex items-center gap-1 text-sm">
-                                    <Zap className="h-3.5 w-3.5" /> {userXp.toLocaleString()} XP
+                                    <Zap className="h-3.5 w-3.5" /> 
+                                    <span>{userXp.toLocaleString()} XP</span>
                                   </span>
                                 </div>
                               )}
@@ -725,7 +733,7 @@ export default function ProductPage() {
                                     Total Biaya Diamond {currentQty > 1 ? `(${currentQty} item)` : ""}:
                                   </span>
                                   <span className="font-bold text-[#E01C20] flex items-center gap-1 text-sm">
-                                    - <span>💎</span> {totalCost.toLocaleString()}
+                                    - <Gem className="h-3.5 w-3.5" />  {totalCost.toLocaleString()}
                                   </span>
                                 </div>
                               )}
@@ -734,7 +742,7 @@ export default function ProductPage() {
                                   <span className="text-[#AAB1BD]">
                                     Total Biaya XP {currentQty > 1 ? `(${currentQty} item)` : ""}:
                                   </span>
-                                  <span className="font-bold text-amber-400 flex items-center gap-1 text-sm">
+                                  <span className="font-bold text-[#E01C20] flex items-center gap-1 text-sm">
                                     - <Zap className="h-3.5 w-3.5" /> {totalXpCost.toLocaleString()} XP
                                   </span>
                                 </div>
@@ -755,13 +763,13 @@ export default function ProductPage() {
                                     Sisa Diamond:
                                   </span>
                                   <span
-                                    className={`font-bold flex items-center gap-1 text-sm ${
+                                    className={cn("font-bold flex items-center gap-1 text-sm",
                                       remainingDiamonds >= 0
-                                        ? "text-[#00B445]"
+                                      ? "text-[#00B445]"
                                         : "text-[#E01C20]"
-                                    }`}
+                                    )}
                                   >
-                                    <span>💎</span>{" "}
+                                    <Gem className="h-3.5 w-3.5" /> 
                                     {remainingDiamonds.toLocaleString()}
                                   </span>
                                 </div>
