@@ -30,15 +30,15 @@ import {
 } from "lucide-react";
 import { useUserProfile } from "@/hooks/user-use-profile";
 import {
-  AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogFooter,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from "@/components/ui/alert-dialog";
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
+  DialogAction,
+} from "@/components/ui/dialog";
 import { useAuthContext } from "@/providers/AuthProvider";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import Footer from "@/components/layout/Footer";
@@ -484,27 +484,30 @@ export default function ProductPage() {
                           fill={true}
                           className="object-cover transition-transform duration-500 group-hover:scale-105"
                         />
-                        <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 flex-wrap">
+                        <div className="absolute top-3 px-3 z-20 flex items-start gap-1.5 justify-between w-full">
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#141824]/90 text-[#FFF9F5] border border-white/10 backdrop-blur-md">
                             <Gift className="h-3.5 w-3.5 text-[#E01C20]" />
                             {hasXpReward ? "Konversi XP" : "Produk"}
                           </span>
-                          {!product.category_id && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 backdrop-blur-md">
-                              🌐 Semua Kategori
-                            </span>
-                          )}
-                          {hasTeamLimit && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/40 backdrop-blur-md">
-                              Maks {maxPerTeam}x / Tim
-                            </span>
-                          )}
-                          {hasXpReward && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 backdrop-blur-md">
-                              <Zap className="h-3 w-3 text-emerald-400" />
-                              +{product.reward_xp} XP / item
-                            </span>
-                          )}
+
+                          <div className="flex flex-col gap-1.5 items-end mt-0.5">
+                            {!product.category_id && (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-950/90 text-emerald-300 border border-emerald-800/40 backdrop-blur-md w-fit">
+                                🌐 Semua Kategori
+                              </span>
+                            )}
+                            {hasTeamLimit && (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-950/90 text-amber-300 border border-amber-800/40 backdrop-blur-md w-fit">
+                                Maks {maxPerTeam}x / Tim
+                              </span>
+                            )}
+                            {hasXpReward && (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-950/90 text-emerald-300 border border-emerald-800/40 backdrop-blur-md w-fit">
+                                <Zap className="h-3 w-3 text-emerald-400" />
+                                +{product.reward_xp} XP / item
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
 
@@ -556,8 +559,8 @@ export default function ProductPage() {
                           )}
                         </div>
 
-                        {/* AlertDialog & Redeem Action */}
-                        <AlertDialog
+                        {/* Dialog & Redeem Action */}
+                        <Dialog
                           open={selectedProduct === product.product_id}
                           onOpenChange={(open) => {
                             if (!open) {
@@ -566,7 +569,7 @@ export default function ProductPage() {
                             }
                           }}
                         >
-                          <AlertDialogTrigger asChild>
+                          <DialogTrigger asChild>
                             <button
                               className={cn(
                                 "w-full mt-2 mia-btn-primary h-10 text-xs text-white font-semibold inline-flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed",
@@ -600,14 +603,14 @@ export default function ProductPage() {
                                   : "Tukar Produk"}
                               </span>
                             </button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent className="rounded-2xl border border-white/10 bg-[#0A0D14] text-[#FFF9F5] p-6 shadow-2xl max-w-md selection:bg-primary selection:text-white">
-                            <AlertDialogHeader>
-                              <AlertDialogTitle className="text-lg font-bold text-[#FFF9F5]">
+                          </DialogTrigger>
+                          <DialogContent showCloseButton={false} className="rounded-2xl border border-white/10 bg-[#0A0D14] text-[#FFF9F5] p-6 shadow-2xl sm:max-w-md selection:bg-primary selection:text-white">
+                            <DialogHeader>
+                              <DialogTitle className="text-lg font-bold text-[#FFF9F5]">
                                 {hasXpReward
                                   ? "Konfirmasi Penukaran Diamond ke XP"
                                   : "Konfirmasi Penukaran Hadiah"}
-                              </AlertDialogTitle>
+                              </DialogTitle>
                               <p className="text-sm text-[#AAB1BD] mt-2 leading-relaxed">
                                 Apakah Anda yakin ingin menukar{" "}
                                 <span className="font-bold text-[#FFF9F5]">
@@ -615,7 +618,7 @@ export default function ProductPage() {
                                 </span>
                                 ?
                               </p>
-                            </AlertDialogHeader>
+                            </DialogHeader>
 
                             {/* Info khusus batas penukaran per tim */}
                             {hasTeamLimit && (
@@ -804,14 +807,14 @@ export default function ProductPage() {
                               <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-2">
                                 <AlertCircle className="h-4 w-4 shrink-0 text-red-400" />
                                 <span>
-                                  Diamond dan XP Anda tidak mencukupi untuk menukar produk ini.
+                                  Diamond dan XP Anda tidak cukup untuk menukar produk ini.
                                 </span>
                               </div>
                             ) : userDiamonds < totalDiamondCost ? (
                               <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-2">
                                 <AlertCircle className="h-4 w-4 shrink-0 text-red-400" />
                                 <span>
-                                  Diamond Anda tidak mencukupi untuk menukar{" "}
+                                  Diamond Anda tidak cukup untuk menukar{" "}
                                   {currentQty > 1 ? `${currentQty} item ` : ""}
                                   produk ini.
                                 </span>
@@ -820,18 +823,18 @@ export default function ProductPage() {
                               <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-2">
                                 <AlertCircle className="h-4 w-4 shrink-0 text-red-400" />
                                 <span>
-                                  XP Anda tidak mencukupi untuk menukar{" "}
+                                  XP Anda tidak cukup untuk menukar{" "}
                                   {currentQty > 1 ? `${currentQty} item ` : ""}
                                   produk ini. Diperlukan {totalXpCost.toLocaleString()} XP.
                                 </span>
                               </div>
                             ) : null}
 
-                            <AlertDialogFooter className="gap-2">
-                              <AlertDialogCancel className="rounded-full border border-white/15 bg-transparent hover:bg-white/5 text-[#FFF9F5] text-xs font-semibold h-10 cursor-pointer">
+                            <DialogFooter className="gap-2 sm:space-x-2">
+                              <DialogClose className="rounded-full border border-white/15 bg-transparent hover:bg-white/5 text-[#FFF9F5] text-xs font-semibold h-10 cursor-pointer px-4 py-2">
                                 Batal
-                              </AlertDialogCancel>
-                              <AlertDialogAction
+                              </DialogClose>
+                              <button
                                 className="mia-btn-primary text-xs font-semibold h-10 px-5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                 disabled={
                                   redeemMutation.isPending ||
@@ -893,10 +896,10 @@ export default function ProductPage() {
                                   <Loader2 className="h-4 w-4 animate-spin text-white mr-1.5" />
                                 ) : null}
                                 <span>{hasXpReward ? "Ya, Konversi ke XP" : "Ya, Tukar Hadiah"}</span>
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                              </button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
                       </div>
                     </div>
                   );
