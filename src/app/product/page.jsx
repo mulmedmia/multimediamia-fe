@@ -522,31 +522,18 @@ export default function ProductPage() {
 
                         {/* Price & Stock info */}
                         <div className="flex items-center justify-between text-sm mt-auto pt-3 border-t border-white/10 flex-wrap gap-2">
-                          <div className="flex items-center gap-2 flex-wrap">
+                          <div className="flex items-center gap-2 flex-wrap font-semibold">
+                            {Number(product.price_xp) > 0 && (
+                              <span className="flex items-center gap-1 text-amber-300">
+                                <Zap className="h-3.5 w-3.5 text-amber-400" />
+                                <span>{Number(product.price_xp).toLocaleString("id-ID")} XP</span>
+                              </span>
+                            )}
                             {Number(product.price_diamond) > 0 && (
-                              <div className="flex items-center gap-1">
-                                <span className="text-base font-bold text-[#FED700] flex items-center gap-1">
-                                  <span className="text-sm">💎</span>
-                                  {Number(product.price_diamond).toLocaleString()}
-                                </span>
-                                <span className="text-xs text-[#AAB1BD]">
-                                  Diamond
-                                </span>
-                              </div>
-                            )}
-                            {hasXpPrice && (
-                              <div className="flex items-center gap-1">
-                                <span className="text-base font-bold text-amber-400 flex items-center gap-1">
-                                  <Zap className="h-3.5 w-3.5" />
-                                  {Number(product.price_xp).toLocaleString()}
-                                </span>
-                                <span className="text-xs text-[#AAB1BD]">
-                                  XP
-                                </span>
-                              </div>
-                            )}
-                            {Number(product.price_diamond) <= 0 && !hasXpPrice && (
-                              <span className="text-sm font-bold text-emerald-400">Gratis</span>
+                              <span className="flex items-center gap-1 text-cyan-300">
+                                <Gem className="h-3.5 w-3.5 text-cyan-400" /> 
+                                <span>{Number(product.price_diamond).toLocaleString("id-ID")}</span>
+                              </span>
                             )}
                           </div>
 
