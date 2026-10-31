@@ -26,7 +26,7 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
-import ProductDetailCard from "./ProductDetailCard";
+import ProductDetailModal from "./ProductDetailModal";
 
 function HoldButton({ children, onAction, disabled, className, title }) {
   const holdProps = useHoldPress(onAction, { disabled });
@@ -322,7 +322,7 @@ export default function ProductCard({
       </div>
 
       {/* Product Detail Modal (Popup) */}
-      <ProductDetailCard
+      <ProductDetailModal
         isOpen={isDetailOpen}
         onOpenChange={setIsDetailOpen}
         product={product}

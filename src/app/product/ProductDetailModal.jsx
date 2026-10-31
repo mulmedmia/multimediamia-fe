@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export default function ProductDetailCard({
+export default function ProductDetailModal({
   isOpen,
   onOpenChange,
   product,
@@ -98,32 +98,6 @@ export default function ProductDetailCard({
                 {product.category.name}
               </span>
             ) : null}
-
-            {/* {hasTeamLimit && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-950/80 text-amber-300 border border-amber-800/40">
-                <Users className="h-3 w-3" />
-                Maks {maxPerTeam}x / Tim
-              </span>
-            )} */}
-
-            {/* {isUnlimited ? (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-purple-500/15 text-purple-400 border border-purple-500/30">
-                <span>Stok: </span>
-                <InfinityIcon className="h-3 w-3" />
-              </span>
-            ) : (
-              <span
-                className={cn(
-                  "inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium",
-                  "bg-zinc-500/15 text-zinc-400 border border-zinc-500/30",
-                  currentStock > 0 && "bg-[#E01C20]/15 text-[#E01C20] border border-[#E01C20]/30",
-                  currentStock > 5 && "bg-[#00B445]/15 text-[#00B445] border border-[#00B445]/30",
-                )}
-              >
-                <Boxes className="h-3 w-3" />
-                Stok: {currentStock}
-              </span>
-            )} */}
           </div>
 
           <DialogTitle className="text-xl font-bold text-[#FFF9F5]">
@@ -280,4 +254,4 @@ export default function ProductDetailCard({
   );
 }
 
-export { ProductDetailCard };
+export { ProductDetailModal as ProductDetailCard };
