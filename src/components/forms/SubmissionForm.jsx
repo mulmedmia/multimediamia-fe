@@ -766,7 +766,7 @@ export function SubmissionForm({
       editingSubmission?.thumbnail_url ||
       editingSubmission?.thumbnail;
 
-    if (!hasThumbnail) {
+    if (isFinalPhase && !hasThumbnail) {
       setThumbnailError("Thumbnail karya wajib diunggah.");
       toast.error("Thumbnail karya wajib diunggah.");
       const thumbEl = document.getElementById("thumbnail-upload-container");
@@ -985,15 +985,52 @@ export function SubmissionForm({
           <InputError fieldError={errors.description} />
         </div>
 
+        {/* Flow Aplikasi - Hanya tampil untuk GROUP */}
+        {teamType === "GROUP" && (
+          <div className="space-y-2">
+            <Label
+              htmlFor="flow_application"
+              className="block text-sm font-semibold text-foreground"
+            >
+              Flow Aplikasi
+            </Label>
+            <Textarea
+              id="flow_application"
+              placeholder="User buka app -> Login -> Dashboard -> Browse fitur -> Gunakan fitur spesifik..."
+              required
+              rows={3}
+              {...register("flow_application")}
+              className={cn(
+                "bg-input dark:bg-input/30 rounded-xl p-3.5 text-sm text-foreground placeholder:text-mia-muted-2 transition-colors focus-visible:ring-offset-0 focus-visible:outline-none",
+                errors.flow_application
+                  ? "border-destructive focus-visible:ring-destructive"
+                  : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
+              )}
+            />
+            <InputError fieldError={errors.flow_application} />
+          </div>
+        )}
+
+        {/* Untuk INDIVIDUAL */}
+        {teamType === "INDIVIDUAL" && (
+          <div className="p-3.5 bg-sky-500/10 rounded-xl border border-sky-500/25 text-xs text-sky-300 flex items-center gap-2">
+            <InfoCircledIcon className="w-4 h-4 flex-shrink-0" />
+            <p>
+              Untuk kategori Individual, Tim dan Flow Aplikasi tidak diperlukan.
+            </p>
+          </div>
+        )}
+
         {/* Thumbnail Karya (Gambar Pratinjau Show It) */}
         <div id="thumbnail-upload-container" className="space-y-2">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1">
             <Label
               htmlFor="thumbnail-upload"
               className="block text-sm font-semibold text-foreground"
             >
               Thumbnail Karya
             </Label>
+            <span className="text-xs font-normal text-muted-foreground">(Opsional Sementara)</span>
           </div>
 
           <div
@@ -1047,7 +1084,7 @@ export function SubmissionForm({
                 <span>
                   {thumbnailPreview
                     ? "Ganti Thumbnail Karya"
-                    : "Unggah Thumbnail Karya *"}
+                    : `Unggah Thumbnail Karya${isFinalPhase ? "*" : ""}`}
                 </span>
               </label>
               <div className="space-y-0.5">
@@ -1066,42 +1103,6 @@ export function SubmissionForm({
             </p>
           )}
         </div>
-
-        {/* Flow Aplikasi - Hanya tampil untuk GROUP */}
-        {teamType === "GROUP" && (
-          <div className="space-y-2">
-            <Label
-              htmlFor="flow_application"
-              className="block text-sm font-semibold text-foreground"
-            >
-              Flow Aplikasi
-            </Label>
-            <Textarea
-              id="flow_application"
-              placeholder="User buka app -> Login -> Dashboard -> Browse fitur -> Gunakan fitur spesifik..."
-              required
-              rows={3}
-              {...register("flow_application")}
-              className={cn(
-                "bg-input dark:bg-input/30 rounded-xl p-3.5 text-sm text-foreground placeholder:text-mia-muted-2 transition-colors focus-visible:ring-offset-0 focus-visible:outline-none",
-                errors.flow_application
-                  ? "border-destructive focus-visible:ring-destructive"
-                  : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
-              )}
-            />
-            <InputError fieldError={errors.flow_application} />
-          </div>
-        )}
-
-        {/* Untuk INDIVIDUAL */}
-        {teamType === "INDIVIDUAL" && (
-          <div className="p-3.5 bg-sky-500/10 rounded-xl border border-sky-500/25 text-xs text-sky-300 flex items-center gap-2">
-            <InfoCircledIcon className="w-4 h-4 flex-shrink-0" />
-            <p>
-              Untuk kategori Individual, Tim dan Flow Aplikasi tidak diperlukan.
-            </p>
-          </div>
-        )}
       </div>
 
       <Separator />
