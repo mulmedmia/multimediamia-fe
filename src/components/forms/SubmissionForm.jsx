@@ -1029,8 +1029,13 @@ export function SubmissionForm({
               className="block text-sm font-semibold text-foreground"
             >
               Thumbnail Karya
+              {" "}
+              {!isFinalPhase ? (
+                <span className="text-xs font-normal text-muted-foreground">(Opsional Sementara)</span>
+              ) : (
+                <span className="text-red-500 font-bold"> *</span>
+              )}
             </Label>
-            <span className="text-xs font-normal text-muted-foreground">(Opsional Sementara)</span>
           </div>
 
           <div
@@ -1084,7 +1089,7 @@ export function SubmissionForm({
                 <span>
                   {thumbnailPreview
                     ? "Ganti Thumbnail Karya"
-                    : `Unggah Thumbnail Karya${isFinalPhase ? "*" : ""}`}
+                    : "Unggah Thumbnail Karya"}
                 </span>
               </label>
               <div className="space-y-0.5">
