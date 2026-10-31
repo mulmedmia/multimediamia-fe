@@ -394,11 +394,11 @@ export default function HistoryPesananPage() {
                                   </span>
                                 </div>
 
-                                {(item.points_used > 0 || (item.product?.price && Number(item.product.price) > 0)) && (
+                                {(item.points_used > 0 || (Number(item.product?.price_diamond) > 0)) && (
                                   <div className="inline-flex items-center gap-1.5 bg-[#141824] border border-white/10 px-2.5 py-1 rounded-md">
                                     <span className="text-xs">💎</span>
                                     <span className="font-semibold text-[#FED700]">
-                                      {item.points_used ?? item.product?.price ?? 0}
+                                      {item.points_used ?? item.product?.price_diamond ?? 0}
                                     </span>
                                     <span className="text-[#AAB1BD]">Diamonds Terpakai</span>
                                   </div>
@@ -432,10 +432,10 @@ export default function HistoryPesananPage() {
                               Nilai Tukar
                             </span>
                             <div className="flex md:flex-col items-end gap-1">
-                              {(item.points_used > 0 || (item.product?.price && Number(item.product.price) > 0)) && (
+                              {(item.points_used > 0 || (Number(item.product?.price_diamond) > 0)) && (
                                 <span className="text-base sm:text-lg font-bold text-[#FED700] flex items-center gap-1">
                                   <span className="text-sm">💎</span>
-                                  <span>{item.product?.price || item.points_used || 0}</span>
+                                  <span>{item.product?.price_diamond || item.points_used || 0}</span>
                                   <span className="text-[10px] font-normal text-[#AAB1BD]">Diamonds</span>
                                 </span>
                               )}

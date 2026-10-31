@@ -491,13 +491,7 @@ export default function AdminProductPage() {
                                   1x Redeem
                                 </Badge>
                               )}
-                              {Number(prod.price_xp) > 0 && (
-                                <Badge className="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px] px-1.5 py-0.2 rounded font-medium flex items-center gap-0.5">
-                                  <Zap className="h-3 w-3" />
-                                  <span>{Number(prod.price_xp).toLocaleString("id-ID")} XP</span>
-                                </Badge>
-                              )}
-                              {Number(prod.price_xp) <= 0 && Number(prod.reward_xp) > 0 && (
+                              {Number(prod.reward_xp) > 0 && (
                                 <Badge className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] px-1.5 py-0.2 rounded font-medium flex items-center gap-0.5">
                                   <Zap className="h-3 w-3" />
                                   <span>+{prod.reward_xp} XP</span>
@@ -513,19 +507,23 @@ export default function AdminProductPage() {
 
                       {/* Harga */}
                       <TableCell className="py-3.5 text-xs sm:text-sm font-semibold text-foreground whitespace-nowrap">
-                        <div className="flex flex-col gap-0.5">
-                          {Number(prod.price) > 0 && (
+                        <div className="flex items-center gap-2 flex-nowrap">
+                          {Number(prod.price_diamond) > 0 && (
                             <span className="flex items-center gap-1">
-                              <span>💎</span> {Number(prod.price).toLocaleString("id-ID")}
+                              <span>💎</span> {Number(prod.price_diamond).toLocaleString("id-ID")}
                             </span>
+                          )}
+                          {Number(prod.price_diamond) > 0 && Number(prod.price_xp) > 0 && (
+                            <span className="text-muted-foreground/60 font-normal select-none">+</span>
                           )}
                           {Number(prod.price_xp) > 0 && (
-                            <span className="flex items-center gap-1 text-amber-400 text-xs">
-                              <Zap className="h-3 w-3" /> {Number(prod.price_xp).toLocaleString("id-ID")} XP
+                            <span className="flex items-center gap-1 text-amber-400">
+                              <Zap className="h-3.5 w-3.5 text-amber-400" />
+                              <span>{Number(prod.price_xp).toLocaleString("id-ID")} XP</span>
                             </span>
                           )}
-                          {Number(prod.price) <= 0 && Number(prod.price_xp) <= 0 && (
-                            <span className="text-muted-foreground text-xs">0</span>
+                          {Number(prod.price_diamond) <= 0 && Number(prod.price_xp) <= 0 && (
+                            <span className="text-muted-foreground text-xs">Gratis</span>
                           )}
                         </div>
                       </TableCell>

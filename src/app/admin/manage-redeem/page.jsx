@@ -639,9 +639,9 @@ export default function ManageRedemptionPage() {
                                   🌐 Semua Kategori
                                 </Badge>
                               )}
-                              {r.product?.price && (
+                              {r.product?.price_diamond && (
                                 <span className="text-[11px] text-muted-foreground">
-                                  @Harga: 💎 {Number(r.product.price).toLocaleString("id-ID")}
+                                  @Harga: 💎 {Number(r.product.price_diamond).toLocaleString("id-ID")}
                                 </span>
                               )}
                             </div>

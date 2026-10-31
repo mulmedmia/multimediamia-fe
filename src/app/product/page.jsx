@@ -68,7 +68,7 @@ const SAMPLE_PRODUCTS_FALLBACK = [
     name: "T-Shirt Eksklusif MIA 2026",
     description:
       "Kaos official edisi terbatas Multimedia in Action 2026 berbahan katun combed premium berkualitas tinggi.",
-    price: 150,
+    price_diamond: 150,
     stock: 24,
     is_active: true,
     image_url: null,
@@ -78,7 +78,7 @@ const SAMPLE_PRODUCTS_FALLBACK = [
     name: "Notebook & Pen Set MIA",
     description:
       "Set buku catatan hardcover dan pena gel dengan logo laser-cut MIA 2026 untuk mencatat ide kreatifmu.",
-    price: 100,
+    price_diamond: 100,
     stock: 12,
     is_active: true,
     image_url: null,
@@ -88,7 +88,7 @@ const SAMPLE_PRODUCTS_FALLBACK = [
     name: "Gantungan Kunci Akrilik MIA",
     description:
       "Gantungan kunci bahan akrilik premium cetak dua sisi dengan desain maskot official MIA 2026.",
-    price: 50,
+    price_diamond: 50,
     stock: 45,
     is_active: true,
     image_url: null,
@@ -423,7 +423,7 @@ export default function ProductPage() {
                   const canRedeem = product.is_active && !isOutOfStock && !alreadyClaimed;
 
                   const currentQty = isSingle ? 1 : Math.max(1, redeemQuantity);
-                  const totalCost = Number(product.price || 0) * currentQty;
+                  const totalCost = Number(product.price_diamond ?? 0) * currentQty;
                   const totalXpCost = hasXpPrice ? Number(product.price_xp) * currentQty : 0;
                   const earnedXp = hasXpReward ? Number(product.reward_xp) * currentQty : 0;
                   const remainingDiamonds = userDiamonds - totalCost;
@@ -492,11 +492,11 @@ export default function ProductPage() {
                         {/* Price & Stock info */}
                         <div className="flex items-center justify-between text-sm mt-auto pt-3 border-t border-white/10 flex-wrap gap-2">
                           <div className="flex items-center gap-2 flex-wrap">
-                            {Number(product.price) > 0 && (
+                            {Number(product.price_diamond) > 0 && (
                               <div className="flex items-center gap-1">
                                 <span className="text-base font-bold text-[#FED700] flex items-center gap-1">
                                   <span className="text-sm">💎</span>
-                                  {Number(product.price).toLocaleString()}
+                                  {Number(product.price_diamond).toLocaleString()}
                                 </span>
                                 <span className="text-xs text-[#AAB1BD]">
                                   Diamonds
@@ -514,7 +514,7 @@ export default function ProductPage() {
                                 </span>
                               </div>
                             )}
-                            {Number(product.price) <= 0 && !hasXpPrice && (
+                            {Number(product.price_diamond) <= 0 && !hasXpPrice && (
                               <span className="text-sm font-bold text-emerald-400">Gratis</span>
                             )}
                           </div>

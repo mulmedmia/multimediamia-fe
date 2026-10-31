@@ -19,6 +19,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Image as ImageIcon, CheckCircle2, Upload, AlertCircle, Infinity as InfinityIcon, Zap, Trophy } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) {
   const { data: categories = [], isLoading: loadingCategories } = useQuery({
@@ -31,7 +32,7 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
     category_id: initial?.category_id || "ALL",
     name: initial?.name || "",
     description: initial?.description || "",
-    price: initial?.price !== undefined ? String(initial.price) : "",
+    price_diamond: initial?.price_diamond !== undefined ? String(initial.price_diamond) : "",
     price_xp: initial?.price_xp !== undefined ? String(initial.price_xp) : "0",
     stock: initial?.stock !== undefined ? String(initial.stock) : "",
     reward_xp: initial?.reward_xp !== undefined ? String(initial.reward_xp) : "0",
@@ -50,7 +51,7 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
         category_id: initial.category_id || "ALL",
         name: initial.name || "",
         description: initial.description || "",
-        price: initial.price !== undefined ? String(initial.price) : "",
+        price_diamond: initial.price_diamond !== undefined ? String(initial.price_diamond) : "",
         price_xp: initial.price_xp !== undefined ? String(initial.price_xp) : "0",
         stock: initial.stock !== undefined ? String(initial.stock) : "",
         reward_xp: initial.reward_xp !== undefined ? String(initial.reward_xp) : "0",
@@ -81,11 +82,11 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
       setError("Deskripsi produk minimal 10 karakter.");
       return;
     }
-    const priceNum = Number(form.price) || 0;
+    const priceDiamondNum = Number(form.price_diamond) || 0;
     const priceXpNum = Number(form.price_xp) || 0;
     const rewardXpNum = Number(form.reward_xp) || 0;
 
-    if (priceNum <= 0 && priceXpNum <= 0) {
+    if (priceDiamondNum <= 0 && priceXpNum <= 0) {
       setError("Minimal salah satu harga (Diamonds atau XP) harus lebih dari 0.");
       return;
     }
@@ -109,7 +110,7 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
         form.category_id && form.category_id !== "ALL" ? form.category_id : null,
       name: form.name.trim(),
       description: form.description.trim(),
-      price: priceNum,
+      price_diamond: priceDiamondNum,
       price_xp: priceXpNum,
       stock: form.is_unlimited_stock ? 0 : Number(form.stock),
       reward_xp: priceXpNum > 0 ? 0 : rewardXpNum,
@@ -184,16 +185,16 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
 
         {/* Harga Diamond */}
         <div className="space-y-1.5">
-          <Label htmlFor="price" className="text-xs text-muted-foreground font-medium flex items-center gap-1">
+          <Label htmlFor="price_diamond" className="text-xs text-muted-foreground font-medium flex items-center gap-1">
             <span>💎</span> Harga (Diamonds)
           </Label>
           <Input
-            id="price"
+            id="price_diamond"
             type="number"
             min="0"
             placeholder="Contoh: 50 (atau 0 jika gratis diamond)"
-            value={form.price}
-            onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
+            value={form.price_diamond}
+            onChange={(e) => setForm((f) => ({ ...f, price_diamond: e.target.value }))}
             className="h-10 bg-input/40 border-border/50 rounded-xl text-xs sm:text-sm text-foreground placeholder:text-muted-foreground/60"
           />
         </div>
@@ -205,12 +206,6 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
               <Zap className="h-3 w-3 text-amber-400" />
               <span>Harga (XP)</span>
             </Label>
-            {Number(form.price_xp) > 0 && (
-              <span className="text-[10px] text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-md font-medium flex items-center gap-1">
-                <Zap className="h-3 w-3" />
-                {Number(form.price_xp)} XP
-              </span>
-            )}
           </div>
           <Input
             id="price_xp"
@@ -279,23 +274,18 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
             disabled={Number(form.price_xp) > 0}
             placeholder={
               Number(form.price_xp) > 0
-                ? "Tidak bisa konversi ke XP karena produk memiliki Harga XP"
+                ? "0"
                 : "Contoh: 10 (Isi nilai > 0 jika penukaran produk ini menambah XP peserta)"
             }
             value={Number(form.price_xp) > 0 ? "" : form.reward_xp}
             onChange={(e) => setForm((f) => ({ ...f, reward_xp: e.target.value }))}
             className="h-10 bg-input/40 border-border/50 rounded-xl text-xs sm:text-sm text-foreground placeholder:text-muted-foreground/60 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-input/20"
           />
-          <p className="text-[11px] text-muted-foreground">
-            {Number(form.price_xp) > 0 ? (
-              <span className="text-amber-400/90 font-medium">
-                ⚠️ Produk dengan harga XP tidak dapat dikonversi ke XP (Reward XP dinonaktifkan).
-              </span>
-            ) : (
-              "Bila diisi lebih dari 0, setiap kali peserta menukar produk ini, sistem akan otomatis menambahkan XP sebesar (Reward XP × Jumlah Penukaran). Contoh: Jika Harga = 1 Diamond dan Reward XP = 10, maka 1 Diamond bernilai 10 XP."
-            )}
-          </p>
-        </div>
+          <p className={cn(
+            "text-[11px] text-muted-foreground",
+            Number(form.price_xp) > 0 && "opacity-50"
+            )}>
+              Bila diisi lebih dari 0, setiap kali peserta menukar produk ini, sistem akan otomatis menambahkan XP sebesar (Reward XP × Jumlah Penukaran). Contoh: Jika Harga = 1 Diamond dan Reward XP = 10, maka 1 Diamond bernilai 10 XP.
           </p>
         </div>
 
