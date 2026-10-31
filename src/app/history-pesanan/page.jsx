@@ -394,15 +394,27 @@ export default function HistoryPesananPage() {
                                   </span>
                                 </div>
 
-                                <div className="inline-flex items-center gap-1.5 bg-[#141824] border border-white/10 px-2.5 py-1 rounded-md">
-                                  <span className="text-xs">💎</span>
-                                  <span className="font-semibold text-[#FED700]">
-                                    {item.points_used ?? item.product?.price ?? 0}
-                                  </span>
-                                  <span className="text-[#AAB1BD]">Diamonds Terpakai</span>
-                                </div>
+                                {(item.points_used > 0 || (item.product?.price && Number(item.product.price) > 0)) && (
+                                  <div className="inline-flex items-center gap-1.5 bg-[#141824] border border-white/10 px-2.5 py-1 rounded-md">
+                                    <span className="text-xs">💎</span>
+                                    <span className="font-semibold text-[#FED700]">
+                                      {item.points_used ?? item.product?.price ?? 0}
+                                    </span>
+                                    <span className="text-[#AAB1BD]">Diamonds Terpakai</span>
+                                  </div>
+                                )}
 
-                                {Number(item.product?.reward_xp) > 0 && (
+                                {(item.xp_used > 0 || (item.product?.price_xp && Number(item.product.price_xp) > 0)) && (
+                                  <div className="inline-flex items-center gap-1.5 bg-[#141824] border border-amber-500/30 text-amber-400 px-2.5 py-1 rounded-md">
+                                    <Zap className="h-3.5 w-3.5" />
+                                    <span className="font-semibold">
+                                      {item.xp_used ?? (Number(item.product?.price_xp) * (item.quantity || 1))}
+                                    </span>
+                                    <span className="text-[#AAB1BD]">XP Terpakai</span>
+                                  </div>
+                                )}
+
+                                {Number(item.product?.price_xp) <= 0 && Number(item.product?.reward_xp) > 0 && (
                                   <div className="inline-flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-2.5 py-1 rounded-md font-medium">
                                     <Zap className="h-3.5 w-3.5" />
                                     <span>
@@ -419,11 +431,22 @@ export default function HistoryPesananPage() {
                             <span className="text-[11px] uppercase tracking-wider text-[#99A1AF] font-semibold">
                               Nilai Tukar
                             </span>
-                            <span className="text-lg sm:text-xl font-bold text-[#FED700] flex items-center gap-1.5">
-                              <span className="text-base">💎</span>
-                              <span>{item.product?.price || item.points_used || 0}</span>
-                              <span className="text-xs font-normal text-[#AAB1BD]">Diamonds</span>
-                            </span>
+                            <div className="flex md:flex-col items-end gap-1">
+                              {(item.points_used > 0 || (item.product?.price && Number(item.product.price) > 0)) && (
+                                <span className="text-base sm:text-lg font-bold text-[#FED700] flex items-center gap-1">
+                                  <span className="text-sm">💎</span>
+                                  <span>{item.product?.price || item.points_used || 0}</span>
+                                  <span className="text-[10px] font-normal text-[#AAB1BD]">Diamonds</span>
+                                </span>
+                              )}
+                              {(item.xp_used > 0 || (item.product?.price_xp && Number(item.product.price_xp) > 0)) && (
+                                <span className="text-base sm:text-lg font-bold text-amber-400 flex items-center gap-1">
+                                  <Zap className="h-3.5 w-3.5" />
+                                  <span>{item.product?.price_xp || item.xp_used || 0}</span>
+                                  <span className="text-[10px] font-normal text-[#AAB1BD]">XP</span>
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
                       ))}

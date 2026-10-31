@@ -32,6 +32,7 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
     name: initial?.name || "",
     description: initial?.description || "",
     price: initial?.price !== undefined ? String(initial.price) : "",
+    price_xp: initial?.price_xp !== undefined ? String(initial.price_xp) : "0",
     stock: initial?.stock !== undefined ? String(initial.stock) : "",
     reward_xp: initial?.reward_xp !== undefined ? String(initial.reward_xp) : "0",
     is_unlimited_stock: initial?.is_unlimited_stock !== undefined ? Boolean(initial.is_unlimited_stock) : false,
@@ -50,6 +51,7 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
         name: initial.name || "",
         description: initial.description || "",
         price: initial.price !== undefined ? String(initial.price) : "",
+        price_xp: initial.price_xp !== undefined ? String(initial.price_xp) : "0",
         stock: initial.stock !== undefined ? String(initial.stock) : "",
         reward_xp: initial.reward_xp !== undefined ? String(initial.reward_xp) : "0",
         is_unlimited_stock: initial.is_unlimited_stock !== undefined ? Boolean(initial.is_unlimited_stock) : false,
@@ -79,8 +81,16 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
       setError("Deskripsi produk minimal 10 karakter.");
       return;
     }
-    if (!form.price || Number(form.price) <= 0) {
-      setError("Harga produk harus bernilai lebih dari 0.");
+    const priceNum = Number(form.price) || 0;
+    const priceXpNum = Number(form.price_xp) || 0;
+    const rewardXpNum = Number(form.reward_xp) || 0;
+
+    if (priceNum <= 0 && priceXpNum <= 0) {
+      setError("Minimal salah satu harga (Diamonds atau XP) harus lebih dari 0.");
+      return;
+    }
+    if (priceXpNum > 0 && rewardXpNum > 0) {
+      setError("Produk dengan harga XP tidak dapat memiliki reward XP (tidak bisa konversi ke XP).");
       return;
     }
     if (!form.is_unlimited_stock && (form.stock === "" || Number(form.stock) < 0)) {
@@ -99,9 +109,10 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
         form.category_id && form.category_id !== "ALL" ? form.category_id : null,
       name: form.name.trim(),
       description: form.description.trim(),
-      price: Number(form.price),
+      price: priceNum,
+      price_xp: priceXpNum,
       stock: form.is_unlimited_stock ? 0 : Number(form.stock),
-      reward_xp: Number(form.reward_xp) || 0,
+      reward_xp: priceXpNum > 0 ? 0 : rewardXpNum,
       is_unlimited_stock: Boolean(form.is_unlimited_stock),
       is_single_redeem: Boolean(form.is_single_redeem),
       is_active: form.is_active,
@@ -171,25 +182,56 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
           />
         </div>
 
-        {/* Harga */}
+        {/* Harga Diamond */}
         <div className="space-y-1.5">
-          <Label htmlFor="price" className="text-xs text-muted-foreground font-medium">
-            Harga (Diamonds / Poin) <span className="text-[#E01C20]">*</span>
+          <Label htmlFor="price" className="text-xs text-muted-foreground font-medium flex items-center gap-1">
+            <span>💎</span> Harga (Diamonds)
           </Label>
           <Input
             id="price"
             type="number"
             min="0"
-            placeholder="Contoh: 50"
+            placeholder="Contoh: 50 (atau 0 jika gratis diamond)"
             value={form.price}
             onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
             className="h-10 bg-input/40 border-border/50 rounded-xl text-xs sm:text-sm text-foreground placeholder:text-muted-foreground/60"
-            required
+          />
+        </div>
+
+        {/* Harga XP */}
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="price_xp" className="text-xs text-muted-foreground font-medium flex items-center gap-1">
+              <Zap className="h-3 w-3 text-amber-400" />
+              <span>Harga (XP)</span>
+            </Label>
+            {Number(form.price_xp) > 0 && (
+              <span className="text-[10px] text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-md font-medium flex items-center gap-1">
+                <Zap className="h-3 w-3" />
+                {Number(form.price_xp)} XP
+              </span>
+            )}
+          </div>
+          <Input
+            id="price_xp"
+            type="number"
+            min="0"
+            placeholder="Contoh: 100 (Isi jika butuh XP)"
+            value={form.price_xp}
+            onChange={(e) => {
+              const val = e.target.value;
+              setForm((f) => ({
+                ...f,
+                price_xp: val,
+                reward_xp: Number(val) > 0 ? "0" : f.reward_xp,
+              }));
+            }}
+            className="h-10 bg-input/40 border-border/50 rounded-xl text-xs sm:text-sm text-foreground placeholder:text-muted-foreground/60"
           />
         </div>
 
         {/* Stok */}
-        <div className="space-y-1.5">
+        <div className="space-y-1.5 sm:col-span-2">
           <div className="flex items-center justify-between">
             <Label htmlFor="stock" className="text-xs text-muted-foreground font-medium">
               Jumlah Stok {!form.is_unlimited_stock && <span className="text-[#E01C20]">*</span>}
@@ -213,30 +255,47 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
           />
         </div>
 
-        {/* Reward XP */}
+        {/* Reward XP (Konversi ke XP) */}
         <div className="space-y-1.5 sm:col-span-2">
           <div className="flex items-center justify-between">
             <Label htmlFor="reward_xp" className="text-xs text-muted-foreground font-medium">
-              Reward XP per Unit (Opsional)
+              Reward XP per Unit (Konversi Diamond ke XP)
             </Label>
-            {Number(form.reward_xp) > 0 && (
-              <span className="text-[10px] text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-md font-medium flex items-center gap-1">
+            {Number(form.price_xp) > 0 ? (
+              <span className="text-[10px] text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-md font-medium">
+                Dinonaktifkan (Ada Harga XP)
+              </span>
+            ) : Number(form.reward_xp) > 0 ? (
+              <span className="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md font-medium flex items-center gap-1">
                 <Zap className="h-3 w-3" />
                 +{Number(form.reward_xp)} XP per Redeem
               </span>
-            )}
+            ) : null}
           </div>
           <Input
             id="reward_xp"
             type="number"
             min="0"
-            placeholder="Contoh: 10 (Isi nilai > 0 jika penukaran produk ini menambah XP peserta)"
-            value={form.reward_xp}
+            disabled={Number(form.price_xp) > 0}
+            placeholder={
+              Number(form.price_xp) > 0
+                ? "Tidak bisa konversi ke XP karena produk memiliki Harga XP"
+                : "Contoh: 10 (Isi nilai > 0 jika penukaran produk ini menambah XP peserta)"
+            }
+            value={Number(form.price_xp) > 0 ? "" : form.reward_xp}
             onChange={(e) => setForm((f) => ({ ...f, reward_xp: e.target.value }))}
-            className="h-10 bg-input/40 border-border/50 rounded-xl text-xs sm:text-sm text-foreground placeholder:text-muted-foreground/60"
+            className="h-10 bg-input/40 border-border/50 rounded-xl text-xs sm:text-sm text-foreground placeholder:text-muted-foreground/60 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-input/20"
           />
           <p className="text-[11px] text-muted-foreground">
-            Bila diisi lebih dari 0, setiap kali peserta menukar produk ini, sistem akan otomatis menambahkan XP sebesar (Reward XP × Jumlah Penukaran). Contoh: Jika Harga = 1 Diamond dan Reward XP = 10, maka 1 Diamond bernilai 10 XP.
+            {Number(form.price_xp) > 0 ? (
+              <span className="text-amber-400/90 font-medium">
+                ⚠️ Produk dengan harga XP tidak dapat dikonversi ke XP (Reward XP dinonaktifkan).
+              </span>
+            ) : (
+              "Bila diisi lebih dari 0, setiap kali peserta menukar produk ini, sistem akan otomatis menambahkan XP sebesar (Reward XP × Jumlah Penukaran). Contoh: Jika Harga = 1 Diamond dan Reward XP = 10, maka 1 Diamond bernilai 10 XP."
+            )}
+          </p>
+        </div>
           </p>
         </div>
 

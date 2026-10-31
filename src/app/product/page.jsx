@@ -414,7 +414,8 @@ export default function ProductPage() {
 
                   const isSingle = Boolean(product.is_single_redeem);
                   const isUnlimited = Boolean(product.is_unlimited_stock);
-                  const hasXpReward = Number(product.reward_xp) > 0;
+                  const hasXpPrice = Number(product.price_xp) > 0;
+                  const hasXpReward = !hasXpPrice && Number(product.reward_xp) > 0;
                   const alreadyClaimed =
                     isSingle &&
                     myRedemptions.some((r) => r.product_id === product.product_id);
@@ -422,9 +423,11 @@ export default function ProductPage() {
                   const canRedeem = product.is_active && !isOutOfStock && !alreadyClaimed;
 
                   const currentQty = isSingle ? 1 : Math.max(1, redeemQuantity);
-                  const totalCost = Number(product.price) * currentQty;
+                  const totalCost = Number(product.price || 0) * currentQty;
+                  const totalXpCost = hasXpPrice ? Number(product.price_xp) * currentQty : 0;
                   const earnedXp = hasXpReward ? Number(product.reward_xp) * currentQty : 0;
                   const remainingDiamonds = userDiamonds - totalCost;
+                  const remainingXp = userXp - totalXpCost;
 
                   const notClaimable = !canRedeem || !activeCategory ||
                                        (redeemMutation.isPending &&
@@ -447,7 +450,7 @@ export default function ProductPage() {
                         <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 flex-wrap">
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#141824]/90 text-[#FFF9F5] border border-white/10 backdrop-blur-md">
                             <Gift className="h-3.5 w-3.5 text-[#E01C20]" />
-                            {hasXpReward ? "Konversi XP" : "Produk"}
+                            {hasXpPrice ? "Hadiah XP" : hasXpReward ? "Konversi XP" : "Produk"}
                           </span>
                           {!product.category_id && (
                             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 backdrop-blur-md">
@@ -457,6 +460,12 @@ export default function ProductPage() {
                           {isSingle && (
                             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/40 backdrop-blur-md">
                               1x Redeem
+                            </span>
+                          )}
+                          {hasXpPrice && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/40 backdrop-blur-md">
+                              <Zap className="h-3 w-3 text-amber-400" />
+                              {Number(product.price_xp).toLocaleString()} XP
                             </span>
                           )}
                           {hasXpReward && (
@@ -481,15 +490,33 @@ export default function ProductPage() {
                         </div>
 
                         {/* Price & Stock info */}
-                        <div className="flex items-center justify-between text-sm mt-auto pt-3 border-t border-white/10">
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-base font-bold text-[#FED700] flex items-center gap-1">
-                              <span className="text-sm">💎</span>
-                              {product.price.toLocaleString()}
-                            </span>
-                            <span className="text-xs text-[#AAB1BD]">
-                              Diamonds
-                            </span>
+                        <div className="flex items-center justify-between text-sm mt-auto pt-3 border-t border-white/10 flex-wrap gap-2">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {Number(product.price) > 0 && (
+                              <div className="flex items-center gap-1">
+                                <span className="text-base font-bold text-[#FED700] flex items-center gap-1">
+                                  <span className="text-sm">💎</span>
+                                  {Number(product.price).toLocaleString()}
+                                </span>
+                                <span className="text-xs text-[#AAB1BD]">
+                                  Diamonds
+                                </span>
+                              </div>
+                            )}
+                            {hasXpPrice && (
+                              <div className="flex items-center gap-1">
+                                <span className="text-base font-bold text-amber-400 flex items-center gap-1">
+                                  <Zap className="h-3.5 w-3.5" />
+                                  {Number(product.price_xp).toLocaleString()}
+                                </span>
+                                <span className="text-xs text-[#AAB1BD]">
+                                  XP
+                                </span>
+                              </div>
+                            )}
+                            {Number(product.price) <= 0 && !hasXpPrice && (
+                              <span className="text-sm font-bold text-emerald-400">Gratis</span>
+                            )}
                           </div>
 
                           {isUnlimited ? (
@@ -552,6 +579,8 @@ export default function ProductPage() {
                                   ? "Hadiah Telah Habis"
                                   : hasXpReward
                                   ? "Tukar ke XP"
+                                  : hasXpPrice
+                                  ? "Tukar Hadiah (XP)"
                                   : "Tukar Produk"}
                               </span>
                             </button>
@@ -559,7 +588,11 @@ export default function ProductPage() {
                           <AlertDialogContent className="rounded-2xl border border-white/10 bg-[#0A0D14] text-[#FFF9F5] p-6 shadow-2xl max-w-md selection:bg-primary selection:text-white">
                             <AlertDialogHeader>
                               <AlertDialogTitle className="text-lg font-bold text-[#FFF9F5]">
-                                {hasXpReward ? "Konfirmasi Penukaran Diamond ke XP" : "Konfirmasi Penukaran Hadiah"}
+                                {hasXpReward
+                                  ? "Konfirmasi Penukaran Diamond ke XP"
+                                  : hasXpPrice
+                                  ? "Konfirmasi Penukaran Hadiah (XP)"
+                                  : "Konfirmasi Penukaran Hadiah"}
                               </AlertDialogTitle>
                               <p className="text-sm text-[#AAB1BD] mt-2 leading-relaxed">
                                 Apakah Anda yakin ingin menukar{" "}
@@ -666,7 +699,7 @@ export default function ProductPage() {
                               </div>
                             )}
 
-                            {/* Informasi Stok Diamond & Biaya */}
+                            {/* Informasi Saldo & Biaya */}
                             <div className="my-3 p-4 rounded-xl bg-white/[0.04] border border-white/10 space-y-2.5 text-xs">
                               <div className="flex items-center justify-between">
                                 <span className="text-[#AAB1BD]">
@@ -676,14 +709,36 @@ export default function ProductPage() {
                                   <span>💎</span> {userDiamonds.toLocaleString()}
                                 </span>
                               </div>
-                              <div className="flex items-center justify-between">
-                                <span className="text-[#AAB1BD]">
-                                  Total Biaya {currentQty > 1 ? `(${currentQty} item)` : ""}:
-                                </span>
-                                <span className="font-bold text-[#E01C20] flex items-center gap-1 text-sm">
-                                  - <span>💎</span> {totalCost.toLocaleString()}
-                                </span>
-                              </div>
+                              {hasXpPrice && (
+                                <div className="flex items-center justify-between">
+                                  <span className="text-[#AAB1BD]">
+                                    XP Anda:
+                                  </span>
+                                  <span className="font-bold text-amber-400 flex items-center gap-1 text-sm">
+                                    <Zap className="h-3.5 w-3.5" /> {userXp.toLocaleString()} XP
+                                  </span>
+                                </div>
+                              )}
+                              {totalCost > 0 && (
+                                <div className="flex items-center justify-between">
+                                  <span className="text-[#AAB1BD]">
+                                    Total Biaya Diamond {currentQty > 1 ? `(${currentQty} item)` : ""}:
+                                  </span>
+                                  <span className="font-bold text-[#E01C20] flex items-center gap-1 text-sm">
+                                    - <span>💎</span> {totalCost.toLocaleString()}
+                                  </span>
+                                </div>
+                              )}
+                              {totalXpCost > 0 && (
+                                <div className="flex items-center justify-between">
+                                  <span className="text-[#AAB1BD]">
+                                    Total Biaya XP {currentQty > 1 ? `(${currentQty} item)` : ""}:
+                                  </span>
+                                  <span className="font-bold text-amber-400 flex items-center gap-1 text-sm">
+                                    - <Zap className="h-3.5 w-3.5" /> {totalXpCost.toLocaleString()} XP
+                                  </span>
+                                </div>
+                              )}
                               {hasXpReward && (
                                 <div className="flex items-center justify-between text-emerald-400">
                                   <span className="text-[#AAB1BD]">
@@ -694,33 +749,68 @@ export default function ProductPage() {
                                   </span>
                                 </div>
                               )}
-                              <div className="pt-2.5 border-t border-white/10 flex items-center justify-between">
-                                <span className="font-medium text-[#FFF9F5]">
-                                  Sisa Diamond:
-                                </span>
-                                <span
-                                  className={`font-bold flex items-center gap-1 text-sm ${
-                                    remainingDiamonds >= 0
-                                      ? "text-[#00B445]"
-                                      : "text-[#E01C20]"
-                                  }`}
-                                >
-                                  <span>💎</span>{" "}
-                                  {remainingDiamonds.toLocaleString()}
-                                </span>
+                              <div className="pt-2.5 border-t border-white/10 space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <span className="font-medium text-[#FFF9F5]">
+                                    Sisa Diamond:
+                                  </span>
+                                  <span
+                                    className={`font-bold flex items-center gap-1 text-sm ${
+                                      remainingDiamonds >= 0
+                                        ? "text-[#00B445]"
+                                        : "text-[#E01C20]"
+                                    }`}
+                                  >
+                                    <span>💎</span>{" "}
+                                    {remainingDiamonds.toLocaleString()}
+                                  </span>
+                                </div>
+                                {hasXpPrice && (
+                                  <div className="flex items-center justify-between">
+                                    <span className="font-medium text-[#FFF9F5]">
+                                      Sisa XP:
+                                    </span>
+                                    <span
+                                      className={`font-bold flex items-center gap-1 text-sm ${
+                                        remainingXp >= 0
+                                          ? "text-[#00B445]"
+                                          : "text-[#E01C20]"
+                                      }`}
+                                    >
+                                      <Zap className="h-3.5 w-3.5" />{" "}
+                                      {remainingXp.toLocaleString()} XP
+                                    </span>
+                                  </div>
+                                )}
                               </div>
                             </div>
 
-                            {userDiamonds < totalCost && (
+                            {userDiamonds < totalCost && hasXpPrice && userXp < totalXpCost ? (
+                              <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-2">
+                                <AlertCircle className="h-4 w-4 shrink-0 text-red-400" />
+                                <span>
+                                  Diamond dan XP Anda tidak mencukupi untuk menukar produk ini.
+                                </span>
+                              </div>
+                            ) : userDiamonds < totalCost ? (
                               <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-2">
                                 <AlertCircle className="h-4 w-4 shrink-0 text-red-400" />
                                 <span>
                                   Diamond Anda tidak mencukupi untuk menukar{" "}
                                   {currentQty > 1 ? `${currentQty} item ` : ""}
-                                  produk ini. Jumlah maksimal penukaran adalah {Math.floor(userDiamonds / product.price)}.
+                                  produk ini.
                                 </span>
                               </div>
-                            )}
+                            ) : hasXpPrice && userXp < totalXpCost ? (
+                              <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-2">
+                                <AlertCircle className="h-4 w-4 shrink-0 text-red-400" />
+                                <span>
+                                  XP Anda tidak mencukupi untuk menukar{" "}
+                                  {currentQty > 1 ? `${currentQty} item ` : ""}
+                                  produk ini. Diperlukan {totalXpCost.toLocaleString()} XP.
+                                </span>
+                              </div>
+                            ) : null}
 
                             <AlertDialogFooter className="gap-2">
                               <AlertDialogCancel className="rounded-full border border-white/15 bg-transparent hover:bg-white/5 text-[#FFF9F5] text-xs font-semibold h-10 cursor-pointer">
@@ -731,6 +821,7 @@ export default function ProductPage() {
                                 disabled={
                                   redeemMutation.isPending ||
                                   userDiamonds < totalCost ||
+                                  (hasXpPrice && userXp < totalXpCost) ||
                                   !activeCategory
                                 }
                                 onClick={() =>
