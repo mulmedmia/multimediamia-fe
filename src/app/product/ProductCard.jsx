@@ -326,8 +326,6 @@ export default function ProductCard({
         isOpen={isDetailOpen}
         onOpenChange={setIsDetailOpen}
         product={product}
-        userDiamonds={userDiamonds}
-        userXp={userXp}
         activeCategory={activeCategory}
         myRedemptions={myRedemptions}
         isOutOfStockLocal={isOutOfStockLocal}

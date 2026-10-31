@@ -26,8 +26,6 @@ export default function ProductDetailModal({
   isOpen,
   onOpenChange,
   product,
-  userDiamonds = 0,
-  userXp = 0,
   activeCategory,
   myRedemptions = [],
   isOutOfStockLocal = false,
@@ -37,6 +35,11 @@ export default function ProductDetailModal({
 
   const isZeroStock = isOutOfStockLocal;
   const currentStock = isZeroStock ? 0 : Number(product.stock);
+
+  const userDiamonds = Number(
+    activeCategory?.diamond ?? 0
+  );
+  const userXp = Number(activeCategory?.xp ?? 0);
 
   const maxPerTeam =
     Number(product.max_redeem_per_team) > 0
