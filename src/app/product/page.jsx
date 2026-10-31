@@ -460,10 +460,10 @@ export default function ProductPage() {
                   );
 
                   const currentQty = Math.min(maxRedeemable, Math.max(1, redeemQuantity));
-                  const totalCost = Number(product.price_diamond ?? 0) * currentQty;
+                  const totalDiamondCost = Number(product.price_diamond ?? 0) * currentQty;
                   const totalXpCost = hasXpPrice ? Number(product.price_xp) * currentQty : 0;
                   const earnedXp = hasXpReward ? Number(product.reward_xp) * currentQty : 0;
-                  const remainingDiamonds = userDiamonds - totalCost;
+                  const remainingDiamonds = userDiamonds - totalDiamondCost;
                   const remainingXp = userXp - totalXpCost;
 
                   const notClaimable = !canRedeem || !activeCategory ||
@@ -660,9 +660,9 @@ export default function ProductPage() {
                                   </HoldButton>
                                   <input
                                     type="number"
-                                    min="1"
-                                    max={maxRedeemable}
-                                    value={currentQty}
+                                    min={maxAffordable !== 0 ? "1" : maxAffordable}
+                                    max={maxAffordable !== 0 ? maxRedeemable : maxAffordable}
+                                    value={maxAffordable !== 0 ? currentQty : maxAffordable}
                                     onChange={(e) => {
                                       const val = parseInt(e.target.value, 10);
                                       if (isNaN(val) || val < 1) {
@@ -734,13 +734,13 @@ export default function ProductPage() {
                                   </span>
                                 </div>
                               )}
-                              {totalCost > 0 && (
+                              {totalDiamondCost > 0 && (
                                 <div className="flex items-center justify-between">
                                   <span className="text-[#AAB1BD]">
                                     Total Biaya Diamond {currentQty > 1 ? `(${currentQty} item)` : ""}:
                                   </span>
                                   <span className="font-bold text-[#E01C20] flex items-center gap-1 text-sm">
-                                    - <Gem className="h-3.5 w-3.5" />  {totalCost.toLocaleString()}
+                                    - <Gem className="h-3.5 w-3.5" />  {totalDiamondCost.toLocaleString()}
                                   </span>
                                 </div>
                               )}
@@ -800,14 +800,14 @@ export default function ProductPage() {
                               </div>
                             </div>
 
-                            {userDiamonds < totalCost && hasXpPrice && userXp < totalXpCost ? (
+                            {userDiamonds < totalDiamondCost && hasXpPrice && userXp < totalXpCost ? (
                               <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-2">
                                 <AlertCircle className="h-4 w-4 shrink-0 text-red-400" />
                                 <span>
                                   Diamond dan XP Anda tidak mencukupi untuk menukar produk ini.
                                 </span>
                               </div>
-                            ) : userDiamonds < totalCost ? (
+                            ) : userDiamonds < totalDiamondCost ? (
                               <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-2">
                                 <AlertCircle className="h-4 w-4 shrink-0 text-red-400" />
                                 <span>
@@ -835,7 +835,7 @@ export default function ProductPage() {
                                 className="mia-btn-primary text-xs font-semibold h-10 px-5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                 disabled={
                                   redeemMutation.isPending ||
-                                  userDiamonds < totalCost ||
+                                  userDiamonds < totalDiamondCost ||
                                   (hasXpPrice && userXp < totalXpCost) ||
                                   !activeCategory
                                 }
