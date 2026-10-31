@@ -412,13 +412,24 @@ export default function ProductPage() {
                   const isZeroStock = outOfStockProductIds.has(product.product_id);
                   const currentStock = isZeroStock ? 0 : Number(product.stock);
 
-                  const isSingle = Boolean(product.is_single_redeem);
+                  const maxPerTeam = Number(product.max_redeem_per_team) > 0
+                    ? Number(product.max_redeem_per_team)
+                    : (product.is_single_redeem ? 1 : 0);
+                  const hasTeamLimit = maxPerTeam > 0;
+
+                  // Hitung total kuantitas produk ini yang sudah ditukar oleh tim
+                  const teamRedeemedQty = myRedemptions
+                    .filter((r) => r.product_id === product.product_id)
+                    .reduce((sum, r) => sum + (Number(r.quantity) || 1), 0);
+
+                  const remainingTeamQuota = hasTeamLimit
+                    ? Math.max(0, maxPerTeam - teamRedeemedQty)
+                    : Infinity;
+                  const alreadyClaimed = hasTeamLimit && remainingTeamQuota <= 0;
+
                   const isUnlimited = Boolean(product.is_unlimited_stock);
                   const hasXpPrice = Number(product.price_xp) > 0;
                   const hasXpReward = !hasXpPrice && Number(product.reward_xp) > 0;
-                  const alreadyClaimed =
-                    isSingle &&
-                    myRedemptions.some((r) => r.product_id === product.product_id);
                   const isOutOfStock = !isUnlimited && (currentStock < 1 || isZeroStock);
                   const canRedeem = product.is_active && !isOutOfStock && !alreadyClaimed;
 
@@ -436,18 +447,19 @@ export default function ProductPage() {
                   const maxAffordable = Math.min(maxAffordableDiamonds, maxAffordableXp);
                   const maxStock = isUnlimited ? 999 : Math.max(0, currentStock);
 
-                  // Kuantitas maksimal yang diizinkan untuk diinput (dibatasi oleh stok & saldo, min 1)
-                  const maxRedeemable = isSingle
-                    ? 1
-                    : Math.max(
-                        1,
-                        Math.min(
-                          maxStock,
-                          maxAffordable === Infinity ? maxStock : maxAffordable
-                        )
-                      );
+                  // Kuantitas maksimal yang diizinkan untuk diinput (dibatasi oleh stok, sisa kuota tim, & saldo, min 1)
+                  const maxAllowedByQuota = hasTeamLimit ? remainingTeamQuota : Infinity;
 
-                  const currentQty = isSingle ? 1 : Math.min(maxRedeemable, Math.max(1, redeemQuantity));
+                  const maxRedeemable = Math.max(
+                    1,
+                    Math.min(
+                      maxStock,
+                      maxAllowedByQuota,
+                      maxAffordable === Infinity ? maxStock : maxAffordable
+                    )
+                  );
+
+                  const currentQty = Math.min(maxRedeemable, Math.max(1, redeemQuantity));
                   const totalCost = Number(product.price_diamond ?? 0) * currentQty;
                   const totalXpCost = hasXpPrice ? Number(product.price_xp) * currentQty : 0;
                   const earnedXp = hasXpReward ? Number(product.reward_xp) * currentQty : 0;
@@ -482,9 +494,9 @@ export default function ProductPage() {
                               🌐 Semua Kategori
                             </span>
                           )}
-                          {isSingle && (
+                          {hasTeamLimit && (
                             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/40 backdrop-blur-md">
-                              1x Redeem
+                              Maks {maxPerTeam}x / Tim
                             </span>
                           )}
                           {hasXpReward && (
@@ -518,7 +530,7 @@ export default function ProductPage() {
                                   {Number(product.price_diamond).toLocaleString()}
                                 </span>
                                 <span className="text-xs text-[#AAB1BD]">
-                                  Diamonds
+                                  Diamond
                                 </span>
                               </div>
                             )}
@@ -593,7 +605,7 @@ export default function ProductPage() {
                                 {!activeCategory
                                   ? "Daftar Lomba Dulu"
                                   : alreadyClaimed
-                                  ? "Sudah Ditukar (1x)"
+                                  ? `Batas Tercapai (Maks ${maxPerTeam}x)`
                                   : isOutOfStock
                                   ? "Hadiah Telah Habis"
                                   : hasXpReward
@@ -618,27 +630,36 @@ export default function ProductPage() {
                               </p>
                             </AlertDialogHeader>
 
-                            {/* Info khusus single redeem */}
-                            {isSingle ? (
+                            {/* Info khusus batas penukaran per tim */}
+                            {hasTeamLimit && (
                               <div className="my-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs flex items-center gap-2">
                                 <AlertCircle className="h-4 w-4 shrink-0 text-amber-400" />
                                 <span>
-                                  Produk ini hanya dapat ditukarkan 1 kali per tim (kuantitas terkunci 1 item).
+                                  Produk ini dibatasi maksimal <strong>{maxPerTeam} item</strong> per tim.
                                 </span>
                               </div>
-                            ) : (
-                              /* Quantity counter jika bukan single redeem */
-                              <div className="my-3 p-3.5 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-between">
-                                <div>
-                                  <p className="text-xs font-semibold text-[#FFF9F5]">
-                                    Jumlah Penukaran
-                                  </p>
-                                  <p className="text-[11px] text-[#AAB1BD] whitespace-pre-line">
-                                    {isUnlimited
-                                      ? (maxAffordable !== Infinity) && "Stok tidak terbatas"
-                                      : (maxAffordable < maxStock) && `Tersedia: ${currentStock} item`}
-                                  </p>
-                                </div>
+                            )}
+
+                            {/* Quantity counter */}
+                            <div className="my-3 p-3.5 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-between">
+                              <div>
+                                <p className="text-xs font-semibold text-[#FFF9F5]">
+                                  Jumlah Penukaran
+                                </p>
+                                <p className="text-[11px] text-[#AAB1BD]">
+                                  {isUnlimited
+                                    ? "Stok tidak terbatas"
+                                    : `Tersedia: ${currentStock} item`}
+                                </p>
+                                <p className="text-[10px] text-amber-400/90 mt-0.5">
+                                  {hasTeamLimit 
+                                    ? `Sisa kuota tim: ${remainingTeamQuota}/${maxPerTeam} item`
+                                    : `Maks penukaran: ${maxRedeemable < maxAffordable 
+                                      ? `${maxRedeemable} item (sesuai stok)` 
+                                      : `${maxAffordable} item (sesuai saldo)`}`
+                                  }
+                                </p>
+                              </div>
                                 <div className="flex items-center gap-2">
                                   <HoldButton
                                     disabled={currentQty <= 1}
@@ -674,14 +695,13 @@ export default function ProductPage() {
                                         Math.min(maxRedeemable, q + 1)
                                       );
                                     }}
-                                    className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 active:bg-white/30 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-[#FFF9F5] transition-colors cursor-pointer select-none touch-manipulation"
+                                    className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 active:bg-white/30 disabled:opacity-30 disabled:cursor-default flex items-center justify-center text-[#FFF9F5] transition-colors cursor-pointer select-none touch-manipulation"
                                     title="Tambah jumlah (klik atau tahan untuk menambah)"
                                   >
                                     <Plus className="h-3.5 w-3.5" />
                                   </HoldButton>
                                 </div>
                               </div>
-                            )}
 
                             {/* Highlight Perolehan XP jika produk memiliki reward_xp */}
                             {hasXpReward && (

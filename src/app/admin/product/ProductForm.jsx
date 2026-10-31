@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DialogFooter } from "@/components/ui/dialog";
-import { Image as ImageIcon, CheckCircle2, Upload, AlertCircle, Infinity as InfinityIcon, Zap, Trophy } from "lucide-react";
+import { Image as ImageIcon, CheckCircle2, Upload, AlertCircle, Infinity as InfinityIcon, Zap, Trophy, Gem } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) {
@@ -33,11 +33,16 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
     name: initial?.name || "",
     description: initial?.description || "",
     price_diamond: initial?.price_diamond !== undefined ? String(initial.price_diamond) : "",
-    price_xp: initial?.price_xp !== undefined ? String(initial.price_xp) : "0",
+    price_xp: initial?.price_xp !== undefined ? String(initial.price_xp) : "",
     stock: initial?.stock !== undefined ? String(initial.stock) : "",
     reward_xp: initial?.reward_xp !== undefined ? String(initial.reward_xp) : "0",
     is_unlimited_stock: initial?.is_unlimited_stock !== undefined ? Boolean(initial.is_unlimited_stock) : false,
-    is_single_redeem: initial?.is_single_redeem !== undefined ? Boolean(initial.is_single_redeem) : false,
+    max_redeem_per_team:
+      initial?.max_redeem_per_team !== undefined
+        ? String(initial.max_redeem_per_team)
+        : initial?.is_single_redeem
+        ? "1"
+        : "0",
     is_active: initial?.is_active !== undefined ? Boolean(initial.is_active) : true,
     image: null,
   });
@@ -56,7 +61,12 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
         stock: initial.stock !== undefined ? String(initial.stock) : "",
         reward_xp: initial.reward_xp !== undefined ? String(initial.reward_xp) : "0",
         is_unlimited_stock: initial.is_unlimited_stock !== undefined ? Boolean(initial.is_unlimited_stock) : false,
-        is_single_redeem: initial.is_single_redeem !== undefined ? Boolean(initial.is_single_redeem) : false,
+        max_redeem_per_team:
+          initial.max_redeem_per_team !== undefined
+            ? String(initial.max_redeem_per_team)
+            : initial.is_single_redeem
+            ? "1"
+            : "0",
         is_active: initial.is_active !== undefined ? Boolean(initial.is_active) : true,
         image: null,
       });
@@ -87,7 +97,7 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
     const rewardXpNum = Number(form.reward_xp) || 0;
 
     if (priceDiamondNum <= 0 && priceXpNum <= 0) {
-      setError("Minimal salah satu harga (Diamonds atau XP) harus lebih dari 0.");
+      setError("Minimal salah satu harga (Diamond atau XP) harus lebih dari 0.");
       return;
     }
     if (priceXpNum > 0 && rewardXpNum > 0) {
@@ -115,7 +125,7 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
       stock: form.is_unlimited_stock ? 0 : Number(form.stock),
       reward_xp: priceXpNum > 0 ? 0 : rewardXpNum,
       is_unlimited_stock: Boolean(form.is_unlimited_stock),
-      is_single_redeem: Boolean(form.is_single_redeem),
+      max_redeem_per_team: Math.max(0, parseInt(form.max_redeem_per_team, 10) || 0),
       is_active: form.is_active,
     };
 
@@ -186,13 +196,13 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
         {/* Harga Diamond */}
         <div className="space-y-1.5">
           <Label htmlFor="price_diamond" className="text-xs text-muted-foreground font-medium flex items-center gap-1">
-            <span>💎</span> Harga (Diamonds)
+            <Gem className="h-3 w-3 text-cyan-400" /> Harga Diamond
           </Label>
           <Input
             id="price_diamond"
             type="number"
             min="0"
-            placeholder="Contoh: 50 (atau 0 jika gratis diamond)"
+            placeholder="Contoh: 50"  
             value={form.price_diamond}
             onChange={(e) => setForm((f) => ({ ...f, price_diamond: e.target.value }))}
             className="h-10 bg-input/40 border-border/50 rounded-xl text-xs sm:text-sm text-foreground placeholder:text-muted-foreground/60"
@@ -204,14 +214,14 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
           <div className="flex items-center justify-between">
             <Label htmlFor="price_xp" className="text-xs text-muted-foreground font-medium flex items-center gap-1">
               <Zap className="h-3 w-3 text-amber-400" />
-              <span>Harga (XP)</span>
+              <span>Harga XP</span>
             </Label>
           </div>
           <Input
             id="price_xp"
             type="number"
             min="0"
-            placeholder="Contoh: 100 (Isi jika butuh XP)"
+            placeholder="Isi jika butuh harga XP"
             value={form.price_xp}
             onChange={(e) => {
               const val = e.target.value;
@@ -252,7 +262,7 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
 
         {/* Reward XP (Konversi ke XP) */}
         <div className="space-y-1.5 sm:col-span-2">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between min-h-[20.5px]">
             <Label htmlFor="reward_xp" className="text-xs text-muted-foreground font-medium">
               Reward XP per Unit (Konversi Diamond ke XP)
             </Label>
@@ -290,57 +300,75 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
         </div>
 
         {/* Opsi Stok Tidak Terbatas & Batasan Redeem */}
-        <div className="space-y-3 sm:col-span-2 p-3.5 rounded-xl bg-white/[0.02] border border-border/40">
-          <div className="flex items-start gap-3">
-            <Checkbox
-              id="is_unlimited_stock"
-              checked={form.is_unlimited_stock}
-              onCheckedChange={(checked) =>
-                setForm((f) => ({ ...f, is_unlimited_stock: Boolean(checked) }))
-              }
-              className="mt-0.5"
-            />
-            <label
-              htmlFor="is_unlimited_stock"
-              className="space-y-1 leading-none cursor-pointer"
-            >
-              <div className="text-xs font-semibold text-foreground cursor-pointer flex items-center gap-1.5">
-                <span>Jumlah Stok Tidak Terbatas</span>
-                <span className="text-[10px] text-purple-400 bg-purple-500/10 border border-purple-500/20 px-1.5 py-0.5 rounded font-medium">
-                  Unlimited
+        <div className="space-y-1.5 sm:col-span-2">
+          <Label className="text-xs text-muted-foreground font-medium">Ketersediaan & Batas Penukaran</Label>
+          <div className="space-y-3 p-3.5 rounded-xl bg-white/[0.02] border border-border/40">
+            <div className="flex items-start gap-3">
+              <Checkbox
+                id="is_unlimited_stock"
+                checked={form.is_unlimited_stock}
+                onCheckedChange={(checked) =>
+                  setForm((f) => ({ ...f, is_unlimited_stock: Boolean(checked) }))
+                }
+                className="mt-0.5 border-border bg-input/20 cursor-pointer"
+              />
+              <label
+                htmlFor="is_unlimited_stock"
+                className="space-y-1 leading-none cursor-pointer"
+              >
+                <div className="text-xs font-semibold text-foreground cursor-pointer flex items-center gap-1.5">
+                  <span>Jumlah Stok Tidak Terbatas</span>
+                  <span className="text-[10px] text-purple-400 bg-purple-500/10 border border-purple-500/20 px-1.5 py-0.5 rounded font-medium">
+                    Unlimited
+                  </span>
+                </div>
+                
+                <p className="text-[11px] text-muted-foreground">
+                  Centang jika produk ini tidak memiliki batasan kuota stok (misal produk digital seperti e-course).
+                </p>
+              </label>
+            </div>
+  
+            <div className="space-y-2 pt-2.5 border-t border-border/30 ml-6.5">
+              <div className="space-y-0.5">
+                <label
+                  htmlFor="max_redeem_per_team"
+                  className="space-y-1 leading-none cursor-pointer"
+                >
+                  <div className="text-xs font-semibold text-foreground cursor-pointer flex items-center gap-1.5 min-h-[19px]">
+                    <span>Batas Penukaran per Tim</span>
+                    {Number(form.max_redeem_per_team) > 0 && (
+                      <span className="text-[10px] text-amber-400 bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded font-medium">
+                        Maks {form.max_redeem_per_team}x / Tim
+                      </span>
+                    )}
+                  </div>
+  
+                  <p className="text-[11px] text-muted-foreground">
+                    Tentukan batas maksimal kuantitas produk yang boleh ditukarkan oleh tiap tim (misal: 1 atau 3). Isi 0 jika tidak dibatasi (bebas tukar selama stok cukup).
+                  </p>
+                </label>
+              </div>
+              <div className="flex items-center gap-3">
+                <Input
+                  id="max_redeem_per_team"
+                  type="number"
+                  min="0"
+                  placeholder="0 (Tidak dibatasi)"
+                  value={form.max_redeem_per_team}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setForm((f) => ({ ...f, max_redeem_per_team: val }));
+                  }}
+                  className="max-w-[160px] bg-input/40 border-border/50 text-foreground text-xs rounded-xl"
+                />
+                <span className="text-xs text-muted-foreground">
+                  {Number(form.max_redeem_per_team) > 0
+                    ? `Tiap tim maksimal menukar ${form.max_redeem_per_team} item`
+                    : "Bebas tukar (tanpa batas per tim)"}
                 </span>
               </div>
-              
-              <p className="text-[11px] text-muted-foreground">
-                Centang jika produk ini tidak memiliki batasan kuota stok (misal produk digital atau stok selalu tersedia).
-              </p>
-            </label>
-          </div>
-
-          <div className="flex items-start gap-3 pt-2.5 border-t border-border/30">
-            <Checkbox
-              id="is_single_redeem"
-              checked={form.is_single_redeem}
-              onCheckedChange={(checked) =>
-                setForm((f) => ({ ...f, is_single_redeem: Boolean(checked) }))
-              }
-              className="mt-0.5"
-            />
-            <label
-              htmlFor="is_single_redeem"
-              className="space-y-1 leading-none cursor-pointer"
-            >
-              <div className="text-xs font-semibold text-foreground cursor-pointer flex items-center gap-1.5">
-                <span>Hanya Bisa Di-redeem 1 Kali per Tim</span>
-                <span className="text-[10px] text-amber-400 bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded font-medium">
-                  1x Redeem
-                </span>
-              </div>
-              
-              <p className="text-[11px] text-muted-foreground">
-                Jika diaktifkan, setiap tim hanya dapat menukarkan produk ini 1 kali saja (kuantitas otomatis terkunci 1). Jika nonaktif, tim dapat menentukan sendiri berapa banyak produk yang ingin di-redeem.
-              </p>
-            </label>
+            </div>
           </div>
         </div>
 
