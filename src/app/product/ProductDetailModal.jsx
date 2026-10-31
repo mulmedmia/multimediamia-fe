@@ -17,8 +17,6 @@ import {
   Infinity as InfinityIcon,
   Zap,
   Gem,
-  Boxes,
-  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -29,7 +27,7 @@ export default function ProductDetailModal({
   activeCategory,
   myRedemptions = [],
   isOutOfStockLocal = false,
-  onRedeem,
+  onOpenRedeem,
 }) {
   if (!product) return null;
 
@@ -244,7 +242,7 @@ export default function ProductDetailModal({
               alreadyClaimed && "bg-emerald-600/20! text-emerald-300! border-emerald-500/30!",
             )}
             disabled={notClaimable}
-            onClick={(e) => onRedeem(e, true)}
+            onClick={(e) => onOpenRedeem(e, true)}
           >
             {(alreadyClaimed || !isOutOfStock) && (
               <CheckCircle2 className="h-4 w-4" />
