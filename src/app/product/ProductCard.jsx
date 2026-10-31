@@ -58,6 +58,7 @@ export default function ProductCard({
   const [isRedeemOpen, setIsRedeemOpen] = useState(false);
   const [redeemQuantity, setRedeemQuantity] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [backToDetail, setBackToDetail] = useState(false);
 
   const defaultRedeemMutation = useRedeemProduct();
   const redeemMutation = customRedeemMutation || defaultRedeemMutation;
@@ -187,11 +188,12 @@ export default function ProductCard({
     }
   };
 
-  const handleOpenRedeem = (e) => {
+  const handleOpenRedeem = (e, newBackToDetail = false) => {
     if (e) e.stopPropagation();
     setIsDetailOpen(false);
     setIsRedeemOpen(true);
     setRedeemQuantity(1);
+    setBackToDetail(newBackToDetail);
   };
 
   return (
@@ -573,8 +575,17 @@ export default function ProductCard({
           ) : null}
 
           <DialogFooter className="gap-2 sm:space-x-2">
-            <DialogClose className="rounded-full border border-white/15 bg-transparent hover:bg-white/5 text-[#FFF9F5] text-xs font-semibold h-10 cursor-pointer px-4 py-2">
-              Batal
+            <DialogClose 
+              className="rounded-full border border-white/15 bg-transparent hover:bg-white/5 text-[#FFF9F5] text-xs font-semibold h-10 cursor-pointer px-4 py-2"
+              onClick={(e) => {
+                if (backToDetail) {
+                  e.preventDefault();
+                  setIsDetailOpen(true);
+                  setIsRedeemOpen(false);
+                }
+              }}
+            >
+              {!backToDetail ? "Batal" : "Kembali"}
             </DialogClose>
             <button
               className="mia-btn-primary text-xs font-semibold h-10 px-5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"

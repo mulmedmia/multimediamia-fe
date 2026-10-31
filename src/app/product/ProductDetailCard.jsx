@@ -267,7 +267,7 @@ export default function ProductDetailCard({
               alreadyClaimed && "bg-emerald-600/20! text-emerald-300! border-emerald-500/30!",
             )}
             disabled={notClaimable}
-            onClick={onRedeem}
+            onClick={(e) => onRedeem(e, true)}
           >
             {(alreadyClaimed || !isOutOfStock) && (
               <CheckCircle2 className="h-4 w-4" />
