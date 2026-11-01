@@ -101,6 +101,9 @@ export default function ManageRedemptionPage() {
   // Products filtered by selected category
   const availableProducts = useMemo(() => {
     if (categoryFilter === "ALL") return products;
+    if (categoryFilter === "GLOBAL") {
+      return products.filter((p) => !p.category_id);
+    }
     return products.filter((p) => String(p.category_id) === String(categoryFilter));
   }, [products, categoryFilter]);
 
@@ -366,7 +369,7 @@ export default function ManageRedemptionPage() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder="Cari nama tim atau produk..."
+                placeholder="Cari nama tim, ketua, atau produk..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 className="pl-9 pr-8 h-9 bg-input/40 border-border/50 rounded-xl text-xs sm:text-sm text-foreground"
@@ -384,10 +387,10 @@ export default function ManageRedemptionPage() {
 
             {/* Filter Dropdowns (Kategori & Produk) */}
             <div className="flex flex-wrap items-center gap-3">
-              {/* Filter Kategori Lomba */}
+              {/* Filter Kategori Produk */}
               <div className="flex items-center gap-2">
                 <span className="text-xs text-muted-foreground whitespace-nowrap">
-                  Kategori:
+                  Kategori Produk:
                 </span>
                 <Select
                   value={categoryFilter}
@@ -399,8 +402,14 @@ export default function ManageRedemptionPage() {
                       const p = products.find(
                         (prod) => String(prod.product_id) === String(productFilter)
                       );
-                      if (p && String(p.category_id) !== String(val)) {
-                        setProductFilter("ALL");
+                      if (p) {
+                        const isMatch =
+                          val === "GLOBAL"
+                            ? !p.category_id
+                            : String(p.category_id) === String(val);
+                        if (!isMatch) {
+                          setProductFilter("ALL");
+                        }
                       }
                     }
                   }}
@@ -564,9 +573,6 @@ export default function ManageRedemptionPage() {
                       Tim & Ketua
                     </TableHead>
                     <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
-                      Kategori
-                    </TableHead>
-                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
                       Produk
                     </TableHead>
                     <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
@@ -595,15 +601,13 @@ export default function ManageRedemptionPage() {
                       key={r.redemption_id}
                       className="group hover:bg-white/[0.02] transition-colors border-b border-border/30"
                     >
-                      {/* Profil Peserta */}
+                      {/* Profil Tim */}
                       <TableCell className="py-3.5 pl-6">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-xl bg-[#E01C20]/15 border border-[#E01C20]/30 flex items-center justify-center text-[#FED700] font-bold text-xs flex-shrink-0 select-none">
-                            {r.registration?.team_name.charAt(0).toUpperCase() || "-"}
-                          </div>
                           <div className="min-w-0">
-                            <p className="font-semibold text-foreground text-xs sm:text-sm truncate max-w-[160px] sm:max-w-[220px]">
-                              {r.registration?.team_name || "Tanpa Nama Tim"}
+                            <p className="font-semibold text-foreground text-xs truncate max-w-[160px] sm:max-w-[220px]">
+                              {r.registration?.team_name || "Tanpa Nama Tim"}{" "}
+                              <span className="text-amber-300 font-normal text-[11px]">({r.registration?.category_name.split(" ")[0]})</span>
                             </p>
                             <p className="text-[11px] text-muted-foreground truncate max-w-[160px] sm:max-w-[220px]">
                               Ketua: {r.registration?.team_leader_name || r.user?.name || "-"}
@@ -613,13 +617,6 @@ export default function ManageRedemptionPage() {
                             </p>
                           </div>
                         </div>
-                      </TableCell>
-
-                      {/* Kategori Kompetisi */}
-                      <TableCell className="py-3.5 text-center">
-                        <Badge className="bg-blue-500/15 text-blue-400 border border-blue-500/30 text-[11px] px-2.5 py-0.5 rounded-full font-medium whitespace-nowrap">
-                          {r.registration?.category_name || r.category?.name || r.product?.category?.name || "Kompetisi"}
-                        </Badge>
                       </TableCell>
 
                       {/* Produk */}
@@ -667,7 +664,7 @@ export default function ManageRedemptionPage() {
                       </TableCell>
 
                       {/* Poin Ditebus */}
-                      <TableCell className="py-3.5 font-semibold">
+                      <TableCell className="py-3.5 font-semibold text-xs">
                         <div className="flex items-center gap-2 flex-nowrap">
                           {Number(r.diamond_used) > 0 && (
                             <span className="flex items-center gap-1">
