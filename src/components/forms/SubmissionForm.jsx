@@ -956,8 +956,10 @@ export function SubmissionForm({
               })}
             </div>
 
-            <input type="hidden" {...register("sub_theme")} />
-            <InputError fieldError={errors.sub_theme} />
+            <div className="relative">
+              <input id="sub_theme" className="absolute opacity-0 right-0 pointer-events-none" {...register("sub_theme")} />
+              <InputError fieldError={errors.sub_theme} />
+            </div>
           </div>
         )}
 
