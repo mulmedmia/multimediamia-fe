@@ -735,6 +735,16 @@ export function SubmissionForm({
     },
   });
 
+  const onInvalid = (errors) => {
+    if (errors?.sub_theme) {
+      const subthemeContainer = document.getElementById("subtheme-checkbox-container");
+      if (subthemeContainer) {
+        subthemeContainer.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+    }
+  };
+
   const onSubmit = (data) => {
     if (!registration) {
       toast.error("Data registrasi tidak ditemukan. Silakan refresh halaman.");
@@ -829,7 +839,7 @@ export function SubmissionForm({
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+    <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-5">
       {/* Basic Information */}
       <div className="space-y-4">
         {/* Team Name - Hanya tampil untuk GROUP */}
@@ -895,7 +905,7 @@ export function SubmissionForm({
               </span>
             </div>
 
-            <div className="grid grid-cols-1 gap-2.5">
+            <div id="subtheme-checkbox-container" className="grid grid-cols-1 gap-2.5">
               {currentSubThemes.map((theme) => {
                 const isSelected = selectedSubThemes.includes(theme.name);
                 return (
@@ -956,7 +966,6 @@ export function SubmissionForm({
               })}
             </div>
 
-            <input type="hidden" {...register("sub_theme")} />
             <InputError fieldError={errors.sub_theme} />
           </div>
         )}

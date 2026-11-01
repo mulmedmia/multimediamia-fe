@@ -24,6 +24,7 @@ import {
   Copy,
   Info,
   ImageIcon,
+  Gem,
 } from "lucide-react";
 import { SubmissionForm } from "@/components/forms/SubmissionForm";
 import { toast } from "sonner";
@@ -287,7 +288,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
             <span>{Number(activeRegistration.xp || 0).toLocaleString("id-ID")} XP</span>
           </div>
           <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/25 text-cyan-400 font-bold text-sm shadow-sm">
-            <span>💎</span>
+            <Gem className="w-4 h-4 fill-cyan-400/30" />
             <span>{Number(activeRegistration.diamond || 0).toLocaleString("id-ID")} Diamond</span>
           </div>
         </div>

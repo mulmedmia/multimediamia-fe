@@ -37,8 +37,8 @@ export function getProductColumns({ isMobile, setEditData, setDeleteId }) {
                 {row.original.description}
               </div>
               <div className="text-xs mb-1 text-gray-700 dark:text-gray-300">
-                <span className="font-medium">Harga:</span> Rp
-                {row.original.price.toLocaleString()}
+                <span className="font-medium">Harga:</span> 💎{" "}
+                {(row.original.price_diamond ?? 0).toLocaleString()}
               </div>
               <div className="text-xs mb-1 text-gray-700 dark:text-gray-300">
                 <span className="font-medium">Kategori:</span>{" "}
@@ -118,9 +118,9 @@ export function getProductColumns({ isMobile, setEditData, setDeleteId }) {
       cell: ({ row }) => row.original.description,
     },
     {
-      header: "Harga",
-      accessorKey: "price",
-      cell: ({ row }) => `Rp${row.original.price.toLocaleString()}`,
+      header: "Harga Diamond",
+      accessorKey: "price_diamond",
+      cell: ({ row }) => `💎 ${(row.original.price_diamond ?? 0).toLocaleString()}`,
     },
     {
       header: "Stok",

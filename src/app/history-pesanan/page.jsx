@@ -19,6 +19,7 @@ import {
   CheckCircle2,
   RefreshCw,
   Zap,
+  Gem,
 } from "lucide-react";
 
 export default function HistoryPesananPage() {
@@ -78,6 +79,8 @@ export default function HistoryPesananPage() {
 
   const { data, isLoading, isError, refetch } = useMyRedemptions({
     category_id: selectedCategoryId || undefined,
+    registration_id: activeCategory?.registration_id || undefined,
+    limit: 50,
   });
 
   return (
@@ -100,7 +103,7 @@ export default function HistoryPesananPage() {
               </h1>
 
               <p className="text-sm sm:text-base md:text-lg text-[#AAB1BD] leading-relaxed">
-                Pantau seluruh riwayat penukaran Diamonds <span className="inline-block">💎</span> Anda dengan berbagai produk dan hadiah eksklusif MIA 2026.
+                Pantau seluruh riwayat penukaran XP dan Diamonds <span className="inline-block">💎</span> Anda dengan berbagai produk dan hadiah eksklusif MIA 2026.
               </p>
             </div>
 
@@ -203,10 +206,18 @@ export default function HistoryPesananPage() {
                       {activeCategory && (
                         <div className="flex items-center gap-3 px-4 py-2.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold self-stretch sm:self-auto justify-center">
                           <span className="text-[#AAB1BD]">Tim:</span>
-                          <span className="text-[#FFF9F5] font-bold">{activeCategory.team_name || "-"}</span>
-                          <span className="text-white/20">|</span>
-                          <span className="text-[#FED700] font-bold flex items-center gap-1">
-                            <span>💎</span> {activeCategory.diamond.toLocaleString()}
+                          <span className="text-[#FFF9F5] font-bold">
+                            {activeCategory.team_name || "-"}
+                          </span>
+                          <span className="text-border/40 select-none">|</span>
+                          <span className="text-amber-400 flex items-center gap-1.5 font-bold">
+                            <Zap className="h-3.5 w-3.5 fill-amber-400" />
+                            {activeCategory.xp.toLocaleString()} XP
+                          </span>
+                          <span className="text-border/40 select-none">|</span>
+                          <span className="text-cyan-400 flex items-center gap-1.5 font-bold">
+                            <Gem className="h-3 w-3 fill-cyan-400" />
+                            {activeCategory.diamond.toLocaleString()}
                           </span>
                         </div>
                       )}
@@ -354,12 +365,6 @@ export default function HistoryPesananPage() {
                                 <h3 className="font-bold text-base sm:text-lg text-[#FFF9F5] group-hover:text-[#E01C20] transition-colors truncate">
                                   {item.product?.name || "Produk Hadiah"}
                                 </h3>
-                                {(item.product?.category?.name || item.category?.name) && (
-                                  <span className="inline-flex items-center gap-1 bg-white/5 border border-white/10 text-[#AAB1BD] text-[11px] font-medium px-2.5 py-0.5 rounded-full">
-                                    <Trophy className="h-3 w-3 text-amber-400" />
-                                    <span>{item.product?.category?.name || item.category?.name}</span>
-                                  </span>
-                                )}
                                 <span className="inline-flex items-center gap-1 bg-[#00B445]/15 text-[#00B445] border border-[#00B445]/30 text-[11px] font-semibold px-2.5 py-0.5 rounded-full">
                                   <CheckCircle2 className="h-3 w-3" />
                                   <span>Berhasil</span>
@@ -389,15 +394,27 @@ export default function HistoryPesananPage() {
                                   </span>
                                 </div>
 
-                                <div className="inline-flex items-center gap-1.5 bg-[#141824] border border-white/10 px-2.5 py-1 rounded-md">
-                                  <span className="text-xs">💎</span>
-                                  <span className="font-semibold text-[#FED700]">
-                                    {item.points_used ?? item.product?.price ?? 0}
-                                  </span>
-                                  <span className="text-[#AAB1BD]">Diamonds Terpakai</span>
-                                </div>
+                                {((item.diamond_used ?? item.points_used) > 0 || (Number(item.product?.price_diamond) > 0)) && (
+                                  <div className="inline-flex items-center gap-1.5 bg-[#141824] border border-white/10 px-2.5 py-1 rounded-md">
+                                    <span className="text-xs">💎</span>
+                                    <span className="font-semibold text-[#FED700]">
+                                      {item.diamond_used ?? item.points_used ?? item.product?.price_diamond ?? 0}
+                                    </span>
+                                    <span className="text-[#AAB1BD]">Diamonds Terpakai</span>
+                                  </div>
+                                )}
 
-                                {Number(item.product?.reward_xp) > 0 && (
+                                {(item.xp_used > 0 || (item.product?.price_xp && Number(item.product.price_xp) > 0)) && (
+                                  <div className="inline-flex items-center gap-1.5 bg-[#141824] border border-amber-500/30 text-amber-400 px-2.5 py-1 rounded-md">
+                                    <Zap className="h-3.5 w-3.5" />
+                                    <span className="font-semibold">
+                                      {item.xp_used ?? (Number(item.product?.price_xp) * (item.quantity || 1))}
+                                    </span>
+                                    <span className="text-[#AAB1BD]">XP Terpakai</span>
+                                  </div>
+                                )}
+
+                                {Number(item.product?.price_xp) <= 0 && Number(item.product?.reward_xp) > 0 && (
                                   <div className="inline-flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-2.5 py-1 rounded-md font-medium">
                                     <Zap className="h-3.5 w-3.5" />
                                     <span>
@@ -414,11 +431,22 @@ export default function HistoryPesananPage() {
                             <span className="text-[11px] uppercase tracking-wider text-[#99A1AF] font-semibold">
                               Nilai Tukar
                             </span>
-                            <span className="text-lg sm:text-xl font-bold text-[#FED700] flex items-center gap-1.5">
-                              <span className="text-base">💎</span>
-                              <span>{item.product?.price || item.points_used || 0}</span>
-                              <span className="text-xs font-normal text-[#AAB1BD]">Diamonds</span>
-                            </span>
+                            <div className="flex md:flex-col items-end gap-1">
+                              {((item.diamond_used ?? item.points_used) > 0 || (Number(item.product?.price_diamond) > 0)) && (
+                                <span className="text-base sm:text-lg font-bold text-[#FED700] flex items-center gap-1">
+                                  <span className="text-sm">💎</span>
+                                  <span>{item.product?.price_diamond || item.diamond_used || item.points_used || 0}</span>
+                                  <span className="text-[10px] font-normal text-[#AAB1BD]">Diamonds</span>
+                                </span>
+                              )}
+                              {(item.xp_used > 0 || (item.product?.price_xp && Number(item.product.price_xp) > 0)) && (
+                                <span className="text-base sm:text-lg font-bold text-amber-400 flex items-center gap-1">
+                                  <Zap className="h-3.5 w-3.5" />
+                                  <span>{item.product?.price_xp || item.xp_used || 0}</span>
+                                  <span className="text-[10px] font-normal text-[#AAB1BD]">XP</span>
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
                       ))}

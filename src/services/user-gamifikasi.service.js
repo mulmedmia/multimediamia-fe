@@ -10,6 +10,8 @@ export const getMyRedemptions = async (filters = {}) => {
   if (filters.page) params.append("page", filters.page);
   if (filters.limit) params.append("limit", filters.limit);
   if (filters.category_id) params.append("category_id", filters.category_id);
+  if (filters.registration_id) params.append("registration_id", filters.registration_id);
+  if (filters.product_id) params.append("product_id", filters.product_id);
   if (filters.search) params.append("search", filters.search);
   const queryString = params.toString() ? `?${params.toString()}` : "";
   const res = await api.get(`/gamification/redeem/my${queryString}`);
