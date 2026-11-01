@@ -739,7 +739,7 @@ export function SubmissionForm({
     if (errors?.sub_theme) {
       const subthemeContainer = document.getElementById("subtheme-checkbox-container");
       if (subthemeContainer) {
-        subthemeContainer.scrollIntoView({ block: "center" });
+        subthemeContainer.scrollIntoView({ behavior: "smooth", block: "center" });
         return;
       }
     }
