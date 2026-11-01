@@ -46,25 +46,29 @@ export const mobileColumns = [
     ),
   },
   {
-    accessorKey: "points_used",
+    accessorKey: "diamond_used",
     header: "Biaya",
-    cell: ({ row }) => (
-      <div className="flex flex-col gap-1 items-start">
-        {row.original.points_used > 0 && (
-          <Badge className="bg-amber-500/15 text-amber-300 border-amber-500/30 text-[11px]">
-            💎 {row.original.points_used}
-          </Badge>
-        )}
-        {row.original.xp_used > 0 && (
-          <Badge className="bg-amber-500/15 text-amber-400 border-amber-500/30 text-[11px]">
-            ⚡ {row.original.xp_used} XP
-          </Badge>
-        )}
-        {row.original.points_used <= 0 && (!row.original.xp_used || row.original.xp_used <= 0) && (
-          <Badge variant="outline">0</Badge>
-        )}
-      </div>
-    ),
+    cell: ({ row }) => {
+      const diamondUsed = row.original.diamond_used ?? row.original.points_used ?? 0;
+      const xpUsed = row.original.xp_used ?? 0;
+      return (
+        <div className="flex flex-col gap-1 items-start">
+          {diamondUsed > 0 && (
+            <Badge className="bg-amber-500/15 text-amber-300 border-amber-500/30 text-[11px]">
+              💎 {diamondUsed}
+            </Badge>
+          )}
+          {xpUsed > 0 && (
+            <Badge className="bg-amber-500/15 text-amber-400 border-amber-500/30 text-[11px]">
+              ⚡ {xpUsed} XP
+            </Badge>
+          )}
+          {diamondUsed <= 0 && xpUsed <= 0 && (
+            <Badge variant="outline">0</Badge>
+          )}
+        </div>
+      );
+    },
   },
 ];
 

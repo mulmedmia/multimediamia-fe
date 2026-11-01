@@ -53,6 +53,7 @@ import {
   FileSpreadsheet,
   Phone,
   ExternalLink,
+  Zap,
 } from "lucide-react";
 import { exportToExcel } from "@/lib/export-excel";
 import { useAuthContext } from "@/providers/AuthProvider";
@@ -143,8 +144,8 @@ export default function ManageRedemptionPage() {
   const stats = useMemo(() => {
     const list = allStatsData?.redemptions || redemptions;
     const total = allStatsData?.meta?.total ?? totalItems;
-    const totalPointsUsed = list.reduce(
-      (acc, r) => acc + (Number(r.points_used) || 0),
+    const totalDiamondUsed = list.reduce(
+      (acc, r) => acc + (Number(r.diamond_used ?? r.points_used) || 0),
       0
     );
     const uniqueProducts = new Set(
@@ -153,7 +154,13 @@ export default function ManageRedemptionPage() {
     const uniqueUsers = new Set(
       list.map((r) => r.registration_id || r.user_id).filter(Boolean)
     ).size;
-    return { total, totalPointsUsed, uniqueProducts, uniqueUsers };
+    return {
+      total,
+      totalDiamondUsed,
+      totalPointsUsed: totalDiamondUsed,
+      uniqueProducts,
+      uniqueUsers,
+    };
   }, [allStatsData, redemptions, totalItems]);
 
   // Format Date Display
@@ -267,7 +274,7 @@ export default function ManageRedemptionPage() {
             <span>Riwayat Redeem Produk</span>
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-            Pantau riwayat penukaran product dan penggunaan poin Diamond oleh peserta kompetisi.
+            Pantau riwayat penukaran product dan penggunaan poin XP / Diamond oleh peserta kompetisi.
           </p>
         </div>
 
@@ -359,7 +366,7 @@ export default function ManageRedemptionPage() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder="Cari nama peserta atau produk..."
+                placeholder="Cari nama tim atau produk..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 className="pl-9 pr-8 h-9 bg-input/40 border-border/50 rounded-xl text-xs sm:text-sm text-foreground"
@@ -453,6 +460,7 @@ export default function ManageRedemptionPage() {
                     onClick={() => {
                       setSearchInput("");
                       setSearchTerm("");
+                      setPage(1);
                     }}
                     className="hover:text-blue-200 ml-0.5"
                   >
@@ -470,7 +478,10 @@ export default function ManageRedemptionPage() {
                       )?.name || categoryFilter}
                   <button
                     type="button"
-                    onClick={() => setCategoryFilter("ALL")}
+                    onClick={() => {
+                      setCategoryFilter("ALL");
+                      setPage(1);
+                    }}
                     className="hover:text-blue-200 ml-0.5"
                   >
                     ×
@@ -484,7 +495,10 @@ export default function ManageRedemptionPage() {
                     ?.name || productFilter}
                   <button
                     type="button"
-                    onClick={() => setProductFilter("ALL")}
+                    onClick={() => {
+                      setProductFilter("ALL");
+                      setPage(1);
+                    }}
                     className="hover:text-purple-200 ml-0.5"
                   >
                     ×
@@ -639,21 +653,37 @@ export default function ManageRedemptionPage() {
                                   🌐 Semua Kategori
                                 </Badge>
                               )}
-                              {r.product?.price_diamond && (
-                                <span className="text-[11px] text-muted-foreground">
-                                  @Harga: 💎 {Number(r.product.price_diamond).toLocaleString("id-ID")}
-                                </span>
-                              )}
                             </div>
+                            <span className="text-[11px] text-muted-foreground">
+                              @Harga: {" "}
+                              {r.product?.price_diamond && (
+                                `💎 ${Number(r.product.price_diamond).toLocaleString("id-ID")}`
+                              )}
+                              {r.product?.price_xp && 
+                                ` + ⚡ ${r.product.price_xp.toLocaleString("id-ID")} XP`}
+                            </span>
                           </div>
                         </div>
                       </TableCell>
 
                       {/* Poin Ditebus */}
-                      <TableCell className="py-3.5">
-                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold text-xs">
-                          <Gem className="h-3.5 w-3.5" />
-                          <span>{(r.points_used ?? 0).toLocaleString("id-ID")} Diamond</span>
+                      <TableCell className="py-3.5 font-semibold">
+                        <div className="flex items-center gap-2 flex-nowrap">
+                          {Number(r.diamond_used) > 0 && (
+                            <span className="flex items-center gap-1">
+                              <Gem className="h-3.5 w-3.5 text-cyan-400" /> 
+                              <span>{Number(r.diamond_used).toLocaleString("id-ID")}</span>
+                            </span>
+                          )}
+                          {Number(r.diamond_used) > 0 && Number(r.xp_used) > 0 && (
+                            <span className="text-muted-foreground/60 font-normal select-none">+</span>
+                          )}
+                          {Number(r.xp_used) > 0 && (
+                            <span className="flex items-center gap-1 text-amber-400">
+                              <Zap className="h-3.5 w-3.5 text-amber-400" />
+                              <span>{Number(r.xp_used).toLocaleString("id-ID")} XP</span>
+                            </span>
+                          )}
                         </div>
                       </TableCell>
 
@@ -704,7 +734,7 @@ export default function ManageRedemptionPage() {
         </CardContent>
 
         {/* Pagination Footer */}
-        {totalPages > 1 && (
+        {totalItems > 0 && (
           <div className="p-4 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
             <div>
               Menampilkan{" "}
@@ -725,7 +755,7 @@ export default function ManageRedemptionPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page <= 1}
+                disabled={page <= 1 || isFetching}
                 className="h-8 px-3 rounded-xl border-border/50 bg-input/20 text-foreground disabled:opacity-30 cursor-pointer"
               >
                 Sebelumnya
@@ -737,7 +767,7 @@ export default function ManageRedemptionPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page >= totalPages}
+                disabled={page >= totalPages || isFetching}
                 className="h-8 px-3 rounded-xl border-border/50 bg-input/20 text-foreground disabled:opacity-30 cursor-pointer"
               >
                 Selanjutnya

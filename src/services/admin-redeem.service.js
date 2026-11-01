@@ -9,7 +9,9 @@ export const getAllRedemptions = async ({
   category_id = "",
   registration_id = "",
 } = {}) => {
-  const params = new URLSearchParams({ page, limit });
+  const params = new URLSearchParams();
+  params.append("page", page);
+  params.append("limit", limit);
   if (search && search.trim()) params.append("search", search.trim());
   if (product_id && product_id !== "ALL") params.append("product_id", product_id);
   if (category_id && category_id !== "ALL") params.append("category_id", category_id);
@@ -17,7 +19,12 @@ export const getAllRedemptions = async ({
 
   const res = await api.get(`/gamification/admin/redeem/all?${params.toString()}`);
   return {
-    redemptions: res.data.data.redemptions,
-    meta: res.data.data.meta,
+    redemptions: res.data?.data?.redemptions || [],
+    meta: res.data?.data?.meta || {
+      total: 0,
+      page: Number(page),
+      limit: Number(limit),
+      totalPages: 1,
+    },
   };
 };
