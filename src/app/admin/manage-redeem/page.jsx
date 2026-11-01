@@ -4,8 +4,8 @@ import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import { getSafeImageUrl } from "@/lib/image-loader";
 import { useQuery } from "@tanstack/react-query";
-import { useAdminRedemptions } from "@/hooks/admin-use-reddem";
-import { getAllRedemptions } from "@/services/admin-reddem.service";
+import { useAdminRedemptions } from "@/hooks/admin-use-redeem";
+import { getAllRedemptions } from "@/services/admin-redeem.service";
 import { useAdminProducts } from "@/hooks/admin-use.product";
 import { useAdminCategories } from "@/hooks/admin-use-categories";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
@@ -53,6 +53,7 @@ import {
   FileSpreadsheet,
   Phone,
   ExternalLink,
+  Zap,
 } from "lucide-react";
 import { exportToExcel } from "@/lib/export-excel";
 import { useAuthContext } from "@/providers/AuthProvider";
@@ -100,6 +101,9 @@ export default function ManageRedemptionPage() {
   // Products filtered by selected category
   const availableProducts = useMemo(() => {
     if (categoryFilter === "ALL") return products;
+    if (categoryFilter === "GLOBAL") {
+      return products.filter((p) => !p.category_id);
+    }
     return products.filter((p) => String(p.category_id) === String(categoryFilter));
   }, [products, categoryFilter]);
 
@@ -120,7 +124,7 @@ export default function ManageRedemptionPage() {
 
   // Global Stats Query for top cards
   const { data: allStatsData } = useQuery({
-    queryKey: ["admin-reddem-overall-stats"],
+    queryKey: ["admin-redeem-overall-stats"],
     queryFn: () => getAllRedemptions({ page: 1, limit: 1000 }),
     staleTime: 1000 * 60,
   });
@@ -143,17 +147,23 @@ export default function ManageRedemptionPage() {
   const stats = useMemo(() => {
     const list = allStatsData?.redemptions || redemptions;
     const total = allStatsData?.meta?.total ?? totalItems;
-    const totalPointsUsed = list.reduce(
-      (acc, r) => acc + (Number(r.points_used) || 0),
+    const totalDiamondUsed = list.reduce(
+      (acc, r) => acc + (Number(r.diamond_used ?? r.points_used) || 0),
       0
     );
     const uniqueProducts = new Set(
       list.map((r) => r.product_id).filter(Boolean)
     ).size;
     const uniqueUsers = new Set(
-      list.map((r) => r.user_id).filter(Boolean)
+      list.map((r) => r.registration_id || r.user_id).filter(Boolean)
     ).size;
-    return { total, totalPointsUsed, uniqueProducts, uniqueUsers };
+    return {
+      total,
+      totalDiamondUsed,
+      totalPointsUsed: totalDiamondUsed,
+      uniqueProducts,
+      uniqueUsers,
+    };
   }, [allStatsData, redemptions, totalItems]);
 
   // Format Date Display
@@ -183,7 +193,7 @@ export default function ManageRedemptionPage() {
   const handleExportExcel = async () => {
     try {
       setIsExporting(true);
-      toast.info("Sedang menyiapkan data redeem merchandise untuk diekspor...");
+      toast.info("Sedang menyiapkan data redeem product untuk diekspor...");
 
       const res = await getAllRedemptions({
         page: 1,
@@ -203,11 +213,13 @@ export default function ManageRedemptionPage() {
       const columns = [
         { header: "No", key: "no", width: 8, align: "center" },
         { header: "ID Transaksi", key: "redemption_id", width: 28 },
+        { header: "ID Pendaftaran", key: "registration_id", width: 28 },
         { header: "Waktu Penukaran", key: "created_at", width: 22, align: "center" },
         { header: "Nama Peserta", key: "user_name", width: 25 },
+        { header: "Tim Lomba", key: "team_name", width: 25 },
         { header: "Email", key: "user_email", width: 26 },
         { header: "Nomor WhatsApp", key: "whatsapp_number", width: 20 },
-        { header: "Nama Merchandise", key: "product_name", width: 25 },
+        { header: "Nama Produl", key: "product_name", width: 25 },
         { header: "Jumlah", key: "quantity", width: 14, align: "center" },
         { header: "Diamond Digunakan", key: "points_used", width: 20, align: "center" },
         { header: "Status Penukaran", key: "status", width: 18, align: "center" },
@@ -217,8 +229,10 @@ export default function ManageRedemptionPage() {
         return {
           no: index + 1,
           redemption_id: item.redemption_id || "-",
+          registration_id: item.registration_id || "-",
           created_at: formatDateDisplay(item.created_at),
           user_name: item.user?.name || "-",
+          team_name: item.registration?.team_name || "-",
           user_email: item.user?.email || "-",
           whatsapp_number: item.user?.whatsapp_number || item.user?.whatsapp || "-",
           product_name: item.product?.name || "-",
@@ -231,12 +245,12 @@ export default function ManageRedemptionPage() {
       await exportToExcel({
         pageTitle: "MANAGE REDEEM",
         accountName: user?.name || user?.email || "Admin MIA",
-        fileName: `MIA2026_Data_Redeem_Merchandise_${new Date().toISOString().slice(0, 10)}`,
+        fileName: `MIA2026_Data_Redeem_Product_${new Date().toISOString().slice(0, 10)}`,
         columns,
         data: rows,
       });
 
-      toast.success(`Berhasil mengekspor ${rows.length} data redeem merchandise!`);
+      toast.success(`Berhasil mengekspor ${rows.length} data redeem product!`);
     } catch (err) {
       console.error("Export error:", err);
       toast.error("Gagal mengekspor data: " + (err.message || "Terjadi kesalahan"));
@@ -260,14 +274,14 @@ export default function ManageRedemptionPage() {
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
             <ShoppingBag className="h-7 w-7 text-[#E01C20]" />
-            <span>Riwayat Redeem Merchandise</span>
+            <span>Riwayat Redeem Produk</span>
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-            Pantau riwayat penukaran merchandise dan penggunaan poin Diamond oleh peserta kompetisi.
+            Pantau riwayat penukaran product dan penggunaan poin XP / Diamond oleh peserta kompetisi.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+        <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap justify-end">
           <Button
             variant="outline"
             onClick={() => refetch()}
@@ -327,7 +341,7 @@ export default function ManageRedemptionPage() {
               <Package className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Jenis Merchandise</p>
+              <p className="text-xs text-muted-foreground">Jenis Produk</p>
               <p className="text-xl font-bold text-foreground">{stats.uniqueProducts}</p>
             </div>
           </CardContent>
@@ -355,7 +369,7 @@ export default function ManageRedemptionPage() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder="Cari nama peserta atau merchandise..."
+                placeholder="Cari nama tim, ketua, atau produk..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 className="pl-9 pr-8 h-9 bg-input/40 border-border/50 rounded-xl text-xs sm:text-sm text-foreground"
@@ -373,10 +387,10 @@ export default function ManageRedemptionPage() {
 
             {/* Filter Dropdowns (Kategori & Produk) */}
             <div className="flex flex-wrap items-center gap-3">
-              {/* Filter Kategori Lomba */}
+              {/* Filter Kategori Produk */}
               <div className="flex items-center gap-2">
                 <span className="text-xs text-muted-foreground whitespace-nowrap">
-                  Kategori:
+                  Kategori Produk:
                 </span>
                 <Select
                   value={categoryFilter}
@@ -388,8 +402,14 @@ export default function ManageRedemptionPage() {
                       const p = products.find(
                         (prod) => String(prod.product_id) === String(productFilter)
                       );
-                      if (p && String(p.category_id) !== String(val)) {
-                        setProductFilter("ALL");
+                      if (p) {
+                        const isMatch =
+                          val === "GLOBAL"
+                            ? !p.category_id
+                            : String(p.category_id) === String(val);
+                        if (!isMatch) {
+                          setProductFilter("ALL");
+                        }
                       }
                     }
                   }}
@@ -449,6 +469,7 @@ export default function ManageRedemptionPage() {
                     onClick={() => {
                       setSearchInput("");
                       setSearchTerm("");
+                      setPage(1);
                     }}
                     className="hover:text-blue-200 ml-0.5"
                   >
@@ -466,7 +487,10 @@ export default function ManageRedemptionPage() {
                       )?.name || categoryFilter}
                   <button
                     type="button"
-                    onClick={() => setCategoryFilter("ALL")}
+                    onClick={() => {
+                      setCategoryFilter("ALL");
+                      setPage(1);
+                    }}
                     className="hover:text-blue-200 ml-0.5"
                   >
                     ×
@@ -480,7 +504,10 @@ export default function ManageRedemptionPage() {
                     ?.name || productFilter}
                   <button
                     type="button"
-                    onClick={() => setProductFilter("ALL")}
+                    onClick={() => {
+                      setProductFilter("ALL");
+                      setPage(1);
+                    }}
                     className="hover:text-purple-200 ml-0.5"
                   >
                     ×
@@ -534,7 +561,7 @@ export default function ManageRedemptionPage() {
               <p className="text-xs text-muted-foreground max-w-sm mx-auto">
                 {hasActiveFilters
                   ? "Coba sesuaikan kata kunci pencarian atau ganti filter produk."
-                  : "Belum ada peserta yang menukarkan poin Diamond dengan merchandise."}
+                  : "Belum ada peserta yang menukarkan poin Diamond dengan product."}
               </p>
             </div>
           ) : (
@@ -543,13 +570,10 @@ export default function ManageRedemptionPage() {
                 <TableHeader>
                   <TableRow className="border-b border-border/40 hover:bg-transparent">
                     <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 pl-6 bg-white/[0.02]">
-                      Peserta
+                      Tim & Ketua
                     </TableHead>
                     <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
-                      Nomor WhatsApp
-                    </TableHead>
-                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
-                      Produk Merchandise
+                      Produk
                     </TableHead>
                     <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
                       Poin Ditebus
@@ -577,43 +601,25 @@ export default function ManageRedemptionPage() {
                       key={r.redemption_id}
                       className="group hover:bg-white/[0.02] transition-colors border-b border-border/30"
                     >
-                      {/* Profil Peserta */}
+                      {/* Profil Tim */}
                       <TableCell className="py-3.5 pl-6">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 font-bold text-xs flex-shrink-0">
-                            {r.user?.name ? r.user.name.charAt(0).toUpperCase() : "U"}
-                          </div>
-                          <div className="min-w-0 max-w-[180px] sm:max-w-[240px]">
-                            <p className="font-semibold text-foreground text-xs sm:text-sm truncate">
-                              {r.user?.name || "Tanpa Nama"}
+                          <div className="min-w-0">
+                            <p className="font-semibold text-foreground text-xs truncate max-w-[160px] sm:max-w-[220px]">
+                              {r.registration?.team_name || "Tanpa Nama Tim"}{" "}
+                              <span className="text-amber-300 font-normal text-[11px]">({r.registration?.category_name.split(" ")[0]})</span>
                             </p>
-                            <p className="text-[11px] text-muted-foreground truncate">
+                            <p className="text-[11px] text-muted-foreground truncate max-w-[160px] sm:max-w-[220px]">
+                              Ketua: {r.registration?.team_leader_name || r.user?.name || "-"}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground/70 truncate max-w-[160px] sm:max-w-[220px]">
                               {r.user?.email || "-"}
                             </p>
                           </div>
                         </div>
                       </TableCell>
 
-                      {/* Nomor WhatsApp */}
-                      <TableCell className="py-3.5 whitespace-nowrap">
-                        {r.user?.whatsapp_number || r.user?.whatsapp ? (
-                          <a
-                            href={`https://wa.me/${(r.user?.whatsapp_number || r.user?.whatsapp).replace(/[^0-9]/g, "").replace(/^0/, "62")}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/20 transition-all font-medium text-xs group/wa cursor-pointer"
-                            title={`Chat WhatsApp dengan ${r.user?.name || "Peserta"}`}
-                          >
-                            <Phone className="h-3.5 w-3.5 text-emerald-400 group-hover/wa:scale-110 transition-transform" />
-                            <span>{r.user?.whatsapp_number || r.user?.whatsapp}</span>
-                            <ExternalLink className="h-3 w-3 opacity-60 group-hover/wa:opacity-100" />
-                          </a>
-                        ) : (
-                          <span className="text-muted-foreground/40 text-xs italic">-</span>
-                        )}
-                      </TableCell>
-
-                      {/* Produk Merchandise */}
+                      {/* Produk */}
                       <TableCell className="py-3.5">
                         <div className="flex items-center gap-3">
                           {r.product?.image_url ? (
@@ -631,7 +637,7 @@ export default function ManageRedemptionPage() {
                             </div>
                           )}
                           <div className="min-w-0 max-w-[180px] sm:max-w-[240px]">
-                            <p className="font-semibold text-foreground text-xs sm:text-sm truncate">
+                            <p className="font-medium text-foreground text-xs truncate">
                               {r.product?.name || "Produk Dihapus"}
                             </p>
                             <div className="flex items-center gap-1.5 flex-wrap mt-0.5">
@@ -644,21 +650,37 @@ export default function ManageRedemptionPage() {
                                   🌐 Semua Kategori
                                 </Badge>
                               )}
-                              {r.product?.price && (
-                                <span className="text-[11px] text-muted-foreground">
-                                  Nilai: Rp {Number(r.product.price).toLocaleString("id-ID")}
-                                </span>
-                              )}
                             </div>
+                            <span className="text-[11px] text-muted-foreground">
+                              @Harga: {" "}
+                              {r.product?.price_diamond && (
+                                `💎 ${Number(r.product.price_diamond).toLocaleString("id-ID")}`
+                              )}
+                              {r.product?.price_xp && 
+                                ` + ⚡ ${r.product.price_xp.toLocaleString("id-ID")} XP`}
+                            </span>
                           </div>
                         </div>
                       </TableCell>
 
                       {/* Poin Ditebus */}
-                      <TableCell className="py-3.5">
-                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold text-xs">
-                          <Gem className="h-3.5 w-3.5" />
-                          <span>{(r.points_used ?? 0).toLocaleString("id-ID")} Diamond</span>
+                      <TableCell className="py-3.5 font-semibold text-xs">
+                        <div className="flex items-center gap-2 flex-nowrap">
+                          {Number(r.diamond_used) > 0 && (
+                            <span className="flex items-center gap-1">
+                              <Gem className="h-3.5 w-3.5 text-cyan-400" /> 
+                              <span>{Number(r.diamond_used).toLocaleString("id-ID")}</span>
+                            </span>
+                          )}
+                          {Number(r.diamond_used) > 0 && Number(r.xp_used) > 0 && (
+                            <span className="text-muted-foreground/60 font-normal select-none">+</span>
+                          )}
+                          {Number(r.xp_used) > 0 && (
+                            <span className="flex items-center gap-1 text-amber-400">
+                              <Zap className="h-3.5 w-3.5 text-amber-400" />
+                              <span>{Number(r.xp_used).toLocaleString("id-ID")} XP</span>
+                            </span>
+                          )}
                         </div>
                       </TableCell>
 
@@ -709,7 +731,7 @@ export default function ManageRedemptionPage() {
         </CardContent>
 
         {/* Pagination Footer */}
-        {totalPages > 1 && (
+        {totalItems > 0 && (
           <div className="p-4 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
             <div>
               Menampilkan{" "}
@@ -730,7 +752,7 @@ export default function ManageRedemptionPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page <= 1}
+                disabled={page <= 1 || isFetching}
                 className="h-8 px-3 rounded-xl border-border/50 bg-input/20 text-foreground disabled:opacity-30 cursor-pointer"
               >
                 Sebelumnya
@@ -742,7 +764,7 @@ export default function ManageRedemptionPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page >= totalPages}
+                disabled={page >= totalPages || isFetching}
                 className="h-8 px-3 rounded-xl border-border/50 bg-input/20 text-foreground disabled:opacity-30 cursor-pointer"
               >
                 Selanjutnya
@@ -760,7 +782,7 @@ export default function ManageRedemptionPage() {
               <ShoppingBag className="h-6 w-6" />
             </div>
             <DialogTitle className="text-lg font-bold text-center text-foreground">
-              Detail Penukaran Merchandise
+              Detail Penukaran Produk
             </DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground text-center">
               Informasi lengkap transaksi penukaran reward oleh peserta kompetisi.
@@ -776,12 +798,30 @@ export default function ManageRedemptionPage() {
               </span>
             </div>
 
+            {detailData?.registration_id && (
+              <div className="flex justify-between items-center py-0.5 border-b border-border/20">
+                <span className="text-muted-foreground">ID Pendaftaran:</span>
+                <span className="font-mono text-muted-foreground text-[11px] truncate max-w-[180px]">
+                  {detailData.registration_id}
+                </span>
+              </div>
+            )}
+
             <div className="flex justify-between items-center py-0.5 border-b border-border/20">
               <span className="text-muted-foreground">Nama Peserta:</span>
               <span className="font-semibold text-foreground truncate max-w-[200px]">
                 {detailData?.user?.name || "-"}
               </span>
             </div>
+
+            {detailData?.registration?.team_name && (
+              <div className="flex justify-between items-center py-0.5 border-b border-border/20">
+                <span className="text-muted-foreground">Tim Lomba:</span>
+                <span className="font-semibold text-blue-400 truncate max-w-[200px]">
+                  {detailData.registration.team_name}
+                </span>
+              </div>
+            )}
 
             <div className="flex justify-between items-center py-0.5 border-b border-border/20">
               <span className="text-muted-foreground">Email:</span>
@@ -816,11 +856,11 @@ export default function ManageRedemptionPage() {
               </span>
             </div>
 
-            {(detailData?.category?.name || detailData?.product?.category?.name) && (
+            {(detailData?.registration?.category_name || detailData?.category?.name || detailData?.product?.category?.name) && (
               <div className="flex justify-between items-center py-0.5 border-b border-border/20">
                 <span className="text-muted-foreground">Kategori Lomba:</span>
                 <Badge className="bg-blue-500/15 text-blue-400 border border-blue-500/30 text-[10px] px-2 py-0.5 rounded font-medium">
-                  {detailData?.category?.name || detailData?.product?.category?.name}
+                  {detailData?.registration?.category_name || detailData?.category?.name || detailData?.product?.category?.name}
                 </Badge>
               </div>
             )}

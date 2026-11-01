@@ -488,7 +488,7 @@ export default function LeaderboardPage() {
                           <h4 className="font-semibold text-base text-[#FFF9F5]">
                             {item.team_name}
                           </h4>
-                          <p className="text-xs text-[#AAB1BD]">
+                          <p className="text-xs text-[#AAB1BD] line-clamp-1">
                             oleh {item.user?.name || "Peserta"}
                           </p>
                         </div>

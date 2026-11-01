@@ -7,8 +7,17 @@ import { formatMediumShortDate } from "@/lib/utils";
 export const mobileColumns = [
   {
     accessorKey: "user.name",
-    header: "Nama",
-    cell: ({ row }) => <span>{row.original.user?.name}</span>,
+    header: "Peserta & Tim",
+    cell: ({ row }) => (
+      <div className="flex flex-col gap-0.5">
+        <span className="font-medium text-foreground">{row.original.user?.name || "-"}</span>
+        {row.original.registration?.team_name && (
+          <span className="text-[10px] text-muted-foreground font-normal">
+            Tim: {row.original.registration.team_name}
+          </span>
+        )}
+      </div>
+    ),
   },
   {
     accessorKey: "product.name",
@@ -21,7 +30,7 @@ export const mobileColumns = [
             {row.original.category?.name || row.original.product?.category?.name}
           </span>
         )}
-        {Number(row.original.product?.reward_xp) > 0 && (
+        {Number(row.original.product?.price_xp) <= 0 && Number(row.original.product?.reward_xp) > 0 && (
           <span className="text-[10px] text-emerald-400 font-medium">
             +{(Number(row.original.product.reward_xp) * (row.original.quantity || 1)).toLocaleString()} XP
           </span>
@@ -37,9 +46,29 @@ export const mobileColumns = [
     ),
   },
   {
-    accessorKey: "points_used",
-    header: "Poin",
-    cell: ({ row }) => <Badge>{row.original.points_used}</Badge>,
+    accessorKey: "diamond_used",
+    header: "Biaya",
+    cell: ({ row }) => {
+      const diamondUsed = row.original.diamond_used ?? row.original.points_used ?? 0;
+      const xpUsed = row.original.xp_used ?? 0;
+      return (
+        <div className="flex flex-col gap-1 items-start">
+          {diamondUsed > 0 && (
+            <Badge className="bg-amber-500/15 text-amber-300 border-amber-500/30 text-[11px]">
+              💎 {diamondUsed}
+            </Badge>
+          )}
+          {xpUsed > 0 && (
+            <Badge className="bg-amber-500/15 text-amber-400 border-amber-500/30 text-[11px]">
+              ⚡ {xpUsed} XP
+            </Badge>
+          )}
+          {diamondUsed <= 0 && xpUsed <= 0 && (
+            <Badge variant="outline">0</Badge>
+          )}
+        </div>
+      );
+    },
   },
 ];
 
@@ -52,25 +81,15 @@ export const tabletColumns = [
     cell: ({ row }) => <span>{row.original.user?.email}</span>,
   },
   {
-    accessorKey: "user.whatsapp_number",
-    header: "Nomor WhatsApp",
-    cell: ({ row }) => {
-      const wa = row.original.user?.whatsapp_number || row.original.user?.whatsapp;
-      if (!wa) return <span className="text-muted-foreground/40 italic">-</span>;
-      const cleanWa = wa.replace(/[^0-9]/g, "").replace(/^0/, "62");
-      return (
-        <a
-          href={`https://wa.me/${cleanWa}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-emerald-400 hover:text-emerald-300 hover:underline inline-flex items-center gap-1 font-medium text-xs"
-        >
-          <Phone className="h-3 w-3" />
-          <span>{wa}</span>
-          <ExternalLink className="h-2.5 w-2.5 opacity-60" />
-        </a>
-      );
-    },
+    accessorKey: "category",
+    header: () => <div className="text-center">Kategori</div>,
+    cell: ({ row }) => (
+      <div className="flex justify-center">
+        <Badge className="bg-blue-500/15 text-blue-400 border border-blue-500/30 text-[11px] px-2.5 py-0.5 rounded-full font-medium whitespace-nowrap">
+          {row.original.registration?.category_name || row.original.category?.name || row.original.product?.category?.name || "Kompetisi"}
+        </Badge>
+      </div>
+    ),
   },
 ];
 

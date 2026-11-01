@@ -2,10 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { getSafeImageUrl } from "@/lib/image-loader";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import {
   useProducts,
   useRedeemProduct,
@@ -15,32 +12,17 @@ import { useMyRegistrations } from "@/hooks/user-use-registration";
 import { Button } from "@/components/ui/button";
 import {
   Gift,
-  CheckCircle2,
-  Loader2,
   ShoppingBag,
-  Clock,
-  AlertCircle,
-  Infinity as InfinityIcon,
-  Plus,
-  Minus,
   Zap,
+  Gem,
+  Clock,
   Trophy,
-  ArrowRight,
 } from "lucide-react";
 import { useUserProfile } from "@/hooks/user-use-profile";
-import {
-  AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogFooter,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from "@/components/ui/alert-dialog";
 import { useAuthContext } from "@/providers/AuthProvider";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import Footer from "@/components/layout/Footer";
+import ProductCard from "./ProductCard";
 
 // Fallback sample data for previewing UI when backend is offline
 const SAMPLE_PRODUCTS_FALLBACK = [
@@ -49,7 +31,7 @@ const SAMPLE_PRODUCTS_FALLBACK = [
     name: "T-Shirt Eksklusif MIA 2026",
     description:
       "Kaos official edisi terbatas Multimedia in Action 2026 berbahan katun combed premium berkualitas tinggi.",
-    price: 150,
+    price_diamond: 150,
     stock: 24,
     is_active: true,
     image_url: null,
@@ -59,7 +41,7 @@ const SAMPLE_PRODUCTS_FALLBACK = [
     name: "Notebook & Pen Set MIA",
     description:
       "Set buku catatan hardcover dan pena gel dengan logo laser-cut MIA 2026 untuk mencatat ide kreatifmu.",
-    price: 100,
+    price_diamond: 100,
     stock: 12,
     is_active: true,
     image_url: null,
@@ -69,7 +51,7 @@ const SAMPLE_PRODUCTS_FALLBACK = [
     name: "Gantungan Kunci Akrilik MIA",
     description:
       "Gantungan kunci bahan akrilik premium cetak dua sisi dengan desain maskot official MIA 2026.",
-    price: 50,
+    price_diamond: 50,
     stock: 45,
     is_active: true,
     image_url: null,
@@ -81,8 +63,7 @@ export default function ProductPage() {
   const { data: profile } = useUserProfile();
   const router = useRouter();
   const [page, setPage] = useState(1);
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [redeemQuantity, setRedeemQuantity] = useState(1);
+  const [outOfStockProductIds, setOutOfStockProductIds] = useState(() => new Set());
 
   const userId = user?.users_id || user?.userId;
   const { data: myRegistrations, isLoading: registrationsLoading } =
@@ -130,12 +111,14 @@ export default function ProductPage() {
   }, [participatingCategories, selectedCategoryId]);
 
   const userDiamonds = Number(
-    activeCategory?.diamond ?? profile?.points ?? user?.points ?? 0
+    activeCategory?.diamond ?? 0
   );
   const userXp = Number(activeCategory?.xp ?? 0);
 
   const { data: redemptionsData } = useMyRedemptions({
     category_id: selectedCategoryId || undefined,
+    registration_id: activeCategory?.registration_id || undefined,
+    limit: 50,
   });
   const myRedemptions = Array.isArray(redemptionsData?.redemptions)
     ? redemptionsData.redemptions
@@ -167,31 +150,6 @@ export default function ProductPage() {
   const products = data?.products || [];
   const meta = data?.meta || { page: 1, totalPages: 1 };
 
-  useEffect(() => {
-    if (redeemMutation.isSuccess) {
-      const earnedXp = redeemMutation.data?.earned_xp;
-      toast.success(
-        earnedXp > 0
-          ? `Produk berhasil ditukar! Selamat, Anda mendapatkan +${earnedXp.toLocaleString()} XP! ⚡`
-          : "Produk berhasil ditukar!",
-        {
-          style: { background: "#e6ffed", color: "#1a7f37" },
-        }
-      );
-      setSelectedProduct(null);
-      setRedeemQuantity(1);
-    }
-    if (redeemMutation.isError) {
-      toast.error(
-        redeemMutation.error?.response?.data?.message ||
-          "Gagal menukar produk!",
-        { style: { background: "#ffeaea", color: "#c00" } },
-      );
-      setSelectedProduct(null);
-      setRedeemQuantity(1);
-    }
-  }, [redeemMutation.isSuccess, redeemMutation.isError, redeemMutation.data]);
-
   if (authLoading || !user) {
     return (
       <div className="min-h-screen w-full bg-[#0A0D14] flex items-center justify-center text-[#FFF9F5]">
@@ -213,7 +171,7 @@ export default function ProductPage() {
             {/* Eyebrow & Page Header */}
             <div className="text-center space-y-3 md:space-y-4 max-w-3xl mx-auto">
               <div className="mia-pill-badge mx-auto">
-                <Gift className="h-3.5 w-3.5 text-amber-400" />
+                <Gift className="h-3.5 w-3.5 text-[#FED700]" />
                 <span>Katalog Hadiah</span>
               </div>
 
@@ -222,7 +180,7 @@ export default function ProductPage() {
               </h1>
 
               <p className="text-sm sm:text-base md:text-lg text-[#AAB1BD] leading-relaxed">
-                Tukarkan Diamonds <span className="inline-block">💎</span> yang telah Anda kumpulkan dengan berbagai hadiah eksklusif MIA 2026.
+                Tukarkan XP dan Diamonds <span className="inline-block">💎</span> yang telah tim Anda kumpulkan dengan berbagai hadiah eksklusif MIA 2026.
               </p>
             </div>
 
@@ -250,16 +208,18 @@ export default function ProductPage() {
                   {activeCategory ? (
                     <div className="flex items-center gap-3 px-4 py-2.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold self-stretch sm:self-auto justify-center">
                       <span className="text-[#AAB1BD]">Tim:</span>
-                      <span className="text-[#FFF9F5] font-bold">{activeCategory.team_name || "-"}</span>
-                      <span className="text-white/20">|</span>
-                      <span className="text-[#FED700] font-bold flex items-center gap-1">
-                        <span>💎</span>
-                        {userDiamonds.toLocaleString()}
+                      <span className="text-[#FFF9F5] font-bold">
+                        {activeCategory.team_name || "-"}
                       </span>
-                      <span className="text-white/20">|</span>
-                      <span className="text-amber-400 font-bold flex items-center gap-1">
+                      <span className="text-border/40 select-none">|</span>
+                      <span className="text-amber-400 flex items-center gap-1.5 font-bold">
                         <Zap className="h-3.5 w-3.5 fill-amber-400" />
                         {userXp.toLocaleString()} XP
+                      </span>
+                      <span className="text-border/40 select-none">|</span>
+                      <span className="text-cyan-400 flex items-center gap-1.5 font-bold">
+                        <Gem className="h-3 w-3 fill-cyan-400" />
+                        {userDiamonds.toLocaleString()}
                       </span>
                     </div>
                   ) : (
@@ -409,345 +369,20 @@ export default function ProductPage() {
             {/* Product Grid */}
             {!isLoading && products.length > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {products.map((product) => {
-                  const isSingle = Boolean(product.is_single_redeem);
-                  const isUnlimited = Boolean(product.is_unlimited_stock);
-                  const hasXpReward = Number(product.reward_xp) > 0;
-                  const alreadyClaimed =
-                    isSingle &&
-                    myRedemptions.some((r) => r.product_id === product.product_id);
-                  const isOutOfStock = !isUnlimited && Number(product.stock) < 1;
-                  const canRedeem = product.is_active && !isOutOfStock && !alreadyClaimed;
-
-                  const currentQty = isSingle ? 1 : Math.max(1, redeemQuantity);
-                  const totalCost = Number(product.price) * currentQty;
-                  const earnedXp = hasXpReward ? Number(product.reward_xp) * currentQty : 0;
-                  const remainingDiamonds = userDiamonds - totalCost;
-
-                  return (
-                    <div
-                      key={product.product_id}
-                      className="mia-card overflow-hidden hover:border-[#E01C20]/50 hover:shadow-[0_0_25px_rgba(224,28,32,0.12)] transition-all duration-300 relative flex flex-col group"
-                    >
-                      {/* Image Section */}
-                      <div className="relative h-48 overflow-hidden bg-gradient-to-br from-red-950/20 via-black to-red-900/10">
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent z-10"></div>
-                        <Image
-                          src={getSafeImageUrl(product.image_url) || "/placeholder-image.png"}
-                          alt={product.name}
-                          fill={true}
-                          className="object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                        <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 flex-wrap">
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#141824]/90 text-[#FFF9F5] border border-white/10 backdrop-blur-md">
-                            <Gift className="h-3.5 w-3.5 text-[#E01C20]" />
-                            {hasXpReward ? "Konversi EXP" : "Produk"}
-                          </span>
-                          {!product.category_id && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 backdrop-blur-md">
-                              🌐 Semua Kategori
-                            </span>
-                          )}
-                          {isSingle && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/40 backdrop-blur-md">
-                              1x Redeem
-                            </span>
-                          )}
-                          {hasXpReward && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 backdrop-blur-md">
-                              <Zap className="h-3 w-3 text-emerald-400" />
-                              +{product.reward_xp} XP / item
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Content Section */}
-                      <div className="p-5 flex flex-col flex-1 space-y-4">
-                        <div className="space-y-1">
-                          <h3 className="text-base sm:text-lg font-bold text-[#FFF9F5] group-hover:text-[#E01C20] transition-colors line-clamp-1">
-                            {product.name}
-                          </h3>
-                          <p className="text-xs sm:text-sm text-[#AAB1BD] line-clamp-2 leading-relaxed h-10">
-                            {product.description ||
-                              "Tidak ada deskripsi tersedia untuk produk hadiah ini."}
-                          </p>
-                        </div>
-
-                        {/* Price & Stock info */}
-                        <div className="flex items-center justify-between text-sm mt-auto pt-3 border-t border-white/10">
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-base font-bold text-[#FED700] flex items-center gap-1">
-                              <span className="text-sm">💎</span>
-                              {product.price.toLocaleString()}
-                            </span>
-                            <span className="text-xs text-[#AAB1BD]">
-                              Diamonds
-                            </span>
-                          </div>
-
-                          {isUnlimited ? (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-500/15 text-purple-400 border border-purple-500/30">
-                              <InfinityIcon className="h-3 w-3" />
-                              <span>Stok: ∞</span>
-                            </span>
-                          ) : (
-                            <span
-                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                product.stock > 5
-                                  ? "bg-[#00B445]/15 text-[#00B445] border border-[#00B445]/30"
-                                  : product.stock > 0
-                                  ? "bg-[#E01C20]/15 text-[#E01C20] border border-[#E01C20]/30"
-                                  : "bg-zinc-500/15 text-zinc-400 border border-zinc-500/30"
-                              }`}
-                            >
-                              {product.stock > 0 ? `Stok: ${product.stock}` : "Stok Habis"}
-                            </span>
-                          )}
-                        </div>
-
-                        {/* AlertDialog & Redeem Action */}
-                        <AlertDialog
-                          open={selectedProduct === product.product_id}
-                          onOpenChange={(open) => {
-                            if (!open) {
-                              setSelectedProduct(null);
-                              setRedeemQuantity(1);
-                            }
-                          }}
-                        >
-                          <AlertDialogTrigger asChild>
-                            <button
-                              className="w-full mt-2 mia-btn-primary h-10 text-xs font-semibold inline-flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                              disabled={
-                                !canRedeem ||
-                                !activeCategory ||
-                                (redeemMutation.isPending &&
-                                  selectedProduct === product.product_id)
-                              }
-                              onClick={() => {
-                                setSelectedProduct(product.product_id);
-                                setRedeemQuantity(1);
-                              }}
-                            >
-                              {redeemMutation.isPending &&
-                              selectedProduct === product.product_id ? (
-                                <Loader2 className="h-4 w-4 animate-spin text-white" />
-                              ) : (
-                                <CheckCircle2 className="h-4 w-4 text-white" />
-                              )}
-                              <span>
-                                {!activeCategory
-                                  ? "Daftar Lomba Dulu"
-                                  : alreadyClaimed
-                                  ? "Sudah Ditukar (1x)"
-                                  : isOutOfStock
-                                  ? "Stok Habis"
-                                  : hasXpReward
-                                  ? "Tukar ke XP"
-                                  : "Tukar Produk"}
-                              </span>
-                            </button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent className="rounded-2xl border border-white/10 bg-[#0A0D14] text-[#FFF9F5] p-6 shadow-2xl max-w-md">
-                            <AlertDialogHeader>
-                              <AlertDialogTitle className="text-lg font-bold text-[#FFF9F5]">
-                                {hasXpReward ? "Konfirmasi Penukaran Diamond ke XP" : "Konfirmasi Penukaran Hadiah"}
-                              </AlertDialogTitle>
-                              <p className="text-sm text-[#AAB1BD] mt-2 leading-relaxed">
-                                Apakah Anda yakin ingin menukar{" "}
-                                <span className="font-bold text-[#FFF9F5]">
-                                  {product.name}
-                                </span>
-                                ?
-                              </p>
-                            </AlertDialogHeader>
-
-                            {/* Info khusus single redeem */}
-                            {isSingle ? (
-                              <div className="my-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs flex items-center gap-2">
-                                <AlertCircle className="h-4 w-4 shrink-0 text-amber-400" />
-                                <span>
-                                  Produk ini hanya dapat ditukarkan 1 kali per peserta (kuantitas terkunci 1 item).
-                                </span>
-                              </div>
-                            ) : (
-                              /* Quantity counter jika bukan single redeem */
-                              <div className="my-3 p-3.5 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-between">
-                                <div>
-                                  <p className="text-xs font-semibold text-[#FFF9F5]">
-                                    Jumlah Penukaran
-                                  </p>
-                                  <p className="text-[11px] text-[#AAB1BD]">
-                                    {isUnlimited
-                                      ? "Stok tidak terbatas"
-                                      : `Tersedia: ${product.stock} item`}
-                                  </p>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <button
-                                    type="button"
-                                    disabled={redeemQuantity <= 1}
-                                    onClick={() =>
-                                      setRedeemQuantity((q) => Math.max(1, q - 1))
-                                    }
-                                    className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-[#FFF9F5] transition-colors cursor-pointer"
-                                  >
-                                    <Minus className="h-3.5 w-3.5" />
-                                  </button>
-                                  <input
-                                    type="number"
-                                    min="1"
-                                    max={isUnlimited ? 999 : product.stock}
-                                    value={redeemQuantity}
-                                    onChange={(e) => {
-                                      const val = parseInt(e.target.value, 10);
-                                      if (isNaN(val) || val < 1) {
-                                        setRedeemQuantity(1);
-                                      } else {
-                                        const maxVal = isUnlimited
-                                          ? 999
-                                          : product.stock;
-                                        setRedeemQuantity(
-                                          Math.min(maxVal, Math.max(1, val))
-                                        );
-                                      }
-                                    }}
-                                    className="w-14 h-8 rounded-lg bg-black/50 border border-white/20 text-center text-xs font-bold text-[#FFF9F5] focus:outline-none focus:border-[#E01C20]"
-                                  />
-                                  <button
-                                    type="button"
-                                    disabled={
-                                      !isUnlimited &&
-                                      redeemQuantity >= product.stock
-                                    }
-                                    onClick={() => {
-                                      const maxVal = isUnlimited
-                                        ? 999
-                                        : product.stock;
-                                      setRedeemQuantity((q) =>
-                                        Math.min(maxVal, q + 1)
-                                      );
-                                    }}
-                                    className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-[#FFF9F5] transition-colors cursor-pointer"
-                                  >
-                                    <Plus className="h-3.5 w-3.5" />
-                                  </button>
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Highlight Perolehan XP jika produk memiliki reward_xp */}
-                            {hasXpReward && (
-                              <div className="my-3 p-3.5 rounded-xl bg-gradient-to-r from-emerald-950/40 to-emerald-900/20 border border-emerald-500/30 flex items-center justify-between">
-                                <div className="flex items-center gap-2.5">
-                                  <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-                                    <Zap className="h-4 w-4" />
-                                  </div>
-                                  <div>
-                                    <p className="text-[11px] text-[#AAB1BD]">Reward EXP Diperoleh</p>
-                                    <p className="text-sm font-bold text-emerald-400">
-                                      +{earnedXp.toLocaleString()} XP
-                                    </p>
-                                  </div>
-                                </div>
-                                <div className="text-right">
-                                  <span className="text-[10px] text-emerald-300 bg-emerald-500/10 px-2 py-0.5 rounded font-medium border border-emerald-500/20">
-                                    1 item = +{product.reward_xp} XP
-                                  </span>
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Informasi Stok Diamond & Biaya */}
-                            <div className="my-3 p-4 rounded-xl bg-white/[0.04] border border-white/10 space-y-2.5 text-xs">
-                              <div className="flex items-center justify-between">
-                                <span className="text-[#AAB1BD]">
-                                  Stok Diamond Anda:
-                                </span>
-                                <span className="font-bold text-[#FED700] flex items-center gap-1 text-sm">
-                                  <span>💎</span> {userDiamonds.toLocaleString()}
-                                </span>
-                              </div>
-                              <div className="flex items-center justify-between">
-                                <span className="text-[#AAB1BD]">
-                                  Total Biaya {currentQty > 1 ? `(${currentQty} item)` : ""}:
-                                </span>
-                                <span className="font-bold text-[#E01C20] flex items-center gap-1 text-sm">
-                                  - <span>💎</span> {totalCost.toLocaleString()}
-                                </span>
-                              </div>
-                              {hasXpReward && (
-                                <div className="flex items-center justify-between text-emerald-400">
-                                  <span className="text-[#AAB1BD]">
-                                    Total XP Didapatkan:
-                                  </span>
-                                  <span className="font-bold flex items-center gap-1 text-sm">
-                                    <Zap className="h-3.5 w-3.5" /> +{earnedXp.toLocaleString()} XP
-                                  </span>
-                                </div>
-                              )}
-                              <div className="pt-2.5 border-t border-white/10 flex items-center justify-between">
-                                <span className="font-medium text-[#FFF9F5]">
-                                  Sisa Diamond:
-                                </span>
-                                <span
-                                  className={`font-bold flex items-center gap-1 text-sm ${
-                                    remainingDiamonds >= 0
-                                      ? "text-[#00B445]"
-                                      : "text-[#E01C20]"
-                                  }`}
-                                >
-                                  <span>💎</span>{" "}
-                                  {remainingDiamonds.toLocaleString()}
-                                </span>
-                              </div>
-                            </div>
-
-                            {userDiamonds < totalCost && (
-                              <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-2">
-                                <AlertCircle className="h-4 w-4 shrink-0 text-red-400" />
-                                <span>
-                                  Stok Diamond Anda tidak mencukupi untuk menukar{" "}
-                                  {currentQty > 1 ? `${currentQty} item ` : ""}
-                                  produk ini.
-                                </span>
-                              </div>
-                            )}
-
-                            <AlertDialogFooter className="gap-2">
-                              <AlertDialogCancel className="rounded-full border border-white/15 bg-transparent hover:bg-white/5 text-[#FFF9F5] text-xs font-semibold h-10 cursor-pointer">
-                                Batal
-                              </AlertDialogCancel>
-                              <AlertDialogAction
-                                className="mia-btn-primary text-xs font-semibold h-10 px-5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                                disabled={
-                                  redeemMutation.isPending ||
-                                  userDiamonds < totalCost ||
-                                  !activeCategory
-                                }
-                                onClick={() =>
-                                  redeemMutation.mutate({
-                                    productId: product.product_id,
-                                    quantity: currentQty,
-                                    categoryId: selectedCategoryId || activeCategory?.category_id,
-                                    registrationId: activeCategory?.registration_id,
-                                  })
-                                }
-                              >
-                                {redeemMutation.isPending &&
-                                selectedProduct === product.product_id ? (
-                                  <Loader2 className="h-4 w-4 animate-spin text-white mr-1.5" />
-                                ) : null}
-                                <span>{hasXpReward ? "Ya, Konversi ke XP" : "Ya, Tukar Hadiah"}</span>
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </div>
-                    </div>
-                  );
-                })}
+                {products.map((product) => (
+                  <ProductCard
+                    key={product.product_id}
+                    product={product}
+                    activeCategory={activeCategory}
+                    selectedCategoryId={selectedCategoryId}
+                    myRedemptions={myRedemptions}
+                    isOutOfStockLocal={outOfStockProductIds.has(product.product_id)}
+                    onOutOfStock={(productId) =>
+                      setOutOfStockProductIds((prev) => new Set(prev).add(productId))
+                    }
+                    redeemMutation={redeemMutation}
+                  />
+                ))}
               </div>
             )}
 
