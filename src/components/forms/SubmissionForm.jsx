@@ -1052,7 +1052,7 @@ export function SubmissionForm({
               </label>
               <div className="space-y-0.5">
                 <p className="text-[11px] text-muted-foreground">
-                  Format JPG, PNG, atau WEBP. Maksimal file 5MB. Rasio 16:9 disarankan.
+                  Format JPG, PNG, atau WEBP. Maksimal file 2MB. Rasio 16:9 disarankan.
                 </p>
                 <p className="text-[10px] text-muted-foreground/70">
                   Thumbnail karya akan ditampilkan pada galeri Show It saat masa Final Submission Babak Penyisihan.
