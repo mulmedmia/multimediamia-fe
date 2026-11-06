@@ -162,6 +162,11 @@ export default function SubmissionDetailModal({ open, onClose, data }) {
                   Belum Tampil di Show It
                 </Badge>
               )}
+              {data?.is_grace_period && (
+                <Badge className="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[11px] px-2 py-0.5 rounded-full flex items-center gap-1">
+                  <Clock className="h-3 w-3" /> Waktu Toleransi (+{Math.round((data.grace_delay_seconds || 0) / 60)} mnt)
+                </Badge>
+              )}
             </div>
           </div>
 
