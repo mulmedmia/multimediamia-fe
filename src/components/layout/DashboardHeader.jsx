@@ -81,13 +81,6 @@ export function DashboardHeader() {
               {isPeserta && (
                 <>
                   <Link
-                    href={historyPesananLink}
-                    className={getNavLinkClass(historyPesananLink)}
-                  >
-                    <Clock className="h-4 w-4 text-amber-400" />
-                    <span>History Pesanan</span>
-                  </Link>
-                  <Link
                     href={misiHarianLink}
                     className={getNavLinkClass(misiHarianLink)}
                   >
@@ -100,6 +93,13 @@ export function DashboardHeader() {
                   >
                     <Gift className="h-4 w-4 text-amber-400" />
                     <span>Hadiah</span>
+                  </Link>
+                  <Link
+                    href={historyPesananLink}
+                    className={getNavLinkClass(historyPesananLink)}
+                  >
+                    <Clock className="h-4 w-4 text-amber-400" />
+                    <span>History Pesanan</span>
                   </Link>
                 </>
               )}
