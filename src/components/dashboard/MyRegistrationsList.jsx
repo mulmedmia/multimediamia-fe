@@ -32,6 +32,7 @@ import {
   MessageCircle,
   Gift,
   Copy,
+  Gem,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -258,7 +259,7 @@ export function MyRegistrationsList({ onSelectRegistration }) {
                       {Number(reg.xp || 0).toLocaleString("id-ID")} XP
                     </span>
                     <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/25 text-cyan-400 font-bold text-xs">
-                      <span>💎</span>
+                      <Gem className="w-3 h-3 fill-cyan-400/40" />
                       {Number(reg.diamond || 0).toLocaleString("id-ID")}
                     </span>
                     {reg.referral_code && (
