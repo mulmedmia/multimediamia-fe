@@ -18,6 +18,7 @@ import {
   Clock,
   Trophy,
   AlertCircle,
+  ArrowRight,
 } from "lucide-react";
 import { useUserProfile } from "@/hooks/user-use-profile";
 import { useAuthContext } from "@/providers/AuthProvider";
