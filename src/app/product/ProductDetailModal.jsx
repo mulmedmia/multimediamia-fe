@@ -17,6 +17,7 @@ import {
   Infinity as InfinityIcon,
   Zap,
   Gem,
+  Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -99,6 +100,13 @@ export default function ProductDetailModal({
                 {product.category.name}
               </span>
             ) : null}
+            {teamRedeemedQty > 0 &&
+                (hasTeamLimit ? teamRedeemedQty !== maxPerTeam : true) && (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-muted/90 text-muted-foreground border border-muted-foreground/10">
+                    <Check className="h-3 w-3"/>
+                    {hasTeamLimit ? `${teamRedeemedQty}/${maxPerTeam}` : `${teamRedeemedQty}x`}
+                  </span>
+                )}
           </div>
 
           <DialogTitle className="text-xl font-bold text-[#FFF9F5]">
