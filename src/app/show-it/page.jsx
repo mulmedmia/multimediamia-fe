@@ -4,8 +4,6 @@ import { useCallback, useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAllSubmissions } from "@/hooks/user-use-submissions";
 import { useCategories } from "@/hooks/user-use-gamifikasi";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
 import {
   Select,
   SelectContent,

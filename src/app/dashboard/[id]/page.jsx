@@ -4,8 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthContext } from "@/providers/AuthProvider";
 import { CompetitionDashboard } from "@/components/dashboard/CompetitionDashboard";
-import { DashboardHeader } from "@/components/layout/DashboardHeader";
-import Footer from "@/components/layout/Footer";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
@@ -109,7 +107,6 @@ export default function DashboardDetailPage({ params }) {
 
   return (
     <>
-      <DashboardHeader />
       <main className="pt-20 bg-gray-50 dark:bg-gray-950 min-h-screen">
         <div className="container mx-auto py-8 px-4">
           {/* Back Button */}
@@ -126,7 +123,6 @@ export default function DashboardDetailPage({ params }) {
           <CompetitionDashboard registration={selectedRegistration} />
         </div>
       </main>
-      <Footer />
     </>
   );
 }
