@@ -149,7 +149,12 @@ export default function ProductPage() {
     (isError
       ? { products: SAMPLE_PRODUCTS_FALLBACK, meta: { page: 1, totalPages: 1 } }
       : null);
-  const products = data?.products || [];
+  const products =
+    data?.products.filter(
+      (p) =>
+        p.is_active === true ||  // Tampilkan yang aktif
+        myRedemptions?.find((r) => r.product_id === p.product_id),  // atau yang sudah pernah diklaim
+    ) || [];
   const meta = data?.meta || { page: 1, totalPages: 1 };
 
   if (authLoading || !user) {
