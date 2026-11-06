@@ -246,7 +246,7 @@ export function MyRegistrationsList({ onSelectRegistration }) {
                       Terdaftar:{" "}
                       {new Date(reg.created_at).toLocaleDateString("id-ID", {
                         day: "numeric",
-                        month: "long",
+                        month: "short",
                         year: "numeric",
                       })}
                     </span>
