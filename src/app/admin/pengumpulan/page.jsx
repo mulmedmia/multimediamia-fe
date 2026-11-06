@@ -299,7 +299,9 @@ export default function AdminPengumpulanPage() {
           project_name: item.project_name || item.title || "-",
           status: item.status || "PENDING",
           is_verified: item.is_verified ? "Ya" : "Tidak",
-          grace_period_info: item.is_grace_period ? Ya (+ mnt) : "Tepat Waktu",
+          grace_period_info: item.is_grace_period
+            ? `Ya (+${Math.round((item.grace_delay_seconds || 0) / 60)} mnt)`
+            : "Tepat Waktu",
           proposal_url: getLinkUrl("PROPOSAL"),
           presentation_url: getLinkUrl("PRESENTATION"),
           originality_statement_url: getLinkUrl("ORIGINALITY_STATEMENT"),

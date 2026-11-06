@@ -681,14 +681,14 @@ export function SubmissionForm({
   const handleThumbnailChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (!file.type.startsWith("image/")) {
-        setThumbnailError("File harus berupa gambar (JPG, PNG, atau WEBP)");
-        toast.error("File harus berupa gambar (JPG, PNG, atau WEBP)");
+      if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+        setThumbnailError("File harus berformat JPG, PNG, atau WEBP");
+        toast.error("File harus berformat JPG, PNG, atau WEBP");
         return;
       }
-      if (file.size > 5 * 1024 * 1024) {
-        setThumbnailError("Ukuran file gambar maksimal 5MB");
-        toast.error("Ukuran file gambar maksimal 5MB");
+      if (file.size > 2 * 1024 * 1024) {
+        setThumbnailError("Ukuran file gambar maksimal 2 MB");
+        toast.error("Ukuran file gambar maksimal 2 MB");
         return;
       }
       setThumbnailError("");
