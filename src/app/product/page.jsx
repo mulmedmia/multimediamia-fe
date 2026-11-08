@@ -22,8 +22,6 @@ import {
 } from "lucide-react";
 import { useUserProfile } from "@/hooks/user-use-profile";
 import { useAuthContext } from "@/providers/AuthProvider";
-import { DashboardHeader } from "@/components/layout/DashboardHeader";
-import Footer from "@/components/layout/Footer";
 import ProductCard from "./ProductCard";
 
 // Fallback sample data for previewing UI when backend is offline
@@ -149,7 +147,12 @@ export default function ProductPage() {
     (isError
       ? { products: SAMPLE_PRODUCTS_FALLBACK, meta: { page: 1, totalPages: 1 } }
       : null);
-  const products = data?.products || [];
+  const products =
+    data?.products.filter(
+      (p) =>
+        p.is_active === true ||  // Tampilkan yang aktif
+        myRedemptions?.find((r) => r.product_id === p.product_id),  // atau yang sudah pernah diklaim
+    ) || [];
   const meta = data?.meta || { page: 1, totalPages: 1 };
 
   if (authLoading || !user) {
@@ -166,8 +169,6 @@ export default function ProductPage() {
   return (
     <div className="min-h-screen bg-[#0A0D14] mia-connected-bg text-[#FFF9F5] flex flex-col justify-between selection:bg-[#E01C20] selection:text-white">
       <div>
-        <DashboardHeader />
-
         <main className="pt-24 sm:pt-28 pb-16 relative z-10">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl space-y-8 md:space-y-10">
             {/* Eyebrow & Page Header */}
@@ -418,8 +419,6 @@ export default function ProductPage() {
           </div>
         </main>
       </div>
-
-      <Footer />
     </div>
   );
 }

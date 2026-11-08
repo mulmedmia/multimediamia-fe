@@ -50,7 +50,7 @@ export function DashboardHeader() {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-[#0F121A]/80 backdrop-blur-md text-foreground w-full">
+    <header className="sticky top-0 left-0 right-0 z-50 border-b border-border/40 bg-[#0F121A]/80 backdrop-blur-md text-foreground w-full">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 sm:h-20 items-center justify-between">
           {/* Logo & Brand Title */}
@@ -81,13 +81,6 @@ export function DashboardHeader() {
               {isPeserta && (
                 <>
                   <Link
-                    href={historyPesananLink}
-                    className={getNavLinkClass(historyPesananLink)}
-                  >
-                    <Clock className="h-4 w-4 text-amber-400" />
-                    <span>History Pesanan</span>
-                  </Link>
-                  <Link
                     href={misiHarianLink}
                     className={getNavLinkClass(misiHarianLink)}
                   >
@@ -100,6 +93,13 @@ export function DashboardHeader() {
                   >
                     <Gift className="h-4 w-4 text-amber-400" />
                     <span>Hadiah</span>
+                  </Link>
+                  <Link
+                    href={historyPesananLink}
+                    className={getNavLinkClass(historyPesananLink)}
+                  >
+                    <Clock className="h-4 w-4 text-amber-400" />
+                    <span>History Pesanan</span>
                   </Link>
                 </>
               )}

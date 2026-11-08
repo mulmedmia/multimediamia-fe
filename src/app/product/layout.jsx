@@ -1,3 +1,5 @@
+import UserDashboardLayout from "@/components/layout/UserDashboardLayout";
+
 export const metadata = {
   title: "Katalog Hadiah",
   description:
@@ -10,5 +12,5 @@ export const metadata = {
 };
 
 export default function ProductLayout({ children }) {
-  return children;
+  return <UserDashboardLayout>{children}</UserDashboardLayout>;
 }
