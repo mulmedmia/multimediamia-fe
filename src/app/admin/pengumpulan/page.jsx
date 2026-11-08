@@ -269,6 +269,7 @@ export default function AdminPengumpulanPage() {
         { header: "Status Karya", key: "status", width: 16, align: "center" },
         { header: "Feedback Panitia", key: "admin_feedback", width: 30 },
         { header: "Tampil di Show It", key: "is_verified", width: 18, align: "center" },
+        { header: "Masa Toleransi (Grace Period)", key: "grace_period_info", width: 24, align: "center" },
         { header: "Draft Proposal (Docs)", key: "proposal_url", width: 35 },
         { header: "File Presentasi", key: "presentation_url", width: 35 },
         { header: "Surat Orisinil (Materai)", key: "originality_statement_url", width: 35 },
@@ -304,6 +305,9 @@ export default function AdminPengumpulanPage() {
           created_by_name: item.created_by_name || "-",
           updated_by_name: item.updated_by_name || "-",
           is_verified: item.is_verified ? "Ya" : "Tidak",
+          grace_period_info: item.is_grace_period
+            ? `Ya (+${Math.round((item.grace_delay_seconds || 0) / 60)} mnt)`
+            : "Tepat Waktu",
           proposal_url: getLinkUrl("PROPOSAL"),
           presentation_url: getLinkUrl("PRESENTATION"),
           originality_statement_url: getLinkUrl("ORIGINALITY_STATEMENT"),

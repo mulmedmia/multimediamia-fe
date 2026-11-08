@@ -1,10 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getAllProducts, redeemProduct } from "@/services/product-gamification";
 
-export function useProducts({ page = 1, limit = 10, category_id } = {}) {
+export function useProducts({ page = 1, limit = 10, category_id, is_active = undefined } = {}) {
   return useQuery({
-    queryKey: ["products", { page, limit, category_id }],
-    queryFn: () => getAllProducts({ page, limit, category_id }),
+    queryKey: ["products", { page, limit, category_id, is_active }],
+    queryFn: () => getAllProducts({ page, limit, category_id, is_active }),
     staleTime: 1000 * 60 * 5,
     refetchInterval: 1000 * 60 * 10,
   });

@@ -14,6 +14,7 @@ import {
   Infinity as InfinityIcon,
   Zap,
   Gem,
+  Check,
 } from "lucide-react";
 import ProductDetailModal from "./ProductDetailModal";
 import ProductRedeemModal from "./ProductRedeemModal";
@@ -202,7 +203,7 @@ export default function ProductCard({
               {hasXpReward ? "Konversi XP" : "Produk"}
             </span>
 
-            <div className="flex flex-col gap-1.5 items-end mt-0.5">
+            <div className="flex flex-col gap-1 items-end mt-0.5">
               {!product.category_id && (
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-950/90 text-emerald-300 border border-emerald-800/40 backdrop-blur-md w-fit">
                   🌐 Semua Kategori
@@ -218,7 +219,7 @@ export default function ProductCard({
                   <Zap className="h-3 w-3 text-emerald-400" />
                   +{product.reward_xp} XP / item
                 </span>
-              )}
+              )}              
             </div>
           </div>
         </div>
@@ -252,23 +253,34 @@ export default function ProductCard({
               )}
             </div>
 
-            {isUnlimited ? (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-500/15 text-purple-400 border border-purple-500/30">
-                <span>Stok: </span>
-                <InfinityIcon className="h-3 w-3" />
-              </span>
-            ) : currentStock > 0 && (
-              <span
-                className={cn(
-                  "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
-                  "bg-zinc-500/15 text-zinc-400 border border-zinc-500/30",
-                  currentStock > 0 && "bg-[#E01C20]/15 text-[#E01C20] border border-[#E01C20]/30",
-                  currentStock > 5 && "bg-[#00B445]/15 text-[#00B445] border border-[#00B445]/30",
+            <div className="inline-flex gap-1">
+              {teamRedeemedQty > 0 &&
+                (hasTeamLimit ? teamRedeemedQty !== maxPerTeam : true) && (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted/90 text-muted-foreground border border-muted-foreground/10 backdrop-blur-md w-fit">
+                    <Check className="h-3 w-3"/>
+                    {hasTeamLimit ? `${teamRedeemedQty}/${maxPerTeam}` : `${teamRedeemedQty}x`}
+                  </span>
                 )}
-              >
-                Stok: {currentStock}
-              </span>
-            )}
+
+              {isUnlimited ? (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-500/15 text-purple-400 border border-purple-500/30">
+                  <span>Stok: </span>
+                  <InfinityIcon className="h-3 w-3" />
+                </span>
+              ) : currentStock > 0 && (
+                <span
+                  className={cn(
+                    "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
+                    "bg-zinc-500/15 text-zinc-400 border border-zinc-500/30",
+                    currentStock > 0 && "bg-[#E01C20]/15 text-[#E01C20] border border-[#E01C20]/30",
+                    currentStock > 5 && "bg-[#00B445]/15 text-[#00B445] border border-[#00B445]/30",
+                  )}
+                >
+                  Stok: {currentStock}
+                </span>
+              )}
+            </div>
+           
           </div>
 
           {/* Claim / Redeem Action Button */}

@@ -6,14 +6,11 @@ import { useRouter } from "next/navigation";
 import { useAuthContext } from "@/providers/AuthProvider";
 import { useMyRedemptions } from "@/hooks/user-use-gamifikasi";
 import { useMyRegistrations } from "@/hooks/user-use-registration";
-import { DashboardHeader } from "@/components/layout/DashboardHeader";
-import Footer from "@/components/layout/Footer";
 import {
   AlertCircle,
   Package,
   Calendar,
   Trophy,
-  Sparkles,
   ArrowRight,
   ShoppingBag,
   CheckCircle2,
@@ -86,8 +83,6 @@ export default function HistoryPesananPage() {
   return (
     <div className="min-h-screen bg-[#0A0D14] mia-connected-bg text-[#FFF9F5] flex flex-col justify-between selection:bg-[#E01C20] selection:text-white">
       <div>
-        <DashboardHeader />
-
         <main className="pt-24 sm:pt-28 pb-16 relative z-10">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl space-y-8 md:space-y-10">
             
@@ -471,8 +466,6 @@ export default function HistoryPesananPage() {
           </div>
         </main>
       </div>
-
-      <Footer />
     </div>
   );
 }

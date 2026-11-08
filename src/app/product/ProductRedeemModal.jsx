@@ -327,7 +327,7 @@ export default function ProductRedeemModal({
             {!backToDetail ? "Batal" : "Kembali"}
           </DialogClose>
           <button
-            className="mia-btn-primary text-xs font-semibold h-10 px-5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="mia-btn-primary inline-flex items-center text-xs font-semibold h-10 px-5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={
               isPending ||
               userDiamonds < totalDiamondCost ||

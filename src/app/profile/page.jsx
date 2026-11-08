@@ -8,8 +8,6 @@ import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useAuthContext } from "@/providers/AuthProvider";
 import { useUserProfile, useUpdateUserProfile } from "@/hooks/user-use-profile";
-import { DashboardHeader } from "@/components/layout/DashboardHeader";
-import Footer from "@/components/layout/Footer";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -153,8 +151,6 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen w-full bg-background mia-connected-bg text-foreground relative overflow-hidden selection:bg-primary selection:text-white flex flex-col justify-between">
-      <DashboardHeader />
-
       <main className="relative z-10 pt-28 pb-20 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto w-full space-y-8 flex-1">
         {/* Page Title Section */}
         <div className="space-y-2">
@@ -538,8 +534,6 @@ export default function ProfilePage() {
           </Tabs>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

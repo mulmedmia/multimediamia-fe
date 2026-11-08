@@ -5,9 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuthContext } from "@/providers/AuthProvider";
 import { CompetitionDashboard } from "@/components/dashboard/CompetitionDashboard";
 import { MyRegistrationsList } from "@/components/dashboard/MyRegistrationsList";
-import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { Button } from "@/components/ui/button";
-import Footer from "@/components/layout/Footer";
 import { ChevronLeft } from "lucide-react";
 
 export default function DashboardPage() {
@@ -49,7 +47,6 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen w-full bg-background mia-connected-bg text-foreground relative selection:bg-primary selection:text-white flex flex-col justify-between">
-      <DashboardHeader />
       <main className="relative z-10 pt-28 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full flex-1 min-h-screen">
         {!selectedRegistration ? (
           <section className="space-y-6">
@@ -85,7 +82,6 @@ export default function DashboardPage() {
           </section>
         )}
       </main>
-      <Footer />
     </div>
   );
 }

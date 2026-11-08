@@ -31,7 +31,8 @@ export default function Header() {
 
   useEffect(() => {
     const sectionIds = ["beranda", "lomba", "timeline", "faq"];
-
+    setScrolled(window.scrollY > 20);
+    
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
 
@@ -164,9 +165,9 @@ export default function Header() {
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300 w-full",
+        "sticky top-0 left-0 right-0 z-50 transition-all duration-300 w-full border-b border-transparent",
         scrolled || pathname !== "/" || isMenuOpen
-          ? "bg-[#0A0D14]/90 backdrop-blur-md border-b border-white/10 shadow-lg"
+          ? "bg-[#0A0D14]/90 backdrop-blur-md border-white/10 shadow-lg"
           : "bg-transparent",
       )}
     >
