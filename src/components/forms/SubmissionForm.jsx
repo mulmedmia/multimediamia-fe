@@ -510,6 +510,7 @@ export function SubmissionForm({
               "Tautan Google Drive surat pernyataan orisinalitas karya bermaterai Rp 10.000 (Pastikan akses publik Viewer).",
             Icon: FileCheck,
             type: "ORIGINALITY_STATEMENT",
+            required: isFinalPhase,
             overrideInfo: isFinalPhase
               ? "Wajib Saat Final"
               : "Opsional Sementara",
