@@ -41,11 +41,9 @@ import {
   XCircle,
   X,
   User,
-  Star,
   ShieldCheck,
   Link2,
   FileSpreadsheet,
-  BookmarkCheck,
 } from "lucide-react";
 import SubmissionDetailModal from "./SubmissionDetailModal";
 import SubmissionStatusModal from "./SubmissionStatusModal";
@@ -65,7 +63,9 @@ export default function AdminPengumpulanPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryId, setCategoryId] = useState("ALL");
   const [subThemeFilter, setSubThemeFilter] = useState("ALL");
-  const [editedSinceFilter, setEditedSinceFilter] = useState(" ");
+  const [phase, setPhase] = useState("ALL");
+  const [updatedAfterFilter, setUpdatedAfterFilter] = useState(" ");
+  const [updatedBeforeFilter, setUpdatedBeforeFilter] = useState(" ");
   const [statusFilter, setStatusFilter] = useState("ALL");
 
   // Export State
@@ -129,7 +129,8 @@ export default function AdminPengumpulanPage() {
     sub_theme: isSubThemeAvailable && subThemeFilter !== "ALL" ? subThemeFilter : undefined,
     status: statusFilter === "ALL" ? undefined : statusFilter,
     search: searchTerm || undefined,
-    edited_since: editedSinceFilter.trim(),
+    updated_after: updatedAfterFilter.trim() || undefined,
+    updated_before: updatedBeforeFilter.trim() || undefined,
   });
 
   // Global Stats Query (fetch lightweight list for top summary cards)
@@ -167,26 +168,32 @@ export default function AdminPengumpulanPage() {
     ).length;
     return { total, approved, pending, revisionOrRejected };
   }, [statsData, submissions, totalItems]);
+  
+  // Asumsi seluruh deadline memiliki tanggal yang sama
+  const preliminaryDeadline = categories.length > 0 ? categories[0].preliminary_deadline : undefined;
+  const finalDeadline = categories.length > 0 ? categories[0].final_deadline : undefined;
 
-  const phases = categories.map((cat) => ({
-    category_name: cat.category_name,
-    slug: cat.slug,
-    preliminary_deadline: cat.preliminary_deadline.split("T")[0],
-    final_deadline: cat.final_deadline.split("T")[0],
-  }));
+  const phases = [
+    { value: "ALL", label: "Semua Tahap" },
+    { value: "PRELIMINARY", label: "Final Draft Submission" },
+    { value: "FINAL", label: "Final Submission Babak Penyisihan" },
+  ];
 
-  const finalDeadlines =
-    new Set(phases.map((phase) => phase.final_deadline)).size === 1
-      ? [
-          {
-            title: "Final Submission Babak Penyisihan",
-            final_deadline: phases[0].final_deadline,
-          },
-        ]
-      : phases.map((phase) => ({
-          title: `Final Submission Babak Penyisihan ${phase.slug}`,
-          final_deadline: phase.final_deadline,
-        }));
+  const handlePhaseChange = (phase = "") => {
+    if (phase === "ALL" || !phases.map((p) => p.value).includes(phase)) {
+      setUpdatedAfterFilter(" ");
+      setUpdatedBeforeFilter(" ");
+      setPhase("ALL");
+    } else if (phase === "PRELIMINARY") {
+      setUpdatedAfterFilter(" ");
+      setUpdatedBeforeFilter(preliminaryDeadline);
+      setPhase(phase);
+    } else if (phase === "FINAL") {
+      setUpdatedAfterFilter(preliminaryDeadline);
+      setUpdatedBeforeFilter(" ");
+      setPhase(phase);
+    }
+  }
 
   // Helper date display
   const formatDateDisplay = (dateString) => {
@@ -255,6 +262,9 @@ export default function AdminPengumpulanPage() {
     setCategoryId("ALL");
     setSubThemeFilter("ALL");
     setStatusFilter("ALL");
+    setUpdatedAfterFilter(" ");
+    setUpdatedBeforeFilter(" ");
+    setPhase("ALL");
     setPage(1);
   };
 
@@ -270,6 +280,8 @@ export default function AdminPengumpulanPage() {
         sub_theme: isSubThemeAvailable && subThemeFilter !== "ALL" ? subThemeFilter : undefined,
         status: statusFilter === "ALL" ? undefined : statusFilter,
         search: searchTerm || undefined,
+        updated_after: updatedAfterFilter.trim() || undefined,
+        updated_before: updatedBeforeFilter.trim() || undefined,
       });
 
       const list = Array.isArray(res?.submissions) ? res.submissions : [];
@@ -361,7 +373,10 @@ export default function AdminPengumpulanPage() {
     searchTerm ||
     categoryId !== "ALL" ||
     (isSubThemeAvailable && subThemeFilter !== "ALL") ||
-    statusFilter !== "ALL";
+    statusFilter !== "ALL" || 
+    updatedAfterFilter !== " " ||
+    updatedBeforeFilter !== " " ||
+    phase !== "ALL";
 
   return (
     <div className="space-y-6">
@@ -514,12 +529,12 @@ export default function AdminPengumpulanPage() {
                 </div>
               )}
               
-              {/* Filter Edited */}
+              {/* Filter Tahap */}
               <div className="flex items-center gap-1.5">
                 <Select
-                  value={editedSinceFilter}
+                  value={phase}
                   onValueChange={(val) => {
-                    setEditedSinceFilter(val);
+                    handlePhaseChange(val)
                     setPage(1);
                   }}
                   disabled={loadingCategories}
@@ -528,13 +543,13 @@ export default function AdminPengumpulanPage() {
                     Tahap:
                   </span>
                   <SelectTrigger className="h-9 w-40 sm:w-44 bg-input/40 border-border/50 rounded-xl text-xs text-foreground">
-                    <SelectValue placeholder="Kapan Saja" />
+                    <SelectValue placeholder="Semua Tahap" />
                   </SelectTrigger>
                   <SelectContent className="bg-[#141824] border-border/50 text-foreground">
-                    <SelectItem value=" ">Semua Tahap</SelectItem>
-                    {finalDeadlines.map((fd) => (
-                      <SelectItem key={fd.title} value={fd.final_deadline}>
-                        {fd.title}
+                    <SelectItem value={phases[0].value}>Semua Tahap</SelectItem>
+                    {phases.slice(2).map((p) => (
+                      <SelectItem key={p.value} value={p.value}>
+                        {p.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
