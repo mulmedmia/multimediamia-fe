@@ -1,4 +1,9 @@
-import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  keepPreviousData,
+} from "@tanstack/react-query";
 import {
   getAllSubmissions,
   getSubmissionById,
@@ -7,10 +12,50 @@ import {
 } from "@/services/admin-submission.service";
 import { toast } from "sonner";
 
-export function useAdminSubmissions({ limit = 10, page = 1, category_id = "", status = "", search = "", registration_id = "", sub_theme = "", updated_after = "", updated_before = "" } = {}) {
+export function useAdminSubmissions({
+  limit = 10,
+  page = 1,
+  category_id = "",
+  status = "",
+  search = "",
+  registration_id = "",
+  sub_theme = "",
+  updated_after = "",
+  updated_before = "",
+  sort_by = "",
+  order = "",
+} = {}) {
   return useQuery({
-    queryKey: ["admin-submissions", { limit, page, category_id, status, search, registration_id, sub_theme, updated_after, updated_before }],
-    queryFn: () => getAllSubmissions({ limit, page, category_id, status, search, registration_id, sub_theme,updated_after, updated_before }),
+    queryKey: [
+      "admin-submissions",
+      {
+        limit,
+        page,
+        category_id,
+        status,
+        search,
+        registration_id,
+        sub_theme,
+        updated_after,
+        updated_before,
+        sort_by,
+        order,
+      },
+    ],
+    queryFn: () =>
+      getAllSubmissions({
+        limit,
+        page,
+        category_id,
+        status,
+        search,
+        registration_id,
+        sub_theme,
+        updated_after,
+        updated_before,
+        sort_by,
+        order,
+      }),
     placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 2,
   });
@@ -54,4 +99,3 @@ export function useDeleteSubmission() {
     },
   });
 }
-
