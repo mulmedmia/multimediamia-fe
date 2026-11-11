@@ -9,6 +9,8 @@ export const getAllSubmissions = async ({
   search = "",
   registration_id = "",
   sub_theme = "",
+  updated_after = "",
+  updated_before = "",
 } = {}) => {
   const params = { limit, page };
   if (category_id && category_id !== "ALL") params.category_id = category_id;
@@ -16,6 +18,8 @@ export const getAllSubmissions = async ({
   if (search && search.trim()) params.search = search.trim();
   if (registration_id && registration_id.trim()) params.registration_id = registration_id.trim();
   if (sub_theme && sub_theme !== "ALL") params.sub_theme = sub_theme;
+  if (updated_after && updated_after.trim()) params.updated_after = updated_after.trim();
+  if (updated_before && updated_before.trim()) params.updated_before = updated_before.trim();
 
   const res = await api.get("/submissions", { params });
   return res.data.data;
