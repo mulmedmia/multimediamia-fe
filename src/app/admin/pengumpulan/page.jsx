@@ -186,6 +186,7 @@ export default function AdminPengumpulanPage() {
 
   const handlePhaseChange = (phase = "") => {
     if (phase === "ALL" || !phases.map((p) => p.value).includes(phase)) {
+      setSortBy("created_at");
       setUpdatedAfterFilter(" ");
       setUpdatedBeforeFilter(" ");
       setPhase("ALL");

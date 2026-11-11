@@ -16,7 +16,8 @@ import {
   BookmarkCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getSafeImageUrl } from "@/lib/image-loader";
+import { getYouTubeVideoId } from "@/lib/youtube";
+import { cn, getSafeImageUrl } from "@/lib/utils";
 import YouTubePreview from "@/components/common/YouTubePreview";
 import { LinkTypeIcon, normalizeLinkType } from "@/components/LinTypekIcon";
 import { useSubmissionDetail } from "@/hooks/user-use-submissions";
@@ -41,13 +42,16 @@ export default function SubmissionDetailPage(props) {
   const [activeMedia, setActiveMedia] = useState("video");
 
   const thumbnailUrl = submission?.thumbnail_url || submission?.thumbnail;
-  const hasYouTube = Boolean(
-    submission?.links?.some(
-      (l) =>
-        l?.link_type?.toUpperCase() === "YOUTUBE" ||
-        l?.url?.includes("youtu"),
-    ),
+  const videoLinkObj = submission?.links?.find(
+    (l) =>
+      l?.link_type?.toUpperCase() === "YOUTUBE" ||
+      l?.url?.includes("youtu") ||
+      (l?.url?.includes("drive.google.com") && l?.description?.toLowerCase().includes("video")),
   );
+  const videoUrl = videoLinkObj?.url || "";
+  const ytVideoId = getYouTubeVideoId(videoUrl);
+  const isDriveVideo = !ytVideoId && (videoUrl.includes("drive.google.com") || videoUrl.includes("docs.google.com"));
+  const hasVideo = Boolean(ytVideoId || isDriveVideo);
 
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
@@ -247,7 +251,7 @@ export default function SubmissionDetailPage(props) {
 
           {/* Right Card - Larger Video Preview / Artwork Media */}
           <div className="lg:col-span-7 mia-card p-3 sm:p-4 md:p-5 flex flex-col justify-center overflow-hidden shadow-2xl">
-            {thumbnailUrl && hasYouTube ? (
+            {thumbnailUrl && hasVideo ? (
               <div className="space-y-3">
                 <div className="flex items-center justify-between pb-2 border-b border-white/10">
                   <div className="flex items-center gap-2">
@@ -281,14 +285,30 @@ export default function SubmissionDetailPage(props) {
                 </div>
 
                 {activeMedia === "video" ? (
-                  <YouTubePreview
-                    submission={submission}
-                    title={`Video Karya ${submission.project_name}`}
-                    showFallback={true}
-                    fallbackText="Video presentasi tidak disematkan oleh peserta"
-                    className="rounded-xl border border-white/10"
-                    overrideThumbnailUrl={getSafeImageUrl(thumbnailUrl)}
-                  />
+                  ytVideoId ? (
+                    <YouTubePreview
+                      submission={submission}
+                      title={`Video Karya ${submission.project_name}`}
+                      showFallback={true}
+                      fallbackText="Video presentasi tidak disematkan oleh peserta"
+                      className="rounded-xl border border-white/10"
+                      overrideThumbnailUrl={getSafeImageUrl(thumbnailUrl)}
+                    />
+                  ) : (
+                    <div className="aspect-video w-full rounded-xl overflow-hidden bg-black/90 border border-white/10 relative flex flex-col items-center justify-center p-6 text-center space-y-3">
+                      <Video className="h-10 w-10 text-emerald-400 opacity-90" />
+                      <p className="text-sm font-semibold text-white">Video Pitching di Google Drive</p>
+                      <a
+                        href={videoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition-all shadow-lg shadow-emerald-900/30"
+                      >
+                        <span>Buka Video di Google Drive</span>
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </a>
+                    </div>
+                  )
                 ) : (
                   <div className="relative aspect-video w-full rounded-xl overflow-hidden bg-black/90 border border-white/10 shadow-inner group">
                     <img
@@ -311,7 +331,7 @@ export default function SubmissionDetailPage(props) {
                   />
                 </div>
               </div>
-            ) : (
+            ) : ytVideoId ? (
               <YouTubePreview
                 submission={submission}
                 title={`Video Karya ${submission.project_name}`}
@@ -319,6 +339,24 @@ export default function SubmissionDetailPage(props) {
                 fallbackText="Video presentasi tidak disematkan oleh peserta"
                 className="rounded-xl border border-white/10"
               />
+            ) : isDriveVideo ? (
+              <div className="aspect-video w-full rounded-xl overflow-hidden bg-black/90 border border-white/10 relative flex flex-col items-center justify-center p-6 text-center space-y-3">
+                <Video className="h-10 w-10 text-emerald-400 opacity-90" />
+                <p className="text-sm font-semibold text-white">Video Pitching di Google Drive</p>
+                <a
+                  href={videoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition-all shadow-lg shadow-emerald-900/30"
+                >
+                  <span>Buka Video di Google Drive</span>
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+              </div>
+            ) : (
+              <div className="aspect-video w-full rounded-xl bg-black/80 border border-white/10 flex items-center justify-center text-xs text-muted-foreground">
+                Media tidak tersedia
+              </div>
             )}
           </div>
         </div>
