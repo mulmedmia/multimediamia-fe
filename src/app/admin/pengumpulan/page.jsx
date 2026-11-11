@@ -44,6 +44,7 @@ import {
   ShieldCheck,
   Link2,
   FileSpreadsheet,
+  ArrowDown,
 } from "lucide-react";
 import SubmissionDetailModal from "./SubmissionDetailModal";
 import SubmissionStatusModal from "./SubmissionStatusModal";
@@ -67,6 +68,8 @@ export default function AdminPengumpulanPage() {
   const [updatedAfterFilter, setUpdatedAfterFilter] = useState(" ");
   const [updatedBeforeFilter, setUpdatedBeforeFilter] = useState(" ");
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [sortBy, setSortBy] = useState("created_at"); // "" | "created_at" | "updated_at"
+  const [sortOrder, setSortOrder] = useState("desc"); // "" | "asc" | "desc"
 
   // Export State
   const [isExporting, setIsExporting] = useState(false);
@@ -131,6 +134,8 @@ export default function AdminPengumpulanPage() {
     search: searchTerm || undefined,
     updated_after: updatedAfterFilter.trim() || undefined,
     updated_before: updatedBeforeFilter.trim() || undefined,
+    sort_by: sortBy,
+    order: sortOrder,
   });
 
   // Global Stats Query (fetch lightweight list for top summary cards)
@@ -189,6 +194,8 @@ export default function AdminPengumpulanPage() {
       setUpdatedBeforeFilter(preliminaryDeadline);
       setPhase(phase);
     } else if (phase === "FINAL") {
+      setSortBy("updated_at");
+      setSortOrder("desc");
       setUpdatedAfterFilter(preliminaryDeadline);
       setUpdatedBeforeFilter(" ");
       setPhase(phase);
@@ -265,6 +272,8 @@ export default function AdminPengumpulanPage() {
     setUpdatedAfterFilter(" ");
     setUpdatedBeforeFilter(" ");
     setPhase("ALL");
+    setSortBy("created_at");
+    setSortOrder("desc");
     setPage(1);
   };
 
@@ -369,14 +378,22 @@ export default function AdminPengumpulanPage() {
     }
   };
 
+  const handleToggleSort = (field) => {
+    if (sortBy !== field) {
+      setSortBy(field);
+      setPage(1);
+    }
+  };
+
   const hasActiveFilters =
     searchTerm ||
     categoryId !== "ALL" ||
     (isSubThemeAvailable && subThemeFilter !== "ALL") ||
-    statusFilter !== "ALL" || 
+    statusFilter !== "ALL" ||
     updatedAfterFilter !== " " ||
     updatedBeforeFilter !== " " ||
-    phase !== "ALL";
+    phase !== "ALL" ||
+    !(sortBy === "created_at" && sortOrder === "desc");
 
   return (
     <div className="space-y-6">
@@ -479,14 +496,14 @@ export default function AdminPengumpulanPage() {
         <CardHeader className="p-4 sm:p-6 border-b border-border/40">
           <div className="flex flex-col sm:flex-row items-stretch sm:items-start justify-between gap-3">
             {/* Search Box */}
-            <div className="relative flex-1 max-w-sm">
+            <div className="relative flex-1 min-w-xs max-w-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="text"
                 placeholder="Cari judul karya, nama tim, atau peserta..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                className="pl-9 pr-8 h-9 bg-input/40 border-border/50 rounded-xl text-xs sm:text-sm text-foreground"
+                className="pl-9 pr-8 h-9 bg-input/40 border-border/50 rounded-xl text-xs sm:text-sm text-foreground truncate"
               />
               {searchInput && (
                 <button
@@ -500,35 +517,7 @@ export default function AdminPengumpulanPage() {
             </div>
 
             {/* Filter Group */}
-            <div className="flex flex-wrap items-center gap-2">
-              {/* Filter Sub-Tema - Dinamis muncul jika kategori WIA atau UIA dipilih */}
-              {isSubThemeAvailable && (
-                <div className="flex items-center gap-1.5 animate-in fade-in slide-in-from-left-2 duration-200">
-                  <span className="text-xs text-muted-foreground whitespace-nowrap hidden lg:inline">
-                    Sub-Tema:
-                  </span>
-                  <Select
-                    value={subThemeFilter}
-                    onValueChange={(val) => {
-                      setSubThemeFilter(val);
-                      setPage(1);
-                    }}
-                  >
-                    <SelectTrigger className="h-9 w-44 sm:w-52 bg-input/40 border-amber-500/30 ring-1 ring-amber-500/20 rounded-xl text-xs text-foreground">
-                      <SelectValue placeholder="Semua Sub-Tema" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-[#141824] border-border/50 text-foreground max-h-72">
-                      <SelectItem value="ALL">Semua Sub-Tema</SelectItem>
-                      {availableSubThemes.map((theme) => (
-                        <SelectItem key={theme.id} value={theme.name}>
-                          {theme.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-              
+            <div className="flex flex-wrap items-center sm:justify-end gap-2">
               {/* Filter Tahap */}
               <div className="flex items-center gap-1.5">
                 <Select
@@ -608,6 +597,34 @@ export default function AdminPengumpulanPage() {
                   </SelectContent>
                 </Select>
               </div>
+
+              {/* Filter Sub-Tema - Dinamis muncul jika kategori WIA atau UIA dipilih */}
+              {isSubThemeAvailable && (
+                <div className="flex items-center gap-1.5 animate-in fade-in slide-in-from-left-2 duration-200">
+                  <span className="text-xs text-muted-foreground whitespace-nowrap hidden md:inline">
+                    Sub-Tema:
+                  </span>
+                  <Select
+                    value={subThemeFilter}
+                    onValueChange={(val) => {
+                      setSubThemeFilter(val);
+                      setPage(1);
+                    }}
+                  >
+                    <SelectTrigger className="h-9 w-44 sm:w-52 bg-input/40 border-amber-500/30 ring-1 ring-amber-500/20 rounded-xl text-xs text-foreground">
+                      <SelectValue placeholder="Semua Sub-Tema" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#141824] border-border/50 text-foreground max-h-72">
+                      <SelectItem value="ALL">Semua Sub-Tema</SelectItem>
+                      {availableSubThemes.map((theme) => (
+                        <SelectItem key={theme.id} value={theme.name}>
+                          {theme.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </div>
           </div>
 
@@ -651,6 +668,18 @@ export default function AdminPengumpulanPage() {
                     type="button"
                     onClick={() => setStatusFilter("ALL")}
                     className="hover:text-amber-200 ml-0.5"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+              {sortBy === "updated_at" && (
+                <span className="inline-flex items-center gap-1 text-[11px] px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                  Diurutkan berdasarkan: Waktu edit
+                  <button
+                    type="button"
+                    onClick={() => setSortBy("created_at")}
+                    className="hover:text-blue-200 ml-0.5"
                   >
                     ×
                   </button>
@@ -730,10 +759,38 @@ export default function AdminPengumpulanPage() {
                       Admin Feedback
                     </TableHead>
                     <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
-                      Waktu Submit Pertama
+                      <button
+                        type="button"
+                        onClick={() => handleToggleSort("created_at")}
+                        className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors group select-none cursor-pointer"
+                        title="Urutkan berdasarkan waktu submit pertama"
+                      >
+                        <span className={sortBy === "diamond" ? "text-foreground font-bold" : ""}>
+                          Waktu Submit Pertama
+                        </span>
+                        {sortBy === "created_at" ? (
+                          <ArrowDown className="h-3.5 w-3.5 text-[#E01C20]" />
+                        ) : (
+                          <ArrowDown className="h-3.5 w-3.5 opacity-40 group-hover:opacity-100 transition-opacity" />
+                        )}
+                      </button>
                     </TableHead>
                     <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
-                      Waktu Edit Terakhir
+                      <button
+                        type="button"
+                        onClick={() => handleToggleSort("updated_at")}
+                        className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors group select-none cursor-pointer"
+                        title="Urutkan berdasarkan waktu edit terakhir"
+                      >
+                        <span className={sortBy === "diamond" ? "text-foreground font-bold" : ""}>
+                          Waktu Edit Terakhir
+                        </span>
+                        {sortBy === "updated_at" ? (
+                          <ArrowDown className="h-3.5 w-3.5 text-[#E01C20]" />
+                        ) : (
+                          <ArrowDown className="h-3.5 w-3.5 opacity-40 group-hover:opacity-100 transition-opacity" />
+                        )}
+                      </button>
                     </TableHead>
                     <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02] whitespace-nowrap">
                       Created By

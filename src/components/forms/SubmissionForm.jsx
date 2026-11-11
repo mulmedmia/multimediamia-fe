@@ -171,12 +171,16 @@ const createSubmissionSchema = (teamType, categorySlug, isFinalPhase, categoryNa
         .min(1, { message: "Link desain Figma wajib diisi." })
         .url({ message: "Harap masukkan format URL Figma yang valid." }),
       figma_description: z.string().optional(),
-      originality_statement_url: z
-        .string()
-        .min(1, { message: "Link drive surat keterangan orisinil karya bermaterai 10.000 wajib diisi." })
-        .url({ message: "Harap masukkan format URL surat keterangan orisinil yang valid." })
-        .optional()
-        .or(z.literal("")),
+      originality_statement_url: isFinalPhase
+        ? z
+            .string()
+            .min(1, { message: "Link drive surat keterangan orisinil karya bermaterai 10.000 wajib diisi pada fase final." })
+            .url({ message: "Harap masukkan format URL surat keterangan orisinil yang valid." })
+        : z
+            .string()
+            .url({ message: "Harap masukkan format URL surat keterangan orisinil yang valid." })
+            .optional()
+            .or(z.literal("")),
       originality_statement_description: z.string().optional(),
       figma_prototype_url: isFinalPhase
         ? z
