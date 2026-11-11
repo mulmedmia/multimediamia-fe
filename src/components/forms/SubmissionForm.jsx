@@ -128,7 +128,11 @@ const createSubmissionSchema = (teamType, categorySlug, isFinalPhase, categoryNa
         "Link deployment / live website wajib diisi pada fase final."
       ),
       deployment_description: z.string().optional(),
-      youtube_url: createLinkFieldSchema("YOUTUBE", false),
+      youtube_url: createLinkFieldSchema(
+        "YOUTUBE",
+        isFinalPhase,
+        "Link video pitching (YouTube / Google Drive) wajib diisi pada fase final."
+      ),
       youtube_description: z.string().optional(),
       other_url: createLinkFieldSchema("OTHER", false),
       other_description: z.string().optional(),
@@ -595,12 +599,15 @@ export function SubmissionForm({
           descField: "youtube_description",
           descPlaceholder: "Video Pitching (YouTube / Google Drive)",
           label: "Link Video Pitching (YouTube / Google Drive)",
-          helperText:
-            "Opsional: Tautan video presentasi/pitching (dapat menggunakan YouTube atau Google Drive).",
+          helperText: isFinalPhase
+            ? "Wajib diisi pada tahap pengumpulan karya final. Dapat menggunakan YouTube atau Google Drive."
+            : "Opsional pada pengumpulan sementara, wajib saat pengumpulan karya final.",
           Icon: VideoIcon,
           type: "YOUTUBE",
-          required: false,
-          overrideInfo: "Opsional",
+          required: isFinalPhase,
+          overrideInfo: isFinalPhase
+            ? "Wajib Saat Final"
+            : "Opsional Sementara",
         },
         {
           field: "other_url",
@@ -1180,12 +1187,12 @@ export function SubmissionForm({
           <p className="text-xs text-mia-muted-2 mt-1 leading-relaxed">
             {isWIA
               ? isFinalPhase
-                ? "Pada fase final, File Presentasi, Repo GitHub Utama, Surat Orisinil (Materai 10k), Draft Proposal, dan Deployment wajib diisi. Video Pitching opsional (YouTube / Google Drive)."
-                : "Pada pengumpulan sementara, File Presentasi dan Repo GitHub Utama wajib diisi. Draft Proposal dan Deployment wajib saat pengumpulan final."
+                ? "Pada fase final, File Presentasi, Repo GitHub Utama, Surat Orisinil (Materai 10k), Draft Proposal, Deployment, dan Video Pitching (YouTube / Google Drive) wajib diisi."
+                : "Pada pengumpulan sementara, File Presentasi dan Repo GitHub Utama wajib diisi. Draft Proposal, Deployment, dan Video Pitching wajib saat pengumpulan final."
               : isUIA
                 ? isFinalPhase
-                  ? "Pada fase final, Draft Proposal, Desain Figma, Surat Orisinil (Materai 10k), dan Prototipe Figma wajib diisi. Video Pitching opsional (YouTube / Google Drive)."
-                  : "Pada pengumpulan sementara, Draft Proposal, Desain Figma, dan Surat Keterangan Orisinil bermaterai wajib diisi."
+                  ? "Pada fase final, Draft Proposal, Desain Figma, Surat Orisinil (Materai 10k), Prototipe Figma, dan Video Pitching (YouTube / Google Drive) wajib diisi."
+                  : "Pada pengumpulan sementara, Draft Proposal, Desain Figma, dan Surat Keterangan Orisinil bermaterai wajib diisi. Prototipe Figma dan Video Pitching wajib saat pengumpulan final."
                 : "Isi minimal satu link project (GitHub, YouTube, atau Link Lainnya)."}
           </p>
           {errors.links_required && (
