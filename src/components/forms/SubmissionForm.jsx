@@ -187,7 +187,11 @@ const createSubmissionSchema = (teamType, categorySlug, isFinalPhase, categoryNa
         isFinalPhase,
         "Link prototipe Figma wajib diisi pada fase final."
       ),
-      youtube_url: createLinkFieldSchema("YOUTUBE", false),
+      youtube_url: createLinkFieldSchema(
+        "YOUTUBE",
+        isFinalPhase,
+        "Link video pitching (YouTube / Google Drive) wajib diisi pada fase final."
+      ),
       other_url: createLinkFieldSchema("OTHER", false),
     });
   }
