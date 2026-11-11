@@ -65,8 +65,6 @@ export default function AdminPengumpulanPage() {
   const [categoryId, setCategoryId] = useState("ALL");
   const [subThemeFilter, setSubThemeFilter] = useState("ALL");
   const [phase, setPhase] = useState("ALL");
-  const [updatedAfterFilter, setUpdatedAfterFilter] = useState(" ");
-  const [updatedBeforeFilter, setUpdatedBeforeFilter] = useState(" ");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [sortBy, setSortBy] = useState("created_at"); // "" | "created_at" | "updated_at"
   const [sortOrder, setSortOrder] = useState("desc"); // "" | "asc" | "desc"
@@ -133,8 +131,6 @@ export default function AdminPengumpulanPage() {
     status: statusFilter === "ALL" ? undefined : statusFilter,
     search: searchTerm || undefined,
     phase: phase === "ALL" ? undefined : phase,
-    updated_after: updatedAfterFilter.trim() || undefined,
-    updated_before: updatedBeforeFilter.trim() || undefined,
     sort_by: sortBy,
     order: sortOrder,
   });
@@ -184,13 +180,9 @@ export default function AdminPengumpulanPage() {
     if (selectedPhase === "FINAL") {
       setSortBy("updated_at");
       setSortOrder("desc");
-      setUpdatedAfterFilter(" ");
-      setUpdatedBeforeFilter(" ");
       setPhase("FINAL");
     } else {
       setSortBy("created_at");
-      setUpdatedAfterFilter(" ");
-      setUpdatedBeforeFilter(" ");
       setPhase("ALL");
     }
   };
@@ -262,8 +254,6 @@ export default function AdminPengumpulanPage() {
     setCategoryId("ALL");
     setSubThemeFilter("ALL");
     setStatusFilter("ALL");
-    setUpdatedAfterFilter(" ");
-    setUpdatedBeforeFilter(" ");
     setPhase("ALL");
     setSortBy("created_at");
     setSortOrder("desc");
@@ -282,8 +272,6 @@ export default function AdminPengumpulanPage() {
         sub_theme: isSubThemeAvailable && subThemeFilter !== "ALL" ? subThemeFilter : undefined,
         status: statusFilter === "ALL" ? undefined : statusFilter,
         search: searchTerm || undefined,
-        updated_after: updatedAfterFilter.trim() || undefined,
-        updated_before: updatedBeforeFilter.trim() || undefined,
         phase: phase === "ALL" ? undefined : phase,
       });
 
@@ -384,8 +372,6 @@ export default function AdminPengumpulanPage() {
     categoryId !== "ALL" ||
     (isSubThemeAvailable && subThemeFilter !== "ALL") ||
     statusFilter !== "ALL" ||
-    updatedAfterFilter !== " " ||
-    updatedBeforeFilter !== " " ||
     phase !== "ALL" ||
     !(sortBy === "created_at" && sortOrder === "desc");
 
