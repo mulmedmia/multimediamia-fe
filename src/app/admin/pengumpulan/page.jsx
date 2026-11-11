@@ -65,6 +65,7 @@ export default function AdminPengumpulanPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryId, setCategoryId] = useState("ALL");
   const [subThemeFilter, setSubThemeFilter] = useState("ALL");
+  const [editedSinceFilter, setEditedSinceFilter] = useState(" ");
   const [statusFilter, setStatusFilter] = useState("ALL");
 
   // Export State
@@ -128,6 +129,7 @@ export default function AdminPengumpulanPage() {
     sub_theme: isSubThemeAvailable && subThemeFilter !== "ALL" ? subThemeFilter : undefined,
     status: statusFilter === "ALL" ? undefined : statusFilter,
     search: searchTerm || undefined,
+    edited_since: editedSinceFilter.trim(),
   });
 
   // Global Stats Query (fetch lightweight list for top summary cards)
@@ -165,6 +167,26 @@ export default function AdminPengumpulanPage() {
     ).length;
     return { total, approved, pending, revisionOrRejected };
   }, [statsData, submissions, totalItems]);
+
+  const phases = categories.map((cat) => ({
+    category_name: cat.category_name,
+    slug: cat.slug,
+    preliminary_deadline: cat.preliminary_deadline.split("T")[0],
+    final_deadline: cat.final_deadline.split("T")[0],
+  }));
+
+  const finalDeadlines =
+    new Set(phases.map((phase) => phase.final_deadline)).size === 1
+      ? [
+          {
+            title: "Final Submission Babak Penyisihan",
+            final_deadline: phases[0].final_deadline,
+          },
+        ]
+      : phases.map((phase) => ({
+          title: `Final Submission Babak Penyisihan ${phase.slug}`,
+          final_deadline: phase.final_deadline,
+        }));
 
   // Helper date display
   const formatDateDisplay = (dateString) => {
@@ -440,7 +462,7 @@ export default function AdminPengumpulanPage() {
       {/* Main Table Card */}
       <Card className="bg-[#0F121A]/80 border-border/40 rounded-2xl overflow-hidden shadow-xl">
         <CardHeader className="p-4 sm:p-6 border-b border-border/40">
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-start justify-between gap-3">
             {/* Search Box */}
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -491,6 +513,33 @@ export default function AdminPengumpulanPage() {
                   </Select>
                 </div>
               )}
+              
+              {/* Filter Edited */}
+              <div className="flex items-center gap-1.5">
+                <Select
+                  value={editedSinceFilter}
+                  onValueChange={(val) => {
+                    setEditedSinceFilter(val);
+                    setPage(1);
+                  }}
+                  disabled={loadingCategories}
+                >
+                  <span className="text-xs text-muted-foreground whitespace-nowrap hidden md:inline">
+                    Tahap:
+                  </span>
+                  <SelectTrigger className="h-9 w-40 sm:w-44 bg-input/40 border-border/50 rounded-xl text-xs text-foreground">
+                    <SelectValue placeholder="Kapan Saja" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#141824] border-border/50 text-foreground">
+                    <SelectItem value=" ">Semua Tahap</SelectItem>
+                    {finalDeadlines.map((fd) => (
+                      <SelectItem key={fd.title} value={fd.final_deadline}>
+                        {fd.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
               {/* Filter Kategori */}
               <div className="flex items-center gap-1.5">
@@ -666,7 +715,10 @@ export default function AdminPengumpulanPage() {
                       Admin Feedback
                     </TableHead>
                     <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
-                      Waktu Submit
+                      Waktu Submit Pertama
+                    </TableHead>
+                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
+                      Waktu Edit Terakhir
                     </TableHead>
                     <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02] whitespace-nowrap">
                       Created By
@@ -783,11 +835,19 @@ export default function AdminPengumpulanPage() {
                         )}
                       </TableCell>
 
-                      {/* Waktu Submit */}
+                      {/* Waktu Submit Pertama */}
                       <TableCell className="py-3.5 text-xs text-muted-foreground whitespace-nowrap">
                         <div className="flex items-center gap-1.5">
                           <Clock className="h-3.5 w-3.5 text-muted-foreground/60" />
                           <span>{formatDateDisplay(sub.created_at)}</span>
+                        </div>
+                      </TableCell>
+
+                      {/* Waktu Edit Terakhir */}
+                      <TableCell className="py-3.5 text-xs text-muted-foreground whitespace-nowrap">
+                        <div className="flex items-center gap-1.5">
+                          <Clock className="h-3.5 w-3.5 text-muted-foreground/60" />
+                          <span>{formatDateDisplay(sub.updated_at)}</span>
                         </div>
                       </TableCell>
 
@@ -895,7 +955,7 @@ export default function AdminPengumpulanPage() {
         data={statusData}
         status={currentStatus}
         setStatus={setCurrentStatus}
-                is_verified={currentIsVerified}
+        is_verified={currentIsVerified}
         setIsVerified={setCurrentIsVerified}
         admin_feedback={currentAdminFeedback}
         setAdminFeedback={setCurrentAdminFeedback}
