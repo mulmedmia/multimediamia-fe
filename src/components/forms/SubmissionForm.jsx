@@ -25,8 +25,42 @@ import {
 } from "@radix-ui/react-icons";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "../ui/textarea";
-import { Github, Presentation, FileCheck, Upload, ImageIcon, BookmarkCheck, Check } from "lucide-react";
+import {
+  Github,
+  Presentation,
+  FileCheck,
+  Upload,
+  ImageIcon,
+  BookmarkCheck,
+  Check,
+  CheckCircle2,
+  AlertCircle,
+  ExternalLink,
+} from "lucide-react";
 import { SUB_THEMES } from "@/lib/constants";
+import { validateSubmissionLink } from "@/lib/link-validator";
+import YouTubePreview from "@/components/common/YouTubePreview";
+
+// Helper validator Zod khusus domain link submission
+const createLinkFieldSchema = (linkType, isRequired = false, requiredMsg = "Tautan wajib diisi.") => {
+  let fieldSchema = z.string();
+  if (isRequired) {
+    fieldSchema = fieldSchema.min(1, { message: requiredMsg });
+  } else {
+    fieldSchema = fieldSchema.optional().or(z.literal(""));
+  }
+
+  return fieldSchema.superRefine((val, ctx) => {
+    if (!val || typeof val !== "string" || val.trim() === "") return;
+    const res = validateSubmissionLink(linkType, val);
+    if (!res.isValid) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: res.message,
+      });
+    }
+  });
+};
 
 // !!! Asumsikan zod object punya `keys` yang sama dengan yang dilempar oleh Backend
 // Schema dinamis berdasarkan team type, kategori, dan fase deadline
@@ -62,76 +96,41 @@ const createSubmissionSchema = (teamType, categorySlug, isFinalPhase, categoryNa
                 message: "Flow aplikasi maksimal 400 karakter.",
               })
           : z.string().optional(),
-      presentation_url: z
-        .string()
-        .min(1, { message: "Link file presentasi (PowerPoint/Google Slides/Canva) wajib diisi." })
-        .url({ message: "Harap masukkan format URL file presentasi yang valid." }),
+      presentation_url: createLinkFieldSchema(
+        "PRESENTATION",
+        true,
+        "Link file presentasi (PowerPoint/Google Slides/Canva) wajib diisi."
+      ),
       presentation_description: z.string().optional(),
-      github_url: z
-        .string()
-        .min(1, { message: "Link repository GitHub utama wajib diisi." })
-        .url({ message: "Harap masukkan format URL GitHub yang valid." }),
+      github_url: createLinkFieldSchema(
+        "GITHUB",
+        true,
+        "Link repository GitHub utama wajib diisi."
+      ),
       github_description: z.string().optional(),
-      originality_statement_url: isFinalPhase
-        ? z
-            .string()
-            .min(1, { message: "Link drive surat keterangan orisinil karya bermaterai 10.000 wajib diisi pada fase final." })
-            .url({ message: "Harap masukkan format URL surat keterangan orisinil yang valid." })
-        : z
-            .string()
-            .url({ message: "Harap masukkan format URL surat keterangan orisinil yang valid." })
-            .optional()
-            .or(z.literal("")),
+      originality_statement_url: createLinkFieldSchema(
+        "ORIGINALITY_STATEMENT",
+        isFinalPhase,
+        "Link drive surat keterangan orisinil karya bermaterai 10.000 wajib diisi pada fase final."
+      ),
       originality_statement_description: z.string().optional(),
-      proposal_url: isFinalPhase
-        ? z
-            .string()
-            .min(1, { message: "Link draft proposal (Google Docs) wajib diisi pada fase final." })
-            .url({ message: "Harap masukkan format URL proposal yang valid." })
-        : z
-            .string()
-            .url({ message: "Harap masukkan format URL proposal yang valid." })
-            .optional()
-            .or(z.literal("")),
+      proposal_url: createLinkFieldSchema(
+        "PROPOSAL",
+        isFinalPhase,
+        "Link draft proposal (Google Docs) wajib diisi pada fase final."
+      ),
       proposal_description: z.string().optional(),
-      github_secondary_url: z
-        .string()
-        .url({ message: "Harap masukkan URL GitHub kedua yang valid." })
-        .optional()
-        .or(z.literal("")),
+      github_secondary_url: createLinkFieldSchema("GITHUB_SECONDARY", false),
       github_secondary_description: z.string().optional(),
-      deployment_url: isFinalPhase
-        ? z
-            .string()
-            .min(1, {
-              message:
-                "Link deployment / live website wajib diisi pada fase final.",
-            })
-            .url({ message: "Harap masukkan URL deployment yang valid." })
-        : z
-            .string()
-            .url({ message: "Harap masukkan URL deployment yang valid." })
-            .optional()
-            .or(z.literal("")),
+      deployment_url: createLinkFieldSchema(
+        "DEPLOYMENT",
+        isFinalPhase,
+        "Link deployment / live website wajib diisi pada fase final."
+      ),
       deployment_description: z.string().optional(),
-      youtube_url: isFinalPhase
-        ? z
-            .string()
-            .min(1, {
-              message: "Link video pitching YouTube wajib diisi pada fase final.",
-            })
-            .url({ message: "Harap masukkan URL YouTube yang valid." })
-        : z
-            .string()
-            .url({ message: "Harap masukkan URL YouTube yang valid." })
-            .optional()
-            .or(z.literal("")),
+      youtube_url: createLinkFieldSchema("YOUTUBE", false),
       youtube_description: z.string().optional(),
-      other_url: z
-        .string()
-        .url({ message: "Harap masukkan URL yang valid." })
-        .optional()
-        .or(z.literal("")),
+      other_url: createLinkFieldSchema("OTHER", false),
       other_description: z.string().optional(),
     });
   }
@@ -162,59 +161,30 @@ const createSubmissionSchema = (teamType, categorySlug, isFinalPhase, categoryNa
                 message: "Flow aplikasi maksimal 400 karakter.",
               })
           : z.string().optional(),
-      proposal_url: z
-        .string()
-        .min(1, { message: "Link draft proposal (Google Docs) wajib diisi." })
-        .url({ message: "Harap masukkan format URL proposal yang valid." }),
-      figma_url: z
-        .string()
-        .min(1, { message: "Link desain Figma wajib diisi." })
-        .url({ message: "Harap masukkan format URL Figma yang valid." }),
+      proposal_url: createLinkFieldSchema(
+        "PROPOSAL",
+        true,
+        "Link draft proposal (Google Docs) wajib diisi."
+      ),
+      figma_url: createLinkFieldSchema(
+        "FIGMA",
+        true,
+        "Link desain Figma wajib diisi."
+      ),
       figma_description: z.string().optional(),
-      originality_statement_url: isFinalPhase
-        ? z
-            .string()
-            .min(1, { message: "Link drive surat keterangan orisinil karya bermaterai 10.000 wajib diisi pada fase final." })
-            .url({ message: "Harap masukkan format URL surat keterangan orisinil yang valid." })
-        : z
-            .string()
-            .url({ message: "Harap masukkan format URL surat keterangan orisinil yang valid." })
-            .optional()
-            .or(z.literal("")),
+      originality_statement_url: createLinkFieldSchema(
+        "ORIGINALITY_STATEMENT",
+        isFinalPhase,
+        "Link drive surat keterangan orisinil karya bermaterai 10.000 wajib diisi pada fase final."
+      ),
       originality_statement_description: z.string().optional(),
-      figma_prototype_url: isFinalPhase
-        ? z
-            .string()
-            .min(1, {
-              message: "Link prototipe Figma wajib diisi pada fase final.",
-            })
-            .url({
-              message: "Harap masukkan format URL prototipe Figma yang valid.",
-            })
-        : z
-            .string()
-            .url({
-              message: "Harap masukkan format URL prototipe Figma yang valid.",
-            })
-            .optional()
-            .or(z.literal("")),
-      youtube_url: isFinalPhase
-        ? z
-            .string()
-            .min(1, {
-              message: "Link video pitching YouTube wajib diisi pada fase final.",
-            })
-            .url({ message: "Harap masukkan URL YouTube yang valid." })
-        : z
-            .string()
-            .url({ message: "Harap masukkan URL YouTube yang valid." })
-            .optional()
-            .or(z.literal("")),
-      other_url: z
-        .string()
-        .url({ message: "Harap masukkan URL yang valid." })
-        .optional()
-        .or(z.literal("")),
+      figma_prototype_url: createLinkFieldSchema(
+        "FIGMA_PROTOTYPE",
+        isFinalPhase,
+        "Link prototipe Figma wajib diisi pada fase final."
+      ),
+      youtube_url: createLinkFieldSchema("YOUTUBE", false),
+      other_url: createLinkFieldSchema("OTHER", false),
     });
   }
 
@@ -248,27 +218,13 @@ const createSubmissionSchema = (teamType, categorySlug, isFinalPhase, categoryNa
                 message: "Flow aplikasi maksimal 400 karakter.",
               })
           : z.string().optional(),
-      github_url: z
-        .string()
-        .url({
-          message: "Harap masukkan URL GitHub yang valid.",
-        })
-        .optional()
-        .or(z.literal("")),
-      youtube_url: z
-        .string()
-        .url({
-          message: "Harap masukkan URL YouTube yang valid.",
-        })
-        .optional()
-        .or(z.literal("")),
-      other_url: z
-        .string()
-        .url({
-          message: "Harap masukkan URL yang valid.",
-        })
-        .optional()
-        .or(z.literal("")),
+      github_url: createLinkFieldSchema("GITHUB", false),
+      youtube_url: createLinkFieldSchema(
+        "YOUTUBE",
+        isFinalPhase,
+        "Link video pitching (YouTube / Google Drive) wajib diisi pada fase final."
+      ),
+      other_url: createLinkFieldSchema("OTHER", false),
       github_description: z.string().optional(),
       youtube_description: z.string().optional(),
       other_description: z.string().optional(),
@@ -299,11 +255,34 @@ function LinkInput({
   required = false,
   overrideInfo = "",
   Icon,
+  type = "OTHER",
   register,
   errors,
+  watch,
 }) {
+  const currentValue = watch ? watch(field) : "";
+  const validation = useMemo(() => {
+    if (!currentValue || typeof currentValue !== "string" || currentValue.trim() === "") {
+      return null;
+    }
+    return validateSubmissionLink(type, currentValue);
+  }, [type, currentValue]);
+
+  const hasValidationError = (validation && !validation.isValid) || Boolean(errors[field]);
+  const validationMsg = validation && !validation.isValid ? validation.message : errors[field]?.message;
+  const isLinkValid = validation && validation.isValid;
+
   return (
-    <div className="space-y-2 p-3.5 bg-input/20 border border-border/40 rounded-xl transition-all">
+    <div
+      className={cn(
+        "space-y-2 p-3.5 bg-input/20 border rounded-xl transition-all",
+        hasValidationError
+          ? "border-destructive/60 bg-destructive/5"
+          : isLinkValid
+            ? "border-emerald-500/30 bg-emerald-500/5"
+            : "border-border/40"
+      )}
+    >
       <div className="flex items-center justify-between gap-2">
         <Label
           htmlFor={field}
@@ -318,11 +297,19 @@ function LinkInput({
             </span>
           )}
         </Label>
-        {required && (
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500/15 border border-red-500/30 text-red-400">
-            {overrideInfo || "Wajib"}
-          </span>
-        )}
+        <div className="flex items-center gap-1.5">
+          {isLinkValid && (
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+              <CheckCircle2 className="w-3 h-3" />
+              <span>Link Sesuai</span>
+            </span>
+          )}
+          {required && (
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500/15 border border-red-500/30 text-red-400">
+              {overrideInfo || "Wajib"}
+            </span>
+          )}
+        </div>
       </div>
 
       {helperText && (
@@ -341,13 +328,57 @@ function LinkInput({
           {...register(field)}
           className={cn(
             "h-11 bg-input rounded-xl pl-10 pr-4 text-sm text-foreground placeholder:text-mia-muted-2 transition-all",
-            errors[field]
+            hasValidationError
               ? "border-destructive focus-visible:ring-destructive"
-              : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
+              : isLinkValid
+                ? "border-emerald-500/50 focus-visible:ring-emerald-500/40"
+                : "border-border focus-visible:border-ring focus-visible:ring-ring/50",
           )}
         />
       </div>
-      <InputError fieldError={errors[field]} />
+
+      {/* Warning jika link salah atau tidak sesuai format */}
+      {hasValidationError && validationMsg && (
+        <div className="p-2.5 rounded-lg bg-destructive/10 border border-destructive/30 flex items-start gap-2 text-xs text-destructive">
+          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+          <span className="leading-relaxed">{validationMsg}</span>
+        </div>
+      )}
+
+      {/* Pratinjau (Preview) jika link valid */}
+      {isLinkValid && (
+        <div className="pt-2">
+          {type === "YOUTUBE" && validation.previewType === "youtube" && validation.videoId ? (
+            <div className="space-y-1.5 p-3 rounded-xl bg-input/40 border border-emerald-500/25">
+              <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-semibold">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Pratinjau Video YouTube:</span>
+              </div>
+              <YouTubePreview
+                url={currentValue}
+                title={`Pratinjau Video (${label})`}
+                className="max-w-md rounded-lg overflow-hidden border border-white/10"
+              />
+            </div>
+          ) : (
+            <div className="flex items-center justify-between p-2.5 rounded-lg bg-input/60 border border-emerald-500/25 text-xs">
+              <div className="flex items-center gap-2 text-emerald-300 font-medium truncate">
+                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+                <span className="truncate">{currentValue}</span>
+              </div>
+              <a
+                href={currentValue.startsWith("http") ? currentValue : `https://${currentValue}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white/10 hover:bg-white/20 text-foreground transition-all shrink-0 ml-2"
+              >
+                <span>Buka Link</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -560,19 +591,16 @@ export function SubmissionForm({
         {
           field: "youtube_url",
           placeholder:
-            "https://youtube.com/watch?v=... atau https://youtu.be/...",
+            "https://youtube.com/watch?v=... atau https://drive.google.com/file/d/...",
           descField: "youtube_description",
-          descPlaceholder: "Video Pitching Aplikasi YouTube",
-          label: "Link Video Pitching YouTube",
-          helperText: isFinalPhase
-            ? "Wajib diisi pada tahap pengumpulan karya final."
-            : "Opsional pada pengumpulan sementara, wajib saat pengumpulan karya final.",
+          descPlaceholder: "Video Pitching (YouTube / Google Drive)",
+          label: "Link Video Pitching (YouTube / Google Drive)",
+          helperText:
+            "Opsional: Tautan video presentasi/pitching (dapat menggunakan YouTube atau Google Drive).",
           Icon: VideoIcon,
           type: "YOUTUBE",
-          required: isFinalPhase,
-          overrideInfo: isFinalPhase
-            ? "Wajib Saat Final"
-            : "Opsional Sementara",
+          required: false,
+          overrideInfo: "Opsional",
         },
         {
           field: "other_url",
@@ -1152,12 +1180,12 @@ export function SubmissionForm({
           <p className="text-xs text-mia-muted-2 mt-1 leading-relaxed">
             {isWIA
               ? isFinalPhase
-                ? "Pada fase final, File Presentasi, Repo GitHub Utama, Surat Orisinil (Materai 10k), Draft Proposal, Deployment, dan Video YouTube wajib diisi."
-                : "Pada pengumpulan sementara, File Presentasi, Repo GitHub Utama, dan Surat Keterangan Orisinil bermaterai wajib diisi. Draft Proposal, Deployment, dan Video YouTube wajib saat pengumpulan final."
+                ? "Pada fase final, File Presentasi, Repo GitHub Utama, Surat Orisinil (Materai 10k), Draft Proposal, dan Deployment wajib diisi. Video Pitching opsional (YouTube / Google Drive)."
+                : "Pada pengumpulan sementara, File Presentasi dan Repo GitHub Utama wajib diisi. Draft Proposal dan Deployment wajib saat pengumpulan final."
               : isUIA
                 ? isFinalPhase
-                  ? "Pada fase final, Draft Proposal, Desain Figma, Surat Orisinil (Materai 10k), Prototipe Figma, dan Video YouTube wajib diisi."
-                  : "Pada pengumpulan sementara, Draft Proposal, Desain Figma, dan Surat Keterangan Orisinil bermaterai wajib diisi. Prototipe Figma dan Video YouTube wajib saat pengumpulan final."
+                  ? "Pada fase final, Draft Proposal, Desain Figma, Surat Orisinil (Materai 10k), dan Prototipe Figma wajib diisi. Video Pitching opsional (YouTube / Google Drive)."
+                  : "Pada pengumpulan sementara, Draft Proposal, Desain Figma, dan Surat Keterangan Orisinil bermaterai wajib diisi."
                 : "Isi minimal satu link project (GitHub, YouTube, atau Link Lainnya)."}
           </p>
           {errors.links_required && (
@@ -1174,6 +1202,7 @@ export function SubmissionForm({
             {...link}
             register={register}
             errors={errors}
+            watch={watch}
           />
         ))}
       </div>
