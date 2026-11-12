@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getYouTubeVideoId } from "@/lib/youtube";
-import { cn, getSafeImageUrl } from "@/lib/utils";
+import { getSafeImageUrl } from "@/lib/image-loader";
 import YouTubePreview from "@/components/common/YouTubePreview";
 import { LinkTypeIcon, normalizeLinkType } from "@/components/LinTypekIcon";
 import { useSubmissionDetail } from "@/hooks/user-use-submissions";
