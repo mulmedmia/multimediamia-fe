@@ -81,17 +81,17 @@ function ShowItSelectItem({ value = "", content = "" }) {
 }
 
 function ShowItContent() {
-  const [mounted, setMounted] = useState(false);
   const searchParams = useSearchParams();
 
   const defaultCategoryId = searchParams?.get("category_id") || "all";
   const defaultSearch = searchParams?.get("search") || "";
+  const defaultPage = Number(searchParams?.get("page")) || 1;
 
   const [selectedCategoryId, setSelectedCategoryId] =
     useState(defaultCategoryId);
   const [searchInput, setSearchInput] = useState(defaultSearch);
   const [appliedSearch, setAppliedSearch] = useState(defaultSearch);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(defaultPage);
   const limit = 21;
   const phase = "FINAL";
   const router = useRouter();
@@ -126,11 +126,17 @@ function ShowItContent() {
   };
 
   useEffect(() => {
-    if (!mounted && !searchParams.toString()) {
-      setMounted(true);
-      router.replace(`/show-it?category_id=${selectedCategoryId}`);
-    }
-  }, [mounted, searchParams, router, selectedCategoryId]);
+    router.replace(
+      `/show-it?${createQueryString({
+        category_id: selectedCategoryId,
+        page: page.toString(),
+        search: appliedSearch,
+      })}`,
+      { scroll: false },
+    );
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [router, selectedCategoryId, page, appliedSearch]);
 
   const createQueryString = useCallback(
     (keyValueObj = {}) => {
@@ -153,33 +159,18 @@ function ShowItContent() {
   const handleCategoryChange = (categoryId) => {
     setSelectedCategoryId(categoryId);
     setPage(1);
-    router.replace(
-      `/show-it?${createQueryString({ category_id: categoryId })}`,
-      {
-        scroll: false,
-      },
-    );
   };
 
   const handleSearchSubmit = (e) => {
     e?.preventDefault();
     setAppliedSearch(searchInput.trim());
     setPage(1);
-    router.replace(
-      `/show-it?${createQueryString({ search: searchInput.trim() })}`,
-      {
-        scroll: false,
-      },
-    );
   };
 
   const handleResetSearch = () => {
     setSearchInput("");
     setAppliedSearch("");
     setPage(1);
-    router.replace(`/show-it?${createQueryString({ search: "" })}`, {
-      scroll: false,
-    });
   };
 
   const handleSubmissionClick = (submissionId) => {
@@ -518,7 +509,6 @@ function ShowItContent() {
                   disabled={page <= 1}
                   onClick={() => {
                     setPage((p) => Math.max(1, p - 1));
-                    window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
                 >
                   Sebelumnya
@@ -538,7 +528,6 @@ function ShowItContent() {
                   disabled={page >= meta.totalPages}
                   onClick={() => {
                     setPage((p) => Math.min(meta.totalPages, p + 1));
-                    window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
                 >
                   Berikutnya

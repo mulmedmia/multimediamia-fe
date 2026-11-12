@@ -27,7 +27,7 @@ const Footer = () => {
   const wiaHref = wiaCategory ? `/category/${wiaCategory.category_id}` : "/category";
 
   return (
-    <footer className="bg-[#07090E] border-t border-white/10 text-[#FFF9F5] pt-16 pb-8 relative z-10">
+    <footer className="bg-[#07090E] border-t border-white/10 text-[#FFF9F5] pt-16 pb-8 relative z-10 selection:bg-primary selection:text-white">
       <div className="container mx-auto px-4 max-w-7xl">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-10 mb-12">
