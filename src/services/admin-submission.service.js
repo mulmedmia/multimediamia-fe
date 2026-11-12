@@ -9,8 +9,7 @@ export const getAllSubmissions = async ({
   search = "",
   registration_id = "",
   sub_theme = "",
-  updated_after = "",
-  updated_before = "",
+  phase = "",
   sort_by = "",
   order = "",
 } = {}) => {
@@ -20,8 +19,7 @@ export const getAllSubmissions = async ({
   if (search && search.trim()) params.search = search.trim();
   if (registration_id && registration_id.trim()) params.registration_id = registration_id.trim();
   if (sub_theme && sub_theme !== "ALL") params.sub_theme = sub_theme;
-  if (updated_after && updated_after.trim()) params.updated_after = updated_after.trim();
-  if (updated_before && updated_before.trim()) params.updated_before = updated_before.trim();
+  if (phase && phase !== "ALL") params.phase = phase;
   if (sort_by && sort_by.trim()) params.sort_by = sort_by.trim();
   if (order && order.trim()) params.order = order.trim();
 

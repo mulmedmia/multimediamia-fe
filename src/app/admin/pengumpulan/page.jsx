@@ -65,8 +65,6 @@ export default function AdminPengumpulanPage() {
   const [categoryId, setCategoryId] = useState("ALL");
   const [subThemeFilter, setSubThemeFilter] = useState("ALL");
   const [phase, setPhase] = useState("ALL");
-  const [updatedAfterFilter, setUpdatedAfterFilter] = useState(" ");
-  const [updatedBeforeFilter, setUpdatedBeforeFilter] = useState(" ");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [sortBy, setSortBy] = useState("created_at"); // "" | "created_at" | "updated_at"
   const [sortOrder, setSortOrder] = useState("desc"); // "" | "asc" | "desc"
@@ -132,8 +130,7 @@ export default function AdminPengumpulanPage() {
     sub_theme: isSubThemeAvailable && subThemeFilter !== "ALL" ? subThemeFilter : undefined,
     status: statusFilter === "ALL" ? undefined : statusFilter,
     search: searchTerm || undefined,
-    updated_after: updatedAfterFilter.trim() || undefined,
-    updated_before: updatedBeforeFilter.trim() || undefined,
+    phase: phase === "ALL" ? undefined : phase,
     sort_by: sortBy,
     order: sortOrder,
   });
@@ -173,34 +170,22 @@ export default function AdminPengumpulanPage() {
     ).length;
     return { total, approved, pending, revisionOrRejected };
   }, [statsData, submissions, totalItems]);
-  
-  // Asumsi seluruh deadline memiliki tanggal yang sama
-  const preliminaryDeadline = categories.length > 0 ? categories[0].preliminary_deadline : undefined;
-  const finalDeadline = categories.length > 0 ? categories[0].final_deadline : undefined;
 
   const phases = [
     { value: "ALL", label: "Semua Tahap" },
-    { value: "PRELIMINARY", label: "Final Draft Submission" },
     { value: "FINAL", label: "Final Submission Babak Penyisihan" },
   ];
 
-  const handlePhaseChange = (phase = "") => {
-    if (phase === "ALL" || !phases.map((p) => p.value).includes(phase)) {
-      setUpdatedAfterFilter(" ");
-      setUpdatedBeforeFilter(" ");
-      setPhase("ALL");
-    } else if (phase === "PRELIMINARY") {
-      setUpdatedAfterFilter(" ");
-      setUpdatedBeforeFilter(preliminaryDeadline);
-      setPhase(phase);
-    } else if (phase === "FINAL") {
+  const handlePhaseChange = (selectedPhase = "ALL") => {
+    if (selectedPhase === "FINAL") {
       setSortBy("updated_at");
       setSortOrder("desc");
-      setUpdatedAfterFilter(preliminaryDeadline);
-      setUpdatedBeforeFilter(" ");
-      setPhase(phase);
+      setPhase("FINAL");
+    } else {
+      setSortBy("created_at");
+      setPhase("ALL");
     }
-  }
+  };
 
   // Helper date display
   const formatDateDisplay = (dateString) => {
@@ -269,8 +254,6 @@ export default function AdminPengumpulanPage() {
     setCategoryId("ALL");
     setSubThemeFilter("ALL");
     setStatusFilter("ALL");
-    setUpdatedAfterFilter(" ");
-    setUpdatedBeforeFilter(" ");
     setPhase("ALL");
     setSortBy("created_at");
     setSortOrder("desc");
@@ -289,8 +272,7 @@ export default function AdminPengumpulanPage() {
         sub_theme: isSubThemeAvailable && subThemeFilter !== "ALL" ? subThemeFilter : undefined,
         status: statusFilter === "ALL" ? undefined : statusFilter,
         search: searchTerm || undefined,
-        updated_after: updatedAfterFilter.trim() || undefined,
-        updated_before: updatedBeforeFilter.trim() || undefined,
+        phase: phase === "ALL" ? undefined : phase,
       });
 
       const list = Array.isArray(res?.submissions) ? res.submissions : [];
@@ -390,8 +372,6 @@ export default function AdminPengumpulanPage() {
     categoryId !== "ALL" ||
     (isSubThemeAvailable && subThemeFilter !== "ALL") ||
     statusFilter !== "ALL" ||
-    updatedAfterFilter !== " " ||
-    updatedBeforeFilter !== " " ||
     phase !== "ALL" ||
     !(sortBy === "created_at" && sortOrder === "desc");
 
@@ -535,8 +515,7 @@ export default function AdminPengumpulanPage() {
                     <SelectValue placeholder="Semua Tahap" />
                   </SelectTrigger>
                   <SelectContent className="bg-[#141824] border-border/50 text-foreground">
-                    <SelectItem value={phases[0].value}>Semua Tahap</SelectItem>
-                    {phases.slice(2).map((p) => (
+                    {phases.map((p) => (
                       <SelectItem key={p.value} value={p.value}>
                         {p.label}
                       </SelectItem>
