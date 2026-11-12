@@ -76,6 +76,7 @@ export default function AdminPendaftarPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryId, setCategoryId] = useState("ALL");
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [financeFilter, setFinanceFilter] = useState("ALL");
 
   // Export State
   const [isExporting, setIsExporting] = useState(false);
@@ -120,6 +121,7 @@ export default function AdminPendaftarPage() {
     category_id: categoryId === "ALL" ? undefined : categoryId,
     search: searchTerm || undefined,
     is_verified: statusFilter === "ALL" ? undefined : statusFilter,
+    is_verified_finance: financeFilter === "ALL" ? undefined : financeFilter,
   });
 
   // Global stats query for the top 4 cards
@@ -352,9 +354,9 @@ export default function AdminPendaftarPage() {
       {/* Main Table Card */}
       <Card className="bg-[#0F121A]/80 border-border/40 rounded-2xl overflow-hidden shadow-xl">
         <CardHeader className="p-4 sm:p-6 border-b border-border/40">
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-start justify-between gap-3">
             {/* Search Box */}
-            <div className="relative flex-1 max-w-sm">
+            <div className="relative flex-1 min-w-xs max-w-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="text"
@@ -375,7 +377,7 @@ export default function AdminPendaftarPage() {
             </div>
 
             {/* Filter Group */}
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center sm:justify-end gap-2">
               {/* Filter Kategori */}
               <div className="flex items-center gap-1.5">
                 <span className="text-xs text-muted-foreground whitespace-nowrap hidden md:inline">
@@ -422,6 +424,29 @@ export default function AdminPendaftarPage() {
                     <SelectItem value="ALL">Semua Status</SelectItem>
                     <SelectItem value="true">Terverifikasi</SelectItem>
                     <SelectItem value="false">Belum Verifikasi</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Filter Status */}
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs text-muted-foreground whitespace-nowrap hidden md:inline">
+                  Finance:
+                </span>
+                <Select
+                  value={financeFilter}
+                  onValueChange={(val) => {
+                    setFinanceFilter(val);
+                    setPage(1);
+                  }}
+                >
+                  <SelectTrigger className="h-9 w-36 sm:w-40 bg-input/40 border-border/50 rounded-xl text-xs text-foreground">
+                    <SelectValue placeholder="Semua Status" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#141824] border-border/50 text-foreground">
+                    <SelectItem value="ALL">Semua Status</SelectItem>
+                    <SelectItem value="true">Valid</SelectItem>
+                    <SelectItem value="false">Belum Valid</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

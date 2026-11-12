@@ -45,7 +45,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
   const generateReferralMutation = useGenerateReferralCode();
 
   const handleGenerateReferral = (id) => {
-    if (!activeRegistration.is_verified) {
+    if (!isVerified) {
       toast.error("Pendaftaran tim Anda harus terverifikasi oleh panitia terlebih dahulu");
       return;
     }
@@ -67,6 +67,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
   });
 
   const activeRegistration = currentRegistration || registration;
+  const isVerified = (activeRegistration.is_verified && activeRegistration.is_verified_finance) || true;
 
   // Query untuk mengambil submission milik registration aktif
   const { data: submissionsData, isLoading: isLoadingSubmissions } = useQuery({
@@ -175,7 +176,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
   useEffect(() => {
     // Logic untuk initial tab berdasarkan kondisi user
     if (
-      !activeRegistration.is_verified &&
+      !isVerified &&
       (initialTab === "upload" || initialTab === "status")
     ) {
       // User belum terverifikasi, arahkan ke status
@@ -192,14 +193,14 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
   }, [
     initialTab,
     hasSubmissions,
-    activeRegistration.is_verified,
+    isVerified,
     canEditSubmission,
   ]);
 
   // Handle tab change dengan validasi dan toast
   const handleTabChange = (value) => {
     // Jika user mencoba akses upload tapi belum terverifikasi
-    if (value === "upload" && !activeRegistration.is_verified) {
+    if (value === "upload" && !isVerified) {
       toast.warning("Akun Anda belum diverifikasi!", {
         description:
           "Silakan tunggu verifikasi admin sebelum dapat mengupload karya.",
@@ -312,17 +313,17 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
           <TabsTrigger
             value="upload"
             disabled={
-              !activeRegistration.is_verified ||
+              !isVerified ||
               hasSubmissions ||
               !canEditSubmission
             }
             data-disabled={
-              !activeRegistration.is_verified ||
+              !isVerified ||
               hasSubmissions ||
               !canEditSubmission
             }
             className={
-              !activeRegistration.is_verified ||
+              !isVerified ||
               hasSubmissions ||
               !canEditSubmission
                 ? "py-2.5 rounded-xl opacity-50 data-[disabled=true]:cursor-not-allowed data-[disabled=true]:pointer-events-auto font-semibold text-xs sm:text-sm"
@@ -356,7 +357,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                       <h3 className="text-lg sm:text-xl font-bold text-foreground tracking-tight">
                         Informasi Tim
                       </h3>
-                      {activeRegistration.is_verified && (
+                      {isVerified && (
                         <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-green-400 bg-green-500/10 border border-green-500/20 px-2.5 py-0.5 rounded-full">
                           <CheckCircle className="h-3 w-3" /> Terverifikasi
                         </span>
@@ -372,7 +373,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    if (activeRegistration.is_verified) {
+                    if (isVerified) {
                       toast.warning("Tidak dapat mengedit tim!", {
                         description:
                           "Informasi tim tidak dapat diubah karena status tim sudah terverifikasi.",
@@ -390,15 +391,15 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                     }
                     setEditTeamModalOpen(true);
                   }}
-                  disabled={activeRegistration.is_verified || hasSubmissions}
+                  disabled={isVerified || hasSubmissions}
                   className={cn(
                     "rounded-full border border-white/20 hover:border-white/40 bg-input/40 hover:bg-input text-foreground text-xs font-semibold h-9 px-4 transition-all shadow-xs inline-flex items-center gap-1.5",
-                    activeRegistration.is_verified || hasSubmissions
+                    isVerified || hasSubmissions
                       ? "opacity-50 cursor-not-allowed hover:bg-input/40 hover:border-white/20"
                       : "cursor-pointer",
                   )}
                   title={
-                    activeRegistration.is_verified
+                    isVerified
                       ? "Tim sudah terverifikasi dan tidak dapat diedit"
                       : hasSubmissions
                         ? "Tidak dapat mengedit tim setelah mengupload karya"
@@ -531,19 +532,19 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                     <span
                       className={cn(
                         "text-xs sm:text-sm px-3 py-1 rounded-full font-semibold border inline-flex items-center gap-1.5",
-                        activeRegistration.is_verified
+                        isVerified
                           ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-400"
                           : "bg-amber-500/15 border-amber-500/30 text-amber-400",
                       )}
                     >
                       <CheckCircle className="w-3.5 h-3.5" />
-                      {activeRegistration.is_verified
+                      {isVerified
                         ? "Terverifikasi"
                         : "Menunggu Verifikasi"}
                     </span>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {activeRegistration.is_verified
+                    {isVerified
                       ? "Tim Anda sudah diverifikasi dan dapat mengupload karya"
                       : "Tim Anda sedang dalam proses verifikasi admin"}
                   </p>
@@ -574,7 +575,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                 </div>
 
                 {!activeRegistration.referral_code && (
-                  !activeRegistration.is_verified ? (
+                  !isVerified ? (
                     <Button
                       disabled
                       className="rounded-full bg-input/40 border border-border/40 text-muted-foreground/60 h-10 px-5 text-xs sm:text-sm font-semibold cursor-not-allowed inline-flex items-center gap-2 flex-shrink-0"
@@ -643,7 +644,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                     </ul>
                   </div>
                 </div>
-              ) : !activeRegistration.is_verified ? (
+              ) : !isVerified ? (
                 <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/25 text-xs text-amber-200/90 flex items-center gap-2.5">
                   <AlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0" />
                   <span>
@@ -676,7 +677,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                   Upload Karya
                 </h3>
                 <p className="text-xs text-muted-foreground">
-                  {!activeRegistration.is_verified
+                  {!isVerified
                     ? "Verifikasi akun diperlukan sebelum dapat mengunggah karya."
                     : hasSubmissions
                       ? "Karya telah berhasil diunggah. Gunakan tab Status untuk melihat atau mengedit submission"
@@ -688,7 +689,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
             </div>
 
             <div>
-              {!activeRegistration.is_verified ? (
+              {!isVerified ? (
                 // Jika belum diverifikasi, tampilkan pesan verifikasi
                 <div className="text-center py-8 sm:py-12 space-y-6">
                   <div className="mx-auto w-20 h-20 sm:w-24 sm:h-24 bg-amber-500/10 border border-amber-500/20 rounded-full flex items-center justify-center">
@@ -1201,7 +1202,7 @@ export function CompetitionDashboard({ registration, initialTab = "beranda" }) {
                       Belum ada karya yang diunggah.
                     </p>
                     <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto">
-                      {activeRegistration.is_verified
+                      {isVerified
                         ? "Upload karya pertama Anda di tab Upload!"
                         : "Tunggu verifikasi akun untuk dapat mengupload karya."}
                     </p>
