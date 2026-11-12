@@ -6,10 +6,17 @@ import {
 } from "@/services/submission.service.js";
 
 // Hook untuk Think It page (semua submissions public)
-export const useAllSubmissions = (categoryId, search = "", registrationId = null) => {
+export const useAllSubmissions = (
+  categoryId,
+  search = "",
+  registrationId = null,
+  page = 1,
+  limit = 21,
+) => {
   return useQuery({
-    queryKey: ["allSubmissions", categoryId, search, registrationId],
-    queryFn: () => getAllSubmissionsByCategory(categoryId, search, registrationId),
+    queryKey: ["allSubmissions", categoryId, search, registrationId, page, limit],
+    queryFn: () =>
+      getAllSubmissionsByCategory(categoryId, search, registrationId, page, limit),
     enabled: !!categoryId, // Only fetch when category is selected
     placeholderData: keepPreviousData,
   });

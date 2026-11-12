@@ -28,24 +28,29 @@ import { getSafeImageUrl } from "@/lib/image-loader";
 import { getYouTubeVideoId } from "@/lib/youtube";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { getRankBadgeColor } from "@/components/leaderboard/RankIcon";
-import {
-  getTopSubmissionLinks,
-  LinkTypeIcon,
-  normalizeLinkType,
-} from "@/components/LinTypekIcon";
 
-function getStatusBadge({ status }) {
-  switch (status) {
-    case "APPROVED":
-      return "bg-[#00B445]/15 text-[#00B445] border border-[#00B445]/30";
-    case "PENDING":
-      return "bg-[#FED700]/15 text-[#FED700] border border-[#FED700]/30";
-    case "REJECTED":
-      return "bg-[#E01C20]/15 text-[#E01C20] border border-[#E01C20]/30";
-    default:
-      return "bg-[#1E2939] text-[#AAB1BD] border border-white/10";
+function getCategoryBadgeColor(category) {
+  const slug = (category?.slug || "").toUpperCase();
+  const name = (category?.name || category?.category_name || "").toUpperCase();
+
+  if (
+    slug === "WIA" ||
+    slug === "WEB DEVELOPMENT" ||
+    name.includes("WEB IN ACTION") ||
+    name.includes("WEB")
+  ) {
+    return "bg-sky-500/15 text-sky-300 border border-sky-500/40";
   }
+
+  if (
+    slug === "UIA" ||
+    slug === "UI/UX DESIGN" ||
+    name.includes("UI/UX")
+  ) {
+    return "bg-purple-500/15 text-purple-300 border border-purple-500/40";
+  }
+
+  return "bg-emerald-500/15 text-emerald-300 border border-emerald-500/40";
 }
 
 function getSubmissionThumbnail(submission) {
@@ -86,6 +91,8 @@ function ShowItContent() {
     useState(defaultCategoryId);
   const [searchInput, setSearchInput] = useState(defaultSearch);
   const [appliedSearch, setAppliedSearch] = useState(defaultSearch);
+  const [page, setPage] = useState(1);
+  const limit = 21;
   const router = useRouter();
 
   const { data: categories, isLoading: categoriesLoading } = useCategories();
@@ -93,13 +100,13 @@ function ShowItContent() {
   const isAllCategory = selectedCategoryId === "all";
   const selectedCategorySlug = isAllCategory
     ? "seluruh kategori"
-    : categories?.find((c) => c.category_id === selectedCategoryId).slug;
+    : categories?.find((c) => c.category_id === selectedCategoryId)?.slug;
 
   const {
     data: submissionsData,
     isLoading: submissionsLoading,
     isError,
-  } = useAllSubmissions(selectedCategoryId);
+  } = useAllSubmissions(selectedCategoryId, appliedSearch, null, page, limit);
 
   // Filter hanya submission yang berstatus APPROVED dan diizinkan tampil di Show It
   const allSubmissions = submissionsData?.submissions || [];
@@ -109,19 +116,13 @@ function ShowItContent() {
   );
 
   const isSearching = Boolean(appliedSearch.trim());
-
-  // Filter pencarian berdasarkan judul karya, nama tim, atau deskripsi
-  const filteredSubmissions = submissions.filter((submission) => {
-    if (!isSearching) return true;
-    const q = appliedSearch.toLowerCase().trim();
-    const teamName =
-      submission.registration?.team_name || submission.team_name || "";
-    return (
-      submission.project_name?.toLowerCase().includes(q) ||
-      teamName.toLowerCase().includes(q) ||
-      submission.description?.toLowerCase().includes(q)
-    );
-  });
+  const filteredSubmissions = submissions;
+  const meta = submissionsData?.meta || {
+    total: filteredSubmissions.length,
+    page,
+    limit,
+    totalPages: 1,
+  };
 
   useEffect(() => {
     if (!mounted && !searchParams.toString()) {
@@ -150,6 +151,7 @@ function ShowItContent() {
 
   const handleCategoryChange = (categoryId) => {
     setSelectedCategoryId(categoryId);
+    setPage(1);
     router.replace(
       `/show-it?${createQueryString({ category_id: categoryId })}`,
       {
@@ -161,6 +163,7 @@ function ShowItContent() {
   const handleSearchSubmit = (e) => {
     e?.preventDefault();
     setAppliedSearch(searchInput.trim());
+    setPage(1);
     router.replace(
       `/show-it?${createQueryString({ search: searchInput.trim() })}`,
       {
@@ -172,6 +175,7 @@ function ShowItContent() {
   const handleResetSearch = () => {
     setSearchInput("");
     setAppliedSearch("");
+    setPage(1);
     router.replace(`/show-it?${createQueryString({ search: "" })}`, {
       scroll: false,
     });
@@ -336,7 +340,8 @@ function ShowItContent() {
         )}
 
         {/* Empty State jika belum ada karya sama sekali dalam kategori */}
-        {submissions.length === 0 &&
+        {filteredSubmissions.length === 0 &&
+          !isSearching &&
           selectedCategoryId &&
           !submissionsLoading &&
           !isError && (
@@ -357,10 +362,11 @@ function ShowItContent() {
           )}
 
         {/* Empty State jika hasil pencarian tidak ditemukan */}
-        {submissions.length > 0 &&
-          isSearching &&
+        {isSearching &&
           filteredSubmissions.length === 0 &&
-          !submissionsLoading && (
+          selectedCategoryId &&
+          !submissionsLoading &&
+          !isError && (
             <div className="mia-card p-8 md:p-14 text-center space-y-4 border-dashed border-white/15">
               <div className="w-14 h-14 bg-white/5 border border-white/10 text-[#AAB1BD] rounded-2xl flex items-center justify-center mx-auto">
                 <Search className="h-7 w-7 text-[#AAB1BD]" />
@@ -399,8 +405,8 @@ function ShowItContent() {
                 </h2>
                 <p className="text-xs sm:text-sm text-[#AAB1BD]">
                   {isSearching
-                    ? `Menampilkan ${filteredSubmissions.length} dari ${submissions.length} karya untuk pencarian "${appliedSearch}"`
-                    : `Menampilkan ${filteredSubmissions.length} karya inovatif dari ${selectedCategoryId === "all" ? "semua kategori" : `kategori ${selectedCategorySlug}`}`}
+                    ? `Menampilkan semua karya inovatif untuk pencarian "${appliedSearch}" dari ${selectedCategoryId === "all" ? "semua kategori" : `kategori ${selectedCategorySlug}`}`
+                    : `Menampilkan semua karya inovatif dari ${selectedCategoryId === "all" ? "semua kategori" : `kategori ${selectedCategorySlug}`}`}
                 </p>
               </div>
               <span className="text-xs text-[#AAB1BD] bg-[#1E2939] border border-white/10 px-3 py-1.5 rounded-full w-fit">
@@ -443,22 +449,12 @@ function ShowItContent() {
                       );
                     })()}
 
-                    {/* Header & Status */}
+                    {/* Header & Category */}
                     <div className="flex flex-col gap-1.5">
                       <div className="flex items-start justify-between gap-3">
                         <h3 className="text-lg font-bold text-[#FFF9F5] group-hover:text-[#E01C20] transition-colors line-clamp-2">
                           {submission.project_name}
                         </h3>
-                        <span
-                          className={cn(
-                            "text-xs font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap",
-                            getStatusBadge(submission.status),
-                          )}
-                        >
-                          {submission.status === "APPROVED"
-                            ? "✓ Disetujui"
-                            : submission.status}
-                        </span>
                       </div>
 
                       <div className="flex flex-row items-center gap-2">
@@ -475,8 +471,8 @@ function ShowItContent() {
                         {isAllCategory && (
                           <Badge
                             className={cn(
-                              getRankBadgeColor(-1),
-                              "scale-90 bg-[#1E2939]/30",
+                              "scale-90 font-semibold",
+                              getCategoryBadgeColor(submission.category),
                             )}
                           >
                             {submission.category?.name}
@@ -490,39 +486,6 @@ function ShowItContent() {
                       {submission.description ||
                         "Tidak ada deskripsi singkat."}
                     </p>
-
-                    {/* Project Links */}
-                    {submission.links && submission.links.length > 0 && (
-                      <div className="space-y-1.5 pt-1">
-                        <span className="text-[11px] uppercase tracking-wider text-[#99A1AF] font-semibold">
-                          Tautan Karya:
-                        </span>
-                        <div className="flex flex-wrap gap-2">
-                          {getTopSubmissionLinks(3, submission.links).map(
-                            (link) => (
-                              <a
-                                key={link.link_id}
-                                href={link.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onClick={(e) => e.stopPropagation()}
-                                className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#1E2939] hover:bg-[#E01C20]/20 border border-white/10 hover:border-[#E01C20]/40 rounded-md text-xs text-[#FFF9F5] transition-colors"
-                              >
-                                <LinkTypeIcon linkType={link.link_type} />
-                                <span className="capitalize">
-                                  {normalizeLinkType(link.link_type)}
-                                </span>
-                              </a>
-                            ),
-                          )}
-                          {submission.links.length > 3 && (
-                            <span className="text-xs text-[#AAB1BD] self-center px-1">
-                              +{submission.links.length - 3} lainnya
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    )}
                   </div>
 
                   {/* Footer Info */}
@@ -543,6 +506,44 @@ function ShowItContent() {
                 </div>
               ))}
             </div>
+
+            {/* Pagination Controls */}
+            {meta.totalPages > 1 && (
+              <div className="mia-card p-3 sm:p-4 flex items-center justify-between gap-4 max-w-md mx-auto mt-6">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="rounded-full cursor-pointer hover:bg-white/10 text-xs px-4 text-[#FFF9F5]"
+                  disabled={page <= 1}
+                  onClick={() => {
+                    setPage((p) => Math.max(1, p - 1));
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                >
+                  Sebelumnya
+                </Button>
+                <span className="text-xs text-[#AAB1BD] font-medium">
+                  Halaman{" "}
+                  <strong className="text-[#FFF9F5]">{meta.page}</strong>{" "}
+                  dari{" "}
+                  <strong className="text-[#FFF9F5]">
+                    {meta.totalPages}
+                  </strong>
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="rounded-full cursor-pointer hover:bg-white/10 text-xs px-4 text-[#FFF9F5]"
+                  disabled={page >= meta.totalPages}
+                  onClick={() => {
+                    setPage((p) => Math.min(meta.totalPages, p + 1));
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                >
+                  Berikutnya
+                </Button>
+              </div>
+            )}
           </div>
         )}
 
