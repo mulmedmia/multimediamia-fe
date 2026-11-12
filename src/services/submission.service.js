@@ -80,6 +80,7 @@ export const getAllSubmissionsByCategory = async (
   registrationId = null,
   page = 1,
   limit = 21,
+  phase = "",
 ) => {
   try {
     // Menggunakan endpoint submissions global (bukan my/submissions) khusus penayangan Show It
@@ -91,6 +92,7 @@ export const getAllSubmissionsByCategory = async (
     params.append("page", String(page));
     params.append("limit", String(limit));
     if (search && search.trim()) params.append("search", search.trim());
+    if (phase && phase !== "ALL") params.append("phase", phase);
     const response = await api.get(`/submissions?${params.toString()}`);
     return response.data.data;
   } catch (error) {
