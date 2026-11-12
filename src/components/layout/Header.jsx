@@ -165,7 +165,7 @@ export default function Header() {
   return (
     <header
       className={cn(
-        "sticky top-0 left-0 right-0 z-50 transition-all duration-300 w-full border-b border-transparent",
+        "sticky top-0 left-0 right-0 z-50 transition-all duration-300 w-full border-b border-transparent selection:bg-primary selection:text-white",
         scrolled || pathname !== "/" || isMenuOpen
           ? "bg-[#0A0D14]/90 backdrop-blur-md border-white/10 shadow-lg"
           : "bg-transparent",
@@ -248,7 +248,7 @@ export default function Header() {
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
-                    className="w-56 bg-[#0A0D14] border border-white/10 text-[#FFF9F5] rounded-2xl p-2 shadow-2xl z-50"
+                    className="w-56 bg-[#0A0D14] border border-white/10 text-[#FFF9F5] rounded-2xl p-2 shadow-2xl z-50 selection:bg-primary selection:text-white"
                     align="end"
                     forceMount
                   >

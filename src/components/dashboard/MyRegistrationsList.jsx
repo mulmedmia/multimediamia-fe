@@ -186,6 +186,7 @@ export function MyRegistrationsList({ onSelectRegistration }) {
           const isPastFinal = finalDate ? now > finalDate : false;
           const isSubmissionOpen = reg.category?.is_submission_open !== false;
           const allowRevision = !!reg.category?.allow_revision;
+          const isVerified = (reg.is_verified && reg.is_verified_finance);
 
           return (
             <div
@@ -209,12 +210,12 @@ export function MyRegistrationsList({ onSelectRegistration }) {
                     <span
                       className={cn(
                         "text-xs sm:text-sm px-3 py-1 rounded-full font-semibold border",
-                        reg.is_verified
+                        isVerified
                           ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-400"
                           : "bg-amber-500/15 border-amber-500/30 text-amber-400",
                       )}
                     >
-                      {reg.is_verified
+                      {isVerified
                         ? "Terverifikasi"
                         : "Belum Terverifikasi"}
                     </span>
@@ -352,14 +353,15 @@ export function MyRegistrationsList({ onSelectRegistration }) {
                 </div>
 
                 {/* Feedback Box Pendaftaran - MIA Red Theme */}
-                {!(reg.is_verified && reg.is_verified_finance) &&
-                  reg.feedback && (
+                {!isVerified &&
+                  (
                     <FeedbackBox
                       title="Feedback Panitia:"
-                      feedback={reg.feedback}
+                      feedback={reg.feedback ?? ""}
                       fallback="Belum ada feedback. Feedback akan muncul setelah pendaftaran Anda direview oleh panitia."
                     />
-                  )}
+                  )
+                }
 
                 {/* Feedback Box Submission - MIA Red Theme */}
                 {submission &&
@@ -380,13 +382,13 @@ export function MyRegistrationsList({ onSelectRegistration }) {
                   size="sm"
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (!reg.is_verified) {
+                    if (!isVerified) {
                       setDeleteConfirmId(reg.registration_id);
                     }
                   }}
-                  disabled={deleteMutation.isPending || reg.is_verified}
+                  disabled={deleteMutation.isPending || isVerified}
                   title={
-                    reg.is_verified
+                    isVerified
                       ? "Pendaftaran yang sudah terverifikasi tidak dapat dihapus"
                       : "Hapus Pendaftaran"
                   }
@@ -416,7 +418,7 @@ export function MyRegistrationsList({ onSelectRegistration }) {
                       e.stopPropagation();
                       handleUploadSubmission(reg);
                     }}
-                    disabled={!reg.is_verified}
+                    disabled={!isVerified}
                     className="h-10 sm:h-11 flex-1 mia-btn-primary rounded-full px-5 text-xs sm:text-sm font-semibold shadow-lg shadow-red-900/40 cursor-pointer disabled:opacity-50 inline-flex items-center justify-center gap-2 transition-all"
                   >
                     <Upload className="h-4 w-4" />
