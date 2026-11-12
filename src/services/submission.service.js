@@ -74,13 +74,22 @@ export const updateSubmission = async (submissionId, submissionData) => {
  * @param {string} categoryId - ID dari kategori lomba.
  * @returns {Promise<Array>}
  */
-export const getAllSubmissionsByCategory = async (categoryId, search = "", registrationId = null) => {
+export const getAllSubmissionsByCategory = async (
+  categoryId,
+  search = "",
+  registrationId = null,
+  page = 1,
+  limit = 21,
+) => {
   try {
     // Menggunakan endpoint submissions global (bukan my/submissions) khusus penayangan Show It
     const params = new URLSearchParams();
-    if (categoryId && categoryId !== "all" && categoryId !== "ALL") params.append("category_id", categoryId);
+    if (categoryId && categoryId !== "all" && categoryId !== "ALL")
+      params.append("category_id", categoryId);
     if (registrationId) params.append("registration_id", registrationId);
     params.append("show_it", "true");
+    params.append("page", String(page));
+    params.append("limit", String(limit));
     if (search && search.trim()) params.append("search", search.trim());
     const response = await api.get(`/submissions?${params.toString()}`);
     return response.data.data;
