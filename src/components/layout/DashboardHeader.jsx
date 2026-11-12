@@ -50,7 +50,7 @@ export function DashboardHeader() {
   };
 
   return (
-    <header className="sticky top-0 left-0 right-0 z-50 border-b border-border/40 bg-[#0F121A]/80 backdrop-blur-md text-foreground w-full">
+    <header className="sticky top-0 left-0 right-0 z-50 border-b border-border/40 bg-[#0F121A]/80 backdrop-blur-md text-foreground w-full selection:bg-primary selection:text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 sm:h-20 items-center justify-between">
           {/* Logo & Brand Title */}
@@ -121,7 +121,7 @@ export function DashboardHeader() {
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
-                  className="w-56 bg-[#0A0D14] border border-white/10 text-[#FFF9F5] rounded-2xl p-2 shadow-2xl z-50"
+                  className="w-56 bg-[#0A0D14] border border-white/10 text-[#FFF9F5] rounded-2xl p-2 shadow-2xl z-50 selection:bg-primary selection:text-white"
                   align="end"
                   forceMount
                 >
