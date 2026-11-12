@@ -203,7 +203,7 @@ export default function AdminPengumpulanPage() {
     }
   };
 
-  // Helper status badge styling
+  // Helper status badge stylings
   const renderStatusBadge = (status) => {
     switch (status?.toUpperCase()) {
       case "APPROVED":
