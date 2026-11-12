@@ -12,11 +12,12 @@ export const useAllSubmissions = (
   registrationId = null,
   page = 1,
   limit = 21,
+  phase = "",
 ) => {
   return useQuery({
-    queryKey: ["allSubmissions", categoryId, search, registrationId, page, limit],
+    queryKey: ["allSubmissions", categoryId, search, registrationId, page, limit, phase],
     queryFn: () =>
-      getAllSubmissionsByCategory(categoryId, search, registrationId, page, limit),
+      getAllSubmissionsByCategory(categoryId, search, registrationId, page, limit, phase),
     enabled: !!categoryId, // Only fetch when category is selected
     placeholderData: keepPreviousData,
   });

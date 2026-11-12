@@ -93,6 +93,7 @@ function ShowItContent() {
   const [appliedSearch, setAppliedSearch] = useState(defaultSearch);
   const [page, setPage] = useState(1);
   const limit = 21;
+  const phase = "FINAL";
   const router = useRouter();
 
   const { data: categories, isLoading: categoriesLoading } = useCategories();
@@ -106,7 +107,7 @@ function ShowItContent() {
     data: submissionsData,
     isLoading: submissionsLoading,
     isError,
-  } = useAllSubmissions(selectedCategoryId, appliedSearch, null, page, limit);
+  } = useAllSubmissions(selectedCategoryId, appliedSearch, null, page, limit, phase);
 
   // Filter hanya submission yang berstatus APPROVED dan diizinkan tampil di Show It
   const allSubmissions = submissionsData?.submissions || [];
