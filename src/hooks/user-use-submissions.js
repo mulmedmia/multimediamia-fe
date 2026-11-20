@@ -13,13 +13,23 @@ export const useAllSubmissions = (
   page = 1,
   limit = 21,
   phase = "",
+  isFinalist = "",
 ) => {
   return useQuery({
-    queryKey: ["allSubmissions", categoryId, search, registrationId, page, limit, phase],
+    queryKey: ["allSubmissions", categoryId, search, registrationId, page, limit, phase, isFinalist],
     queryFn: () =>
-      getAllSubmissionsByCategory(categoryId, search, registrationId, page, limit, phase),
+      getAllSubmissionsByCategory(
+        categoryId,
+        search,
+        registrationId,
+        page,
+        limit,
+        phase,
+        isFinalist,
+      ),
     enabled: !!categoryId, // Only fetch when category is selected
     placeholderData: keepPreviousData,
+    staleTime: 1000 * 60 * 2,
   });
 };
 

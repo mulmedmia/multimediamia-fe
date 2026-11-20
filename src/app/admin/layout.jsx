@@ -26,6 +26,7 @@ import {
   BookOpen,
   Bug,
   Gift,
+  Trophy,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -98,6 +99,11 @@ const sidebarItems = [
     title: "Manage Referral",
     href: "/admin/manage-referral",
     icon: Gift,
+  },
+  {
+    title: "Manage Finalist",
+    href: "/admin/manage-finalist",
+    icon: Trophy,
   },
 ];
 
