@@ -8,6 +8,7 @@ import {
   getAllSubmissions,
   getSubmissionById,
   patchSubmissionStatus,
+  patchSubmissionFinalist,
   deleteSubmission,
 } from "@/services/admin-submission.service";
 import { toast } from "sonner";
@@ -17,6 +18,7 @@ export function useAdminSubmissions({
   page = 1,
   category_id = "",
   status = "",
+  is_finalist = "",
   search = "",
   registration_id = "",
   sub_theme = "",
@@ -32,6 +34,7 @@ export function useAdminSubmissions({
         page,
         category_id,
         status,
+        is_finalist,
         search,
         registration_id,
         sub_theme,
@@ -46,6 +49,7 @@ export function useAdminSubmissions({
         page,
         category_id,
         status,
+        is_finalist,
         search,
         registration_id,
         sub_theme,
@@ -78,6 +82,23 @@ export function usePatchSubmissionStatus() {
     },
     onError: (err) => {
       toast.error(err?.response?.data?.message || "Gagal update status!");
+    },
+  });
+}
+
+// Mutation: update finalist status (Top 10 Finalist)
+export function usePatchSubmissionFinalist() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: patchSubmissionFinalist,
+    onSuccess: (data) => {
+      qc.invalidateQueries({ queryKey: ["admin-submissions"] });
+      qc.invalidateQueries({ queryKey: ["admin-finalist-stats"] });
+      qc.invalidateQueries({ queryKey: ["admin-submissions-overall-stats"] });
+      toast.success(data.message || "Status finalist berhasil diperbarui!");
+    },
+    onError: (err) => {
+      toast.error(err?.response?.data?.message || "Gagal memperbarui status finalist!");
     },
   });
 }

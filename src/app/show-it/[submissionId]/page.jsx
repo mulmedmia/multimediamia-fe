@@ -147,6 +147,14 @@ export default function SubmissionDetailPage(props) {
                   </span>
                 </div>
 
+                {/* Top 10 Finalist Badge */}
+                {submission.is_finalist && (
+                  <div className="px-3.5 py-1.5 rounded-full bg-[#FED700]/15 border border-[#FED700]/50 text-[#FED700] inline-flex items-center gap-1.5 font-semibold">
+                    <Trophy className="h-3.5 w-3.5 text-[#FED700] shrink-0" />
+                    <span>Top 10 Finalist</span>
+                  </div>
+                )}
+
                 {/* Kategori */}
                 <div className="px-3.5 py-1.5 rounded-full bg-purple-900/60 border border-purple-500/50 text-purple-200 inline-flex items-center gap-1.5">
                   <Trophy className="h-3.5 w-3.5 text-purple-300 shrink-0" />

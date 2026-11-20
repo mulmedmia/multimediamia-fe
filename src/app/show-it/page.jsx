@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, Suspense } from "react";
+import { useCallback, useEffect, useMemo, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAllSubmissions } from "@/hooks/user-use-submissions";
 import { useCategories } from "@/hooks/user-use-gamifikasi";
@@ -23,6 +23,7 @@ import {
   Search,
   X,
   ImageIcon,
+  Trophy,
 } from "lucide-react";
 import { getSafeImageUrl } from "@/lib/image-loader";
 import { getYouTubeVideoId } from "@/lib/youtube";
@@ -69,6 +70,166 @@ function getSubmissionThumbnail(submission) {
   return null;
 }
 
+function getFinalistCategoryMeta(category) {
+  const slug = (category?.slug || "").toUpperCase();
+  const name = (category?.name || category?.category_name || "").toUpperCase();
+
+  if (slug === "UIA" || slug === "UI/UX DESIGN" || name.includes("UI/UX")) {
+    return {
+      key: "UIA",
+      shortLabel: "UIA",
+      fullName: category?.name || category?.category_name || "UI/UX In Action",
+      order: 1,
+      badgeClass: "bg-purple-500/15 text-purple-300 border border-purple-500/40",
+    };
+  }
+
+  if (
+    slug === "WIA" ||
+    slug === "WEB DEVELOPMENT" ||
+    name.includes("WEB IN ACTION") ||
+    name.includes("WEB")
+  ) {
+    return {
+      key: "WIA",
+      shortLabel: "WIA",
+      fullName: category?.name || category?.category_name || "Web In Action",
+      order: 2,
+      badgeClass: "bg-sky-500/15 text-sky-300 border border-sky-500/40",
+    };
+  }
+
+  const fallbackLabel = category?.slug || category?.name || "Kompetisi";
+  return {
+    key: category?.category_id || fallbackLabel,
+    shortLabel: fallbackLabel,
+    fullName: category?.name || category?.category_name || fallbackLabel,
+    order: 3,
+    badgeClass: "bg-emerald-500/15 text-emerald-300 border border-emerald-500/40",
+  };
+}
+
+function SubmissionCard({
+  submission,
+  isAllCategory,
+  isFinalist = false,
+  onClick,
+}) {
+  const thumbUrl = getSubmissionThumbnail(submission);
+
+  return (
+    <div
+      onClick={() => onClick(submission.submission_id)}
+      className={cn(
+        "mia-card p-6 flex flex-col justify-between transition-all duration-300 group cursor-pointer",
+        isFinalist
+          ? "border-[#FED700]/30 hover:border-[#FED700]/70 hover:shadow-[0_0_30px_rgba(254,215,0,0.14)]"
+          : "hover:border-[#E01C20]/60 hover:shadow-[0_0_30px_rgba(224,28,32,0.15)]",
+      )}
+    >
+      <div className="space-y-4">
+        {/* Thumbnail Karya */}
+        <div
+          className={cn(
+            "relative aspect-video w-full rounded-xl overflow-hidden bg-[#141824] border transition-all duration-300 shadow-inner flex items-center justify-center",
+            isFinalist
+              ? "border-[#FED700]/25 group-hover:border-[#FED700]/60"
+              : "border-white/10 group-hover:border-[#E01C20]/40",
+          )}
+        >
+          {isFinalist && (
+            <div className="absolute top-2.5 left-2.5 z-10 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#0A0D14]/85 backdrop-blur-sm border border-[#FED700]/50 text-[#FED700] text-[11px] font-semibold shadow-md">
+              <Trophy className="h-3 w-3" />
+              <span>Top 10 Finalist</span>
+            </div>
+          )}
+
+          {thumbUrl ? (
+            <img
+              src={thumbUrl}
+              alt={submission.project_name || "Thumbnail Karya"}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              loading="lazy"
+            />
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center text-[#AAB1BD] p-4 bg-gradient-to-br from-[#1E2939]/40 to-[#0F131E]/60 group-hover:bg-[#1E2939]/60 transition-colors">
+              <ImageIcon className="w-10 h-10 text-[#FED700]/50 mb-2 group-hover:scale-110 transition-transform" />
+              <span className="text-xs text-[#99A1AF] font-medium text-center line-clamp-1">
+                {submission.project_name}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Header & Category */}
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-start justify-between gap-3">
+            <h3
+              className={cn(
+                "text-lg font-bold text-[#FFF9F5] transition-colors line-clamp-2",
+                isFinalist
+                  ? "group-hover:text-[#FED700]"
+                  : "group-hover:text-[#E01C20]",
+              )}
+            >
+              {submission.project_name}
+            </h3>
+          </div>
+
+          <div className="flex flex-row items-center gap-2">
+            <div className="flex items-center gap-1.5 text-xs text-[#AAB1BD]">
+              <Users className="h-3.5 w-3.5 text-[#FED700]" />
+              <span className="truncate font-medium">
+                {submission.registration?.team_name ||
+                  submission.team_name ||
+                  submission.registration?.user?.name ||
+                  submission.user?.name ||
+                  "-"}
+              </span>
+            </div>
+            {isAllCategory && !isFinalist && (
+              <Badge
+                className={cn(
+                  "scale-90 font-semibold",
+                  getCategoryBadgeColor(submission.category),
+                )}
+              >
+                {submission.category?.name}
+              </Badge>
+            )}
+          </div>
+        </div>
+
+        {/* Description */}
+        <p className="text-sm text-[#AAB1BD] line-clamp-3 leading-relaxed">
+          {submission.description || "Tidak ada deskripsi singkat."}
+        </p>
+      </div>
+
+      {/* Footer Info */}
+      <div className="mt-5 pt-4 border-t border-white/10 flex items-center justify-between text-xs text-[#99A1AF]">
+        <div className="flex items-center gap-1.5 truncate max-w-[150px]">
+          <User className="h-3.5 w-3.5 flex-shrink-0" />
+          <span className="truncate">
+            {submission.registration?.user?.name ||
+              submission.user?.name ||
+              "Peserta"}
+          </span>
+        </div>
+        <div
+          className={cn(
+            "flex items-center gap-1 font-semibold group-hover:translate-x-1 transition-transform",
+            isFinalist ? "text-[#FED700]" : "text-[#E01C20]",
+          )}
+        >
+          <span>Detail</span>
+          <ArrowRight className="h-3.5 w-3.5" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ShowItSelectItem({ value = "", content = "" }) {
   return (
     <SelectItem
@@ -104,20 +265,61 @@ function ShowItContent() {
     : categories?.find((c) => c.category_id === selectedCategoryId)?.slug;
 
   const {
+    data: finalistsData,
+    isLoading: finalistsLoading,
+    isError: isFinalistsError,
+  } = useAllSubmissions(selectedCategoryId, appliedSearch, null, 1, 50, phase, "true");
+
+  const {
     data: submissionsData,
     isLoading: submissionsLoading,
-    isError,
-  } = useAllSubmissions(selectedCategoryId, appliedSearch, null, page, limit, phase);
+    isError: isRegularError,
+  } = useAllSubmissions(selectedCategoryId, appliedSearch, null, page, limit, phase, "false");
+
+  const isLoadingAny = finalistsLoading || submissionsLoading;
+  const isError = isFinalistsError || isRegularError;
 
   // Filter hanya submission yang berstatus APPROVED dan diizinkan tampil di Show It
-  const allSubmissions = submissionsData?.submissions || [];
-  const submissions = allSubmissions.filter(
+  const finalistSubmissions = useMemo(() => {
+    const raw = finalistsData?.submissions || [];
+    return raw.filter(
+      (submission) =>
+        submission.status === "APPROVED" &&
+        Boolean(submission.is_verified) &&
+        Boolean(submission.is_finalist),
+    );
+  }, [finalistsData?.submissions]);
+
+  // Kelompokkan Top 10 Finalist per kategori (terpisah UIA & WIA saat Semua Kategori)
+  const finalistSections = useMemo(() => {
+    const grouped = new Map();
+
+    for (const submission of finalistSubmissions) {
+      const catMeta = getFinalistCategoryMeta(submission.category);
+      if (!grouped.has(catMeta.key)) {
+        grouped.set(catMeta.key, {
+          ...catMeta,
+          items: [],
+        });
+      }
+      grouped.get(catMeta.key).items.push(submission);
+    }
+
+    return Array.from(grouped.values()).sort((a, b) => a.order - b.order);
+  }, [finalistSubmissions]);
+
+  const allRegularSubmissions = submissionsData?.submissions || [];
+  const filteredSubmissions = allRegularSubmissions.filter(
     (submission) =>
-      submission.status === "APPROVED" && Boolean(submission.is_verified),
+      submission.status === "APPROVED" &&
+      Boolean(submission.is_verified) &&
+      !submission.is_finalist,
   );
 
   const isSearching = Boolean(appliedSearch.trim());
-  const filteredSubmissions = submissions;
+  const hasAnySubmissions =
+    finalistSubmissions.length > 0 || filteredSubmissions.length > 0;
+  const showFinalistSections = page === 1 && finalistSections.length > 0;
   const meta = submissionsData?.meta || {
     total: filteredSubmissions.length,
     page,
@@ -304,7 +506,7 @@ function ShowItContent() {
         </div>
 
         {/* Loading State */}
-        {submissionsLoading && !submissionsData && selectedCategoryId && (
+        {isLoadingAny && !submissionsData && !finalistsData && selectedCategoryId && (
           <div className="text-center py-12 md:py-16">
             <div className="inline-flex items-center gap-3 text-[#AAB1BD]">
               <div className="animate-spin rounded-full h-6 w-6 border-2 border-[#E01C20] border-t-transparent"></div>
@@ -332,10 +534,10 @@ function ShowItContent() {
         )}
 
         {/* Empty State jika belum ada karya sama sekali dalam kategori */}
-        {filteredSubmissions.length === 0 &&
+        {!hasAnySubmissions &&
           !isSearching &&
           selectedCategoryId &&
-          !submissionsLoading &&
+          !isLoadingAny &&
           !isError && (
             <div className="mia-card p-8 md:p-14 text-center space-y-4 border-dashed border-white/15">
               <div className="w-14 h-14 bg-[#E01C20]/15 border border-[#E01C20]/30 text-[#E01C20] rounded-2xl flex items-center justify-center mx-auto">
@@ -355,9 +557,9 @@ function ShowItContent() {
 
         {/* Empty State jika hasil pencarian tidak ditemukan */}
         {isSearching &&
-          filteredSubmissions.length === 0 &&
+          !hasAnySubmissions &&
           selectedCategoryId &&
-          !submissionsLoading &&
+          !isLoadingAny &&
           !isError && (
             <div className="mia-card p-8 md:p-14 text-center space-y-4 border-dashed border-white/15">
               <div className="w-14 h-14 bg-white/5 border border-white/10 text-[#AAB1BD] rounded-2xl flex items-center justify-center mx-auto">
@@ -387,9 +589,54 @@ function ShowItContent() {
             </div>
           )}
 
-        {/* Submissions Grid */}
+        {/* Top 10 Finalist Sections (dipisah per kategori: UIA & WIA) */}
+        {showFinalistSections &&
+          finalistSections.map((section) => (
+            <section key={section.key} className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#FED700]/25 pb-4">
+                <div className="flex items-start sm:items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-[#FED700]/15 border border-[#FED700]/35 flex items-center justify-center text-[#FED700] flex-shrink-0">
+                    <Trophy className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="text-xl sm:text-2xl font-bold text-[#FFF9F5]">
+                        Daftar 10 Karya Finalis{" "}
+                        <span className="text-[#FED700]">{section.shortLabel}</span>
+                      </h2>
+                      <Badge className={cn("font-semibold", section.badgeClass)}>
+                        {section.fullName}
+                      </Badge>
+                    </div>
+                    <p className="text-xs sm:text-sm text-[#AAB1BD] mt-0.5">
+                      {isSearching
+                        ? `Menampilkan karya finalis ${section.shortLabel} untuk pencarian "${appliedSearch}"`
+                        : `Karya terbaik kategori ${section.fullName} yang lolos ke tahap Top 10 Finalis`}
+                    </p>
+                  </div>
+                </div>
+                <span className="text-xs text-[#FED700] bg-[#FED700]/10 border border-[#FED700]/30 px-3 py-1.5 rounded-full w-fit font-medium">
+                  {section.items.length} Karya Finalis
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {section.items.map((submission) => (
+                  <SubmissionCard
+                    key={submission.submission_id}
+                    submission={submission}
+                    isAllCategory={isAllCategory}
+                    isFinalist={true}
+                    onClick={handleSubmissionClick}
+                  />
+                ))}
+              </div>
+            </section>
+          ))}
+
+        {/* Regular Submissions Grid (Karya Peserta Non-Finalist) */}
         {filteredSubmissions.length > 0 && (
-          <div className="space-y-6">
+          <section className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-4">
               <div>
                 <h2 className="text-xl sm:text-2xl font-bold text-[#FFF9F5]">
@@ -397,8 +644,10 @@ function ShowItContent() {
                 </h2>
                 <p className="text-xs sm:text-sm text-[#AAB1BD]">
                   {isSearching
-                    ? `Menampilkan semua karya inovatif untuk pencarian "${appliedSearch}" dari ${selectedCategoryId === "all" ? "semua kategori" : `kategori ${selectedCategorySlug}`}`
-                    : `Menampilkan semua karya inovatif dari ${selectedCategoryId === "all" ? "semua kategori" : `kategori ${selectedCategorySlug}`}`}
+                    ? `Menampilkan karya peserta untuk pencarian "${appliedSearch}" dari ${selectedCategoryId === "all" ? "semua kategori" : `kategori ${selectedCategorySlug}`}`
+                    : finalistSubmissions.length > 0
+                      ? `Menampilkan karya peserta lainnya dari ${selectedCategoryId === "all" ? "semua kategori" : `kategori ${selectedCategorySlug}`}`
+                      : `Menampilkan semua karya inovatif dari ${selectedCategoryId === "all" ? "semua kategori" : `kategori ${selectedCategorySlug}`}`}
                 </p>
               </div>
               <span className="text-xs text-[#AAB1BD] bg-[#1E2939] border border-white/10 px-3 py-1.5 rounded-full w-fit">
@@ -409,93 +658,13 @@ function ShowItContent() {
             {/* Grid Layout */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredSubmissions.map((submission) => (
-                <div
+                <SubmissionCard
                   key={submission.submission_id}
-                  onClick={() =>
-                    handleSubmissionClick(submission.submission_id)
-                  }
-                  className="mia-card p-6 flex flex-col justify-between hover:border-[#E01C20]/60 hover:shadow-[0_0_30px_rgba(224,28,32,0.15)] transition-all duration-300 group cursor-pointer"
-                >
-                  <div className="space-y-4">
-                    {/* Thumbnail Karya */}
-                    {(() => {
-                      const thumbUrl = getSubmissionThumbnail(submission);
-                      return (
-                        <div className="relative aspect-video w-full rounded-xl overflow-hidden bg-[#141824] border border-white/10 group-hover:border-[#E01C20]/40 transition-all duration-300 shadow-inner flex items-center justify-center">
-                          {thumbUrl ? (
-                            <img
-                              src={thumbUrl}
-                              alt={submission.project_name || "Thumbnail Karya"}
-                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                              loading="lazy"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex flex-col items-center justify-center text-[#AAB1BD] p-4 bg-gradient-to-br from-[#1E2939]/40 to-[#0F131E]/60 group-hover:bg-[#1E2939]/60 transition-colors">
-                              <ImageIcon className="w-10 h-10 text-[#FED700]/50 mb-2 group-hover:scale-110 transition-transform" />
-                              <span className="text-xs text-[#99A1AF] font-medium text-center line-clamp-1">
-                                {submission.project_name}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })()}
-
-                    {/* Header & Category */}
-                    <div className="flex flex-col gap-1.5">
-                      <div className="flex items-start justify-between gap-3">
-                        <h3 className="text-lg font-bold text-[#FFF9F5] group-hover:text-[#E01C20] transition-colors line-clamp-2">
-                          {submission.project_name}
-                        </h3>
-                      </div>
-
-                      <div className="flex flex-row items-center gap-2">
-                        <div className="flex items-center gap-1.5 text-xs text-[#AAB1BD]">
-                          <Users className="h-3.5 w-3.5 text-[#FED700]" />
-                          <span className="truncate font-medium">
-                            {submission.registration?.team_name ||
-                              submission.team_name ||
-                              submission.registration?.user?.name ||
-                              submission.user?.name ||
-                              "-"}
-                          </span>
-                        </div>
-                        {isAllCategory && (
-                          <Badge
-                            className={cn(
-                              "scale-90 font-semibold",
-                              getCategoryBadgeColor(submission.category),
-                            )}
-                          >
-                            {submission.category?.name}
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Description */}
-                    <p className="text-sm text-[#AAB1BD] line-clamp-3 leading-relaxed">
-                      {submission.description ||
-                        "Tidak ada deskripsi singkat."}
-                    </p>
-                  </div>
-
-                  {/* Footer Info */}
-                  <div className="mt-5 pt-4 border-t border-white/10 flex items-center justify-between text-xs text-[#99A1AF]">
-                    <div className="flex items-center gap-1.5 truncate max-w-[150px]">
-                      <User className="h-3.5 w-3.5 flex-shrink-0" />
-                      <span className="truncate">
-                        {submission.registration?.user?.name ||
-                          submission.user?.name ||
-                          "Peserta"}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1 text-[#E01C20] font-semibold group-hover:translate-x-1 transition-transform">
-                      <span>Detail</span>
-                      <ArrowRight className="h-3.5 w-3.5" />
-                    </div>
-                  </div>
-                </div>
+                  submission={submission}
+                  isAllCategory={isAllCategory}
+                  isFinalist={false}
+                  onClick={handleSubmissionClick}
+                />
               ))}
             </div>
 
@@ -534,7 +703,7 @@ function ShowItContent() {
                 </Button>
               </div>
             )}
-          </div>
+          </section>
         )}
 
         {/* Default Call to Action (When No Category Selected) */}

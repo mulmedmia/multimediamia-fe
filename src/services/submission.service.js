@@ -81,6 +81,7 @@ export const getAllSubmissionsByCategory = async (
   page = 1,
   limit = 21,
   phase = "",
+  isFinalist = "",
 ) => {
   try {
     // Menggunakan endpoint submissions global (bukan my/submissions) khusus penayangan Show It
@@ -93,6 +94,9 @@ export const getAllSubmissionsByCategory = async (
     params.append("limit", String(limit));
     if (search && search.trim()) params.append("search", search.trim());
     if (phase && phase !== "ALL") params.append("phase", phase);
+    if (isFinalist !== undefined && isFinalist !== "" && isFinalist !== "ALL") {
+      params.append("is_finalist", String(isFinalist));
+    }
     const response = await api.get(`/submissions?${params.toString()}`);
     return response.data.data;
   } catch (error) {
