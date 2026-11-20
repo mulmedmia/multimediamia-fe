@@ -6,6 +6,7 @@ export const getAllSubmissions = async ({
   page = 1,
   category_id = "",
   status = "",
+  is_finalist = "",
   search = "",
   registration_id = "",
   sub_theme = "",
@@ -16,6 +17,9 @@ export const getAllSubmissions = async ({
   const params = { limit, page };
   if (category_id && category_id !== "ALL") params.category_id = category_id;
   if (status && status !== "ALL" && status !== "all") params.status = status;
+  if (is_finalist !== undefined && is_finalist !== "" && is_finalist !== "ALL") {
+    params.is_finalist = is_finalist;
+  }
   if (search && search.trim()) params.search = search.trim();
   if (registration_id && registration_id.trim()) params.registration_id = registration_id.trim();
   if (sub_theme && sub_theme !== "ALL") params.sub_theme = sub_theme;
@@ -41,6 +45,12 @@ export const patchSubmissionStatus = async ({ id, status, is_verified, admin_fee
     payload.admin_feedback = admin_feedback;
   }
   const res = await api.patch(`/submissions/${id}/status`, payload);
+  return res.data;
+};
+
+// Update submission finalist status (Top 10 Finalist)
+export const patchSubmissionFinalist = async ({ id, is_finalist }) => {
+  const res = await api.patch(`/submissions/${id}/finalist`, { is_finalist });
   return res.data;
 };
 
