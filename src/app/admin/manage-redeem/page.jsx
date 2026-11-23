@@ -54,6 +54,7 @@ import {
   Phone,
   ExternalLink,
   Zap,
+  Mail,
 } from "lucide-react";
 import { exportToExcel } from "@/lib/export-excel";
 import { useAuthContext } from "@/providers/AuthProvider";
@@ -218,14 +219,18 @@ export default function ManageRedemptionPage() {
         { header: "Nama Peserta", key: "user_name", width: 25 },
         { header: "Tim Lomba", key: "team_name", width: 25 },
         { header: "Email", key: "user_email", width: 26 },
+        { header: "Email Penerima 1", key: "recipient_email_1", width: 28 },
+        { header: "Email Penerima 2", key: "recipient_email_2", width: 28 },
+        { header: "Email Penerima 3", key: "recipient_email_3", width: 28 },
         { header: "Nomor WhatsApp", key: "whatsapp_number", width: 20 },
-        { header: "Nama Produl", key: "product_name", width: 25 },
+        { header: "Nama Produk", key: "product_name", width: 25 },
         { header: "Jumlah", key: "quantity", width: 14, align: "center" },
         { header: "Diamond Digunakan", key: "points_used", width: 20, align: "center" },
         { header: "Status Penukaran", key: "status", width: 18, align: "center" },
       ];
 
       const rows = list.map((item, index) => {
+        const recEmails = Array.isArray(item.recipient_emails) ? item.recipient_emails : [];
         return {
           no: index + 1,
           redemption_id: item.redemption_id || "-",
@@ -234,6 +239,9 @@ export default function ManageRedemptionPage() {
           user_name: item.user?.name || "-",
           team_name: item.registration?.team_name || "-",
           user_email: item.user?.email || "-",
+          recipient_email_1: recEmails[0] || "-",
+          recipient_email_2: recEmails[1] || "-",
+          recipient_email_3: recEmails[2] || "-",
           whatsapp_number: item.user?.whatsapp_number || item.user?.whatsapp || "-",
           product_name: item.product?.name || "-",
           quantity: `${item.quantity || 1} item`,
@@ -576,6 +584,9 @@ export default function ManageRedemptionPage() {
                       Produk
                     </TableHead>
                     <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
+                      Email Penerima
+                    </TableHead>
+                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
                       Poin Ditebus
                     </TableHead>
                     <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
@@ -661,6 +672,26 @@ export default function ManageRedemptionPage() {
                             </span>
                           </div>
                         </div>
+                      </TableCell>
+
+                      {/* Email Penerima */}
+                      <TableCell className="py-3.5 max-w-[220px]">
+                        {Array.isArray(r.recipient_emails) && r.recipient_emails.length > 0 ? (
+                          <div className="flex flex-col gap-1">
+                            {r.recipient_emails.map((email, idx) => (
+                              <span
+                                key={idx}
+                                title={email}
+                                className="inline-flex items-center gap-1 text-[11px] text-cyan-300 bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded-md truncate max-w-[200px]"
+                              >
+                                <Mail className="h-3 w-3 shrink-0 text-cyan-400" />
+                                <span className="truncate">{email}</span>
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-xs text-muted-foreground/50">-</span>
+                        )}
                       </TableCell>
 
                       {/* Poin Ditebus */}
@@ -829,6 +860,25 @@ export default function ManageRedemptionPage() {
                 {detailData?.user?.email || "-"}
               </span>
             </div>
+
+            {Array.isArray(detailData?.recipient_emails) && detailData.recipient_emails.length > 0 && (
+              <div className="py-1.5 border-b border-border/20 space-y-1.5">
+                <span className="text-muted-foreground flex items-center gap-1">
+                  <Mail className="h-3 w-3 text-cyan-400" />
+                  <span>Email Penerima ({detailData.recipient_emails.length}):</span>
+                </span>
+                <div className="flex flex-col gap-1 pl-1">
+                  {detailData.recipient_emails.map((email, idx) => (
+                    <span
+                      key={idx}
+                      className="text-[11px] font-medium text-cyan-300 bg-cyan-500/10 border border-cyan-500/20 px-2.5 py-1 rounded-lg break-all"
+                    >
+                      {idx + 1}. {email}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="flex justify-between items-center py-0.5 border-b border-border/20">
               <span className="text-muted-foreground">Nomor WhatsApp:</span>

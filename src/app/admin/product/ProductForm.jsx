@@ -37,6 +37,7 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
     stock: initial?.stock !== undefined ? String(initial.stock) : "",
     reward_xp: initial?.reward_xp !== undefined ? String(initial.reward_xp) : "0",
     is_unlimited_stock: initial?.is_unlimited_stock !== undefined ? Boolean(initial.is_unlimited_stock) : false,
+    require_recipient_emails: initial?.require_recipient_emails !== undefined ? Boolean(initial.require_recipient_emails) : false,
     max_redeem_per_team:
       initial?.max_redeem_per_team !== undefined
         ? String(initial.max_redeem_per_team)
@@ -61,6 +62,7 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
         stock: initial.stock !== undefined ? String(initial.stock) : "",
         reward_xp: initial.reward_xp !== undefined ? String(initial.reward_xp) : "0",
         is_unlimited_stock: initial.is_unlimited_stock !== undefined ? Boolean(initial.is_unlimited_stock) : false,
+        require_recipient_emails: initial.require_recipient_emails !== undefined ? Boolean(initial.require_recipient_emails) : false,
         max_redeem_per_team:
           initial.max_redeem_per_team !== undefined
             ? String(initial.max_redeem_per_team)
@@ -104,7 +106,7 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
       setError("Produk dengan harga XP tidak dapat memiliki reward XP (tidak bisa konversi ke XP).");
       return;
     }
-    if (!form.is_unlimited_stock && (form.stock === "" || Number(form.stock) < 0)) {
+    if (form.stock === "" || Number(form.stock) < 0) {
       setError("Stok produk harus bernilai 0 atau lebih.");
       return;
     }
@@ -122,9 +124,10 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
       description: form.description.trim(),
       price_diamond: priceDiamondNum,
       price_xp: priceXpNum,
-      stock: form.is_unlimited_stock ? 0 : Number(form.stock),
+      stock: Number(form.stock),
       reward_xp: priceXpNum > 0 ? 0 : rewardXpNum,
-      is_unlimited_stock: Boolean(form.is_unlimited_stock),
+      is_unlimited_stock: false,
+      require_recipient_emails: Boolean(form.require_recipient_emails),
       max_redeem_per_team: Math.max(0, parseInt(form.max_redeem_per_team, 10) || 0),
       is_active: form.is_active,
     };
@@ -237,26 +240,18 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
 
         {/* Stok */}
         <div className="space-y-1.5 sm:col-span-2">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="stock" className="text-xs text-muted-foreground font-medium">
-              Jumlah Stok {!form.is_unlimited_stock && <span className="text-[#E01C20]">*</span>}
-            </Label>
-            {form.is_unlimited_stock && (
-              <span className="text-[10px] text-purple-400 font-medium flex items-center gap-1">
-                <InfinityIcon className="h-3 w-3" /> Tidak terbatas
-              </span>
-            )}
-          </div>
+          <Label htmlFor="stock" className="text-xs text-muted-foreground font-medium">
+            Jumlah Stok <span className="text-[#E01C20]">*</span>
+          </Label>
           <Input
             id="stock"
             type="number"
             min="0"
-            placeholder={form.is_unlimited_stock ? "Stok tidak terbatas (∞)" : "Contoh: 25"}
-            value={form.is_unlimited_stock ? "" : form.stock}
-            disabled={form.is_unlimited_stock}
+            placeholder="Contoh: 25"
+            value={form.stock}
             onChange={(e) => setForm((f) => ({ ...f, stock: e.target.value }))}
-            className="h-10 bg-input/40 border-border/50 rounded-xl text-xs sm:text-sm text-foreground placeholder:text-muted-foreground/60 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-input/20"
-            required={!form.is_unlimited_stock}
+            className="h-10 bg-input/40 border-border/50 rounded-xl text-xs sm:text-sm text-foreground placeholder:text-muted-foreground/60"
+            required
           />
         </div>
 
@@ -299,37 +294,11 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
           </p>
         </div>
 
-        {/* Opsi Stok Tidak Terbatas & Batasan Redeem */}
+        {/* Batas Penukaran & Email Penerima */}
         <div className="space-y-1.5 sm:col-span-2">
-          <Label className="text-xs text-muted-foreground font-medium">Ketersediaan & Batas Penukaran</Label>
+          <Label className="text-xs text-muted-foreground font-medium">Batas Penukaran &amp; Opsi Tambahan</Label>
           <div className="space-y-3 p-3.5 rounded-xl bg-white/[0.02] border border-border/40">
-            <div className="flex items-start gap-3">
-              <Checkbox
-                id="is_unlimited_stock"
-                checked={form.is_unlimited_stock}
-                onCheckedChange={(checked) =>
-                  setForm((f) => ({ ...f, is_unlimited_stock: Boolean(checked) }))
-                }
-                className="mt-0.5 border-border bg-input/20 cursor-pointer"
-              />
-              <label
-                htmlFor="is_unlimited_stock"
-                className="space-y-1 leading-none cursor-pointer"
-              >
-                <div className="text-xs font-semibold text-foreground cursor-pointer flex items-center gap-1.5">
-                  <span>Jumlah Stok Tidak Terbatas</span>
-                  <span className="text-[10px] text-purple-400 bg-purple-500/10 border border-purple-500/20 px-1.5 py-0.5 rounded font-medium">
-                    Unlimited
-                  </span>
-                </div>
-                
-                <p className="text-[11px] text-muted-foreground">
-                  Centang jika produk ini tidak memiliki batasan kuota stok (misal produk digital seperti e-course).
-                </p>
-              </label>
-            </div>
-  
-            <div className="space-y-2 pt-2.5 border-t border-border/30 ml-6.5">
+            <div className="space-y-2">
               <div className="space-y-0.5">
                 <label
                   htmlFor="max_redeem_per_team"
@@ -368,6 +337,31 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
                     : "Bebas tukar (tanpa batas per tim)"}
                 </span>
               </div>
+            </div>
+
+            <div className="flex items-start gap-3 pt-2.5 border-t border-border/30">
+              <Checkbox
+                id="require_recipient_emails"
+                checked={form.require_recipient_emails}
+                onCheckedChange={(checked) =>
+                  setForm((f) => ({ ...f, require_recipient_emails: Boolean(checked) }))
+                }
+                className="mt-0.5 border-border bg-input/20 cursor-pointer"
+              />
+              <label
+                htmlFor="require_recipient_emails"
+                className="space-y-1 leading-none cursor-pointer"
+              >
+                <div className="text-xs font-semibold text-foreground cursor-pointer flex items-center gap-1.5">
+                  <span>Butuh Email Penerima (1–3 Email)</span>
+                  <span className="text-[10px] text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-1.5 py-0.5 rounded font-medium">
+                    Tiket / Kelas Digital
+                  </span>
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  Centang jika peserta wajib mengisi minimal 1 email penerima (maksimal 3 email, email 2 &amp; 3 opsional) saat menukar produk ini, misalnya untuk Tiket Kelas Dicoding.
+                </p>
+              </label>
             </div>
           </div>
         </div>

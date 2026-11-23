@@ -1,7 +1,10 @@
+import { useState, useMemo } from "react";
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { AlertCircle, Gem, Loader2, Minus, Plus, Zap } from "lucide-react";
+import { AlertCircle, Gem, Loader2, Mail, Minus, Plus, Zap } from "lucide-react";
 import { HoldButton } from "./ProductCard";
 import { cn } from "@/lib/utils";
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 export default function ProductRedeemModal({
   isOpen,
@@ -19,6 +22,55 @@ export default function ProductRedeemModal({
   onOpenDetail,
   backToDetail,
 }) {
+  const [recipientEmails, setRecipientEmails] = useState(["", "", ""]);
+  const [touchedEmails, setTouchedEmails] = useState(false);
+
+  const requireRecipientEmails = Boolean(product?.require_recipient_emails);
+
+  const emailValidation = useMemo(() => {
+    if (!requireRecipientEmails) {
+      return { isValid: true, cleaned: [], fieldErrors: ["", "", ""], summaryError: "" };
+    }
+
+    const fieldErrors = ["", "", ""];
+    const trimmed = recipientEmails.map((e) => e.trim());
+    const normalized = trimmed.map((e) => e.toLowerCase());
+
+    if (!trimmed[0]) {
+      fieldErrors[0] = "Email 1 wajib diisi.";
+    } else if (!EMAIL_REGEX.test(trimmed[0])) {
+      fieldErrors[0] = "Format email tidak valid.";
+    }
+
+    for (let i = 1; i < 3; i++) {
+      if (trimmed[i] && !EMAIL_REGEX.test(trimmed[i])) {
+        fieldErrors[i] = "Format email tidak valid.";
+      }
+    }
+
+    // Cek duplikat antar kolom (case-insensitive)
+    const seen = new Map();
+    for (let i = 0; i < 3; i++) {
+      if (!normalized[i]) continue;
+      if (seen.has(normalized[i])) {
+        fieldErrors[i] = "Email tidak boleh sama dengan kolom lain.";
+      } else {
+        seen.set(normalized[i], i);
+      }
+    }
+
+    const cleaned = normalized.filter(Boolean);
+    const firstError = fieldErrors.find(Boolean) || "";
+    const isValid = !firstError && cleaned.length >= 1 && cleaned.length <= 3;
+
+    return {
+      isValid,
+      cleaned,
+      fieldErrors,
+      summaryError: firstError,
+    };
+  }, [requireRecipientEmails, recipientEmails]);
+
   if (!product) return null;
 
   const isZeroStock = isOutOfStockLocal;
@@ -93,13 +145,15 @@ export default function ProductRedeemModal({
         onOpenChange(open);
         if (!open) {
           onRedeemQuantity(1);
+          setRecipientEmails(["", "", ""]);
+          setTouchedEmails(false);
         }
       }}
     >
       <DialogContent
         showCloseButton={false}
         onOpenAutoFocus={(e) => e.preventDefault()}
-        className="rounded-2xl border border-white/10 bg-[#0A0D14] text-[#FFF9F5] p-6 shadow-2xl sm:max-w-md selection:bg-primary selection:text-white"
+        className="rounded-2xl border border-white/10 bg-[#0A0D14] text-[#FFF9F5] p-6 shadow-2xl sm:max-w-md max-h-[90vh] overflow-y-auto selection:bg-primary selection:text-white"
       >
         <DialogHeader>
           <DialogTitle className="text-lg font-bold text-[#FFF9F5]">
@@ -202,6 +256,71 @@ export default function ProductRedeemModal({
               <span className="text-[10px] text-emerald-300 bg-emerald-500/10 px-2 py-0.5 rounded font-medium border border-emerald-500/20">
                 1 item = +{product.reward_xp} XP
               </span>
+            </div>
+          </div>
+        )}
+
+        {/* Input Email Penerima (1 wajib, 2 & 3 opsional) untuk produk seperti Tiket Kelas Dicoding */}
+        {requireRecipientEmails && (
+          <div className="my-3 p-4 rounded-xl bg-white/[0.04] border border-cyan-500/25 space-y-3">
+            <div className="flex items-start gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0 mt-0.5">
+                <Mail className="h-3.5 w-3.5" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-[#FFF9F5]">
+                  Email Penerima (Min. 1, Maks. 3)
+                </p>
+                <p className="text-[11px] text-[#AAB1BD] leading-relaxed">
+                  Masukkan email akun Dicoding penerima. Email 1 wajib diisi, Email 2 &amp; 3 opsional.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-2.5">
+              {[0, 1, 2].map((idx) => {
+                const isFirst = idx === 0;
+                const fieldErr = touchedEmails ? emailValidation.fieldErrors[idx] : "";
+                return (
+                  <div key={idx} className="space-y-1">
+                    <label
+                      htmlFor={`recipient-email-${idx}`}
+                      className="text-[11px] font-medium text-[#AAB1BD] flex items-center gap-1"
+                    >
+                      <span>Email {idx + 1}</span>
+                      {isFirst ? (
+                        <span className="text-[#E01C20] font-semibold">* (Wajib)</span>
+                      ) : (
+                        <span className="text-[#99A1AF]">(Opsional)</span>
+                      )}
+                    </label>
+                    <input
+                      id={`recipient-email-${idx}`}
+                      type="email"
+                      value={recipientEmails[idx]}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setTouchedEmails(true);
+                        setRecipientEmails((prev) => {
+                          const next = [...prev];
+                          next[idx] = val;
+                          return next;
+                        });
+                      }}
+                      placeholder={`contoh: anggota${idx + 1}@gmail.com`}
+                      className={cn(
+                        "w-full h-9 px-3 rounded-lg bg-black/50 border text-xs text-[#FFF9F5] placeholder:text-[#99A1AF]/60 focus:outline-none transition-colors",
+                        fieldErr
+                          ? "border-red-500/70 focus:border-red-500"
+                          : "border-white/15 focus:border-cyan-400",
+                      )}
+                    />
+                    {fieldErr && (
+                      <p className="text-[10px] text-red-400">{fieldErr}</p>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
@@ -332,9 +451,16 @@ export default function ProductRedeemModal({
               isPending ||
               userDiamonds < totalDiamondCost ||
               (hasXpPrice && userXp < totalXpCost) ||
-              !activeCategory
+              !activeCategory ||
+              (requireRecipientEmails && !emailValidation.isValid)
             }
-            onClick={onRedeem}
+            onClick={() => {
+              if (requireRecipientEmails && !emailValidation.isValid) {
+                setTouchedEmails(true);
+                return;
+              }
+              onRedeem(requireRecipientEmails ? emailValidation.cleaned : []);
+            }}
           >
             {isPending ? (
               <Loader2 className="h-4 w-4 animate-spin text-white mr-1.5" />

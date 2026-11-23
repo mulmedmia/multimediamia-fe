@@ -116,7 +116,7 @@ export default function ProductCard({
   const isPending = isSubmitting || (redeemMutation.isPending && isRedeemOpen);
   const notClaimable = !canRedeem || !activeCategory || isPending;
 
-  const handleRedeem = () => {
+  const handleRedeem = (recipientEmails = []) => {
     setIsSubmitting(true);
     redeemMutation.mutate(
       {
@@ -124,6 +124,9 @@ export default function ProductCard({
         quantity: currentQty,
         categoryId: selectedCategoryId || activeCategory?.category_id,
         registrationId: activeCategory?.registration_id,
+        ...(Array.isArray(recipientEmails) && recipientEmails.length > 0
+          ? { recipientEmails }
+          : {}),
       },
       {
         onSuccess: (resData) => {

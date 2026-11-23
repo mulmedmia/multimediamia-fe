@@ -418,6 +418,20 @@ export default function HistoryPesananPage() {
                                   </div>
                                 )}
                               </div>
+
+                              {Array.isArray(item.recipient_emails) && item.recipient_emails.length > 0 && (
+                                <div className="pt-1 flex flex-wrap items-center gap-1.5 text-[11px]">
+                                  <span className="text-[#AAB1BD] font-medium">Email Penerima:</span>
+                                  {item.recipient_emails.map((email, idx) => (
+                                    <span
+                                      key={idx}
+                                      className="bg-cyan-500/10 border border-cyan-500/25 text-cyan-300 px-2 py-0.5 rounded-md font-medium"
+                                    >
+                                      {email}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
                             </div>
                           </div>
 
