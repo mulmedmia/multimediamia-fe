@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DialogFooter } from "@/components/ui/dialog";
-import { Image as ImageIcon, CheckCircle2, Upload, AlertCircle, Infinity as InfinityIcon, Zap, Trophy, Gem } from "lucide-react";
+import { Image as ImageIcon, CheckCircle2, Upload, AlertCircle, Zap, Trophy, Gem } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) {
@@ -36,7 +36,6 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
     price_xp: initial?.price_xp !== undefined ? String(initial.price_xp) : "",
     stock: initial?.stock !== undefined ? String(initial.stock) : "",
     reward_xp: initial?.reward_xp !== undefined ? String(initial.reward_xp) : "0",
-    is_unlimited_stock: initial?.is_unlimited_stock !== undefined ? Boolean(initial.is_unlimited_stock) : false,
     require_recipient_emails: initial?.require_recipient_emails !== undefined ? Boolean(initial.require_recipient_emails) : false,
     max_redeem_per_team:
       initial?.max_redeem_per_team !== undefined
@@ -61,7 +60,6 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
         price_xp: initial.price_xp !== undefined ? String(initial.price_xp) : "0",
         stock: initial.stock !== undefined ? String(initial.stock) : "",
         reward_xp: initial.reward_xp !== undefined ? String(initial.reward_xp) : "0",
-        is_unlimited_stock: initial.is_unlimited_stock !== undefined ? Boolean(initial.is_unlimited_stock) : false,
         require_recipient_emails: initial.require_recipient_emails !== undefined ? Boolean(initial.require_recipient_emails) : false,
         max_redeem_per_team:
           initial.max_redeem_per_team !== undefined

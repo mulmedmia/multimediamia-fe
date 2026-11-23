@@ -1,10 +1,10 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertCircle, Gem, Loader2, Mail, Minus, Plus, Zap } from "lucide-react";
 import { HoldButton } from "./ProductCard";
 import { cn } from "@/lib/utils";
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const EMAIL_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9._%+-]{0,63}@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 export default function ProductRedeemModal({
   isOpen,
@@ -24,6 +24,14 @@ export default function ProductRedeemModal({
 }) {
   const [recipientEmails, setRecipientEmails] = useState(["", "", ""]);
   const [touchedEmails, setTouchedEmails] = useState(false);
+
+  // Reset form email setiap kali modal ditutup (termasuk penutupan programatik setelah redeem sukses)
+  useEffect(() => {
+    if (!isOpen) {
+      setRecipientEmails(["", "", ""]);
+      setTouchedEmails(false);
+    }
+  }, [isOpen]);
 
   const requireRecipientEmails = Boolean(product?.require_recipient_emails);
 

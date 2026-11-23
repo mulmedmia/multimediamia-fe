@@ -618,7 +618,9 @@ export default function ManageRedemptionPage() {
                           <div className="min-w-0">
                             <p className="font-semibold text-foreground text-xs truncate max-w-[160px] sm:max-w-[220px]">
                               {r.registration?.team_name || "Tanpa Nama Tim"}{" "}
-                              <span className="text-amber-300 font-normal text-[11px]">({r.registration?.category_name.split(" ")[0]})</span>
+                              {r.registration?.category_name && (
+                                <span className="text-amber-300 font-normal text-[11px]">({r.registration.category_name.split(" ")[0]})</span>
+                              )}
                             </p>
                             <p className="text-[11px] text-muted-foreground truncate max-w-[160px] sm:max-w-[220px]">
                               Ketua: {r.registration?.team_leader_name || r.user?.name || "-"}
