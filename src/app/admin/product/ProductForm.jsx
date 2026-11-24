@@ -351,13 +351,13 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
                 className="space-y-1 leading-none cursor-pointer"
               >
                 <div className="text-xs font-semibold text-foreground cursor-pointer flex items-center gap-1.5">
-                  <span>Butuh Email Penerima (1–3 Email)</span>
+                  <span>Butuh Data Penerima (1–3 Orang)</span>
                   <span className="text-[10px] text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-1.5 py-0.5 rounded font-medium">
                     Tiket / Kelas Digital
                   </span>
                 </div>
                 <p className="text-[11px] text-muted-foreground">
-                  Centang jika peserta wajib mengisi minimal 1 email penerima (maksimal 3 email, email 2 &amp; 3 opsional) saat menukar produk ini, misalnya untuk Tiket Kelas Dicoding.
+                  Centang jika peserta wajib mengisi Nama, Email, dan No. Telp untuk minimal 1 penerima (maksimal 3 orang; penerima 2 &amp; 3 opsional), misalnya untuk Tiket Kelas Dicoding.
                 </p>
               </label>
             </div>
