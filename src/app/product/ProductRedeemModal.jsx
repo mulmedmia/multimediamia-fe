@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertCircle, Gem, Loader2, Mail, Minus, Phone, Plus, User, Zap } from "lucide-react";
 import { HoldButton } from "./ProductCard";
@@ -39,16 +39,18 @@ export default function ProductRedeemModal({
     createInitialRecipients(defaultRecipient),
   );
   const [touchedRecipients, setTouchedRecipients] = useState(false);
+  const wasOpenRef = useRef(false);
 
-  // Auto-fill Penerima 1 (Ketua) saat modal dibuka, dan reset saat ditutup
+  // Hanya inisialisasi/reset saat modal benar-benar dibuka atau ditutup (tidak menghapus input saat background refetch/alt-tab)
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !wasOpenRef.current) {
       setRecipients(createInitialRecipients(defaultRecipient));
       setTouchedRecipients(false);
-    } else {
+    } else if (!isOpen && wasOpenRef.current) {
       setRecipients(createInitialRecipients(defaultRecipient));
       setTouchedRecipients(false);
     }
+    wasOpenRef.current = isOpen;
   }, [isOpen, defaultRecipient]);
 
   const requireRecipientEmails = Boolean(product?.require_recipient_emails);
@@ -551,6 +553,15 @@ export default function ProductRedeemModal({
             </span>
           </div>
         ) : null}
+
+        {requireRecipientEmails && !recipientValidation.isValid && (
+          <div className="mb-4 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-center gap-2">
+            <AlertCircle className="h-4 w-4 shrink-0 text-amber-400" />
+            <span>
+              Lengkapi Nama, Email, dan No. Telp yang valid untuk Penerima 1 (serta penerima tambahan jika diisi).
+            </span>
+          </div>
+        )}
 
         <DialogFooter className="gap-2 sm:space-x-2">
           <DialogClose

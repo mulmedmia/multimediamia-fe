@@ -66,13 +66,16 @@ export default function ProductPage() {
   const [outOfStockProductIds, setOutOfStockProductIds] = useState(() => new Set());
 
   const userId = user?.users_id || user?.userId;
+  const defaultName = profile?.name || user?.name || "";
+  const defaultEmail = profile?.email || user?.email || "";
+  const defaultPhone = profile?.whatsapp_number || user?.whatsapp_number || "";
   const defaultRecipient = useMemo(
     () => ({
-      name: profile?.name || user?.name || "",
-      email: profile?.email || user?.email || "",
-      phone: profile?.whatsapp_number || user?.whatsapp_number || "",
+      name: defaultName,
+      email: defaultEmail,
+      phone: defaultPhone,
     }),
-    [profile, user]
+    [defaultName, defaultEmail, defaultPhone]
   );
   const { data: myRegistrations, isLoading: registrationsLoading } =
     useMyRegistrations(userId);
