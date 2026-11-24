@@ -54,6 +54,7 @@ import {
   Phone,
   ExternalLink,
   Zap,
+  Mail,
 } from "lucide-react";
 import { exportToExcel } from "@/lib/export-excel";
 import { useAuthContext } from "@/providers/AuthProvider";
@@ -218,14 +219,28 @@ export default function ManageRedemptionPage() {
         { header: "Nama Peserta", key: "user_name", width: 25 },
         { header: "Tim Lomba", key: "team_name", width: 25 },
         { header: "Email", key: "user_email", width: 26 },
+        { header: "Nama Penerima 1", key: "recipient_name_1", width: 24 },
+        { header: "Email Penerima 1", key: "recipient_email_1", width: 28 },
+        { header: "No. Telp Penerima 1", key: "recipient_phone_1", width: 20 },
+        { header: "Nama Penerima 2", key: "recipient_name_2", width: 24 },
+        { header: "Email Penerima 2", key: "recipient_email_2", width: 28 },
+        { header: "No. Telp Penerima 2", key: "recipient_phone_2", width: 20 },
+        { header: "Nama Penerima 3", key: "recipient_name_3", width: 24 },
+        { header: "Email Penerima 3", key: "recipient_email_3", width: 28 },
+        { header: "No. Telp Penerima 3", key: "recipient_phone_3", width: 20 },
         { header: "Nomor WhatsApp", key: "whatsapp_number", width: 20 },
-        { header: "Nama Produl", key: "product_name", width: 25 },
+        { header: "Nama Produk", key: "product_name", width: 25 },
         { header: "Jumlah", key: "quantity", width: 14, align: "center" },
         { header: "Diamond Digunakan", key: "points_used", width: 20, align: "center" },
         { header: "Status Penukaran", key: "status", width: 18, align: "center" },
       ];
 
       const rows = list.map((item, index) => {
+        const recList = Array.isArray(item.recipients)
+          ? item.recipients
+          : Array.isArray(item.recipient_emails)
+          ? item.recipient_emails.map((email) => ({ name: "", email, phone: "" }))
+          : [];
         return {
           no: index + 1,
           redemption_id: item.redemption_id || "-",
@@ -234,6 +249,15 @@ export default function ManageRedemptionPage() {
           user_name: item.user?.name || "-",
           team_name: item.registration?.team_name || "-",
           user_email: item.user?.email || "-",
+          recipient_name_1: recList[0]?.name || "-",
+          recipient_email_1: recList[0]?.email || "-",
+          recipient_phone_1: recList[0]?.phone || "-",
+          recipient_name_2: recList[1]?.name || "-",
+          recipient_email_2: recList[1]?.email || "-",
+          recipient_phone_2: recList[1]?.phone || "-",
+          recipient_name_3: recList[2]?.name || "-",
+          recipient_email_3: recList[2]?.email || "-",
+          recipient_phone_3: recList[2]?.phone || "-",
           whatsapp_number: item.user?.whatsapp_number || item.user?.whatsapp || "-",
           product_name: item.product?.name || "-",
           quantity: `${item.quantity || 1} item`,
@@ -576,6 +600,9 @@ export default function ManageRedemptionPage() {
                       Produk
                     </TableHead>
                     <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
+                      Data Penerima
+                    </TableHead>
+                    <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
                       Poin Ditebus
                     </TableHead>
                     <TableHead className="text-muted-foreground font-semibold text-xs py-3.5 bg-white/[0.02]">
@@ -607,7 +634,9 @@ export default function ManageRedemptionPage() {
                           <div className="min-w-0">
                             <p className="font-semibold text-foreground text-xs truncate max-w-[160px] sm:max-w-[220px]">
                               {r.registration?.team_name || "Tanpa Nama Tim"}{" "}
-                              <span className="text-amber-300 font-normal text-[11px]">({r.registration?.category_name.split(" ")[0]})</span>
+                              {r.registration?.category_name && (
+                                <span className="text-amber-300 font-normal text-[11px]">({r.registration.category_name.split(" ")[0]})</span>
+                              )}
                             </p>
                             <p className="text-[11px] text-muted-foreground truncate max-w-[160px] sm:max-w-[220px]">
                               Ketua: {r.registration?.team_leader_name || r.user?.name || "-"}
@@ -661,6 +690,48 @@ export default function ManageRedemptionPage() {
                             </span>
                           </div>
                         </div>
+                      </TableCell>
+
+                      {/* Data Penerima */}
+                      <TableCell className="py-3.5 max-w-[260px]">
+                        {(() => {
+                          const recList = Array.isArray(r.recipients)
+                            ? r.recipients
+                            : Array.isArray(r.recipient_emails)
+                            ? r.recipient_emails.map((email) => ({ name: "", email, phone: "" }))
+                            : [];
+                          if (recList.length === 0) {
+                            return <span className="text-xs text-muted-foreground/50">-</span>;
+                          }
+                          return (
+                            <div className="flex flex-col gap-1.5">
+                              {recList.map((rec, idx) => (
+                                <div
+                                  key={idx}
+                                  className="text-[11px] bg-cyan-500/10 border border-cyan-500/20 px-2 py-1 rounded-md space-y-0.5"
+                                >
+                                  {rec.name && (
+                                    <p className="font-semibold text-foreground truncate max-w-[230px]" title={rec.name}>
+                                      {idx + 1}. {rec.name}
+                                    </p>
+                                  )}
+                                  {rec.email && (
+                                    <p className="text-cyan-300 flex items-center gap-1 truncate max-w-[230px]" title={rec.email}>
+                                      <Mail className="h-3 w-3 shrink-0 text-cyan-400" />
+                                      <span className="truncate">{rec.email}</span>
+                                    </p>
+                                  )}
+                                  {rec.phone && (
+                                    <p className="text-emerald-300 flex items-center gap-1 truncate max-w-[230px]" title={rec.phone}>
+                                      <Phone className="h-3 w-3 shrink-0 text-emerald-400" />
+                                      <span className="truncate">{rec.phone}</span>
+                                    </p>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          );
+                        })()}
                       </TableCell>
 
                       {/* Poin Ditebus */}
@@ -829,6 +900,48 @@ export default function ManageRedemptionPage() {
                 {detailData?.user?.email || "-"}
               </span>
             </div>
+
+            {(() => {
+              const recList = Array.isArray(detailData?.recipients)
+                ? detailData.recipients
+                : Array.isArray(detailData?.recipient_emails)
+                ? detailData.recipient_emails.map((email) => ({ name: "", email, phone: "" }))
+                : [];
+              if (recList.length === 0) return null;
+              return (
+                <div className="py-1.5 border-b border-border/20 space-y-1.5">
+                  <span className="text-muted-foreground flex items-center gap-1">
+                    <Mail className="h-3 w-3 text-cyan-400" />
+                    <span>Data Penerima ({recList.length} Orang):</span>
+                  </span>
+                  <div className="flex flex-col gap-1.5 pl-1">
+                    {recList.map((rec, idx) => (
+                      <div
+                        key={idx}
+                        className="text-[11px] bg-cyan-500/10 border border-cyan-500/20 px-2.5 py-1.5 rounded-lg space-y-0.5"
+                      >
+                        <p className="font-semibold text-foreground">
+                          {idx + 1}. {rec.name || "-"}
+                        </p>
+                        <p className="text-cyan-300 break-all">{rec.email || "-"}</p>
+                        {rec.phone && (
+                          <a
+                            href={`https://wa.me/${rec.phone.replace(/[^0-9]/g, "").replace(/^0/, "62")}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-emerald-400 hover:underline inline-flex items-center gap-1 font-medium"
+                          >
+                            <Phone className="h-3 w-3" />
+                            <span>{rec.phone}</span>
+                            <ExternalLink className="h-2.5 w-2.5" />
+                          </a>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
 
             <div className="flex justify-between items-center py-0.5 border-b border-border/20">
               <span className="text-muted-foreground">Nomor WhatsApp:</span>

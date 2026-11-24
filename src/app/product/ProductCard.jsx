@@ -44,6 +44,7 @@ export default function ProductCard({
   onOutOfStock,
   redeemMutation: customRedeemMutation,
   onOpenDetail,
+  defaultRecipient = null,
 }) {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isRedeemOpen, setIsRedeemOpen] = useState(false);
@@ -116,7 +117,7 @@ export default function ProductCard({
   const isPending = isSubmitting || (redeemMutation.isPending && isRedeemOpen);
   const notClaimable = !canRedeem || !activeCategory || isPending;
 
-  const handleRedeem = () => {
+  const handleRedeem = (recipients = []) => {
     setIsSubmitting(true);
     redeemMutation.mutate(
       {
@@ -124,6 +125,9 @@ export default function ProductCard({
         quantity: currentQty,
         categoryId: selectedCategoryId || activeCategory?.category_id,
         registrationId: activeCategory?.registration_id,
+        ...(Array.isArray(recipients) && recipients.length > 0
+          ? { recipients }
+          : {}),
       },
       {
         onSuccess: (resData) => {
@@ -345,6 +349,7 @@ export default function ProductCard({
         onRedeemQuantity={setRedeemQuantity}
         isSubmitting={isSubmitting}
         backToDetail={backToDetail}
+        defaultRecipient={defaultRecipient}
       />
     </>
   );

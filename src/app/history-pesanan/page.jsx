@@ -418,6 +418,42 @@ export default function HistoryPesananPage() {
                                   </div>
                                 )}
                               </div>
+
+                              {(() => {
+                                const recList = Array.isArray(item.recipients)
+                                  ? item.recipients
+                                  : Array.isArray(item.recipient_emails)
+                                  ? item.recipient_emails.map((email) => ({ name: "", email, phone: "" }))
+                                  : [];
+                                if (recList.length === 0) return null;
+                                return (
+                                  <div className="pt-1.5 space-y-1.5 text-[11px]">
+                                    <span className="text-[#AAB1BD] font-medium block">
+                                      Data Penerima ({recList.length} Orang):
+                                    </span>
+                                    <div className="flex flex-wrap gap-1.5">
+                                      {recList.map((rec, idx) => (
+                                        <div
+                                          key={idx}
+                                          className="bg-cyan-500/10 border border-cyan-500/25 text-cyan-200 px-2.5 py-1 rounded-lg flex flex-wrap items-center gap-x-2 gap-y-0.5"
+                                        >
+                                          {rec.name && (
+                                            <span className="font-semibold text-[#FFF9F5]">
+                                              {idx + 1}. {rec.name}
+                                            </span>
+                                          )}
+                                          {rec.email && (
+                                            <span className="text-cyan-300">{rec.email}</span>
+                                          )}
+                                          {rec.phone && (
+                                            <span className="text-emerald-300">{rec.phone}</span>
+                                          )}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                );
+                              })()}
                             </div>
                           </div>
 
