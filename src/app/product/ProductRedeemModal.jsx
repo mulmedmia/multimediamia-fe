@@ -1,7 +1,22 @@
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { AlertCircle, Gem, Loader2, Minus, Plus, Zap } from "lucide-react";
+import { AlertCircle, Gem, Loader2, Mail, Minus, Phone, Plus, User, Zap } from "lucide-react";
 import { HoldButton } from "./ProductCard";
 import { cn } from "@/lib/utils";
+
+const EMAIL_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9._%+-]{0,63}@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const FORMULA_PREFIX_REGEX = /^[=+\-@\t\r]/;
+const PHONE_DIGITS_REGEX = /^[0-9]{8,16}$/;
+
+const createInitialRecipients = (defaultRecipient) => [
+  {
+    name: defaultRecipient?.name || "",
+    email: defaultRecipient?.email || "",
+    phone: defaultRecipient?.phone || "",
+  },
+  { name: "", email: "", phone: "" },
+  { name: "", email: "", phone: "" },
+];
 
 export default function ProductRedeemModal({
   isOpen,
@@ -18,7 +33,93 @@ export default function ProductRedeemModal({
   isSubmitting,
   onOpenDetail,
   backToDetail,
+  defaultRecipient = null,
 }) {
+  const [recipients, setRecipients] = useState(() =>
+    createInitialRecipients(defaultRecipient),
+  );
+  const [touchedRecipients, setTouchedRecipients] = useState(false);
+  const wasOpenRef = useRef(false);
+
+  // Hanya inisialisasi/reset saat modal benar-benar dibuka atau ditutup (tidak menghapus input saat background refetch/alt-tab)
+  useEffect(() => {
+    if (isOpen && !wasOpenRef.current) {
+      setRecipients(createInitialRecipients(defaultRecipient));
+      setTouchedRecipients(false);
+    } else if (!isOpen && wasOpenRef.current) {
+      setRecipients(createInitialRecipients(defaultRecipient));
+      setTouchedRecipients(false);
+    }
+    wasOpenRef.current = isOpen;
+  }, [isOpen, defaultRecipient]);
+
+  const requireRecipientEmails = Boolean(product?.require_recipient_emails);
+
+  const recipientValidation = useMemo(() => {
+    if (!requireRecipientEmails) {
+      return {
+        isValid: true,
+        cleaned: [],
+        slotErrors: [
+          { name: "", email: "", phone: "" },
+          { name: "", email: "", phone: "" },
+          { name: "", email: "", phone: "" },
+        ],
+      };
+    }
+
+    const slotErrors = [
+      { name: "", email: "", phone: "" },
+      { name: "", email: "", phone: "" },
+      { name: "", email: "", phone: "" },
+    ];
+    const cleaned = [];
+    const seenEmails = new Map();
+
+    for (let i = 0; i < 3; i++) {
+      const slot = recipients[i] || { name: "", email: "", phone: "" };
+      const name = (slot.name || "").trim();
+      const email = (slot.email || "").trim().toLowerCase();
+      const phone = (slot.phone || "").trim().replace(/[\s\-()]/g, "").replace(/^\+/, "");
+      const hasAny = Boolean(name || email || phone);
+
+      if (i > 0 && !hasAny) {
+        continue;
+      }
+
+      if (!name) {
+        slotErrors[i].name = "Nama wajib diisi.";
+      } else if (name.length < 2 || name.length > 100 || FORMULA_PREFIX_REGEX.test(name)) {
+        slotErrors[i].name = "Nama tidak valid (2–100 karakter).";
+      }
+
+      if (!email) {
+        slotErrors[i].email = "Email wajib diisi.";
+      } else if (email.length > 254 || !EMAIL_REGEX.test(email)) {
+        slotErrors[i].email = "Format email tidak valid.";
+      } else if (seenEmails.has(email)) {
+        slotErrors[i].email = "Email tidak boleh sama dengan penerima lain.";
+      } else {
+        seenEmails.set(email, i);
+      }
+
+      if (!phone) {
+        slotErrors[i].phone = "No. Telp wajib diisi.";
+      } else if (!PHONE_DIGITS_REGEX.test(phone)) {
+        slotErrors[i].phone = "Format nomor tidak valid (8–16 digit).";
+      }
+
+      if (!slotErrors[i].name && !slotErrors[i].email && !slotErrors[i].phone) {
+        cleaned.push({ name, email, phone });
+      }
+    }
+
+    const hasError = slotErrors.some((e) => e.name || e.email || e.phone);
+    const isValid = !hasError && cleaned.length >= 1 && cleaned.length <= 3;
+
+    return { isValid, cleaned, slotErrors };
+  }, [requireRecipientEmails, recipients]);
+
   if (!product) return null;
 
   const isZeroStock = isOutOfStockLocal;
@@ -99,7 +200,10 @@ export default function ProductRedeemModal({
       <DialogContent
         showCloseButton={false}
         onOpenAutoFocus={(e) => e.preventDefault()}
-        className="rounded-2xl border border-white/10 bg-[#0A0D14] text-[#FFF9F5] p-6 shadow-2xl sm:max-w-md selection:bg-primary selection:text-white"
+        className={cn(
+          "rounded-2xl border border-white/10 bg-[#0A0D14] text-[#FFF9F5] p-6 shadow-2xl max-h-[90vh] overflow-y-auto selection:bg-primary selection:text-white",
+          requireRecipientEmails ? "sm:max-w-lg" : "sm:max-w-md",
+        )}
       >
         <DialogHeader>
           <DialogTitle className="text-lg font-bold text-[#FFF9F5]">
@@ -202,6 +306,143 @@ export default function ProductRedeemModal({
               <span className="text-[10px] text-emerald-300 bg-emerald-500/10 px-2 py-0.5 rounded font-medium border border-emerald-500/20">
                 1 item = +{product.reward_xp} XP
               </span>
+            </div>
+          </div>
+        )}
+
+        {/* Input Data Penerima (1 wajib auto-fill Ketua, 2 & 3 opsional) */}
+        {requireRecipientEmails && (
+          <div className="my-3 p-4 rounded-xl bg-white/[0.04] border border-cyan-500/25 space-y-3.5">
+            <div className="flex items-start gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0 mt-0.5">
+                <Mail className="h-3.5 w-3.5" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-[#FFF9F5]">
+                  Data Penerima (Min. 1, Maks. 3 Orang)
+                </p>
+                <p className="text-[11px] text-[#AAB1BD] leading-relaxed">
+                  Penerima 1 (Ketua) otomatis terisi dari akun Anda dan tetap bisa diubah. Penerima 2 &amp; 3 opsional (jika diisi, lengkapi Nama, Email, dan No. Telp).
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {[0, 1, 2].map((idx) => {
+                const isFirst = idx === 0;
+                const slot = recipients[idx] || { name: "", email: "", phone: "" };
+                const errs = touchedRecipients
+                  ? recipientValidation.slotErrors[idx]
+                  : { name: "", email: "", phone: "" };
+
+                const updateField = (field, value) => {
+                  setTouchedRecipients(true);
+                  setRecipients((prev) => {
+                    const next = [...prev];
+                    next[idx] = { ...next[idx], [field]: value };
+                    return next;
+                  });
+                };
+
+                return (
+                  <div
+                    key={idx}
+                    className="p-3 rounded-xl bg-black/30 border border-white/10 space-y-2"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-semibold text-[#FFF9F5]">
+                        {isFirst ? "Penerima 1 (Ketua)" : `Penerima ${idx + 1}`}
+                      </span>
+                      {isFirst ? (
+                        <span className="text-[10px] font-semibold text-[#E01C20] bg-[#E01C20]/10 border border-[#E01C20]/30 px-2 py-0.5 rounded-full">
+                          Wajib
+                        </span>
+                      ) : (
+                        <span className="text-[10px] text-[#99A1AF] bg-white/5 border border-white/10 px-2 py-0.5 rounded-full">
+                          Opsional
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {/* Nama */}
+                      <div className="space-y-1 sm:col-span-2">
+                        <label
+                          htmlFor={`recipient-name-${idx}`}
+                          className="text-[10px] font-medium text-[#AAB1BD] flex items-center gap-1"
+                        >
+                          <User className="h-3 w-3 text-[#99A1AF]" />
+                          <span>Nama Lengkap</span>
+                        </label>
+                        <input
+                          id={`recipient-name-${idx}`}
+                          type="text"
+                          value={slot.name}
+                          onChange={(e) => updateField("name", e.target.value)}
+                          placeholder={isFirst ? "Nama lengkap ketua" : `Nama lengkap anggota ${idx + 1}`}
+                          className={cn(
+                            "w-full h-8.5 px-3 rounded-lg bg-black/50 border text-xs text-[#FFF9F5] placeholder:text-[#99A1AF]/60 focus:outline-none transition-colors",
+                            errs.name
+                              ? "border-red-500/70 focus:border-red-500"
+                              : "border-white/15 focus:border-cyan-400",
+                          )}
+                        />
+                        {errs.name && <p className="text-[10px] text-red-400">{errs.name}</p>}
+                      </div>
+
+                      {/* Email */}
+                      <div className="space-y-1">
+                        <label
+                          htmlFor={`recipient-email-${idx}`}
+                          className="text-[10px] font-medium text-[#AAB1BD] flex items-center gap-1"
+                        >
+                          <Mail className="h-3 w-3 text-[#99A1AF]" />
+                          <span>Email</span>
+                        </label>
+                        <input
+                          id={`recipient-email-${idx}`}
+                          type="email"
+                          value={slot.email}
+                          onChange={(e) => updateField("email", e.target.value)}
+                          placeholder={`anggota${idx + 1}@gmail.com`}
+                          className={cn(
+                            "w-full h-8.5 px-3 rounded-lg bg-black/50 border text-xs text-[#FFF9F5] placeholder:text-[#99A1AF]/60 focus:outline-none transition-colors",
+                            errs.email
+                              ? "border-red-500/70 focus:border-red-500"
+                              : "border-white/15 focus:border-cyan-400",
+                          )}
+                        />
+                        {errs.email && <p className="text-[10px] text-red-400">{errs.email}</p>}
+                      </div>
+
+                      {/* No. Telp / WA */}
+                      <div className="space-y-1">
+                        <label
+                          htmlFor={`recipient-phone-${idx}`}
+                          className="text-[10px] font-medium text-[#AAB1BD] flex items-center gap-1"
+                        >
+                          <Phone className="h-3 w-3 text-[#99A1AF]" />
+                          <span>No. Telp / WA</span>
+                        </label>
+                        <input
+                          id={`recipient-phone-${idx}`}
+                          type="tel"
+                          value={slot.phone}
+                          onChange={(e) => updateField("phone", e.target.value)}
+                          placeholder="081234567890"
+                          className={cn(
+                            "w-full h-8.5 px-3 rounded-lg bg-black/50 border text-xs text-[#FFF9F5] placeholder:text-[#99A1AF]/60 focus:outline-none transition-colors",
+                            errs.phone
+                              ? "border-red-500/70 focus:border-red-500"
+                              : "border-white/15 focus:border-cyan-400",
+                          )}
+                        />
+                        {errs.phone && <p className="text-[10px] text-red-400">{errs.phone}</p>}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
@@ -313,6 +554,15 @@ export default function ProductRedeemModal({
           </div>
         ) : null}
 
+        {requireRecipientEmails && !recipientValidation.isValid && (
+          <div className="mb-4 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-center gap-2">
+            <AlertCircle className="h-4 w-4 shrink-0 text-amber-400" />
+            <span>
+              Lengkapi Nama, Email, dan No. Telp yang valid untuk Penerima 1 (serta penerima tambahan jika diisi).
+            </span>
+          </div>
+        )}
+
         <DialogFooter className="gap-2 sm:space-x-2">
           <DialogClose
             className="rounded-full border border-white/15 bg-transparent hover:bg-white/5 text-[#FFF9F5] text-xs font-semibold h-10 cursor-pointer px-4 py-2"
@@ -332,9 +582,16 @@ export default function ProductRedeemModal({
               isPending ||
               userDiamonds < totalDiamondCost ||
               (hasXpPrice && userXp < totalXpCost) ||
-              !activeCategory
+              !activeCategory ||
+              (requireRecipientEmails && !recipientValidation.isValid)
             }
-            onClick={onRedeem}
+            onClick={() => {
+              if (requireRecipientEmails && !recipientValidation.isValid) {
+                setTouchedRecipients(true);
+                return;
+              }
+              onRedeem(requireRecipientEmails ? recipientValidation.cleaned : []);
+            }}
           >
             {isPending ? (
               <Loader2 className="h-4 w-4 animate-spin text-white mr-1.5" />
