@@ -36,6 +36,7 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
     price_xp: initial?.price_xp !== undefined ? String(initial.price_xp) : "",
     stock: initial?.stock !== undefined ? String(initial.stock) : "",
     reward_xp: initial?.reward_xp !== undefined ? String(initial.reward_xp) : "0",
+    is_single_attempt: initial?.is_single_attempt !== undefined ? Boolean(initial.is_single_attempt) : false,
     require_recipient_emails: initial?.require_recipient_emails !== undefined ? Boolean(initial.require_recipient_emails) : false,
     max_redeem_per_team:
       initial?.max_redeem_per_team !== undefined
@@ -60,6 +61,7 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
         price_xp: initial.price_xp !== undefined ? String(initial.price_xp) : "0",
         stock: initial.stock !== undefined ? String(initial.stock) : "",
         reward_xp: initial.reward_xp !== undefined ? String(initial.reward_xp) : "0",
+        is_single_attempt: initial.is_single_attempt !== undefined ? Boolean(initial.is_single_attempt) : false,
         require_recipient_emails: initial.require_recipient_emails !== undefined ? Boolean(initial.require_recipient_emails) : false,
         max_redeem_per_team:
           initial.max_redeem_per_team !== undefined
@@ -125,6 +127,7 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
       stock: Number(form.stock),
       reward_xp: priceXpNum > 0 ? 0 : rewardXpNum,
       is_unlimited_stock: false,
+      is_single_attempt: Boolean(form.is_single_attempt),
       require_recipient_emails: Boolean(form.require_recipient_emails),
       max_redeem_per_team: Math.max(0, parseInt(form.max_redeem_per_team, 10) || 0),
       is_active: form.is_active,
@@ -339,6 +342,31 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
 
             <div className="flex items-start gap-3 pt-2.5 border-t border-border/30">
               <Checkbox
+                id="is_single_attempt"
+                checked={form.is_single_attempt}
+                onCheckedChange={(checked) =>
+                  setForm((f) => ({ ...f, is_single_attempt: Boolean(checked) }))
+                }
+                className="mt-0.5 border-border bg-input/20 cursor-pointer"
+              />
+              <label
+                htmlFor="is_single_attempt"
+                className="space-y-1 leading-none cursor-pointer"
+              >
+                <div className="text-xs font-semibold text-foreground cursor-pointer flex items-center gap-1.5">
+                  <span>Hanya 1x Transaksi per Tim (1 Attempt)</span>
+                  <span className="text-[10px] text-amber-400 bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded font-medium">
+                    Sekali Klaim
+                  </span>
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  Centang jika tiap tim hanya boleh menukar produk ini 1 kali saja (dalam 1 transaksi tetap dapat memilih 1–3 item sekaligus sesuai batas di atas, namun tidak dapat menukar lagi di transaksi berikutnya).
+                </p>
+              </label>
+            </div>
+
+            <div className="flex items-start gap-3 pt-2.5 border-t border-border/30">
+              <Checkbox
                 id="require_recipient_emails"
                 checked={form.require_recipient_emails}
                 onCheckedChange={(checked) =>
@@ -357,7 +385,7 @@ export default function ProductForm({ initial, onSubmit, isLoading, onCancel }) 
                   </span>
                 </div>
                 <p className="text-[11px] text-muted-foreground">
-                  Centang jika peserta wajib mengisi Nama, Email, dan No. Telp untuk minimal 1 penerima (maksimal 3 orang; penerima 2 &amp; 3 opsional), misalnya untuk Tiket Kelas Dicoding.
+                  Centang jika peserta wajib mengisi Nama, Email, dan No. Telp untuk setiap tiket yang ditukarkan (jumlah form penerima 1–3 otomatis menyesuaikan jumlah penukaran, misalnya untuk Tiket Kelas Dicoding).
                 </p>
               </label>
             </div>

@@ -5,7 +5,6 @@ import Image from "next/image";
 import { getSafeImageUrl } from "@/lib/image-loader";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { useHoldPress } from "@/hooks/use-hold-press";
 import { useRedeemProduct } from "@/hooks/use-product-gamification";
 import {
   Gift,
@@ -18,22 +17,7 @@ import {
 } from "lucide-react";
 import ProductDetailModal from "./ProductDetailModal";
 import ProductRedeemModal from "./ProductRedeemModal";
-
-export function HoldButton({ children, onAction, disabled, className, title }) {
-  const holdProps = useHoldPress(onAction, { disabled });
-
-  return (
-    <button
-      type="button"
-      disabled={disabled}
-      className={cn("select-none touch-none", className)}
-      title={title}
-      {...holdProps}
-    >
-      {children}
-    </button>
-  );
-}
+import { getProductRedeemState } from "./redeem-utils";
 
 export default function ProductCard({
   product,
@@ -55,64 +39,26 @@ export default function ProductCard({
   const defaultRedeemMutation = useRedeemProduct();
   const redeemMutation = customRedeemMutation || defaultRedeemMutation;
 
-  const isZeroStock = isOutOfStockLocal;
-  const currentStock = isZeroStock ? 0 : Number(product.stock);
-
-  const userDiamonds = Number(
-    activeCategory?.diamond ?? 0
-  );
-  const userXp = Number(activeCategory?.xp ?? 0);
-
-  const maxPerTeam =
-    Number(product.max_redeem_per_team) > 0
-      ? Number(product.max_redeem_per_team)
-      : product.is_single_redeem
-      ? 1
-      : 0;
-  const hasTeamLimit = maxPerTeam > 0;
-
-  // Hitung total kuantitas produk ini yang sudah ditukar oleh tim
-  const teamRedeemedQty = myRedemptions
-    .filter((r) => r.product_id === product.product_id)
-    .reduce((sum, r) => sum + (Number(r.quantity) || 1), 0);
-
-  const remainingTeamQuota = hasTeamLimit
-    ? Math.max(0, maxPerTeam - teamRedeemedQty)
-    : Infinity;
-  const alreadyClaimed = hasTeamLimit && remainingTeamQuota <= 0;
-
-  const isUnlimited = Boolean(product.is_unlimited_stock);
-  const hasXpPrice = Number(product.price_xp) > 0;
-  const hasXpReward = !hasXpPrice && Number(product.reward_xp) > 0;
-  const isOutOfStock = !isUnlimited && (currentStock < 1 || isZeroStock);
-  const canRedeem = product.is_active && !isOutOfStock && !alreadyClaimed;
-
-  // Hitung kuantitas maksimal yang mampu dibeli berdasarkan saldo Diamond & XP
-  const maxAffordableDiamonds =
-    Number(product.price_diamond) > 0
-      ? Math.floor(userDiamonds / Number(product.price_diamond))
-      : Infinity;
-
-  const maxAffordableXp = hasXpPrice
-    ? Math.floor(userXp / Number(product.price_xp))
-    : Infinity;
-
-  const maxAffordable = Math.min(maxAffordableDiamonds, maxAffordableXp);
-  const maxStock = isUnlimited ? 999 : Math.max(0, currentStock);
-
-  // Kuantitas maksimal yang diizinkan untuk diinput (dibatasi oleh stok, sisa kuota tim, & saldo, min 1)
-  const maxAllowedByQuota = hasTeamLimit ? remainingTeamQuota : Infinity;
-
-  const maxRedeemable = Math.max(
-    1,
-    Math.min(
-      maxStock,
-      maxAllowedByQuota,
-      maxAffordable === Infinity ? maxStock : maxAffordable
-    )
-  );
-
-  const currentQty = Math.min(maxRedeemable, Math.max(1, redeemQuantity));
+  const {
+    currentStock,
+    maxPerTeam,
+    hasTeamLimit,
+    isSingleAttempt,
+    teamRedeemedQty,
+    alreadyClaimed,
+    isUnlimited,
+    hasXpReward,
+    isOutOfStock,
+    canRedeem,
+    currentQty,
+    actionButtonText,
+  } = getProductRedeemState({
+    product,
+    activeCategory,
+    myRedemptions,
+    isOutOfStockLocal,
+    redeemQuantity,
+  });
 
   const isPending = isSubmitting || (redeemMutation.isPending && isRedeemOpen);
   const notClaimable = !canRedeem || !activeCategory || isPending;
@@ -152,18 +98,24 @@ export default function ProductCard({
             error?.message ||
             "Gagal menukar produk!";
 
-          if (
-            typeof errMsg === "string" &&
-            errMsg.toLowerCase().includes("out of stock")
-          ) {
+          const errMsgLower = typeof errMsg === "string" ? errMsg.toLowerCase() : "";
+          const shouldCloseModal =
+            errMsgLower.includes("out of stock") ||
+            errMsgLower.includes("not active") ||
+            errMsgLower.includes("sudah menggunakan kesempatan 1 kali") ||
+            errMsgLower.includes("telah mencapai batas maksimal");
+
+          if (errMsgLower.includes("out of stock")) {
             onOutOfStock?.(product.product_id);
           }
 
           toast.error(errMsg, {
             style: { background: "#ffeaea", color: "#c00" },
           });
-          setIsRedeemOpen(false);
-          setRedeemQuantity(1);
+          if (shouldCloseModal) {
+            setIsRedeemOpen(false);
+            setRedeemQuantity(1);
+          }
           redeemMutation.reset();
         },
       }
@@ -216,6 +168,11 @@ export default function ProductCard({
               {hasTeamLimit && (
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-950/90 text-amber-300 border border-amber-800/40 backdrop-blur-md w-fit">
                   Maks {maxPerTeam}x / Tim
+                </span>
+              )}
+              {isSingleAttempt && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-rose-950/90 text-rose-300 border border-rose-800/40 backdrop-blur-md w-fit">
+                  Maks 1x Transaksi
                 </span>
               )}
               {hasXpReward && (
@@ -307,17 +264,7 @@ export default function ProductCard({
                 <CheckCircle2 className="h-4 w-4" />
               )
             )}
-            <span>
-              {!activeCategory
-                ? "Daftar Lomba Dulu"
-                : alreadyClaimed
-                ? `Batas Tercapai (Maks ${maxPerTeam}x)`
-                : isOutOfStock
-                ? "Hadiah Telah Habis"
-                : hasXpReward
-                ? "Tukar ke XP"
-                : "Tukar Produk"}
-            </span>
+            <span>{actionButtonText}</span>
           </button>
         </div>
       </div>
