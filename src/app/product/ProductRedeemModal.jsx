@@ -1,10 +1,10 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { AlertCircle, Gem, Loader2, Mail, Minus, Phone, Plus, User, Zap } from "lucide-react";
-import { HoldButton } from "./ProductCard";
+import { AlertCircle, Gem, Loader2, Mail, Phone, User, Zap } from "lucide-react";
+import { getProductRedeemState } from "./redeem-utils";
 import { cn } from "@/lib/utils";
 
-const EMAIL_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9._%+-]{0,63}@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const EMAIL_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9._%+-]{0,63}@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
 const FORMULA_PREFIX_REGEX = /^[=+\-@\t\r]/;
 const PHONE_DIGITS_REGEX = /^[0-9]{8,16}$/;
 
@@ -53,7 +53,33 @@ export default function ProductRedeemModal({
     wasOpenRef.current = isOpen;
   }, [isOpen, defaultRecipient]);
 
-  const requireRecipientEmails = Boolean(product?.require_recipient_emails);
+  const {
+    currentStock,
+    userDiamonds,
+    userXp,
+    maxPerTeam,
+    hasTeamLimit,
+    isSingleAttempt,
+    requireRecipientEmails,
+    remainingTeamQuota,
+    isUnlimited,
+    hasXpPrice,
+    hasXpReward,
+    maxAffordable,
+    maxRedeemable,
+    currentQty,
+    totalDiamondCost,
+    totalXpCost,
+    earnedXp,
+    remainingDiamonds,
+    remainingXp,
+  } = getProductRedeemState({
+    product,
+    activeCategory,
+    myRedemptions,
+    isOutOfStockLocal,
+    redeemQuantity,
+  });
 
   const recipientValidation = useMemo(() => {
     if (!requireRecipientEmails) {
@@ -75,17 +101,13 @@ export default function ProductRedeemModal({
     ];
     const cleaned = [];
     const seenEmails = new Map();
+    const targetCount = Math.min(3, Math.max(1, currentQty));
 
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < targetCount; i++) {
       const slot = recipients[i] || { name: "", email: "", phone: "" };
       const name = (slot.name || "").trim();
       const email = (slot.email || "").trim().toLowerCase();
       const phone = (slot.phone || "").trim().replace(/[\s\-()]/g, "").replace(/^\+/, "");
-      const hasAny = Boolean(name || email || phone);
-
-      if (i > 0 && !hasAny) {
-        continue;
-      }
 
       if (!name) {
         slotErrors[i].name = "Nama wajib diisi.";
@@ -115,77 +137,14 @@ export default function ProductRedeemModal({
     }
 
     const hasError = slotErrors.some((e) => e.name || e.email || e.phone);
-    const isValid = !hasError && cleaned.length >= 1 && cleaned.length <= 3;
+    const isValid = !hasError && cleaned.length === targetCount;
 
     return { isValid, cleaned, slotErrors };
-  }, [requireRecipientEmails, recipients]);
+  }, [requireRecipientEmails, recipients, currentQty]);
 
   if (!product) return null;
 
-  const isZeroStock = isOutOfStockLocal;
-  const currentStock = isZeroStock ? 0 : Number(product.stock);
-
-  const userDiamonds = Number(activeCategory?.diamond ?? 0);
-  const userXp = Number(activeCategory?.xp ?? 0);
-
-  const maxPerTeam =
-    Number(product.max_redeem_per_team) > 0
-      ? Number(product.max_redeem_per_team)
-      : product.is_single_redeem
-        ? 1
-        : 0;
-  const hasTeamLimit = maxPerTeam > 0;
-
-  // Hitung total kuantitas produk ini yang sudah ditukar oleh tim
-  const teamRedeemedQty = myRedemptions
-    .filter((r) => r.product_id === product.product_id)
-    .reduce((sum, r) => sum + (Number(r.quantity) || 1), 0);
-
-  const remainingTeamQuota = hasTeamLimit
-    ? Math.max(0, maxPerTeam - teamRedeemedQty)
-    : Infinity;
-  const alreadyClaimed = hasTeamLimit && remainingTeamQuota <= 0;
-
-  const isUnlimited = Boolean(product.is_unlimited_stock);
-  const hasXpPrice = Number(product.price_xp) > 0;
-  const hasXpReward = !hasXpPrice && Number(product.reward_xp) > 0;
-  const isOutOfStock = !isUnlimited && (currentStock < 1 || isZeroStock);
-  const canRedeem = product.is_active && !isOutOfStock && !alreadyClaimed;
-
-  // Hitung kuantitas maksimal yang mampu dibeli berdasarkan saldo Diamond & XP
-  const maxAffordableDiamonds =
-    Number(product.price_diamond) > 0
-      ? Math.floor(userDiamonds / Number(product.price_diamond))
-      : Infinity;
-
-  const maxAffordableXp = hasXpPrice
-    ? Math.floor(userXp / Number(product.price_xp))
-    : Infinity;
-
-  const maxAffordable = Math.min(maxAffordableDiamonds, maxAffordableXp);
-  const maxStock = isUnlimited ? 999 : Math.max(0, currentStock);
-
-  // Kuantitas maksimal yang diizinkan untuk diinput (dibatasi oleh stok, sisa kuota tim, & saldo, min 1)
-  const maxAllowedByQuota = hasTeamLimit ? remainingTeamQuota : Infinity;
-
-  const maxRedeemable = Math.max(
-    1,
-    Math.min(
-      maxStock,
-      maxAllowedByQuota,
-      maxAffordable === Infinity ? maxStock : maxAffordable,
-    ),
-  );
-
-  const currentQty = Math.min(maxRedeemable, Math.max(1, redeemQuantity));
-  const totalDiamondCost = Number(product.price_diamond ?? 0) * currentQty;
-  const totalXpCost = hasXpPrice ? Number(product.price_xp) * currentQty : 0;
-  const earnedXp = hasXpReward ? Number(product.reward_xp) * currentQty : 0;
-  const remainingDiamonds = userDiamonds - totalDiamondCost;
-  const remainingXp = userXp - totalXpCost;
-
   const isPending = isSubmitting || (customRedeemMutation.isPending && isRedeemOpen);
-  const notClaimable = !canRedeem || !activeCategory || isPending;
 
   return (
     <Dialog
@@ -217,14 +176,25 @@ export default function ProductRedeemModal({
           </p>
         </DialogHeader>
 
-        {/* Info khusus batas penukaran per tim */}
-        {hasTeamLimit && (
-          <div className="my-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs flex items-center gap-2">
-            <AlertCircle className="h-4 w-4 shrink-0 text-amber-400" />
-            <span>
-              Produk ini dibatasi maksimal <strong>{maxPerTeam} item</strong>{" "}
-              per tim.
-            </span>
+        {/* Info khusus batas penukaran per tim & aturan 1x transaksi */}
+        {(hasTeamLimit || isSingleAttempt) && (
+          <div className="my-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs flex items-start gap-2">
+            <AlertCircle className="h-4 w-4 shrink-0 text-amber-400 mt-0.5" />
+            <div className="space-y-1">
+              {hasTeamLimit && (
+                <p>
+                  Produk ini dibatasi maksimal <strong>{maxPerTeam} item</strong>{" "}
+                  per tim.
+                </p>
+              )}
+              {isSingleAttempt && (
+                <p>
+                  Penukaran hanya dapat dilakukan{" "}
+                  <strong>1 kali transaksi per tim</strong> — pastikan memilih
+                  jumlah tiket yang sesuai sekarang.
+                </p>
+              )}
+            </div>
           </div>
         )}
 
@@ -249,20 +219,13 @@ export default function ProductRedeemModal({
                   }`}
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <HoldButton
-              disabled={currentQty <= 1}
-              onAction={() => onRedeemQuantity((q) => Math.max(1, q - 1))}
-              className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 active:bg-white/30 disabled:opacity-30 disabled:cursor-default flex items-center justify-center text-[#FFF9F5] transition-colors cursor-pointer select-none touch-manipulation"
-              title="Kurangi jumlah (klik atau tahan untuk mengurangi)"
-            >
-              <Minus className="h-3.5 w-3.5" />
-            </HoldButton>
+          <div className="flex items-center">
             <input
               type="number"
-              min={maxAffordable !== 0 ? "1" : maxAffordable}
-              max={maxAffordable !== 0 ? maxRedeemable : maxAffordable}
-              value={maxAffordable !== 0 ? currentQty : maxAffordable}
+              min="1"
+              max={maxRedeemable}
+              value={currentQty}
+              disabled={maxAffordable === 0}
               onChange={(e) => {
                 const val = parseInt(e.target.value, 10);
                 if (isNaN(val) || val < 1) {
@@ -271,18 +234,8 @@ export default function ProductRedeemModal({
                   onRedeemQuantity(Math.min(maxRedeemable, Math.max(1, val)));
                 }
               }}
-              className="w-14 h-8 rounded-lg bg-black/50 border border-white/20 text-center text-xs font-bold text-[#FFF9F5] focus:outline-none focus:border-[#E01C20]"
+              className="w-20 h-9 px-2 rounded-lg bg-black/50 border border-white/20 text-center text-xs font-bold text-[#FFF9F5] focus:outline-none focus:border-[#E01C20] disabled:opacity-50 disabled:cursor-not-allowed"
             />
-            <HoldButton
-              disabled={currentQty >= maxRedeemable}
-              onAction={() => {
-                onRedeemQuantity((q) => Math.min(maxRedeemable, q + 1));
-              }}
-              className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 active:bg-white/30 disabled:opacity-30 disabled:cursor-default flex items-center justify-center text-[#FFF9F5] transition-colors cursor-pointer select-none touch-manipulation"
-              title="Tambah jumlah (klik atau tahan untuk menambah)"
-            >
-              <Plus className="h-3.5 w-3.5" />
-            </HoldButton>
           </div>
         </div>
 
@@ -310,7 +263,7 @@ export default function ProductRedeemModal({
           </div>
         )}
 
-        {/* Input Data Penerima (1 wajib auto-fill Ketua, 2 & 3 opsional) */}
+        {/* Input Data Penerima (jumlah form otomatis mengikuti jumlah tiket yang ditukar: 1-3 orang) */}
         {requireRecipientEmails && (
           <div className="my-3 p-4 rounded-xl bg-white/[0.04] border border-cyan-500/25 space-y-3.5">
             <div className="flex items-start gap-2.5">
@@ -319,16 +272,17 @@ export default function ProductRedeemModal({
               </div>
               <div>
                 <p className="text-xs font-semibold text-[#FFF9F5]">
-                  Data Penerima (Min. 1, Maks. 3 Orang)
+                  Data Penerima ({currentQty} Orang)
                 </p>
                 <p className="text-[11px] text-[#AAB1BD] leading-relaxed">
-                  Penerima 1 (Ketua) otomatis terisi dari akun Anda dan tetap bisa diubah. Penerima 2 &amp; 3 opsional (jika diisi, lengkapi Nama, Email, dan No. Telp).
+                  Penerima 1 (Ketua) otomatis terisi dan tetap bisa diubah. Lengkapi Nama, Email, dan No. Telp untuk{" "}
+                  {currentQty === 1 ? "penerima tiket" : `semua ${currentQty} penerima tiket`}.
                 </p>
               </div>
             </div>
 
             <div className="space-y-3">
-              {[0, 1, 2].map((idx) => {
+              {Array.from({ length: Math.min(3, Math.max(1, currentQty)) }, (_, idx) => {
                 const isFirst = idx === 0;
                 const slot = recipients[idx] || { name: "", email: "", phone: "" };
                 const errs = touchedRecipients
@@ -353,15 +307,9 @@ export default function ProductRedeemModal({
                       <span className="text-[11px] font-semibold text-[#FFF9F5]">
                         {isFirst ? "Penerima 1 (Ketua)" : `Penerima ${idx + 1}`}
                       </span>
-                      {isFirst ? (
-                        <span className="text-[10px] font-semibold text-[#E01C20] bg-[#E01C20]/10 border border-[#E01C20]/30 px-2 py-0.5 rounded-full">
-                          Wajib
-                        </span>
-                      ) : (
-                        <span className="text-[10px] text-[#99A1AF] bg-white/5 border border-white/10 px-2 py-0.5 rounded-full">
-                          Opsional
-                        </span>
-                      )}
+                      <span className="text-[10px] font-semibold text-[#E01C20] bg-[#E01C20]/10 border border-[#E01C20]/30 px-2 py-0.5 rounded-full">
+                        Wajib
+                      </span>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -558,7 +506,7 @@ export default function ProductRedeemModal({
           <div className="mb-4 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-center gap-2">
             <AlertCircle className="h-4 w-4 shrink-0 text-amber-400" />
             <span>
-              Lengkapi Nama, Email, dan No. Telp yang valid untuk Penerima 1 (serta penerima tambahan jika diisi).
+              Lengkapi Nama, Email, dan No. Telp yang valid untuk seluruh {currentQty} penerima sesuai jumlah tiket yang ditukar.
             </span>
           </div>
         )}
