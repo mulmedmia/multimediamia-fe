@@ -20,6 +20,7 @@ import {
   Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getProductRedeemState } from "./redeem-utils";
 
 export default function ProductDetailModal({
   isOpen,
@@ -32,49 +33,29 @@ export default function ProductDetailModal({
 }) {
   if (!product) return null;
 
-  const isZeroStock = isOutOfStockLocal;
-  const currentStock = isZeroStock ? 0 : Number(product.stock);
-
-  const userDiamonds = Number(
-    activeCategory?.diamond ?? 0
-  );
-  const userXp = Number(activeCategory?.xp ?? 0);
-
-  const maxPerTeam =
-    Number(product.max_redeem_per_team) > 0
-      ? Number(product.max_redeem_per_team)
-      : product.is_single_redeem
-      ? 1
-      : 0;
-  const hasTeamLimit = maxPerTeam > 0;
-
-  // Total kuantitas produk ini yang sudah ditukar oleh tim
-  const teamRedeemedQty = myRedemptions
-    .filter((r) => r.product_id === product.product_id)
-    .reduce((sum, r) => sum + (Number(r.quantity) || 1), 0);
-
-  const remainingTeamQuota = hasTeamLimit
-    ? Math.max(0, maxPerTeam - teamRedeemedQty)
-    : Infinity;
-  const alreadyClaimed = hasTeamLimit && remainingTeamQuota <= 0;
-
-  const isUnlimited = Boolean(product.is_unlimited_stock);
-  const hasXpPrice = Number(product.price_xp) > 0;
-  const hasXpReward = !hasXpPrice && Number(product.reward_xp) > 0;
-  const isOutOfStock = !isUnlimited && (currentStock < 1 || isZeroStock);
-  const canRedeem = product.is_active && !isOutOfStock && !alreadyClaimed;
+  const {
+    currentStock,
+    userDiamonds,
+    userXp,
+    maxPerTeam,
+    hasTeamLimit,
+    isSingleAttempt,
+    teamRedeemedQty,
+    remainingTeamQuota,
+    alreadyClaimed,
+    isUnlimited,
+    hasXpReward,
+    isOutOfStock,
+    canRedeem,
+    actionButtonText,
+  } = getProductRedeemState({
+    product,
+    activeCategory,
+    myRedemptions,
+    isOutOfStockLocal,
+  });
 
   const notClaimable = !canRedeem || !activeCategory;
-
-  const actionButtonText = !activeCategory
-    ? "Daftar Lomba Dulu"
-    : alreadyClaimed
-    ? `Batas Tercapai (Maks ${maxPerTeam}x)`
-    : isOutOfStock
-    ? "Hadiah Telah Habis"
-    : hasXpReward
-    ? "Tukar ke XP"
-    : "Tukar Produk";
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -216,14 +197,23 @@ export default function ProductDetailModal({
         </div>
 
         {/* Warnings / Limit notices */}
-        {hasTeamLimit && (
-          <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs flex items-center gap-2">
-            <AlertCircle className="h-4 w-4 shrink-0 text-amber-400" />
-            <div className="flex flex-row flex-wrap">
-              <span>
-                Produk ini dibatasi maksimal {maxPerTeam} item per tim.
-              </span>
-              <span className="font-bold">Sisa kuota tim: {remainingTeamQuota} / {maxPerTeam} item</span>
+        {(hasTeamLimit || isSingleAttempt) && (
+          <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs flex items-start gap-2">
+            <AlertCircle className="h-4 w-4 shrink-0 text-amber-400 mt-0.5" />
+            <div className="space-y-1">
+              {hasTeamLimit && (
+                <div className="flex flex-row flex-wrap gap-1">
+                  <span>Produk ini dibatasi maksimal {maxPerTeam} item per tim.</span>
+                  <span className="font-bold">
+                    Sisa kuota tim: {remainingTeamQuota} / {maxPerTeam} item
+                  </span>
+                </div>
+              )}
+              {isSingleAttempt && (
+                <p>
+                  Hanya dapat ditukarkan <strong>1 kali transaksi</strong> per tim.
+                </p>
+              )}
             </div>
           </div>
         )}

@@ -18,6 +18,7 @@ export function useHoldPress(
 ) {
   const timeoutRef = useRef(null);
   const intervalRef = useRef(null);
+  const resetClickTimerRef = useRef(null);
   const isPressingRef = useRef(false);
   const didPointerHandleRef = useRef(false);
   const targetElementRef = useRef(null);
@@ -29,7 +30,7 @@ export function useHoldPress(
   const disabledRef = useRef(disabled);
   disabledRef.current = disabled;
 
-  const stop = useCallback(() => {
+  const clearHoldResources = useCallback(() => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
@@ -37,6 +38,10 @@ export function useHoldPress(
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
+    }
+    if (resetClickTimerRef.current) {
+      clearTimeout(resetClickTimerRef.current);
+      resetClickTimerRef.current = null;
     }
     isPressingRef.current = false;
 
@@ -60,12 +65,17 @@ export function useHoldPress(
     }
     activePointerIdRef.current = null;
     targetElementRef.current = null;
+  }, []);
+
+  const stop = useCallback(() => {
+    clearHoldResources();
 
     // Reset pointer handle flag slightly after release so any trailing click event is suppressed
-    setTimeout(() => {
+    resetClickTimerRef.current = setTimeout(() => {
       didPointerHandleRef.current = false;
+      resetClickTimerRef.current = null;
     }, 100);
-  }, []);
+  }, [clearHoldResources]);
 
   const start = useCallback(
     (e) => {
@@ -78,7 +88,7 @@ export function useHoldPress(
         e.preventDefault();
       }
 
-      stop();
+      clearHoldResources();
       isPressingRef.current = true;
       didPointerHandleRef.current = true;
 
@@ -116,7 +126,7 @@ export function useHoldPress(
         }, interval);
       }, delay);
     },
-    [delay, interval, stop]
+    [delay, interval, clearHoldResources, stop]
   );
 
   const handleClick = useCallback((e) => {
@@ -155,8 +165,11 @@ export function useHoldPress(
   }, [disabled, stop]);
 
   useEffect(() => {
-    return () => stop();
-  }, [stop]);
+    return () => {
+      clearHoldResources();
+      didPointerHandleRef.current = false;
+    };
+  }, [clearHoldResources]);
 
   return {
     onPointerDown: start,

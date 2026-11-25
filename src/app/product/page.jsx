@@ -129,7 +129,7 @@ export default function ProductPage() {
   const { data: redemptionsData } = useMyRedemptions({
     category_id: selectedCategoryId || undefined,
     registration_id: activeCategory?.registration_id || undefined,
-    limit: 50,
+    limit: 200,
   });
   const myRedemptions = Array.isArray(redemptionsData?.redemptions)
     ? redemptionsData.redemptions
